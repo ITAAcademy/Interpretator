@@ -4,9 +4,7 @@
  *  Created on: May 8, 2015
  *      Author: root
  */
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
+#include "includes.h"
 #include "fcgio.h"
 
 using namespace std;
@@ -23,7 +21,8 @@ private:
     fcgi_streambuf *cin_fcgi_streambuf;
     fcgi_streambuf *cout_fcgi_streambuf;
     fcgi_streambuf *cerr_fcgi_streambuf;
-
+    char *buffer;
+    bool status;
 	FCGX_Request *request;
 public:
 	FCGI_Stream();
@@ -33,10 +32,16 @@ public:
 	void initFCGI_Stream();
 	void initSTD_Stream();
 	char *getRequestMethod();
+	char* getRequesBuffer();
+	void reInitRequesBuffer();
+	char *getFormParam(char *name);
 	bool IsRequest();
 	FCGX_Request *getRequest() {
 		return request;
 	}
+private:
+	char gethex(char ch);
+	char upperchar(char ch);
 
 };
 
