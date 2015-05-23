@@ -55,7 +55,7 @@ clean:
 	-@echo ' '
 
 post-build:
-	-/home/nico/copy.sh
+	-/home/nico/copy_nginx.sh
 	-@echo ' '
 
 .PHONY: all clean dependents

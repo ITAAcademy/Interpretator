@@ -28,6 +28,7 @@ int main(void)
 #include "fcgio.h"
 #include <sstream>
 #include "cLang.h"
+#include "codeclear.h"
 //#include <pstream.h>
 /*
  * BOOST
@@ -43,6 +44,7 @@ int main(void)
 #include <jsoncpp/json/json.h>
 #include "FCGI_Stream.h"
 
+int Apache(void);
 void show404();
 
 //void print(boost::property_tree::ptree const& pt);

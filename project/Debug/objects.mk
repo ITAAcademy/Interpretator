@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lfcgi -ljsoncpp -lfcgi++
+LIBS := -lfcgi -lmysqlcppconn -lpthread -ljsoncpp -lfcgi++
 

@@ -1,0 +1,6 @@
+AddHandler fcgid-script .fcgi
+Options +ExecCGI
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /test.fcgi/$1 [L]

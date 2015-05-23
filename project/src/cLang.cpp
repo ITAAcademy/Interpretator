@@ -1,4 +1,5 @@
 #include "inc/cLang.h"
+#include "inc/SQLconnector.h"
 
 LangCompiler::LangCompiler(){
 
@@ -26,7 +27,7 @@ string LangCompiler::compile(char *code, bool show)
 	cout.flush();
 	string in = "./build.sh";
 	//string in2 = "g++ -c code.cpp";
-	string kompill = GetStdoutFromCommand(in);
+	string kompill = getStdoutFromCommand(in);
 	if(show)
 	{
 		res.append("<form><textarea style=\"width: 100%; height: 400px;\">");
@@ -55,7 +56,7 @@ bool LangCompiler::generetionSample(char *code)
 
 }
 
-char* LangCompiler::GetSystemOutput(char* cmd){
+char* LangCompiler::getSystemOutput(char* cmd){
 	int buff_size = 32;
 	char buff[buff_size+1]; memset((char*)&buff, 0, buff_size+1);
 
@@ -114,18 +115,25 @@ char* LangCompiler::GetSystemOutput(char* cmd){
     return ret;
 }
 
-string LangCompiler::GetStdoutFromCommand(string cmd) {
+string LangCompiler::getStdoutFromCommand(string cmd) {
 
    string data;
    FILE * stream;
    const int max_buffer = 256;
    char buffer[max_buffer];
    cmd.append(" 2>&1");
-
+   const long double sysTime = time(0);
+   printf("%lf", sysTime);
+ //  const long double sysTimeMS = sysTime*1000;
    stream = popen(cmd.c_str(), "r");
    if (stream) {
    while (!feof(stream))
-   if (fgets(buffer, max_buffer, stream) != NULL) data.append(buffer);
+   {
+	   if (fgets(buffer, max_buffer, stream) != NULL)
+		   data.append(buffer);
+	   if (sysTime - time(0) > 1,200)
+		   break;
+   }
    pclose(stream);
    }
    return data;

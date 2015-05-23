@@ -25,7 +25,8 @@ private:
     bool status;
 	FCGX_Request *request;
 public:
-	FCGI_Stream();
+	const char * null = "NULL";
+	FCGI_Stream( int socketId );
 	FCGI_Stream(FCGX_Request *req);
 	~FCGI_Stream();
 
@@ -34,11 +35,16 @@ public:
 	char *getRequestMethod();
 	char* getRequesBuffer();
 	void reInitRequesBuffer();
-	char *getFormParam(char *name);
+	char *getFormParam(string name);
 	bool IsRequest();
-	FCGX_Request *getRequest() {
-		return request;
-	}
+	bool multiIsRequest();
+	int getRequestSize();
+	void close();
+	int operator << ( char * str);
+	int operator << ( int num);
+	int operator << ( double num);
+	void operator >> (char * res);
+	FCGX_Request *getRequest() ;
 private:
 	char gethex(char ch);
 	char upperchar(char ch);

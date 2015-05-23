@@ -8,10 +8,10 @@
 #include "inc/FCGI_Stream.h"
 
 
-FCGI_Stream::FCGI_Stream() {
-	FCGX_Init();
+FCGI_Stream::FCGI_Stream( int socketId = 0) {
+	//FCGX_Init();
 	request = new FCGX_Request();
-	FCGX_InitRequest(request, 0, 0);
+	FCGX_InitRequest(request, socketId, 0);
     cin_streambuf  = cin.rdbuf();
     cout_streambuf = cout.rdbuf();
     cerr_streambuf = cerr.rdbuf();
@@ -68,6 +68,27 @@ bool FCGI_Stream::IsRequest() {
 		return true;
 	}
 }
+
+bool FCGI_Stream::multiIsRequest() {
+	pthread_mutex_t accept_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+	printf("Try to accept new request\n");
+	pthread_mutex_lock(&accept_mutex);
+	status = true;
+	int rc;
+	rc = FCGX_Accept_r(request);
+	pthread_mutex_unlock(&accept_mutex);
+
+	if(rc < 0)
+	{
+		status = false;
+		printf("Can not accept new request\n");
+		return false;
+	}
+	printf("request is accepted\n");
+	return true;
+}
+
 char* FCGI_Stream::getRequesBuffer()
 {
 	return buffer;
@@ -87,21 +108,23 @@ void FCGI_Stream::reInitRequesBuffer()
 	cin.read(buffer, content_length);
 	buffer[content_length] = '\0';
 }
-char *FCGI_Stream::getFormParam(char *name)
+char *FCGI_Stream::getFormParam(string name)
 {
  if (buffer==NULL) return NULL;
 
  char *pos;
- long leng=512,i=0,j=0;
+ long leng=strlen(buffer);
+ long i=0,j=0;
  char h1,h2,Hex;
 
- char *p=(char *)malloc(leng);
- pos=strstr(buffer,name);
+ char *p=(char *)malloc(leng*sizeof(char));
+ name.append("=");
+ pos=strstr(buffer,name.c_str());
  if (pos == NULL) return NULL;
  //pos++;
  if ((pos!=buffer) && (*(pos-1)!='&')) return NULL;
 
- pos+=strlen(name) + 1;
+ pos+=strlen(name.c_str());
 
  while ( (*(pos+i)!='&')&&( *(pos+i)!='\0' ))
  {
@@ -146,3 +169,66 @@ char FCGI_Stream::upperchar(char ch)
    }
   else return ch;
 };
+
+void FCGI_Stream::close()
+{
+	FCGX_Finish_r(request);
+}
+
+
+int FCGI_Stream::operator << ( char * str)
+{
+	FCGX_PutS(str, request->out);
+}
+int FCGI_Stream::operator << ( int num)
+{
+//		atoi("12");
+	char str[10];
+	sprintf(str, "%d", num);
+	FCGX_PutS(str, request->out);
+}
+
+int FCGI_Stream::operator << ( double num)
+{
+//		atoi("12");
+	char str[10];
+	sprintf(str, "%lf", num);
+	FCGX_PutS(str, request->out);
+}
+
+
+void FCGI_Stream::operator >> (char * res)
+{
+//		atoi("12");
+	int content_length = getRequestSize();
+	bool contentNULL = false;
+	if( content_length <= 0 )
+	{
+		content_length = 10;
+	}
+	delete []buffer;
+	buffer =  new char[content_length + 1];
+	//res =  new char[content_length + 1];
+	int size = content_length;
+	if(!contentNULL)
+		FCGX_GetStr(buffer, content_length*sizeof(char), request->in);
+		//FCGX_GetStr()
+	buffer[content_length] = '\0';
+	strcpy(res, buffer);
+
+}
+
+FCGX_Request *FCGI_Stream::getRequest() {
+	return request;
+}
+int FCGI_Stream::getRequestSize()
+{
+	if(!status)
+			return 0;
+		char * content_length_str = FCGX_GetParam("CONTENT_LENGTH",  request->envp);
+		int content_length = 0;
+		if(content_length_str != 0)
+			content_length = strtol(content_length_str, &content_length_str, 10);
+		//operator <<(content_length);
+		return content_length;
+}

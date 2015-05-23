@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 using namespace std;
+//using namespace std::chrono;
 
 class LangCompiler{
 public:
@@ -14,8 +15,8 @@ public:
 	~LangCompiler();
 	string compile(char *code, bool show);
 private:
-	char* GetSystemOutput(char* cmd);
-	string GetStdoutFromCommand(string cmd);
+	char* getSystemOutput(char* cmd);
+	string getStdoutFromCommand(string cmd);
 	bool generetionSample(char *code);
 };
 

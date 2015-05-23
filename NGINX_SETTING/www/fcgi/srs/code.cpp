@@ -1,0 +1,1 @@
+ Q_INVOKABLE int initFF(QVariant path);
