@@ -15,6 +15,7 @@ public:
     ~ErrorResponder();
     void showError(int nErrorCode, str sMoreText);
     void showClientError(str sHeader, str sErrorText, str sMoreText);
+    str sDefaultText = "Just Error!";
 };
 
 #endif // ERRORRESPONDER_H
