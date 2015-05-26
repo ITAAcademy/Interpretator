@@ -44,7 +44,7 @@ all: SQLconector
 SQLconector: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -L/usr/lib -o "SQLconector" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/usr/lib -L/usr/lib/x86_64-linux-gnu -o "SQLconector" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
