@@ -48,7 +48,7 @@ void *doit(void *a)
 				if(code != NULL)
 				{
 					//stream << code;
-					stream << (char *)compiler.compile((char*) outStr.c_str(), true).c_str();
+					stream << (char *)compiler.compile(code, true).c_str();
 				}
 
 	/*	JSOOOOOOOOOOON

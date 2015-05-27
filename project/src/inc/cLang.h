@@ -11,9 +11,13 @@ using namespace std;
 
 class LangCompiler{
 	int thID;
+	long double timeOut;
+
 public:
 	enum compilerFlag{ Flag_TYPE1, Flag_TYPE2, Flag_TYPE3 };// future type of compiler
+
 	LangCompiler(int ID);
+
 	~LangCompiler();
 	/*
 	 * Compile __ if all ok return app result else return CLang compiler error
@@ -22,6 +26,11 @@ public:
 	 *
 	 */
 	string compile(char *code, bool show, compilerFlag flags = Flag_TYPE1);
+
+	long double getTimeOut()const;
+
+	void setTimeOut(long double timeOut) ;
+
 private:
 	/*
 	 * first version of get command function // more bugs ** not actual

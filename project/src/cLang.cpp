@@ -3,6 +3,7 @@
 
 LangCompiler::LangCompiler(int ID){
 	thID = ID;
+	timeOut = 2000/1000;
 }
 
 LangCompiler::~LangCompiler(){
@@ -44,6 +45,7 @@ string LangCompiler::compile(char *code, bool show, compilerFlag flags)
 bool LangCompiler::generetionSample(char *code, compilerFlag flags)
 {
 	// in the future
+	cout.flush();
 	if(flags == Flag_TYPE1)
 	{
 		ofstream file;
@@ -133,10 +135,19 @@ string LangCompiler::getStdoutFromCommand(string cmd) {
    {
 	   if (fgets(buffer, max_buffer, stream) != NULL)
 		   data.append(buffer);
-	   if (sysTime - time(0) > 1,200)
+	   if (sysTime - time(0) > timeOut)
 		   break;
    }
    pclose(stream);
    }
    return data;
    }
+
+long double LangCompiler::getTimeOut() const{
+	return timeOut*1000;
+}
+
+void LangCompiler::setTimeOut(long double timeOut) {
+	this->timeOut = timeOut/1000;
+}
+
