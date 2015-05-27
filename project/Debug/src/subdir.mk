@@ -8,6 +8,8 @@ CPP_SRCS += \
 ../src/SQLconector.cpp \
 ../src/cLang.cpp \
 ../src/codeclear.cpp \
+../src/errorresponder.cpp \
+../src/logfile.cpp \
 ../src/main.cpp 
 
 OBJS += \
@@ -15,6 +17,8 @@ OBJS += \
 ./src/SQLconector.o \
 ./src/cLang.o \
 ./src/codeclear.o \
+./src/errorresponder.o \
+./src/logfile.o \
 ./src/main.o 
 
 CPP_DEPS += \
@@ -22,6 +26,8 @@ CPP_DEPS += \
 ./src/SQLconector.d \
 ./src/cLang.d \
 ./src/codeclear.d \
+./src/errorresponder.d \
+./src/logfile.d \
 ./src/main.d 
 
 
@@ -29,7 +35,7 @@ CPP_DEPS += \
 src/%.o: ../src/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross G++ Compiler'
-	g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -I../__GXX_EXPERIMENTAL_CXX0X__ -O0 -g3 -Wall -c -fmessage-length=0 -std=c++0x -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

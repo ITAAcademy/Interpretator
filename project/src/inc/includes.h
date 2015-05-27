@@ -3,6 +3,7 @@
 #include <stdio.h>      /* printf */
 #include <stdlib.h>     /* strtol */
 #include <string.h>
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <pthread.h>
@@ -17,7 +18,7 @@
 
 using namespace std;
 
-#define THREAD_COUNT 8
+#define THREAD_COUNT 2
 #define SOCKET_PATH "127.0.0.1:8000"
 
 static int socketId;

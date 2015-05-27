@@ -4,15 +4,17 @@
 #define errLog 1
 
 #include <fstream>
+#include "includes.h"
 
 class logfile
 {
 public:
-    logfile(FCGX_Request request);
+    logfile(FCGX_Request *request);
     ~logfile();
     void AddLog();
+    static void AddLog(FCGX_Request *request);
 private:
-    FCGX_Request Request;
+    FCGX_Request *Request;
     char *returnIP();
     char *returnPOST();
     char *returnBrowserVersion();

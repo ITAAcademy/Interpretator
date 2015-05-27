@@ -1,13 +1,14 @@
-/*
- * SQLconnector.h
- *
- *  Created on: May 20, 2015
- *      Author: root
- */
+//============================================================================
+// Name        : SQLconector.cpp
+// Author      :
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
 #include <iostream>
 #include <string.h>
 #include "mysql_connection.h"
-#include <cstring>
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
 #include <cppconn/resultset.h>
@@ -15,33 +16,33 @@
 #include <vector>
 #include <cstdlib>
 #include <boost/algorithm/string.hpp>
+#include <boost/foreach.hpp>
+#include <map>
+#include <set>
+#include <boost/lexical_cast.hpp>
+
 
 using namespace std;
 
-#ifndef SQLCONNECTOR_H_
-#define SQLCONNECTOR_H_
-
-class conectorSQL
+class ConnectorSQL
 {
 public:
-	conectorSQL(string domen, string port, string user, string password);
-	~conectorSQL();
+	ConnectorSQL(string domen, string port, string user, string password);
+	~ConnectorSQL();
 	void setDataBase(string database);
 	void setTableAndLabels(string table, vector<string> labels);
-	void addRecordInToTable(vector<string> records);
-	vector<vector< string> >    getAllRecordsFromTable() ;
+	void addRecordsInToTable(vector<map<int,string> > records) ;
+	vector<map<int,string> >   getAllRecordsFromTable() ;
+	//id-label is first label which you set!!!
+	string getFullCodeOfProgram(uint ID, string text_of_program);
 private:
 	string table;
 	string labels;
 	string records;
+	vector<string> labels_vec;
 	int labels_num;
 	sql::Driver *driver;
 	sql::Connection *con;
 	sql::Statement *stmt;
 	sql::ResultSet *res;
 };
-
-
-
-
-#endif /* SQLCONNECTOR_H_ */

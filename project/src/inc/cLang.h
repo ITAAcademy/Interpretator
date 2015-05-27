@@ -10,14 +10,32 @@ using namespace std;
 //using namespace std::chrono;
 
 class LangCompiler{
+	int thID;
 public:
-	LangCompiler();
+	enum compilerFlag{ Flag_TYPE1, Flag_TYPE2, Flag_TYPE3 };// future type of compiler
+	LangCompiler(int ID);
 	~LangCompiler();
-	string compile(char *code, bool show);
+	/*
+	 * Compile __ if all ok return app result else return CLang compiler error
+	 *
+	 *  show == include in textEdit
+	 *
+	 */
+	string compile(char *code, bool show, compilerFlag flags = Flag_TYPE1);
 private:
+	/*
+	 * first version of get command function // more bugs ** not actual
+	 */
 	char* getSystemOutput(char* cmd);
+	/*
+	 * second version of get command function // more stable
+	 * cmd === input string with command
+	 */
 	string getStdoutFromCommand(string cmd);
-	bool generetionSample(char *code);
+	/*
+	 * generation code file from head & footer
+	 */
+	bool generetionSample(char *code, compilerFlag flags);
 };
 
 

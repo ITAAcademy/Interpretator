@@ -1,32 +1,22 @@
 #include "inc/cLang.h"
 #include "inc/SQLconnector.h"
 
-LangCompiler::LangCompiler(){
-
+LangCompiler::LangCompiler(int ID){
+	thID = ID;
 }
 
 LangCompiler::~LangCompiler(){
 
 }
 
-string LangCompiler::compile(char *code, bool show)
+string LangCompiler::compile(char *code, bool show, compilerFlag flags)
 {
-	/*
-	 *  create code.cpp
-	 */
-	ofstream file;
 	string res = "\0";
-	file.open("/var/www/fcgi/srs/code.cpp", fstream::out);
-	if(!file.is_open())
-		return res;
-	file << code;
-	file.close();
-	/*
-	 * call system(  script	)
-	 */
+	if(!generetionSample(code, flags))
+		return "Canot open file";
 	cout.flush();
-	string in = "./build.sh";
-	//string in2 = "g++ -c code.cpp";
+
+	string in = "./build.sh "  + to_string(thID);
 	string kompill = getStdoutFromCommand(in);
 	if(show)
 	{
@@ -51,9 +41,21 @@ string LangCompiler::compile(char *code, bool show)
 						 << "</html>\n";*/
 }
 
-bool LangCompiler::generetionSample(char *code)
+bool LangCompiler::generetionSample(char *code, compilerFlag flags)
 {
-
+	// in the future
+	if(flags == Flag_TYPE1)
+	{
+		ofstream file;
+		char str[50];
+		sprintf(str, "/var/www/fcgi/srs/code%d.cpp", thID);
+		file.open(str, fstream::out);
+		if(!file.is_open())
+			return false;
+		file << code;
+		file.close();
+	}
+	return true;
 }
 
 char* LangCompiler::getSystemOutput(char* cmd){
