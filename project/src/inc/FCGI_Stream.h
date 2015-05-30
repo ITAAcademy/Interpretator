@@ -21,33 +21,71 @@ private:
     fcgi_streambuf *cin_fcgi_streambuf;
     fcgi_streambuf *cout_fcgi_streambuf;
     fcgi_streambuf *cerr_fcgi_streambuf;
+
     char *buffer;
     bool status;
 	FCGX_Request *request;
+	int socketId;
 public:
 	const char * null = "NULL";
 	FCGI_Stream( int socketId );
 	FCGI_Stream(FCGX_Request *req);
 	~FCGI_Stream();
-
+	/*
+	 *  init STDIO for Apatche **not actual
+	 */
 	void initFCGI_Stream();
+	/*
+	 *  restore STDIO
+	 */
 	void initSTD_Stream();
+	/*
+	 * get type of request
+	 */
 	char *getRequestMethod();
-	char* getRequesBuffer();
+	/*
+	 * return request content from this session
+	 */
+	string* getRequestBuffer();
+	/*
+	 *  Apatche version **not actual
+	 */
 	void reInitRequesBuffer();
+	/*
+	 * return parameter from request generation by PHP form
+	 */
 	char *getFormParam(string name);
+	/*
+	 *  checks for request // Apatche version **not actual
+	 */
 	bool IsRequest();
+	/*
+	 *  checks for request
+	 */
 	bool multiIsRequest();
+	/*
+	 *  return length of request content
+	 */
 	int getRequestSize();
+	/*
+	 * close session
+	 */
 	void close();
-	int operator << ( char * str);
-	int operator << ( int num);
-	int operator << ( double num);
-	void operator >> (char * res);
 	FCGX_Request *getRequest() ;
+	/*
+	 * IO functions
+	 */
+	FCGI_Stream operator << ( char * str);
+	FCGI_Stream operator << ( string str);
+	FCGI_Stream operator << ( int num);
+	FCGI_Stream operator << ( double num);
+	void operator >> (char *res);
+
+	//void getRequestContent();
 private:
 	char gethex(char ch);
 	char upperchar(char ch);
+	void updateBuffer();
 
 };
 

@@ -1,32 +1,23 @@
 #include "inc/cLang.h"
 #include "inc/SQLconnector.h"
 
-LangCompiler::LangCompiler(){
-
+LangCompiler::LangCompiler(int ID){
+	thID = ID;
+	timeOut = 2000/1000;
 }
 
 LangCompiler::~LangCompiler(){
 
 }
 
-string LangCompiler::compile(char *code, bool show)
+string LangCompiler::compile(char *code, bool show, compilerFlag flags)
 {
-	/*
-	 *  create code.cpp
-	 */
-	ofstream file;
 	string res = "\0";
-	file.open("/var/www/fcgi/srs/code.cpp", fstream::out);
-	if(!file.is_open())
-		return res;
-	file << code;
-	file.close();
-	/*
-	 * call system(  script	)
-	 */
+	if(!generetionSample(code, flags))
+		return "Canot open file";
 	cout.flush();
-	string in = "./build.sh";
-	//string in2 = "g++ -c code.cpp";
+
+	string in = "./build.sh "  + to_string(thID);
 	string kompill = getStdoutFromCommand(in);
 	if(show)
 	{
@@ -51,9 +42,22 @@ string LangCompiler::compile(char *code, bool show)
 						 << "</html>\n";*/
 }
 
-bool LangCompiler::generetionSample(char *code)
+bool LangCompiler::generetionSample(char *code, compilerFlag flags)
 {
-
+	// in the future
+	cout.flush();
+	if(flags == Flag_TYPE1)
+	{
+		ofstream file;
+		char str[50];
+		sprintf(str, "/var/www/fcgi/srs/code%d.cpp", thID);
+		file.open(str, fstream::out);
+		if(!file.is_open())
+			return false;
+		file << code;
+		file.close();
+	}
+	return true;
 }
 
 char* LangCompiler::getSystemOutput(char* cmd){
@@ -131,10 +135,19 @@ string LangCompiler::getStdoutFromCommand(string cmd) {
    {
 	   if (fgets(buffer, max_buffer, stream) != NULL)
 		   data.append(buffer);
-	   if (sysTime - time(0) > 1,200)
+	   if (sysTime - time(0) > timeOut)
 		   break;
    }
    pclose(stream);
    }
    return data;
    }
+
+long double LangCompiler::getTimeOut() const{
+	return timeOut*1000;
+}
+
+void LangCompiler::setTimeOut(long double timeOut) {
+	this->timeOut = timeOut/1000;
+}
+

@@ -5,87 +5,75 @@ using namespace std;
 using namespace Json;
 
 
-static void *doit(void *a)
+void *doit(void *a)
 {
     int rc, i;
+    int id = ((int *)a)[0];
+	char * inputSTR;
     FCGX_Request *request;
-    char *server_name;
     FCGI_Stream stream(socketId);
+    ErrorResponder errorResponder(&stream);
     request = stream.getRequest();
-    /*
-    if(FCGX_InitRequest(&request, socketId, 0) != 0)
-    {
-        //ошибка при инициализации структуры запроса
-        printf("Can not init request\n");
-        return NULL;
-    }
-    printf("Request is inited\n");
-*/
+
     for(;;)
     {
 
         if(!stream.multiIsRequest())
+        {
         	break;
+        }
 
         if( strcmp(stream.getRequestMethod(), "GET") == 0 )
-               {
-        			stream << "qwe";
-               }
-               else{
-               	Json::Value parsedFromString;
-               	Json::Reader reader;
-               	bool parsingSuccessful = true;//reader.parse( str, parsedFromString, false);// IsJSON
+		{
+        	errorResponder.showError(404);
+		}
+		else{
+			Json::Value parsedFromString;
+			Json::Reader reader;
+			bool parsingSuccessful = true;//reader.parse( str, parsedFromString, false);// IsJSON
+			if(parsingSuccessful)
+			{
+				logfile::AddLog(request);
+				stream << "Content-type: text/html\r\n"	<< "\r\n"
+				<< "<html>\n" << "  <head>\n"
+				<< "    <title>CLang==Compiler	" << id << "</title>\n" // show ID thread in title
+				<< "  </head>\n" << "  <body>\n";
 
-               	// print(pt);
-               	if(parsingSuccessful)
-               	{
+				LangCompiler compiler(id);
+				stream >> inputSTR; // test input
+				char * code = stream.getFormParam("text");
+				CodeClear clr;
+				string outStr = code;
+				clr.ClearText(outStr);
+				if(code != NULL)
+				{
+					//stream << code;
+					stream << (char *)compiler.compile(code, true).c_str();
+				}
 
-       			//	char ** envp = request->envp;
-               		stream << "Content-type: text/html\r\n";
-					stream << "\r\n";
-					stream << "<html>\n";
-					stream << "  <head>\n";
-					stream << "    <title>Hello, World!</title>\n";
-					stream << "  </head>\n";
-					stream << "  <body>\n";
-					LangCompiler compiler;
-					char * inputSTR = new char[stream.getRequestSize()];
-					stream >> inputSTR;
-					//sleep(5);
-					//stream << inputSTR;
-					char * code = stream.getFormParam("text");
-					CodeClear clr;
-					string str = code;
-					clr.ClearText(str);
-					if(code != NULL)
+	/*	JSOOOOOOOOOOON
+	 * 				if(!parsedFromString["root"].isNull())
+
+					Value v1 = parsedFromString["root"];
+					Value v = v1["values"];
+					if(v.isArray())
 					{
-						//stream << code;
-						stream << (char *)compiler.compile(code, true).c_str();
-					}
-
-/*					if(!parsedFromString["root"].isNull())
-					{
-						Value v1 = parsedFromString["root"];
-						Value v = v1["values"];
-						if(v.isArray())
+						for(unsigned int index=0; index<v.size(); ++index)
 						{
-							for(unsigned int index=0; index<v.size(); ++index)
-							{
-								cout << v[index].toStyledString();
-							}
+							cout << v[index].toStyledString();
 						}
 					}
-					else cout << "==============================================NULL";
-*/
-					stream << "  </body>\n </html>\n";
+				}
+				else cout << "==============================================NULL";
+	*/
+				stream << "  </body>\n </html>\n";
 
-               	}
-               	else
-               		{
-               			//show404();
-               		stream << "qwe";
-               		}
-               	}
+			}
+			else
+			{
+				errorResponder.showError(400);
+			}
+		}
         //закрыть текущее соединение
         stream.close();
 
@@ -97,54 +85,37 @@ static void *doit(void *a)
 int main(void)
 {
     int i;
-    pthread_t id[THREAD_COUNT];
+    pthread_t *id = new pthread_t[THREAD_COUNT];
 
-    //инициализация библилиотеки
     FCGX_Init();
     printf("Lib is inited\n");
 
-    //открываем новый сокет
-    socketId = FCGX_OpenSocket(SOCKET_PATH, 24);
+    // open socket unix or TCP
+    socketId = FCGX_OpenSocket(SOCKET_PATH, 2000);
     if(socketId < 0)
     {
-        //ошибка при открытии сокета
         return 1;
     }
     printf("Socket is opened\n");
 
-    //создаём рабочие потоки
+    //create thread
     for(i = 0; i < THREAD_COUNT; i++)
     {
-        pthread_create(&id[i], NULL, doit, NULL);
+        pthread_create(&id[i], NULL, doit, (void *)&i);
     }
 
-    //ждем завершения рабочих потоков
+    // wait threads
     for(i = 0; i < THREAD_COUNT; i++)
     {
         pthread_join(id[i], NULL);
     }
-
+    delete [] id;
     return 0;
 }
 
-
-/*void print(boost::property_tree::ptree const& pt)
-{
-    using boost::property_tree::ptree;
-    ptree::const_iterator end = pt.end();
- //   if(strcmp((char*)it->first, 0))
-    cout << "<p style=\"margin-LEFT: 50px\">";
-    for (ptree::const_iterator it = pt.begin(); it != end; ++it) {
-        std::cout << it->first << ": " << it->second.get_value<std::string>() << std::endl;
-
-        print(it->second);
-
-    }
-    cout << "</p>";
-
-}*/
-
-
+/*
+ *  Apache main function
+ */
 int Apache(void) {
     // Backup the stdio streambufs
 	FCGX_Init();
@@ -179,7 +150,7 @@ int Apache(void) {
 					 << "    <title>Hello, World!</title>\n"
 					 << "  </head>\n"
 					 << "  <body>\n";
-					 LangCompiler compiler;
+					 LangCompiler compiler(0);
 					 char * code = stream.getFormParam("text");
 					 cout << code;
 					 cout << compiler.compile(code, true);
@@ -217,28 +188,6 @@ int Apache(void) {
         }
 
     return 0;
-}
-void show404()
-{
-	cout << "Status: 404\r\n"
-		 << "Content-type: text/html\r\n"
-		 << "\r\n"
-		 << " <html><head>"
-		 << "<title>404 Not Found</title>"
-		 << "</head><body>"
-		 << "<h1>Not Found</h1>";
-		 cout << "<p>The requested URL /localhost was not found on this server.</p>"
-		 << "<hr>"
-		 << "</body></html>";
-	/*
-	         * ERR
-	         */
-	        /*cout << "Status: 404\r\n"
-	                 << "Content-type: text/html\r\n"
-	                 << "\r\n"
-	                 << "<html><body><h1>404	Not Found	:(</h1></body></html>\n";
-
-	*/
 }
 
 
