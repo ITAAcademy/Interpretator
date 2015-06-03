@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "logfile.h"
 using namespace std;
 //using namespace std::chrono;
 
@@ -45,6 +46,11 @@ private:
 	 * generation code file from head & footer
 	 */
 	bool generetionSample(char *code, compilerFlag flags);
+	/*
+	 *  file operation functions
+	 */
+	bool fileExist( string name );
+	bool fileRemove( string name );
 };
 
 

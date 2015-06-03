@@ -88,15 +88,18 @@ int main(void)
     pthread_t *id = new pthread_t[THREAD_COUNT];
 
     FCGX_Init();
-    printf("Lib is inited\n");
-
+    logfile::AddLog("Start server ==== Lib is inited");
+    system("mkdir -m 777 src");
     // open socket unix or TCP
     socketId = FCGX_OpenSocket(SOCKET_PATH, 2000);
+    string socket = SOCKET_PATH;
     if(socketId < 0)
     {
+
+    	logfile::AddLog(string("Cannot open socket	" + socket));
         return 1;
     }
-    printf("Socket is opened\n");
+    logfile::AddLog("Socket is opened " + socket +"...  create " + to_string(THREAD_COUNT) + " threads");
 
     //create thread
     for(i = 0; i < THREAD_COUNT; i++)
