@@ -12,7 +12,8 @@ public:
     logfile(FCGX_Request *request);
     ~logfile();
     void AddLog();
-    static void AddLog(FCGX_Request *request);
+    static void AddLog(FCGX_Request *request, string addStr = " ");
+    static void AddLog(string str);
 private:
     FCGX_Request *Request;
     char *returnIP();
@@ -20,6 +21,7 @@ private:
     char *returnBrowserVersion();
     char *returnOS();
     char *returnData();
+    static char *getDateStamp();
 };
 
 #endif // LOGFILE_H

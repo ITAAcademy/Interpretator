@@ -14,13 +14,27 @@ string LangCompiler::compile(char *code, bool show, compilerFlag flags)
 {
 	string res = "\0";
 	if(!generetionSample(code, flags))
-		return "Canot open file";
+	{
+		logfile::AddLog("Canot open file with generation source code, maybe permission denied	");
+		return "Canot open file with generation source code, maybe permission denied	";
+	}
 	cout.flush();
+	string code_file_name = "prog" + to_string(thID) + ".out";
+	string build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o prog" + to_string(thID) + ".out";
+	string run_str = "cd src; ./prog" + to_string(thID) + ".out;  rm prog" + to_string(thID) + ".out";
+	/*in.append("cd /var/www/fcgi/srs/; clang++ -Wall -stdlib=libc++ code$1.cpp -o prog$1.out; if [ -f /var/www/fcgi/srs/prog$1.out ]; then  ./prog$1.out;  rm prog$1.out; fi");
+	in.append("cd /var/www/fcgi/srs/;");
+	in.append("clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o prog" + to_string(thID) + ".out;");
+	in.append("if [ -f /var/www/fcgi/srs/" + code_file_name + " ]; then ./" + code_file_name) + ";";
+	in.append("rm prog.out;");
+	in.append("fi;");*/
 
-	string in = "./build.sh "  + to_string(thID);
-	string kompill = getStdoutFromCommand(in);
+	string kompill = getStdoutFromCommand(build_str);
+	if(fileExist("srs/" + code_file_name))
+		kompill.append(getStdoutFromCommand(run_str));
 	if(show)
 	{
+		//res.append(in);
 		res.append("<form><textarea style=\"width: 100%; height: 400px;\">");
 		res.append(kompill);
 		if(kompill.size() <= 1)
@@ -50,7 +64,7 @@ bool LangCompiler::generetionSample(char *code, compilerFlag flags)
 	{
 		ofstream file;
 		char str[50];
-		sprintf(str, "/var/www/fcgi/srs/code%d.cpp", thID);
+		sprintf(str, "src/code%d.cpp", thID);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
@@ -151,3 +165,12 @@ void LangCompiler::setTimeOut(long double timeOut) {
 	this->timeOut = timeOut/1000;
 }
 
+bool LangCompiler::fileExist( string name )
+{
+    return ifstream(name);
+}
+
+bool LangCompiler::fileRemove ( string name )
+{
+	remove(name.c_str() );
+}
