@@ -1,4 +1,4 @@
-#include "inc/main.h"
+﻿#include "inc/main.h"
 
 using namespace std;
 //using namespace boost;
@@ -182,12 +182,7 @@ int Apache(void) {
         	}
         stream.initSTD_Stream();
 
-        //		{ "root": { "values": [1, 2, 3, 4, 5 ] } }
-		/*
-		for ( ; *envp; ++envp)
-			{
-				cout << *envp << "\n";
-			}*/
+      
         }
 
     return 0;
