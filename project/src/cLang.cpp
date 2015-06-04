@@ -15,7 +15,7 @@ string LangCompiler::compile(char *code, bool show, compilerFlag flags)
 	string res = "\0";
 	if(!generetionSample(code, flags))
 	{
-		logfile::AddLog("Canot open file with generation source code, maybe permission denied	");
+		logfile::addLog("Canot open file with generation source code, maybe permission denied	");
 		return "Canot open file with generation source code, maybe permission denied	";
 	}
 	cout.flush();

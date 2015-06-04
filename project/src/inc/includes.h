@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <iomanip>
+#include <list>
+#include <jsoncpp/json/json.h>
 
 //#include <chrono>
 
@@ -20,7 +22,7 @@
 
 using namespace std;
 
-#define THREAD_COUNT 2
+#define THREAD_COUNT 15
 #define SOCKET_PATH "127.0.0.1:8000"
 
 static int socketId;
