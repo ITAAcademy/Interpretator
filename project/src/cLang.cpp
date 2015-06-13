@@ -13,6 +13,7 @@ LangCompiler::~LangCompiler(){
 string LangCompiler::compile(char *code, bool show, compilerFlag flags)
 {
 	string res = "\0";
+	cout.flush();
 	if(!generetionSample(code, flags))
 	{
 		logfile::AddLog("Canot open file with generation source code, maybe permission denied	");
@@ -20,8 +21,8 @@ string LangCompiler::compile(char *code, bool show, compilerFlag flags)
 	}
 	cout.flush();
 	string code_file_name = "prog" + to_string(thID) + ".out";
-	string build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o prog" + to_string(thID) + ".out";
-	string run_str = "cd src; ./prog" + to_string(thID) + ".out;  rm prog" + to_string(thID) + ".out";
+	string build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
+	string run_str = " ./prog" + to_string(thID) + ".out;  rm prog" + to_string(thID) + ".out";
 	/*in.append("cd /var/www/fcgi/srs/; clang++ -Wall -stdlib=libc++ code$1.cpp -o prog$1.out; if [ -f /var/www/fcgi/srs/prog$1.out ]; then  ./prog$1.out;  rm prog$1.out; fi");
 	in.append("cd /var/www/fcgi/srs/;");
 	in.append("clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o prog" + to_string(thID) + ".out;");
@@ -30,8 +31,10 @@ string LangCompiler::compile(char *code, bool show, compilerFlag flags)
 	in.append("fi;");*/
 
 	string kompill = getStdoutFromCommand(build_str);
-	if(fileExist("srs/" + code_file_name))
+	cout.flush();
+	if(fileExist("prog" + to_string(thID) + ".out"))
 		kompill.append(getStdoutFromCommand(run_str));
+	cout.flush();
 	if(show)
 	{
 		//res.append(in);
@@ -42,6 +45,7 @@ string LangCompiler::compile(char *code, bool show, compilerFlag flags)
 		res.append("</textarea></form>");
 		return res;
 	}
+	cout.flush();
 	return kompill;
 
 	/*cout << "Content-type: text/html\r\n"
@@ -167,7 +171,13 @@ void LangCompiler::setTimeOut(long double timeOut) {
 
 bool LangCompiler::fileExist( string name )
 {
-    return ifstream(name);
+	FILE *file;
+	    if (file = fopen(name.c_str(), "r"))
+	    {
+	        fclose(file);
+	        return 1;
+	    }
+	    return 0;
 }
 
 bool LangCompiler::fileRemove ( string name )
