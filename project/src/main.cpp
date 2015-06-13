@@ -32,7 +32,7 @@ void *doit(void *a)
 			bool parsingSuccessful = true;//reader.parse( str, parsedFromString, false);// IsJSON
 			if(parsingSuccessful)
 			{
-				logfile::addLog(request);
+				logfile::AddLog(request);
 				stream << "Content-type: text/html\r\n"	<< "\r\n"
 				<< "<html>\n" << "  <head>\n"
 				<< "    <title>CLang==Compiler	" << id << "</title>\n" // show ID thread in title
@@ -40,25 +40,15 @@ void *doit(void *a)
 
 				LangCompiler compiler(id);
 				stream >> inputSTR; // test input
-				char *code = stream.getFormParam("text");
-				char *name = stream.getFormParam("name");
-				/*CodeClear clr;				string outStr = code;
-				clr.ClearText(outStr);*/
+				char * code = stream.getFormParam("text");
+				CodeClear clr;
+				string outStr = code;
+				logfile::AddLog(code);
+				clr.ClearText(outStr);
 				if(code != NULL)
 				{
-					//stream << code; // show input code text
-					logfile::addLog(id, "Start compiler");
+					//stream << code;
 					stream << (char *)compiler.compile(code, true).c_str();
-					logfile::addLog(id, "Stop compiler");
-					/*
-					 * test Json class // don't delete
-					 */
-					/*
-					stream << code << "\r\n" << name << "\r\n";
-					jsonParser parser(code);
-					stream << parser.getObject(name, true).toStyledString();
-					*/
-
 				}
 				stream << "  </body>\n </html>\n";
 			}
@@ -67,7 +57,7 @@ void *doit(void *a)
 				errorResponder.showError(400);
 			}
 		}
-        //close session
+        //закрыть текущее соединение
         stream.close();
 
     }
@@ -81,7 +71,7 @@ int main(void)
     pthread_t *id = new pthread_t[THREAD_COUNT];
 
     FCGX_Init();
-    logfile::addLog("\n\n\n\nStart server ==== Lib is inited");
+    logfile::AddLog("Start server ==== Lib is inited");
     system("mkdir -m 777 src");
     // open socket unix or TCP
     socketId = FCGX_OpenSocket(SOCKET_PATH, 2000);
@@ -89,10 +79,10 @@ int main(void)
     if(socketId < 0)
     {
 
-    	logfile::addLog(string("Cannot open socket	" + socket));
+    	logfile::AddLog(string("Cannot open socket	" + socket));
         return 1;
     }
-    logfile::addLog("Socket is opened " + socket +"...  create " + to_string(THREAD_COUNT) + " threads");
+    logfile::AddLog("Socket is opened " + socket +"...  create " + to_string(THREAD_COUNT) + " threads");
 
     //create thread
     for(i = 0; i < THREAD_COUNT; i++)
@@ -106,7 +96,6 @@ int main(void)
         pthread_join(id[i], NULL);
     }
     delete [] id;
-    logfile::addLog("Server stoped successful");
     return 0;
 }
 

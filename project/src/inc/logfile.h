@@ -6,24 +6,14 @@
 #include <fstream>
 #include "includes.h"
 
-/*
- * non staic not haven't realization
- */
 class logfile
 {
 public:
     logfile(FCGX_Request *request);
     ~logfile();
-    void addLog();
-    /*
-     *  add some info from request + str
-     */
-    static void addLog(FCGX_Request *request, string addStr = " ");
-    /*
-     *  add str to log.txt (also date stamp)
-     */
-    static void addLog(string str);
-    static void addLog(int threadID, string str);
+    void AddLog();
+    static void AddLog(FCGX_Request *request, string addStr = " ");
+    static void AddLog(string str);
 private:
     FCGX_Request *Request;
     char *returnIP();
@@ -31,11 +21,7 @@ private:
     char *returnBrowserVersion();
     char *returnOS();
     char *returnData();
-    static char * getDateStamp();
-    /*
-     * no control symbol
-     */
-    static int legthClearnStr(string str);
+    static char *getDateStamp();
 };
 
 #endif // LOGFILE_H

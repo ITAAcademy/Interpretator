@@ -6,7 +6,6 @@
  */
 
 #include "includes.h"
-#include "logfile.h"
 
 using namespace Json;
 
@@ -19,22 +18,17 @@ class jsonParser {
 	Reader reader;
 	string json;
 
-	list <Value> t_find;
+	vector <Value> t_find;
 public:
 	jsonParser(string json);
 	jsonParser();
 	bool setJson(string in_json);
-	/*
-	 *  not wooooorking
-	 */
-	static Value getRoot(string json);
-	Value getRoot();
 	Value getObject(string name, bool everyWhere);
 	static bool isJson(string in_json);
 	virtual ~jsonParser();
 private:
 	/*
-	 *  no check is array? problem with find elemet // crash // not use
+	 *  no check is array?
 	 */
 	Value findInArray(Value &array, string &name);
 };
