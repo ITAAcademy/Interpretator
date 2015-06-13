@@ -43,7 +43,6 @@ int main(void)
 #include <cassert>
 #include <exception>
 
-#include <jsoncpp/json/json.h>
 #include "FCGI_Stream.h"
 
 static void *doit(void *a);

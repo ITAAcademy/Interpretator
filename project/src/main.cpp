@@ -28,8 +28,7 @@ void *doit(void *a)
         	errorResponder.showError(404);
 		}
 		else{
-			Json::Value parsedFromString;
-			Json::Reader reader;
+
 			bool parsingSuccessful = true;//reader.parse( str, parsedFromString, false);// IsJSON
 			if(parsingSuccessful)
 			{
@@ -44,30 +43,14 @@ void *doit(void *a)
 				char * code = stream.getFormParam("text");
 				CodeClear clr;
 				string outStr = code;
+				logfile::AddLog(code);
 				clr.ClearText(outStr);
 				if(code != NULL)
 				{
 					//stream << code;
 					stream << (char *)compiler.compile(code, true).c_str();
 				}
-
-	/*	JSOOOOOOOOOOON
-	 * 				if(!parsedFromString["root"].isNull())
-
-					Value v1 = parsedFromString["root"];
-					Value v = v1["values"];
-					if(v.isArray())
-					{
-						for(unsigned int index=0; index<v.size(); ++index)
-						{
-							cout << v[index].toStyledString();
-						}
-					}
-				}
-				else cout << "==============================================NULL";
-	*/
 				stream << "  </body>\n </html>\n";
-
 			}
 			else
 			{
