@@ -1,5 +1,4 @@
 #include "inc/cLang.h"
-#include "inc/SQLconnector.h"
 
 LangCompiler::LangCompiler(int ID){
 	thID = ID;
@@ -10,43 +9,54 @@ LangCompiler::~LangCompiler(){
 
 }
 
-string LangCompiler::compile(char *code, bool show, compilerFlag flags)
+string LangCompiler::compile(string code, bool show, compilerFlag flags)
 {
-	string res = "\0";
+	string res;
+	warning_err.clear();
+	result.clear();
 	cout.flush();
+
 	if(!generetionSample(code, flags))
 	{
-		logfile::AddLog("Canot open file with generation source code, maybe permission denied	");
+		logfile::addLog("Canot open file with generation source code, maybe permission denied	");
 		return "Canot open file with generation source code, maybe permission denied	";
 	}
 	cout.flush();
 	string code_file_name = "prog" + to_string(thID) + ".out";
 	string build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
 	string run_str = " ./prog" + to_string(thID) + ".out;  rm prog" + to_string(thID) + ".out";
-	/*in.append("cd /var/www/fcgi/srs/; clang++ -Wall -stdlib=libc++ code$1.cpp -o prog$1.out; if [ -f /var/www/fcgi/srs/prog$1.out ]; then  ./prog$1.out;  rm prog$1.out; fi");
+	/*
+	 * BETA // don't delete
+	 *
+	in.append("cd /var/www/fcgi/srs/; clang++ -Wall -stdlib=libc++ code$1.cpp -o prog$1.out; if [ -f /var/www/fcgi/srs/prog$1.out ]; then  ./prog$1.out;  rm prog$1.out; fi");
 	in.append("cd /var/www/fcgi/srs/;");
 	in.append("clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o prog" + to_string(thID) + ".out;");
 	in.append("if [ -f /var/www/fcgi/srs/" + code_file_name + " ]; then ./" + code_file_name) + ";";
 	in.append("rm prog.out;");
 	in.append("fi;");*/
 
-	string kompill = getStdoutFromCommand(build_str);
+	warning_err = getStdoutFromCommand(build_str);
 	cout.flush();
 	if(fileExist("prog" + to_string(thID) + ".out"))
-		kompill.append(getStdoutFromCommand(run_str));
+	{
+		result.append(getStdoutFromCommand(run_str));
+	}
 	cout.flush();
 	if(show)
 	{
 		//res.append(in);
 		res.append("<form><textarea style=\"width: 100%; height: 400px;\">");
-		res.append(kompill);
-		if(kompill.size() <= 1)
+		if(result.size() <= 1 && warning_err.size() <= 1)
 			res.append("=======OK=======");
+		else
+			res.append(warning_err + result);
 		res.append("</textarea></form>");
 		return res;
 	}
+	else
+		res.append(warning_err + result);
 	cout.flush();
-	return kompill;
+	return res;
 
 	/*cout << "Content-type: text/html\r\n"
 						 << "\r\n"
@@ -60,7 +70,7 @@ string LangCompiler::compile(char *code, bool show, compilerFlag flags)
 						 << "</html>\n";*/
 }
 
-bool LangCompiler::generetionSample(char *code, compilerFlag flags)
+bool LangCompiler::generetionSample(string code, compilerFlag flags)
 {
 	// in the future
 	cout.flush();
@@ -68,12 +78,14 @@ bool LangCompiler::generetionSample(char *code, compilerFlag flags)
 	{
 		ofstream file;
 		char str[50];
-		sprintf(str, "src/code%d.cpp", thID);
+		sprintf(str, "src/code%d.cpp\0", thID);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
+		cout.flush();
 		file << code;
 		file.close();
+		cout.flush();
 	}
 	return true;
 }
@@ -183,4 +195,16 @@ bool LangCompiler::fileExist( string name )
 bool LangCompiler::fileRemove ( string name )
 {
 	remove(name.c_str() );
+}
+
+const string& LangCompiler::getResult() const {
+	return result;
+}
+
+int LangCompiler::getThId() const {
+	return thID;
+}
+
+const string& LangCompiler::getWarningErr() const {
+	return warning_err;
 }

@@ -102,11 +102,11 @@ void FCGI_Stream::updateBuffer()
 		{
 			content_length = 10;
 		}
-		/*if(buffer != NULL)
-			delete []buffer;*/
+		if(buffer != NULL)
+			delete []buffer;
 		buffer = new char[content_length];
 		if(!contentNULL)
-		FCGX_GetStr(buffer, content_length*sizeof(char), request->in);
+			FCGX_GetStr(buffer, content_length*sizeof(char), request->in);
 }
 
 void FCGI_Stream::reInitRequesBuffer()
@@ -246,4 +246,9 @@ int FCGI_Stream::getRequestSize()
 			content_length = strtol(content_length_str, &content_length_str, 10);
 		//operator <<(content_length);
 		return content_length;
+}
+
+string FCGI_Stream::getRequestBuffer()
+{
+	return string(buffer);
 }

@@ -31,6 +31,9 @@ int main(void)
 #include "codeclear.h"
 #include "errorresponder.h"
 #include "logfile.h"
+#include "jsonParser.h"
+#include "SQLconnector.h"
+using namespace std;
 //#include <pstream.h>
 /*
  * BOOST

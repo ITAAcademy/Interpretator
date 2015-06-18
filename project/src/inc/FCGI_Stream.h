@@ -46,7 +46,7 @@ public:
 	/*
 	 * return request content from this session
 	 */
-	string* getRequestBuffer();
+	string getRequestBuffer();
 	/*
 	 *  Apatche version **not actual
 	 */

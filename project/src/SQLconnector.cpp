@@ -2,8 +2,14 @@
 
 
 ConnectorSQL::ConnectorSQL(string domen, string port, string user, string password) {
-		  driver = get_driver_instance();
-		  con = driver->connect(domen + ":" + port, user, password);
+		 try{
+			 driver = get_driver_instance();
+			 con = driver->connect(domen + ":" + port, user, password);
+		 }
+		 catch (sql::SQLException e) {
+			logfile::addLog( e.what() );
+		}
+
 }
 
 void ConnectorSQL::setDataBase(string database) {

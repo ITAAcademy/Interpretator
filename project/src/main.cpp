@@ -14,6 +14,7 @@ void *doit(void *a)
     FCGI_Stream stream(socketId);
     ErrorResponder errorResponder(&stream);
     request = stream.getRequest();
+    ConnectorSQL msql ("localhost", "8080", "nico", "nico");
 
     for(;;)
     {
@@ -22,42 +23,74 @@ void *doit(void *a)
         {
         	break;
         }
-
+        logfile::addLog(request);
         if( strcmp(stream.getRequestMethod(), "GET") == 0 )
 		{
+        	logfile::addLog( id, "Request Method don't POST !!!");
         	errorResponder.showError(404);
 		}
 		else{
-
-			bool parsingSuccessful = true;//reader.parse( str, parsedFromString, false);// IsJSON
+			jsonParser jSON(stream.getRequestBuffer());
+			bool parsingSuccessful = jSON.isValidFields();//reader.parse( str, parsedFromString, false);// IsJSON
 			if(parsingSuccessful)
 			{
-				logfile::AddLog(request);
 				stream << "Content-type: text/html\r\n"	<< "\r\n"
 				<< "<html>\n" << "  <head>\n"
 				<< "    <title>CLang==Compiler	" << id << "</title>\n" // show ID thread in title
 				<< "  </head>\n" << "  <body>\n";
 
 				LangCompiler compiler(id);
-				stream >> inputSTR; // test input
-				char * code = stream.getFormParam("text");
-				CodeClear clr;
+			/*
+			 * input from PHP form // not use
+			 *
+			 * 	stream >> inputSTR; // test input
+				char *code = stream.getFormParam("text");
+				char *name = stream.getFormParam("name");
+			*/
+
+				/*
+				 * problem with CodeClear need fix
+				 *
+			    CodeClear clr;
 				string outStr = code;
-				logfile::AddLog(code);
-				clr.ClearText(outStr);
-				if(code != NULL)
+				clr.ClearText(outStr);*/
+				cout.flush();
+				string code = jSON.getObject("kaka", true).asString();
+				if(!code.empty())
 				{
-					//stream << code;
-					stream << (char *)compiler.compile(code, true).c_str();
+					//stream << code; // show input code text
+					logfile::addLog(id, "Start compiler");
+					//logfile::addLog(id, "Compile text:\n" + code);
+					JsonValue res;
+					compiler.compile(code, true);
+					string date = logfile::getDateStamp();
+					date[date.size() - 1] = '\0';
+					res["date"] = date;
+					res["result"] = compiler.getResult();
+					res["warnings"] = compiler.getWarningErr();
+					stream << res.toStyledString();
+					//stream << compiler.compile(code, true);
+					logfile::addLog(id, "Stop compiler");
+
+					/*
+					 * test Json class // don't delete
+					 */
+					/*
+					stream << code << "\r\n" << name << "\r\n";
+					jsonParser parser(code);
+					stream << parser.getObject(name, true).toStyledString();
+					*/
+
 				}
 				stream << "  </body>\n </html>\n";
 			}
 			else
 			{
+				logfile::addLog( id, "Json format is not correct!!! \n::::::::::::::::::::::::\n" + stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
 				errorResponder.showError(400);
 			}
 		}
-        //закрыть текущее соединение
+        //close session
         stream.close();
 
     }
@@ -71,18 +104,18 @@ int main(void)
     pthread_t *id = new pthread_t[THREAD_COUNT];
 
     FCGX_Init();
-    logfile::AddLog("Start server ==== Lib is inited");
-    system("mkdir -m 777 src");
+    logfile::addLog("\n\n\n\nStart server ==== Lib is inited");
+   // system("mkdir -m 777 src");
     // open socket unix or TCP
     socketId = FCGX_OpenSocket(SOCKET_PATH, 2000);
     string socket = SOCKET_PATH;
     if(socketId < 0)
     {
 
-    	logfile::AddLog(string("Cannot open socket	" + socket));
+    	logfile::addLog(string("Cannot open socket	" + socket));
         return 1;
     }
-    logfile::AddLog("Socket is opened " + socket +"...  create " + to_string(THREAD_COUNT) + " threads");
+    logfile::addLog("Socket is opened " + socket +"...  create " + to_string(THREAD_COUNT) + " threads");
 
     //create thread
     for(i = 0; i < THREAD_COUNT; i++)
@@ -96,6 +129,7 @@ int main(void)
         pthread_join(id[i], NULL);
     }
     delete [] id;
+    logfile::addLog("Server stoped successful");
     return 0;
 }
 
