@@ -17,6 +17,7 @@ FCGI_Stream::FCGI_Stream( int socketId = 0) {
     cout_streambuf = cout.rdbuf();
     cerr_streambuf = cerr.rdbuf();
     status = false;
+    buffer = NULL;
     /*cin_fcgi_streambuf = NULL;
     cout_fcgi_streambuf = NULL;
     cerr_fcgi_streambuf = NULL;*/
@@ -74,22 +75,22 @@ bool FCGI_Stream::IsRequest() {
 bool FCGI_Stream::multiIsRequest() {
 	pthread_mutex_t accept_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-	printf("Try to accept new request\n");
+	logfile::addLog("Try to accept new request\n");
 	pthread_mutex_lock(&accept_mutex);
 	status = true;
 	int rc;
 	rc = FCGX_Accept_r(request);
 	pthread_mutex_unlock(&accept_mutex);
-	printf("hernia");
 	if(rc < 0)
 	{
 		status = false;
-		printf("Can not accept new request\n");
+		logfile::addLog("Can not accept new request\n");
 		return false;
 	}
-	printf("request is accepted\n");
+	logfile::addLog("request is accepted\n");
 	//////////////////////////////////////// get bufer
 	updateBuffer();
+	logfile::addLog("buffer is accepted\n");
 	/// ok
 	return true;
 }

@@ -6,8 +6,7 @@
 // Description : Hello World in C++, Ansi-style
 //============================================================================
 
-#include <iostream>
-#include <string.h>
+#include "includes.h"
 #include "mysql_connection.h"
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
@@ -20,30 +19,35 @@
 #include <map>
 #include <set>
 #include <boost/lexical_cast.hpp>
-#include "includes.h"
-
 
 using namespace std;
 
 class ConnectorSQL
 {
 public:
-	ConnectorSQL(string domen, string port, string user, string password);
+	ConnectorSQL();
+	bool connectToHost(string domen, string port, string user, string password);
 	~ConnectorSQL();
-	void setDataBase(string database);
-	void setTableAndLabels(string table, vector<string> labels);
+	bool connectToDataBase(string database);
+	bool connectToTable(string table, vector<string> labels);
 	void addRecordsInToTable(vector<map<int,string> > records) ;
+	void addRecordsInToTable(map<int,string>  records) ;
 	vector<map<int,string> >   getAllRecordsFromTable() ;
 	//id-label is first label which you set!!!
-	string getFullCodeOfProgram(uint ID, string text_of_program);
+	bool isConnectedToTable();
+	string getCustomCodeOfProgram(string ID, string text_of_program);
+	string getFullCodeOfProgram(string ID);
+void resetConection();
 private:
-	string table;
-	string labels;
-	string records;
-	vector<string> labels_vec;
-	int labels_num;
-	sql::Driver *driver;
-	sql::Connection *con;
-	sql::Statement *stmt;
+	 sql::Driver *driver;
+		  sql::Connection *con;
+bool connect_table;
+	 string table;
+	 string labels;
+	//string records;
+	 vector<string> labels_vec;
+	 int labels_num;
+
+	 sql::Statement *stmt;
 	sql::ResultSet *res;
 };

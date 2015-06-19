@@ -28,6 +28,12 @@ using namespace Json;
 "lang": ""
 }
 
+{
+"code" : "std::cout << \"Hello World!\" << std::endl;",
+"task": "1",
+"lang": ""
+}
+
  */
 
 

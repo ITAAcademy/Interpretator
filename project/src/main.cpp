@@ -1,20 +1,34 @@
 #include "inc/main.h"
-
+#include <ctime>
+#include <boost/date_time.hpp>
 using namespace std;
 //using namespace boost;
 using namespace Json;
 
 
+
+
+struct Thread2Arguments {
+	int id;
+	//ConnectorSQL connector;
+};
+
 void *doit(void *a)
 {
+	 Thread2Arguments argumento = ((Thread2Arguments *)a)[0];
+//	logfile::addLog("Connection");
+	 ConnectorSQL connector ;
+
     int rc, i;
-    int id = ((int *)a)[0];
+   // int id = ((int *)a)[0];
+
+    int id  = argumento.id;
 	char * inputSTR;
     FCGX_Request *request;
     FCGI_Stream stream(socketId);
     ErrorResponder errorResponder(&stream);
     request = stream.getRequest();
-    ConnectorSQL msql ("localhost", "8080", "nico", "nico");
+
 
     for(;;)
     {
@@ -24,6 +38,7 @@ void *doit(void *a)
         	break;
         }
         logfile::addLog(request);
+
         if( strcmp(stream.getRequestMethod(), "GET") == 0 )
 		{
         	logfile::addLog( id, "Request Method don't POST !!!");
@@ -55,9 +70,76 @@ void *doit(void *a)
 				string outStr = code;
 				clr.ClearText(outStr);*/
 				cout.flush();
-				string code = jSON.getObject("kaka", true).asString();
+				string code = jSON.getObject("code", true).asString();
 				if(!code.empty())
 				{
+					 string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
+
+					if (connector.connectToHost("127.0.0.1", "3306", "root", "testsql")==false)
+					{
+						logfile::addLog("Connection  to host failed");
+					}
+					else
+					 {
+						logfile::addLog("Connection to host successful");
+						if ( connector.connectToDataBase("ITA-codeforce")==false)
+							logfile::addLog("Connection to database failed");
+						else {
+							logfile::addLog("Connection to database successful");
+							vector <string> labl;
+							labl.push_back("ID");
+					labl.push_back("ip");
+					labl.push_back("code");
+					labl.push_back("date_time");
+					if ( connector.connectToTable("History",labl)==false)
+					logfile::addLog("Connection to history`s table failed");
+					else {
+						logfile::addLog("Connection to history`s table successful");
+						 time_t t = time(0);   // get time now
+											struct tm * now = localtime( & t );
+				string s_datime; //'YYYY-MM-DD HH:MM:SS'
+				s_datime += std::to_string(now->tm_year + 1900)+ "-" +
+				 std::to_string(now->tm_mon + 1) + "-" + std::to_string(now->tm_mday)+ " "+
+				 std::to_string(now->tm_hour) + ":" +  std::to_string(now->tm_min) + ":" +
+				 std::to_string(now->tm_sec) ;
+
+				map<int,string> temp;
+				temp.insert({1,ip_usera});
+				temp.insert({2,str_with_spec_character(code)});
+				temp.insert({3,s_datime});
+				connector.addRecordsInToTable(temp);
+					}
+						}
+					 }
+					connector.resetConection();
+				if (connector.connectToHost("127.0.0.1", "3306", "root", "testsql")==false)
+				logfile::addLog("Connection  to host failed");
+				else
+				  {
+					logfile::addLog("Connection to host successful");
+					if ( connector.connectToDataBase("ITA-codeforce")==false)
+						logfile::addLog("Connection to database failed");
+					else {
+						logfile::addLog("Connection to database successful");
+						vector <string> labl;
+						labl.push_back("ID");
+			labl.push_back("name");
+			labl.push_back("header");
+			labl.push_back("etalon");
+			labl.push_back("footer");
+			if ( connector.connectToTable("Assignment",labl)==false) {
+			logfile::addLog("Connection to assignment`s table failed");
+			}
+			else {
+				logfile::addLog("Connection to assignment`s table successful");
+					string task = jSON.getObject("task", true).asString();
+				code = connector.getCustomCodeOfProgram(task, code);
+				logfile::addLog(code);
+			}
+					}
+				  }
+
+
 					//stream << code; // show input code text
 					logfile::addLog(id, "Start compiler");
 					//logfile::addLog(id, "Compile text:\n" + code);
@@ -117,10 +199,16 @@ int main(void)
     }
     logfile::addLog("Socket is opened " + socket +"...  create " + to_string(THREAD_COUNT) + " threads");
 
+
+
     //create thread
     for(i = 0; i < THREAD_COUNT; i++)
     {
-        pthread_create(&id[i], NULL, doit, (void *)&i);
+	Thread2Arguments argumento;
+    	argumento.id = i;
+    	//argumento.connector = connector;
+        pthread_create(&id[i], NULL, doit, (void *)&argumento);
+       // pthread_create(&id[i], NULL, doit, (void *)&i);
     }
 
     // wait threads
