@@ -1,38 +1,57 @@
 #ifndef CONFIG_H
 #define CONFIG_H
-
+#pragma once
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <io.h>
 
 using namespace std;
 
 class Config
 {
 public:
-    Config();
+	Config();
 
-    string login = "defaultLogin";
-    string password = "defaultPassword";
-    string temp = "bla";
-    int number = 1;
+
+    //static Config *sConfig;
+
+    string port;
+    string userName;
+    string password;
+    string dataBaseName;
+    string dataBaseHost;
+    string tableName;
+    string logLocation;
+    int threadCount;
 
     void runCommandLine();
+    void makeValueStructure();
     void makeConfigFile();
     void scanConfigFile();
     void showConfigFile();
     void setDefaultConfig();
     void help();
+
     bool isnumber(string value);
+    long long getHash(string value);
 
-    void setLogin(string value);
+    void setPort(string value);
+    void setUserName(string value);
     void setPassword(string value);
-    void setNumber(int value);
+    void setDataBaseName(string value);
+    void setDataBaseHost(string value);
+    void setTableName(string value);
+    void setLogLocation(string value);
+    void setThreadCount(int value);
 
-    string getLogin();
+    string getPort();
+    string getUserName();
     string getPassword();
-    int getNumber();
+    string getDataBaseName();
+    string getDataBaseHost();
+    string getTableName();
+    string getLogLocation();
+    int getThreadCount();
 };
 
 #endif // CONFIG_H

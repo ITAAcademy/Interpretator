@@ -1,102 +1,160 @@
-#include "config.h"
+#include "inc/config.h"
+
 
 Config::Config()
 {
 
 }
 
+const int commandsCount = 8;
+
 void Config::runCommandLine()
 {
     string input;
-
+    bool beContin = true;
+    long long hashInput;
+    makeValueStructure();
     scanConfigFile();
 
-    while(1)
+    while(beContin)
     {
         makeConfigFile();
 
         cout << '>';
         getline(cin, input);
+        hashInput = getHash(input);
 
-        if(input == "exit")
-        {
+        switch (hashInput) {
+        case 654:
+            beContin = false;
             break;
-        }
-        else
-        if(input == "help")
-        {
+        case 604:
             help();
-        }
-        else
-        if(input == "showconfig")
-        {
+            break;
+        case 48401:
             showConfigFile();
-        }
-        else
-        if(input == "setdefault")
-        {
+            break;
+        case 46952:
             setDefaultConfig();
-        }
-        else
-        if(input == "getlogin")
-        {
-            cout << "Login: " << getLogin() << "\n";
-        }
-        else
-        if(input == "getpassword")
-        {
-            cout << "Password: " << getPassword() << "\n";
-        }
-        else
-        if(input == "getnumber")
-        {
-            cout << "Number: " << getNumber() << "\n";
-        }
-            else
-        if(input == "setlogin")
-        {
-            cout << "Login: ";
+            break;
+        case 5236:
+            cout << "port: " << getPort() << "\n";
+            break;
+        case 84851:
+            cout << "userName: " << getUserName() << "\n";
+            break;
+        case 83660:
+            cout << "password: " << getPassword() << "\n";
+            break;
+        case 1306979:
+            cout << "dataBaseName: " << getDataBaseName() << "\n";
+            break;
+        case 1307014:
+            cout << "dataBaseHost: " << getDataBaseHost() << "\n";
+            break;
+        case 166723:
+            cout << "tableName: " << getTableName() << "\n";
+            break;
+        case 667648:
+            cout << "logLocation: " << getLogLocation() << "\n";
+            break;
+        case 673356:
+            cout << "threadCount: " << getThreadCount() << "\n";
+            break;
+        case 6004:
+            cout << "port: ";
             getline(cin, input);
-            setLogin(input);
-        }
-        else
-        if(input == "setpassword")
-        {
-            cout << "Password: ";
+            setPort(input);
+            break;
+        case 97139:
+            cout << "userName: ";
+            getline(cin, input);
+            setUserName(input);
+            break;
+        case 95948:
+            cout << "password: ";
             getline(cin, input);
             setPassword(input);
-        }
-        else
-        if(input == "setnumber")
-        {
-            cout << "Number: ";
+            break;
+        case 1503587:
+            cout << "dataBaseName: ";
+            getline(cin, input);
+            setDataBaseName(input);
+            break;
+        case 1503622:
+            cout << "dataBaseHost: ";
+            getline(cin, input);
+            setDataBaseHost(input);
+            break;
+        case 191299:
+            cout << "tableName: ";
+            getline(cin, input);
+            setTableName(input);
+            break;
+        case 765952:
+            cout << "logLocation: ";
+            getline(cin, input);
+            setLogLocation(input);
+            break;
+        case 771660:
+            cout << "threadCount: ";
             getline(cin, input);
             if(isnumber(input))
-                setNumber(stoi(input));
+                setThreadCount(stoi(input));
             else
                 cout << "need integer\n";
-        }
-        else
+            break;
+        default:
             cout << "error \n";
+        }
     }
+}
+
+struct fields
+{
+    string name;
+    string value;
+} values[commandsCount];
+
+void Config::makeValueStructure()
+{
+    values[0].name = "port";
+    values[0].value = port;
+    values[1].name = "userName";
+    values[1].value = userName;
+    values[2].name = "password";
+    values[2].value = password;
+    values[3].name = "dataBaseName";
+    values[3].value = dataBaseName;
+    values[4].name = "dataBaseHost";
+    values[4].value = dataBaseHost;
+    values[5].name = "tableName";
+    values[5].value = tableName;
+    values[6].name = "logLocation";
+    values[6].value = logLocation;
+    values[7].name = "threadCount";
+    values[7].value = to_string(threadCount);
 }
 
 void Config::makeConfigFile()
 {
+    makeValueStructure();
     ofstream config("settings.conf");
     config << "Settings: \n";
-    config << "login: " + login + "\n";
-    config << "password: " + password + "\n";
-    config << "number: " << number << "\n";
+    for (int i = 0; i < commandsCount; i++)
+    {
+       config << values[i].name << ": " << values[i].value << "\n";
+    }
     config.close();
 }
 
 void Config::scanConfigFile()
 {
-    if(_access("settings.conf", 0))
+    if(ifstream("settings.conf"))
     {
-        makeConfigFile();
+        setDefaultConfig();
     }
+
     string settings;
     ifstream config;
     config.open("settings.conf");
@@ -104,14 +162,28 @@ void Config::scanConfigFile()
     getline(config,settings);
 
     getline(config,settings);
-    login = settings.substr(7);
+    port = settings.substr(values[0].name.size()+2);
 
     getline(config,settings);
-    password = settings.substr(10);
+    userName = settings.substr(values[1].name.size()+2);
 
     getline(config,settings);
-    temp = settings.substr(8);
-    number = stoi(temp);
+    password = settings.substr(values[2].name.size()+2);
+
+    getline(config,settings);
+    dataBaseName = settings.substr(values[3].name.size()+2);
+
+    getline(config,settings);
+    dataBaseHost = settings.substr(values[4].name.size()+2);
+
+    getline(config,settings);
+    tableName = settings.substr(values[5].name.size()+2);
+
+    getline(config,settings);
+    logLocation = settings.substr(values[6].name.size()+2);
+
+    getline(config,settings);
+    threadCount = stoi(settings.substr(values[7].name.size()+2));
 
     config.close();
 }
@@ -133,29 +205,48 @@ void Config::showConfigFile()
 
 void Config::setDefaultConfig()
 {
-    login = "defaultLogin";
-    password = "defaultPassword";
-    number = 1;
+    port = "8000";
+    userName = "-----";
+    password = "-----";
+    dataBaseName = "-----";
+    dataBaseHost = "-----";
+    tableName = "-----";
+    logLocation = ".";
+    threadCount = 8;
     makeConfigFile();
 }
 
 void Config::help()
 {
-    cout << "commands:\n\texit\n\tshowconfig\n\tsetdefault\n\tsetlogin\n\tsetpassword\n\tsetnumber\n\tgetlogin\n\tgetpassword\n\tgetnumber\n";
+    cout << "commands:\n\t"
+            "exit\n\t"
+            "showconfig\n\t"
+            "setdefault";
+    for(int i=0; i < commandsCount; i++)
+    {
+        cout << "\n\t" << "get";
+        for(int j=0; j < values[i].name.size(); j++)
+        {
+            cout << (char)tolower(values[i].name[j]);
+        }
+    }
+    for(int i=0; i < commandsCount; i++)
+    {
+        cout << "\n\t" << "set";
+        for(int j=0; j < values[i].name.size(); j++)
+        {
+            cout << (char)tolower(values[i].name[j]);
+        }
+    }
+    cout << '\n';
 }
 
 bool Config::isnumber(string value)
 {
-    //int numinput = 0;
     bool num = true;
     for(int i=0; i < value.size(); i++)
     {
-        if(isdigit(value[i]))
-        {
-            //numinput*=10;
-            //numinput+=value[i]-48;
-        }
-        else
+        if(!isdigit(value[i]))
         {
             num = false;
         }
@@ -163,9 +254,26 @@ bool Config::isnumber(string value)
     return num;
 }
 
-void Config::setLogin(string value)
+long long Config::getHash(string value)
 {
-    login = value;
+    long long hash = 0;
+    for(int i = 0; i < value.size(); i++)
+    {
+       hash *= 2;
+       hash += (value[i] - 'A' + 1);
+    }
+    return hash;
+}
+
+void Config::setPort(string value)
+{
+    port = value;
+    makeConfigFile();
+}
+
+void Config::setUserName(string value)
+{
+    userName = value;
     makeConfigFile();
 }
 
@@ -175,24 +283,81 @@ void Config::setPassword(string value)
     makeConfigFile();
 }
 
-void Config::setNumber(int value)
+void Config::setDataBaseName(string value)
 {
-    number = value;
+    dataBaseName = value;
     makeConfigFile();
 }
 
-string Config::getLogin()
+void Config::setDataBaseHost(string value)
 {
-    return login;
+    dataBaseHost = value;
+    makeConfigFile();
+}
+
+void Config::setTableName(string value)
+{
+    tableName = value;
+    makeConfigFile();
+}
+
+void Config::setLogLocation(string value)
+{
+    logLocation = value;
+    makeConfigFile();
+}
+
+void Config::setThreadCount(int value)
+{
+    threadCount = value;
+    makeConfigFile();
+}
+
+string Config::getPort()
+{
+    scanConfigFile();
+    return port;
+}
+
+string Config::getUserName()
+{
+    scanConfigFile();
+    return userName;
 }
 
 string Config::getPassword()
 {
+    scanConfigFile();
     return password;
 }
 
-int Config::getNumber()
+string Config::getDataBaseName()
 {
-    return number;
+    scanConfigFile();
+    return dataBaseName;
+}
+
+string Config::getDataBaseHost()
+{
+    scanConfigFile();
+    return dataBaseHost;
+}
+
+string Config::getTableName()
+{
+    scanConfigFile();
+    return tableName;
+}
+
+string Config::getLogLocation()
+{
+    scanConfigFile();
+    return logLocation;
+}
+
+int Config::getThreadCount()
+{
+    scanConfigFile();
+    return threadCount;
 }
 
