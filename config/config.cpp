@@ -1,6 +1,7 @@
-#include "inc/config.h"
-
-
+#include "config.h"
+#include <iostream>
+#include <string>
+using namespace std;
 Config::Config()
 {
 
@@ -11,12 +12,12 @@ const int commandsCount = 8;
 void Config::runCommandLine()
 {
     string input;
-    bool beContin = true;
+    bool running = true;
     long long hashInput;
     makeValueStructure();
     scanConfigFile();
 
-    while(beContin)
+    while(running)
     {
         makeConfigFile();
 
@@ -25,78 +26,78 @@ void Config::runCommandLine()
         hashInput = getHash(input);
 
         switch (hashInput) {
-        case 654:
-            beContin = false;
+        case COMMAND_EXIT:
+            running = false;
             break;
-        case 604:
+        case COMMAND_HELP:
             help();
             break;
-        case 48401:
+        case COMMAND_SHOW_CONFIG_FILE:
             showConfigFile();
             break;
-        case 46952:
+        case COMMAND_SET_DEFAULT_CONFIG:
             setDefaultConfig();
             break;
-        case 5236:
+        case COMMAND_GET_PORT:
             cout << "port: " << getPort() << "\n";
             break;
-        case 84851:
+        case COMMAND_GET_USERNAME:
             cout << "userName: " << getUserName() << "\n";
             break;
-        case 83660:
+        case COMMAND_GET_USERPASWORD:
             cout << "password: " << getPassword() << "\n";
             break;
-        case 1306979:
+        case COMMAND_GET_DATABASE_NAME:
             cout << "dataBaseName: " << getDataBaseName() << "\n";
             break;
-        case 1307014:
+        case COMMAND_GET_DATABASE_HOST:
             cout << "dataBaseHost: " << getDataBaseHost() << "\n";
             break;
-        case 166723:
+        case COMMAND_GET_TABLE_NAME:
             cout << "tableName: " << getTableName() << "\n";
             break;
-        case 667648:
+        case COMMAND_GET_LOG_LOCATION:
             cout << "logLocation: " << getLogLocation() << "\n";
             break;
-        case 673356:
+        case COMMAND_GET_THREAD_COUNT:
             cout << "threadCount: " << getThreadCount() << "\n";
             break;
-        case 6004:
+        case COMMAND_SET_PORT:
             cout << "port: ";
             getline(cin, input);
             setPort(input);
             break;
-        case 97139:
+        case COMMAND_SET_USERNAME:
             cout << "userName: ";
             getline(cin, input);
             setUserName(input);
             break;
-        case 95948:
+        case COMMAND_SET_PASSWORD:
             cout << "password: ";
             getline(cin, input);
             setPassword(input);
             break;
-        case 1503587:
+        case COMMAND_SET_DATABASE_NAME:
             cout << "dataBaseName: ";
             getline(cin, input);
             setDataBaseName(input);
             break;
-        case 1503622:
+        case COMMAND_SET_DATABASE_HOST:
             cout << "dataBaseHost: ";
             getline(cin, input);
             setDataBaseHost(input);
             break;
-        case 191299:
+        case COMMAND_SET_TABLE_NAME:
             cout << "tableName: ";
             getline(cin, input);
             setTableName(input);
             break;
-        case 765952:
+        case COMMAND_SET_LOG_LOCATION:
             cout << "logLocation: ";
             getline(cin, input);
             setLogLocation(input);
             break;
-        case 771660:
+        case COMMAND_SET_THREAD_COUNT:
             cout << "threadCount: ";
             getline(cin, input);
             if(isnumber(input))
@@ -150,7 +151,8 @@ void Config::makeConfigFile()
 
 void Config::scanConfigFile()
 {
-    if(ifstream("settings.conf"))
+	ifstream inputStream("settings.conf");
+    if(!inputStream.is_open())
     {
         setDefaultConfig();
     }
@@ -264,6 +266,8 @@ long long Config::getHash(string value)
     }
     return hash;
 }
+
+
 
 void Config::setPort(string value)
 {
