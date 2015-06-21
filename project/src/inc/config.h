@@ -9,14 +9,6 @@ using namespace std;
 
 class Config
 {
-	string port;
-	    string userName;
-	    string password;
-	    string dataBaseName;
-	    string dataBaseHost;
-	    string tableName;
-	    string logLocation;
-	    int threadCount;
 public:
 	Config();
 	enum COMMAND_TYPE {
@@ -42,6 +34,16 @@ public:
 						COMMAND_SET_THREAD_COUNT=771660};
 
     //static Config *sConfig;
+
+    string port;
+    string userName;
+    string password;
+    string dataBaseName;
+    string dataBaseHost;
+    string tableName;
+    string logLocation;
+    int threadCount;
+
     void runCommandLine();
     void makeValueStructure();
     void makeConfigFile();

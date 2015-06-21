@@ -19,14 +19,15 @@
 #include <map>
 #include <set>
 #include <boost/lexical_cast.hpp>
-
+#include "config.h"
+extern Config* config;
 using namespace std;
 
 class ConnectorSQL
 {
 public:
 	ConnectorSQL();
-	bool connectToHost(string domen, string port, string user, string password);
+	bool connectToHost(string host, string user, string password);
 	~ConnectorSQL();
 	bool connectToDataBase(string database);
 	bool connectToTable(string table, vector<string> labels);
@@ -42,7 +43,7 @@ private:
 	 sql::Driver *driver;
 		  sql::Connection *con;
 bool connect_table;
-	 string table;
+	 string tableName;
 	 string labels;
 	//string records;
 	 vector<string> labels_vec;

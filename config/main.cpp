@@ -1,10 +1,11 @@
-#include <config.h>
+#include "config.h"
 
 using namespace std;
 
-void main()
+int main()
 {
     Config MyConfig;
     MyConfig.runCommandLine();
+return 0;
 }
 

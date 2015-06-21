@@ -1,6 +1,8 @@
 #include "inc/main.h"
+
 #include <ctime>
 #include <boost/date_time.hpp>
+extern Config *config;
 using namespace std;
 //using namespace boost;
 using namespace Json;
@@ -75,14 +77,14 @@ void *doit(void *a)
 				{
 					 string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
 
-					if (connector.connectToHost("127.0.0.1", "3306", "root", "testsql")==false)
+					if (connector.connectToHost(config->getDataBaseHost(),config->getUserName(), config->getPassword())==false)
 					{
 						logfile::addLog("Connection  to host failed");
 					}
 					else
 					 {
 						logfile::addLog("Connection to host successful");
-						if ( connector.connectToDataBase("ITA-codeforce")==false)
+						if ( connector.connectToDataBase(config->getDataBaseName())==false)
 							logfile::addLog("Connection to database failed");
 						else {
 							logfile::addLog("Connection to database successful");
@@ -112,12 +114,12 @@ void *doit(void *a)
 						}
 					 }
 					connector.resetConection();
-				if (connector.connectToHost("127.0.0.1", "3306", "root", "testsql")==false)
+				if (connector.connectToHost(config->getDataBaseHost(), config->getUserName(), config->getPassword())==false)
 				logfile::addLog("Connection  to host failed");
 				else
 				  {
 					logfile::addLog("Connection to host successful");
-					if ( connector.connectToDataBase("ITA-codeforce")==false)
+					if ( connector.connectToDataBase(config->getDataBaseName())==false)
 						logfile::addLog("Connection to database failed");
 					else {
 						logfile::addLog("Connection to database successful");
@@ -183,26 +185,31 @@ void *doit(void *a)
 int main(void)
 {
     int i;
-    pthread_t *id = new pthread_t[THREAD_COUNT];
 
+    config = new Config();
+    config->makeValueStructure();
+    config->scanConfigFile();
+    pthread_t *id = new pthread_t[config->getThreadCount()];
     FCGX_Init();
     logfile::addLog("\n\n\n\nStart server ==== Lib is inited");
    // system("mkdir -m 777 src");
     // open socket unix or TCP
-    socketId = FCGX_OpenSocket(SOCKET_PATH, 2000);
-    string socket = SOCKET_PATH;
+    string socket = "127.0.0.1:"+config->getPort();
+    socketId = FCGX_OpenSocket(socket.c_str(), 2000);
+
+
     if(socketId < 0)
     {
 
     	logfile::addLog(string("Cannot open socket	" + socket));
         return 1;
     }
-    logfile::addLog("Socket is opened " + socket +"...  create " + to_string(THREAD_COUNT) + " threads");
+    logfile::addLog("Socket is opened " + socket +"...  create " + to_string(config->getThreadCount()) + " threads");
 
 
 
     //create thread
-    for(i = 0; i < THREAD_COUNT; i++)
+    for(i = 0; i < config->getThreadCount(); i++)
     {
 	Thread2Arguments argumento;
     	argumento.id = i;
@@ -212,7 +219,7 @@ int main(void)
     }
 
     // wait threads
-    for(i = 0; i < THREAD_COUNT; i++)
+    for(i = 0; i < config->getThreadCount(); i++)
     {
         pthread_join(id[i], NULL);
     }

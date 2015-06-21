@@ -22,8 +22,8 @@
 
 using namespace std;
 
-#define THREAD_COUNT 1
-#define SOCKET_PATH "127.0.0.1:8000"
+//#define THREAD_COUNT 1
+//#define SOCKET_PATH "127.0.0.1:8000"
 
 static int socketId;
 

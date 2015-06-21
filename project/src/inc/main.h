@@ -33,6 +33,7 @@ int main(void)
 #include "logfile.h"
 #include "jsonParser.h"
 #include "SQLconnector.h"
+#include "config.h"
 using namespace std;
 //#include <pstream.h>
 /*
@@ -47,7 +48,7 @@ using namespace std;
 #include <exception>
 
 #include "FCGI_Stream.h"
-
+Config *config;
 static void *doit(void *a);
 int Apache(void);
 

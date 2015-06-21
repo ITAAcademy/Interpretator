@@ -66,7 +66,7 @@ void ConnectorSQL::resetConection() {
 		delete con;
 }
 
-bool ConnectorSQL::connectToHost(string domen, string port, string user, string password) {
+bool ConnectorSQL::connectToHost(string host,string user, string password) {
 	connect_table = false;
 	//if(con == NULL){
 if (driver == NULL)
@@ -74,7 +74,7 @@ if (driver == NULL)
 	//cout << driver->getName();
 con = NULL;
 	//if (con == NULL)
-		con = driver->connect(domen + ":" + port, user, password);
+		con = driver->connect(host, user, password);
 	if (con == NULL) {
 		//printf("Connection  to host segwereswr\n");
 		return false;
@@ -85,7 +85,7 @@ con = NULL;
 bool ConnectorSQL::connectToTable(string table, vector<string> labels) {
 	connect_table = false;
 		//if (this->table.empty()) {
-	this->table=table;
+	this->tableName=table;
 	this->labels_vec = labels;
 	this->labels="`" + labels[0] +"`" ;
 	labels_num=1;
@@ -113,7 +113,7 @@ return connect_table;
 
 void ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
 
-	string query= "INSERT INTO `" + table + "` ("+ labels +") Values (";// + this->records +");"
+	string query= "INSERT INTO `" + tableName + "` ("+ labels +") Values (";// + this->records +");"
 			int num_of_querys = records.size();
 			//num of querys
 			for (int i=0; i<num_of_querys; i++) {
@@ -154,7 +154,7 @@ void ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
 
 void ConnectorSQL::addRecordsInToTable(map<int,string> records) {
 
-	string query= "INSERT INTO `" + table + "` ("+ labels +") Values (";// + this->records +");"
+	string query= "INSERT INTO `" + tableName + "` ("+ labels +") Values (";// + this->records +");"
 	//int num_of_labels = labels_vec.size();
 				//get keys
 					pair<int,string> me; // what a map<int, int> is made of
@@ -189,7 +189,7 @@ void ConnectorSQL::addRecordsInToTable(map<int,string> records) {
 //if return -1, then ID isn`t valid
 string ConnectorSQL::getFullCodeOfProgram(string ID) {
 
-	string quer = "SELECT * FROM  `" + table + "` where `" + labels_vec[0] +"` = "+ ID +";";
+	string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
 		res = stmt->executeQuery(quer);
 		string rezult;
 		if (res->next())
@@ -207,7 +207,7 @@ string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program) {
 	string rezult;
 	if (ID.size()>0)
 	{
-	string quer = "SELECT * FROM  `" + table + "` where `" + labels_vec[0] +"` = "+ ID +";";
+	string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
 
 		try		{
 			logfile::addLog(quer);
@@ -236,7 +236,7 @@ string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program) {
 
 vector<map<int,string> >  ConnectorSQL::getAllRecordsFromTable() {
 	vector<map<int,string> >  records;
-	string query = "SELECT * FROM  `" + table + "`";
+	string query = "SELECT * FROM  `" + tableName + "`";
 	res = stmt->executeQuery(query);
 	//res = stmt->executeQuery(query);
 	 while (res->next()) {
@@ -258,7 +258,7 @@ int testSQL() {
 
 //you must do next for normal access
 	ConnectorSQL con;
-	con.connectToHost("localhost", "3306", "root", "testsql");
+	con.connectToHost(config->getDataBaseHost(), config->getUserName(), config->getPassword());
 
 
 
