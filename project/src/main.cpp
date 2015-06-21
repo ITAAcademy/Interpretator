@@ -77,14 +77,14 @@ void *doit(void *a)
 				{
 					 string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
 
-					if (connector.connectToHost(config->getDataBaseHost(),config->getUserName(), config->getPassword())==false)
+					if (connector.connectToHost(Config::getInstance().getDataBaseHost(),Config::getInstance().getUserName(), Config::getInstance().getPassword())==false)
 					{
 						logfile::addLog("Connection  to host failed");
 					}
 					else
 					 {
 						logfile::addLog("Connection to host successful");
-						if ( connector.connectToDataBase(config->getDataBaseName())==false)
+						if ( connector.connectToDataBase(Config::getInstance().getDataBaseName())==false)
 							logfile::addLog("Connection to database failed");
 						else {
 							logfile::addLog("Connection to database successful");
@@ -114,12 +114,12 @@ void *doit(void *a)
 						}
 					 }
 					connector.resetConection();
-				if (connector.connectToHost(config->getDataBaseHost(), config->getUserName(), config->getPassword())==false)
+				if (connector.connectToHost(Config::getInstance().getDataBaseHost(), Config::getInstance().getUserName(), Config::getInstance().getPassword())==false)
 				logfile::addLog("Connection  to host failed");
 				else
 				  {
 					logfile::addLog("Connection to host successful");
-					if ( connector.connectToDataBase(config->getDataBaseName())==false)
+					if ( connector.connectToDataBase(Config::getInstance().getDataBaseName())==false)
 						logfile::addLog("Connection to database failed");
 					else {
 						logfile::addLog("Connection to database successful");
@@ -186,15 +186,15 @@ int main(void)
 {
     int i;
 
-    config = new Config();
-    config->makeValueStructure();
-    config->scanConfigFile();
-    pthread_t *id = new pthread_t[config->getThreadCount()];
+    //config = new Config();
+    Config::getInstance().makeValueStructure();
+    Config::getInstance().scanConfigFile();
+    pthread_t *id = new pthread_t[Config::getInstance().getThreadCount()];
     FCGX_Init();
     logfile::addLog("\n\n\n\nStart server ==== Lib is inited");
    // system("mkdir -m 777 src");
     // open socket unix or TCP
-    string socket = "127.0.0.1:"+config->getPort();
+    string socket = "127.0.0.1:"+Config::getInstance().getPort();
     socketId = FCGX_OpenSocket(socket.c_str(), 2000);
 
 
@@ -204,12 +204,12 @@ int main(void)
     	logfile::addLog(string("Cannot open socket	" + socket));
         return 1;
     }
-    logfile::addLog("Socket is opened " + socket +"...  create " + to_string(config->getThreadCount()) + " threads");
+    logfile::addLog("Socket is opened " + socket +"...  create " + to_string(Config::getInstance().getThreadCount()) + " threads");
 
 
 
     //create thread
-    for(i = 0; i < config->getThreadCount(); i++)
+    for(i = 0; i < Config::getInstance().getThreadCount(); i++)
     {
 	Thread2Arguments argumento;
     	argumento.id = i;
@@ -219,7 +219,7 @@ int main(void)
     }
 
     // wait threads
-    for(i = 0; i < config->getThreadCount(); i++)
+    for(i = 0; i < Config::getInstance().getThreadCount(); i++)
     {
         pthread_join(id[i], NULL);
     }

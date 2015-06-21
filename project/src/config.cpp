@@ -2,12 +2,20 @@
 #include <iostream>
 #include <string>
 using namespace std;
-Config::Config()
-{
 
-}
 
 const int commandsCount = 8;
+
+Config::Config(){
+
+}
+Config::~Config(){
+
+}
+Config& Config::getInstance(){
+	static Config conf;
+	return conf;
+}
 
 void Config::runCommandLine()
 {

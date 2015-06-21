@@ -4,13 +4,17 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-
 using namespace std;
 
 class Config
 {
-public:
+private:
+	Config(Config const&);
+	Config& operator= (Config const&);
 	Config();
+	~Config();
+public:
+	  static Config& getInstance();
 	enum COMMAND_TYPE {
 						COMMAND_EXIT=654,
 						COMMAND_HELP=604,

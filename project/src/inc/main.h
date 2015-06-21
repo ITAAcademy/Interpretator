@@ -48,7 +48,7 @@ using namespace std;
 #include <exception>
 
 #include "FCGI_Stream.h"
-Config *config;
+//Config *config;
 static void *doit(void *a);
 int Apache(void);
 

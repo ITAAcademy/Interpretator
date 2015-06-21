@@ -258,7 +258,7 @@ int testSQL() {
 
 //you must do next for normal access
 	ConnectorSQL con;
-	con.connectToHost(config->getDataBaseHost(), config->getUserName(), config->getPassword());
+	con.connectToHost(Config::getInstance().getDataBaseHost(), Config::getInstance().getUserName(), Config::getInstance().getPassword());
 
 
 
