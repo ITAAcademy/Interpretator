@@ -19,7 +19,7 @@ void *doit(void *a)
 {
 	 Thread2Arguments argumento = ((Thread2Arguments *)a)[0];
 //	logfile::addLog("Connection");
-	 ConnectorSQL connector ;
+	// ConnectorSQL connector ;
 
     int rc, i;
    // int id = ((int *)a)[0];
@@ -77,14 +77,14 @@ void *doit(void *a)
 				{
 					 string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
 
-					if (connector.connectToHost(Config::getInstance().getDataBaseHost(),Config::getInstance().getUserName(), Config::getInstance().getPassword())==false)
+					if (ConnectorSQL::getInstance().connectToHost(Config::getInstance().getDataBaseHost(),Config::getInstance().getUserName(), Config::getInstance().getPassword())==false)
 					{
 						logfile::addLog("Connection  to host failed");
 					}
 					else
 					 {
 						logfile::addLog("Connection to host successful");
-						if ( connector.connectToDataBase(Config::getInstance().getDataBaseName())==false)
+						if (ConnectorSQL::getInstance().connectToDataBase(Config::getInstance().getDataBaseName())==false)
 							logfile::addLog("Connection to database failed");
 						else {
 							logfile::addLog("Connection to database successful");
@@ -93,7 +93,7 @@ void *doit(void *a)
 					labl.push_back("ip");
 					labl.push_back("code");
 					labl.push_back("date_time");
-					if ( connector.connectToTable("History",labl)==false)
+					if ( ConnectorSQL::getInstance().connectToTable("History",labl)==false)
 					logfile::addLog("Connection to history`s table failed");
 					else {
 						logfile::addLog("Connection to history`s table successful");
@@ -109,17 +109,17 @@ void *doit(void *a)
 				temp.insert({1,ip_usera});
 				temp.insert({2,str_with_spec_character(code)});
 				temp.insert({3,s_datime});
-				connector.addRecordsInToTable(temp);
+				ConnectorSQL::getInstance().addRecordsInToTable(temp);
 					}
 						}
 					 }
-					connector.resetConection();
-				if (connector.connectToHost(Config::getInstance().getDataBaseHost(), Config::getInstance().getUserName(), Config::getInstance().getPassword())==false)
+					ConnectorSQL::getInstance().resetConection();
+				if (ConnectorSQL::getInstance().connectToHost(Config::getInstance().getDataBaseHost(), Config::getInstance().getUserName(), Config::getInstance().getPassword())==false)
 				logfile::addLog("Connection  to host failed");
 				else
 				  {
 					logfile::addLog("Connection to host successful");
-					if ( connector.connectToDataBase(Config::getInstance().getDataBaseName())==false)
+					if ( ConnectorSQL::getInstance().connectToDataBase(Config::getInstance().getDataBaseName())==false)
 						logfile::addLog("Connection to database failed");
 					else {
 						logfile::addLog("Connection to database successful");
@@ -129,13 +129,13 @@ void *doit(void *a)
 			labl.push_back("header");
 			labl.push_back("etalon");
 			labl.push_back("footer");
-			if ( connector.connectToTable("Assignment",labl)==false) {
+			if ( ConnectorSQL::getInstance().connectToTable("Assignment",labl)==false) {
 			logfile::addLog("Connection to assignment`s table failed");
 			}
 			else {
 				logfile::addLog("Connection to assignment`s table successful");
 					string task = jSON.getObject("task", true).asString();
-				code = connector.getCustomCodeOfProgram(task, code);
+				code = ConnectorSQL::getInstance().getCustomCodeOfProgram(task, code);
 				logfile::addLog(code);
 			}
 					}

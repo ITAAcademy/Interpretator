@@ -20,15 +20,20 @@
 #include <set>
 #include <boost/lexical_cast.hpp>
 #include "config.h"
+#include <mutex>
 extern Config* config;
 using namespace std;
 
 class ConnectorSQL
 {
+	std::recursive_mutex _lock;
+	  ConnectorSQL(ConnectorSQL const&);
+		  ConnectorSQL& operator= (ConnectorSQL const&);
+		  ConnectorSQL();
+		  ~ConnectorSQL();
 public:
-	ConnectorSQL();
+	 static ConnectorSQL& getInstance();
 	bool connectToHost(string host, string user, string password);
-	~ConnectorSQL();
 	bool connectToDataBase(string database);
 	bool connectToTable(string table, vector<string> labels);
 	void addRecordsInToTable(vector<map<int,string> > records) ;
@@ -42,6 +47,8 @@ void resetConection();
 private:
 	 sql::Driver *driver;
 		  sql::Connection *con;
+
+
 bool connect_table;
 	 string tableName;
 	 string labels;

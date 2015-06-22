@@ -10,6 +10,7 @@
 #include <boost/foreach.hpp>
 
 string str_with_spec_character(string s) {
+
 	int size = s.size();
 	string rezult;
 	for (int i=0;i <size; i++) {
@@ -23,28 +24,37 @@ string str_with_spec_character(string s) {
 	return rezult;
 }
 
+ConnectorSQL::ConnectorSQL(){
 
-ConnectorSQL::ConnectorSQL() {
-	//driver = get_driver_instance();
-	//cout << driver->getName();
-	connect_table = false;
-	if(driver == NULL){
-	try
-		{
-			driver = get_driver_instance();
-		}
-		catch (sql::SQLException e)
-		{
-			string ss = "Could not get a database driver. Error message: ";
-			ss+=+ e.what() ;
+}
+ConnectorSQL::~ConnectorSQL(){
+		delete res;
+		delete stmt;
+		delete con;
+}
+ConnectorSQL& ConnectorSQL::getInstance(){
+	static ConnectorSQL conn;
+		conn.connect_table = false;
+		if(conn.driver == NULL){
+		try
+			{
+				conn.driver = get_driver_instance();
+			}
+			catch (sql::SQLException e)
+			{
+				string ss = "Could not get a database driver. Error message: ";
+				ss+=+ e.what() ;
 
-			logfile::addLog(ss);
+				logfile::addLog(ss);
+			}
 		}
-	}
+	return conn;
 }
 
 
+
 bool ConnectorSQL::connectToDataBase(string database) {
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 	 stmt = NULL;
 	 con->setSchema(database);
 	 connect_table = false;
@@ -54,11 +64,6 @@ bool ConnectorSQL::connectToDataBase(string database) {
 			  		  else return true;
 }
 
-ConnectorSQL::~ConnectorSQL() {
-	delete res;
-	delete stmt;
-	delete con;
-}
 
 void ConnectorSQL::resetConection() {
 	delete res;
@@ -67,6 +72,7 @@ void ConnectorSQL::resetConection() {
 }
 
 bool ConnectorSQL::connectToHost(string host,string user, string password) {
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 	connect_table = false;
 	//if(con == NULL){
 if (driver == NULL)
@@ -83,6 +89,7 @@ con = NULL;
 //}	return true;
 }
 bool ConnectorSQL::connectToTable(string table, vector<string> labels) {
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 	connect_table = false;
 		//if (this->table.empty()) {
 	this->tableName=table;
@@ -108,19 +115,20 @@ bool ConnectorSQL::connectToTable(string table, vector<string> labels) {
 }
 
 bool ConnectorSQL::isConnectedToTable() {
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 return connect_table;
 }
 
 void ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
-
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 	string query= "INSERT INTO `" + tableName + "` ("+ labels +") Values (";// + this->records +");"
 			int num_of_querys = records.size();
 			//num of querys
 			for (int i=0; i<num_of_querys; i++) {
 				//get keys
-					pair<int,string> me; // what a map<int, int> is made of
+				// what a map<int, int> is made of
 					vector<int> keys;
-						BOOST_FOREACH(me, records[i])
+						for (	pair<int,string> me  : records[i])
 							keys.push_back(me.first);
 						std::sort(keys.begin(),keys.end());
 			int num_of_labels = labels_vec.size();
@@ -153,13 +161,13 @@ void ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
 }
 
 void ConnectorSQL::addRecordsInToTable(map<int,string> records) {
-
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 	string query= "INSERT INTO `" + tableName + "` ("+ labels +") Values (";// + this->records +");"
 	//int num_of_labels = labels_vec.size();
 				//get keys
 					pair<int,string> me; // what a map<int, int> is made of
 					vector<int> keys;
-						BOOST_FOREACH(me, records)
+						for(pair<int,string> me  : records)
 							keys.push_back(me.first);
 						std::sort(keys.begin(),keys.end());
 			int num_of_labels = labels_vec.size();
@@ -188,7 +196,7 @@ void ConnectorSQL::addRecordsInToTable(map<int,string> records) {
 
 //if return -1, then ID isn`t valid
 string ConnectorSQL::getFullCodeOfProgram(string ID) {
-
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 	string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
 		res = stmt->executeQuery(quer);
 		string rezult;
@@ -204,6 +212,7 @@ string ConnectorSQL::getFullCodeOfProgram(string ID) {
 }
 
 string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program) {
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 	string rezult;
 	if (ID.size()>0)
 	{
@@ -235,6 +244,7 @@ string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program) {
 }
 
 vector<map<int,string> >  ConnectorSQL::getAllRecordsFromTable() {
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 	vector<map<int,string> >  records;
 	string query = "SELECT * FROM  `" + tableName + "`";
 	res = stmt->executeQuery(query);
@@ -252,65 +262,4 @@ vector<map<int,string> >  ConnectorSQL::getAllRecordsFromTable() {
 
 
 
-int testSQL() {
 
-
-
-//you must do next for normal access
-	ConnectorSQL con;
-	con.connectToHost(Config::getInstance().getDataBaseHost(), Config::getInstance().getUserName(), Config::getInstance().getPassword());
-
-
-
-	con.connectToDataBase("Databass");
-
-	vector <string> labl;
-	labl.push_back("ID");
-	labl.push_back("header");
-	labl.push_back("etalon");
-	labl.push_back("footer");
-	con.connectToTable("Tasks",labl);
-
-
-
-
-
-
-
-	//cout << con.getFullCodeOfProgram((char *)"1");//,"code of program");
-
-	/*
-	vector <string> labl;
-//write labels of table
-	labl.push_back("ID");
-	labl.push_back("LastName");
-	labl.push_back("FirstName");
-	labl.push_back("Address");
-		ff.setTableAndLabels("Persons",labl);
-
-
-	//write records into table
-
-			vector<map<int,string> > records ;
-			map<int,string> temp;
-		//temp.insert({0,"11111111"});
-		temp.insert({1,"22arrrrrrrrrr2222"});
-		temp.insert({2,"rrrrrrrrrrrrrrfg"});
-		temp.insert({3,"444rrrrrrrrrrrfgsf4444444"});
-			records.push_back(temp);
-
-		ff.addRecordsInToTable(records);
-
-
-
-//get all records, example for cout them
-		vector<map<int,string> > all_records = ff.getAllRecordsFromTable();
-for (int i=0; i<all_records.size(); i++)
-	for (int u=0; u<all_records[i].size(); u++)
-		cout << all_records[i][u] <<"\n";
-*/
-
-
-
-	return 0;
-}
