@@ -211,7 +211,7 @@ string ConnectorSQL::getFullCodeOfProgram(string ID) {
 	return rezult;
 }
 
-string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program) {
+string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program,int thrdId) {
 	std::lock_guard<std::recursive_mutex> locker(_lock);
 	string rezult;
 	if (ID.size()>0)
@@ -240,6 +240,10 @@ string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program) {
 		else rezult = "ID does not exist";
 	}
 	else rezult = "ID invalid";
+	//TEST
+
+	boost::replace_all(rezult,"#NUM#",std::to_string(thrdId));
+	//TEST
 	return rezult;
 }
 

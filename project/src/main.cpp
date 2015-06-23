@@ -135,7 +135,7 @@ void *doit(void *a)
 			else {
 				logfile::addLog("Connection to assignment`s table successful");
 					string task = jSON.getObject("task", true).asString();
-				code = ConnectorSQL::getInstance().getCustomCodeOfProgram(task, code);
+				code = ConnectorSQL::getInstance().getCustomCodeOfProgram(task, code,id);
 				logfile::addLog(code);
 			}
 					}

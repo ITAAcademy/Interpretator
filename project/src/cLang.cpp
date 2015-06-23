@@ -22,9 +22,23 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		return "Canot open file with generation source code, maybe permission denied	";
 	}
 	cout.flush();
-	string code_file_name = "prog" + to_string(thID) + ".out";
-	string build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
-	string run_str = " ./prog" + to_string(thID) + ".out;  rm prog" + to_string(thID) + ".out";
+	string code_file_name;
+
+	string build_str ;
+
+	string run_str ;
+	switch(flags){
+	case Flag_CPP:
+	code_file_name = "prog" + to_string(thID) + ".out";
+	build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
+	run_str = " ./prog" + to_string(thID) + ".out;  rm prog" + to_string(thID) + ".out";
+	break;
+	case Flag_Java:
+		code_file_name = "Main" + to_string(thID) + ".class";
+			build_str = "cd src; javac Main" + to_string(thID) + ".java";
+			run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID);
+			break;
+	}
 	/*
 	 * BETA // don't delete
 	 *
@@ -74,11 +88,13 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 {
 	// in the future
 	cout.flush();
-	if(flags == Flag_TYPE1)
-	{
-		ofstream file;
+	ofstream file;
 		char str[50];
+	switch (flags)
+	{
+	case Flag_CPP:
 		sprintf(str, "src/code%d.cpp\0", thID);
+		logfile::addLog(str);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
@@ -86,7 +102,20 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 		file << code;
 		file.close();
 		cout.flush();
+		break;
+	case Flag_Java:
+				sprintf(str, "src/Main%d.java\0", thID);
+				file.open(str, fstream::out);
+				if(!file.is_open())
+					return false;
+				cout.flush();
+				file << code;
+				file.close();
+				cout.flush();
+				break;
+
 	}
+
 	return true;
 }
 
