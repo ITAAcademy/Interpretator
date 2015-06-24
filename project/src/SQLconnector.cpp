@@ -55,13 +55,21 @@ ConnectorSQL& ConnectorSQL::getInstance(){
 
 bool ConnectorSQL::connectToDataBase(string database) {
 	std::lock_guard<std::recursive_mutex> locker(_lock);
-	 stmt = NULL;
-	 con->setSchema(database);
 	 connect_table = false;
+	 stmt = NULL;
+	 logfile::addLog("1");
+	 try {
+	 con->setSchema(database);
+}
+			catch (sql::SQLException e)
+			{
+				string ss = "Connection to database " + database + " failed. Error message: ";
+				ss+=+ e.what() ;
+				logfile::addLog(ss);
+				return false;
+			}
 			  stmt = con->createStatement();
-
-			  if (stmt == NULL) return false;
-			  		  else return true;
+			  return true;
 }
 
 
@@ -80,11 +88,20 @@ if (driver == NULL)
 	//cout << driver->getName();
 con = NULL;
 	//if (con == NULL)
+try {
 		con = driver->connect(host, user, password);
+}
+			catch (sql::SQLException e)
+			{
+				string ss = "Connection  to host failed. Error message: ";
+				ss+=+ e.what() ;
+				logfile::addLog(ss);
+			}
 	if (con == NULL) {
 		//printf("Connection  to host segwereswr\n");
 		return false;
 	}
+	logfile::addLog("Connection to host successful");
 		  return true;
 //}	return true;
 }
@@ -101,17 +118,23 @@ bool ConnectorSQL::connectToTable(string table, vector<string> labels) {
 		labels_num++;
 	}
 
-		res = stmt->executeQuery("SELECT * FROM  `" + table + "` LIMIT 1");
-		 if (res->next()) 
-		 {
+
+		try {
+			res = stmt->executeQuery("SELECT * FROM  `" + table + "` LIMIT 1");
+			//res->next();
+}
+			catch (sql::SQLException e)
+			{
+				string ss = "Connection  to table " + table + " failed. Error message: ";
+				ss+=+ e.what() ;
+				logfile::addLog(ss);
+				connect_table = false;
+						 return false;
+			}
+			logfile::addLog("Connection  to table " + table + " successful");
 		 connect_table = true;
 		 return true;
-		 }
-		 else 
-		 {
-		 connect_table = false;
-		 return false;
-		 }
+
 }
 
 bool ConnectorSQL::isConnectedToTable() {
@@ -119,9 +142,9 @@ bool ConnectorSQL::isConnectedToTable() {
 return connect_table;
 }
 
-void ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
+bool ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
 	std::lock_guard<std::recursive_mutex> locker(_lock);
-	string query= "INSERT INTO `" + tableName + "` ("+ labels +") Values (";// + this->records +");"
+	string query= "INSERT INTO `" + tableName + "` ("+ this->labels +") Values (";// + this->records +");"
 			int num_of_querys = records.size();
 			//num of querys
 			for (int i=0; i<num_of_querys; i++) {
@@ -152,15 +175,16 @@ void ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
 					}
 					catch (sql::SQLException e)
 					{
-						string ss = "Could not run sql-reques:  ";
+						string ss = "Could not add records in to table:  ";
 						ss+=+ e.what() ;
-
 						logfile::addLog(ss);
+						return false;
 					}
+					return true;
 
 }
 
-void ConnectorSQL::addRecordsInToTable(map<int,string> records) {
+bool ConnectorSQL::addRecordsInToTable(map<int,string> records) {
 	std::lock_guard<std::recursive_mutex> locker(_lock);
 	string query= "INSERT INTO `" + tableName + "` ("+ labels +") Values (";// + this->records +");"
 	//int num_of_labels = labels_vec.size();
@@ -183,15 +207,16 @@ void ConnectorSQL::addRecordsInToTable(map<int,string> records) {
 				query += ");";
 				logfile::addLog(query);
 				try		{
-								stmt->execute(query) ;
-									}
-									catch (sql::SQLException e)
-									{
-										string ss = "Could not run sql-reques:  ";
-										ss+=+ e.what() ;
-
-										logfile::addLog(ss);
-									}
+				stmt->execute(query) ;
+					}
+					catch (sql::SQLException e)
+					{
+						string ss = "Could not add records in to table:  ";
+						ss+=+ e.what() ;
+						logfile::addLog(ss);
+						return false;
+					}
+					return true;
 }
 
 //if return -1, then ID isn`t valid
@@ -262,6 +287,19 @@ vector<map<int,string> >  ConnectorSQL::getAllRecordsFromTable() {
 	 }
 	 logfile::addLog(query);
 	 return records;
+}
+
+
+string getDateTime()
+{
+	 time_t t = time(0);   // get time now
+												struct tm * now = localtime( & t );
+					string s_datime; //'YYYY-MM-DD HH:MM:SS'
+					s_datime += std::to_string(now->tm_year + 1900)+ "-" +
+					 std::to_string(now->tm_mon + 1) + "-" + std::to_string(now->tm_mday)+ " "+
+					 std::to_string(now->tm_hour) + ":" +  std::to_string(now->tm_min) + ":" +
+					 std::to_string(now->tm_sec) ;
+					return s_datime;
 }
 
 

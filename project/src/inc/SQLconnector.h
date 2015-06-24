@@ -24,6 +24,8 @@
 extern Config* config;
 using namespace std;
 
+string getDateTime();
+
 class ConnectorSQL
 {
 	std::recursive_mutex _lock;
@@ -36,8 +38,8 @@ public:
 	bool connectToHost(string host, string user, string password);
 	bool connectToDataBase(string database);
 	bool connectToTable(string table, vector<string> labels);
-	void addRecordsInToTable(vector<map<int,string> > records) ;
-	void addRecordsInToTable(map<int,string>  records) ;
+	bool addRecordsInToTable(vector<map<int,string> > records) ;
+	bool addRecordsInToTable(map<int,string>  records) ;
 	vector<map<int,string> >   getAllRecordsFromTable() ;
 	//id-label is first label which you set!!!
 	bool isConnectedToTable();

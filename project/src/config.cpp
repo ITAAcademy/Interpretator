@@ -70,6 +70,12 @@ void Config::runCommandLine()
         case COMMAND_GET_THREAD_COUNT:
             cout << "threadCount: " << getThreadCount() << "\n";
             break;
+       /* case   COMMAND_GET_TASK_CPP_TABLE_NAME:
+        	cout << "taskCppTableName: "<< getTaskCppTableName()<< "\n";
+			break;
+		case   COMMAND_GET_TASK_JAVA_TABLE_NAME:
+			cout << "taskJavaTableName: "<< getTaskJavaTableName()<< "\n";
+			break;*/
         case COMMAND_SET_PORT:
             cout << "port: ";
             getline(cin, input);
@@ -105,6 +111,16 @@ void Config::runCommandLine()
             getline(cin, input);
             setLogLocation(input);
             break;
+     /*   case   COMMAND_SET_TASK_CPP_TABLE_NAME:
+        	cout << "taskCppTableName: ";
+			getline(cin, input);
+			setTaskCppTableName(input);
+			break;
+        case   COMMAND_SET_TASK_JAVA_TABLE_NAME:
+			cout << "taskJavaTableName: ";
+			getline(cin, input);
+			setTaskJavaTableName(input);
+			break;*/
         case COMMAND_SET_THREAD_COUNT:
             cout << "threadCount: ";
             getline(cin, input);
@@ -143,6 +159,10 @@ void Config::makeValueStructure()
     values[6].value = logLocation;
     values[7].name = "threadCount";
     values[7].value = to_string(threadCount);
+  /*  values[8].name = "taskCppTableName";
+	values[8].value = taskCppTableName;
+	values[9].name = "taskJavaTableName";
+		values[9].value = taskJavaTableName;*/
 }
 
 void Config::makeConfigFile()
@@ -195,6 +215,12 @@ void Config::scanConfigFile()
     getline(config,settings);
     threadCount = stoi(settings.substr(values[7].name.size()+2));
 
+   /* getline(config,settings);
+    taskCppTableName = stoi(settings.substr(values[8].name.size()+2));
+
+    getline(config,settings);
+	taskJavaTableName = stoi(settings.substr(values[9].name.size()+2));*/
+
     config.close();
 }
 
@@ -223,8 +249,37 @@ void Config::setDefaultConfig()
     tableName = "-----";
     logLocation = ".";
     threadCount = 8;
+  /*  taskCppTableName = "Assignment_CPP";
+    taskJavaTableName = "Assignment_JAVA";*/
     makeConfigFile();
 }
+/*
+void Config::setTaskCppTableName(string value)
+{
+	taskCppTableName = value;
+    makeConfigFile();
+}
+
+void Config::setTaskJavaTableName(string value)
+{
+	taskJavaTableName = value;
+    makeConfigFile();
+}
+
+string Config::getTaskCppTableName()
+{
+	scanConfigFile();
+	return taskCppTableName;
+}
+
+string Config::getTaskJavaTableName()
+{
+	scanConfigFile();
+	return taskJavaTableName;
+}
+
+*/
+
 
 void Config::help()
 {
@@ -372,4 +427,5 @@ int Config::getThreadCount()
     scanConfigFile();
     return threadCount;
 }
+
 

@@ -15,6 +15,8 @@ struct Thread2Arguments {
 	//ConnectorSQL connector;
 };
 
+//void *doit(void *a){};
+
 void *doit(void *a)
 {
 	 Thread2Arguments argumento = ((Thread2Arguments *)a)[0];
@@ -30,7 +32,7 @@ void *doit(void *a)
     FCGI_Stream stream(socketId);
     ErrorResponder errorResponder(&stream);
     request = stream.getRequest();
-
+    string lang;
 
     for(;;)
     {
@@ -77,76 +79,63 @@ void *doit(void *a)
 				{
 					 string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
 
-					if (ConnectorSQL::getInstance().connectToHost(Config::getInstance().getDataBaseHost(),Config::getInstance().getUserName(), Config::getInstance().getPassword())==false)
-					{
-						logfile::addLog("Connection  to host failed");
-					}
-					else
+				if (ConnectorSQL::getInstance().connectToHost(Config::getInstance().getDataBaseHost(),Config::getInstance().getUserName(), Config::getInstance().getPassword())==true)
+
 					 {
-						logfile::addLog("Connection to host successful");
-						if (ConnectorSQL::getInstance().connectToDataBase(Config::getInstance().getDataBaseName())==false)
-							logfile::addLog("Connection to database failed");
-						else {
+
+						if (ConnectorSQL::getInstance().connectToDataBase(Config::getInstance().getDataBaseName())==true)
+						{
 							logfile::addLog("Connection to database successful");
 							vector <string> labl;
 							labl.push_back("ID");
 					labl.push_back("ip");
 					labl.push_back("code");
 					labl.push_back("date_time");
-					if ( ConnectorSQL::getInstance().connectToTable("History",labl)==false)
-					logfile::addLog("Connection to history`s table failed");
-					else {
-						logfile::addLog("Connection to history`s table successful");
-						 time_t t = time(0);   // get time now
-											struct tm * now = localtime( & t );
-				string s_datime; //'YYYY-MM-DD HH:MM:SS'
-				s_datime += std::to_string(now->tm_year + 1900)+ "-" +
-				 std::to_string(now->tm_mon + 1) + "-" + std::to_string(now->tm_mday)+ " "+
-				 std::to_string(now->tm_hour) + ":" +  std::to_string(now->tm_min) + ":" +
-				 std::to_string(now->tm_sec) ;
-
+					if ( ConnectorSQL::getInstance().connectToTable("History",labl)==true)
+					{
+				string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 				map<int,string> temp;
 				temp.insert({1,ip_usera});
 				temp.insert({2,str_with_spec_character(code)});
 				temp.insert({3,s_datime});
 				ConnectorSQL::getInstance().addRecordsInToTable(temp);
 					}
-						}
-					 }
-					ConnectorSQL::getInstance().resetConection();
-				if (ConnectorSQL::getInstance().connectToHost(Config::getInstance().getDataBaseHost(), Config::getInstance().getUserName(), Config::getInstance().getPassword())==false)
-				logfile::addLog("Connection  to host failed");
-				else
-				  {
-					logfile::addLog("Connection to host successful");
-					if ( ConnectorSQL::getInstance().connectToDataBase(Config::getInstance().getDataBaseName())==false)
-						logfile::addLog("Connection to database failed");
-					else {
-						logfile::addLog("Connection to database successful");
-						vector <string> labl;
-						labl.push_back("ID");
-			labl.push_back("name");
-			labl.push_back("header");
-			labl.push_back("etalon");
-			labl.push_back("footer");
-			if ( ConnectorSQL::getInstance().connectToTable("Assignment",labl)==false) {
-			logfile::addLog("Connection to assignment`s table failed");
-			}
-			else {
-				logfile::addLog("Connection to assignment`s table successful");
+				////////////////
+				labl.clear();
+							labl.push_back("ID");
+				labl.push_back("name");
+				labl.push_back("header");
+				labl.push_back("etalon");
+				labl.push_back("footer");
+
+				 lang = jSON.getObject("lang", true).asString();
+				string table;
+				if (lang == "c++" || lang == "C++" )
+				 table = "Assignment_CPP";//Config::getInstance().getTaskJavaTableName();
+				else if (lang == "Java" || lang == "java")
+					table = "Assignment_JAVA";
+				if ( ConnectorSQL::getInstance().connectToTable(table,labl)==true) {
 					string task = jSON.getObject("task", true).asString();
-				code = ConnectorSQL::getInstance().getCustomCodeOfProgram(task, code,id);
-				logfile::addLog(code);
-			}
+
+					code = ConnectorSQL::getInstance().getCustomCodeOfProgram(task, code,id);
+					logfile::addLog(code);
+				}
 					}
-				  }
+						}
+
 
 
 					//stream << code; // show input code text
 					logfile::addLog(id, "Start compiler");
 					//logfile::addLog(id, "Compile text:\n" + code);
 					JsonValue res;
-					compiler.compile(code, true);
+
+					if (lang == "c++" || lang == "C++" )
+						compiler.compile(code, true, LangCompiler::Flag_CPP);
+					else if (lang == "Java" || lang == "java")
+					compiler.compile(code, true, LangCompiler::Flag_Java);
+					else
+						compiler.compile(code, true);
 					string date = logfile::getDateStamp();
 					date[date.size() - 1] = '\0';
 					res["date"] = date;

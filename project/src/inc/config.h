@@ -28,6 +28,8 @@ public:
 						COMMAND_GET_TABLE_NAME=166723,
 						COMMAND_GET_LOG_LOCATION=667648,
 						COMMAND_GET_THREAD_COUNT=673356,
+					//	COMMAND_GET_TASK_CPP_TABLE_NAME=765955,
+				//		COMMAND_GET_TASK_JAVA_TABLE_NAME=765956,
 						COMMAND_SET_PORT=6004,
 						COMMAND_SET_USERNAME=97139,
 						COMMAND_SET_PASSWORD=95948,
@@ -35,6 +37,8 @@ public:
 						COMMAND_SET_DATABASE_HOST=1503622,
 						COMMAND_SET_TABLE_NAME=191299,
 						COMMAND_SET_LOG_LOCATION=765952,
+						COMMAND_SET_TASK_CPP_TABLE_NAME=765953,
+						COMMAND_SET_TASK_JAVA_TABLE_NAME=765954,
 						COMMAND_SET_THREAD_COUNT=771660};
 
     //static Config *sConfig;
@@ -45,6 +49,8 @@ public:
     string dataBaseName;
     string dataBaseHost;
     string tableName;
+   // string taskCppTableName;
+   // string taskJavaTableName;
     string logLocation;
     int threadCount;
 
@@ -68,7 +74,11 @@ public:
     void setTableName(string value);
     void setLogLocation(string value);
     void setThreadCount(int value);
+  /*  void setTaskCppTableName(string value);
+    void setTaskJavaTableName(string value);
 
+    string getTaskCppTableName();
+	string getTaskJavaTableName();*/
     string getPort();
     string getUserName();
     string getPassword();
@@ -77,6 +87,7 @@ public:
     string getTableName();
     string getLogLocation();
     int getThreadCount();
+
 };
 
 #endif // CONFIG_H
