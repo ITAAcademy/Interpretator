@@ -13,11 +13,9 @@ using namespace std;
 class LangCompiler{
 	int thID;
 	long double timeOut;
-	string result;
-	string warning_err;
 
 public:
-	enum compilerFlag{ Flag_CPP, Flag_Java, Flag_TYPE3 };// future type of compiler
+	enum compilerFlag{ Flag_TYPE1, Flag_TYPE2, Flag_TYPE3 };// future type of compiler
 
 	LangCompiler(int ID);
 
@@ -28,17 +26,11 @@ public:
 	 *  show == include in textEdit
 	 *
 	 */
-	string compile(string code, bool show, compilerFlag flags = Flag_Java);
+	string compile(char *code, bool show, compilerFlag flags = Flag_TYPE1);
 
 	long double getTimeOut()const;
 
 	void setTimeOut(long double timeOut) ;
-
-	const string& getResult() const ;
-
-	int getThId() const ;
-
-	const string& getWarningErr() const;
 
 private:
 	/*
@@ -53,7 +45,7 @@ private:
 	/*
 	 * generation code file from head & footer
 	 */
-	bool generetionSample(string code, compilerFlag flags);
+	bool generetionSample(char *code, compilerFlag flags);
 	/*
 	 *  file operation functions
 	 */

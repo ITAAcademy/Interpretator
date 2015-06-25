@@ -4,45 +4,16 @@
 #define errLog 1
 
 #include <fstream>
-#include <iostream>
-#include <stdio.h>      /* printf */
-#include <stdlib.h>     /* strtol */
-#include <string.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <pthread.h>
-#include <sys/types.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <iomanip>
-#include <list>
+#include "includes.h"
 
-#include "fcgi_config.h"
-#include "fcgiapp.h"
-
-using namespace std;
-
-/*
- * non staic not haven't realization
- */
 class logfile
 {
 public:
     logfile(FCGX_Request *request);
     ~logfile();
-    void addLog();
-    /*
-     *  add some info from request + str
-     */
-    static void addLog(FCGX_Request *request, string addStr = " ");
-    /*
-     *  add str to log.txt (also date stamp)
-     */
-    static void addLog(string str);
-    static void addLog(int threadID, string str);
-    static char * getDateStamp();
+    void AddLog();
+    static void AddLog(FCGX_Request *request, string addStr = " ");
+    static void AddLog(string str);
 private:
     FCGX_Request *Request;
     char *returnIP();
@@ -50,11 +21,7 @@ private:
     char *returnBrowserVersion();
     char *returnOS();
     char *returnData();
-
-    /*
-     * no control symbol
-     */
-    static int legthClearnStr(string str);
+    static char *getDateStamp();
 };
 
 #endif // LOGFILE_H
