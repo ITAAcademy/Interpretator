@@ -33,6 +33,7 @@ ConnectorSQL::~ConnectorSQL(){
 		delete con;
 }
 ConnectorSQL& ConnectorSQL::getInstance(){
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 	static ConnectorSQL conn;
 		conn.connect_table = false;
 		if(conn.driver == NULL){
