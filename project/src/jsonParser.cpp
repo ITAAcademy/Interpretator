@@ -9,7 +9,7 @@
 
 jsonParser::jsonParser(string json)
 {
-	setJson(json);
+	bJsonValid = setJson(json);
 }
 
 jsonParser::jsonParser()
@@ -23,12 +23,14 @@ jsonParser::~jsonParser() {
 
 bool jsonParser::setJson(string in_json)
 {
-	if(!reader.parse(in_json, parsedFromString, false))
+	if(!reader.parse(in_json, parsedFromString))
 	{
 		json.clear();
+		bJsonValid = false;
 		return false;
 	}
 	json = in_json;
+	bJsonValid = true;
 	return true;
 
 }
@@ -54,25 +56,52 @@ Value jsonParser::getObject(string name, bool everyWhere = false)
 	if(!json.empty())
 	{
 		if(!everyWhere)
-			return parsedFromString[name];
+			return parsedFromString.get(name, Value::null);;
 		return findInArray(parsedFromString, name);
 	}
+	else
+		logfile::addLog("Error Json parse, input string is empty");
 }
 
 Value jsonParser::findInArray(Value &array, string &name)
 {
-	Value res = parsedFromString[name];
+	const Value null = "NULL";
+	Value res = array.get(name, Value::null);
+
 	if(!res.isNull())
 		return res;
+	int size = array.size();
 
-	for(int i = 0; i < array.size(); i++)
+	logfile::addLog("ARR " + name + "size" + to_string(array.size()));
+	/*string stt;
+	stt.append("ALL NUMBERS::	\n");
+	for(int i = 0; i < array.getMemberNames().size(); i++)
 	{
-		if( array[i].isArray() )
-			t_find.push_back(array[i]);
+		stt.append(array.getMemberNames()[i] + "	\\\\\\\\\n");
+
 	}
+	logfile::addLog(stt);*/
+	if(size != 0)
+	{
+		logfile::addLog("in_lof");
+		vector<string> memss = array.getMemberNames();
+		for(int i = 0; i < array.size(); ++i)
+		{
+			Value get = array.get(memss[i], Value::null);
+			if( !get.isNull() && get.size() != 0)
+				t_find.push_back(array.get(memss[i], Value::null));
+		}
+	}
+	logfile::addLog("size of t_find: " + to_string(t_find.size()));
+
+	if(t_find.front() == array)
+		t_find.pop_front();
+
+	logfile::addLog("size of t_find: " + to_string(t_find.size()));
+
 	while(t_find.size() > 0)
 	{
-		return findInArray(array, name);
+		return findInArray(t_find.front(), name);
 	}
 }
 
@@ -81,4 +110,38 @@ bool jsonParser::isJson(string in_json)
 	Reader t_reader;
 	Value temp;
 	return t_reader.parse( in_json, temp, false);
+}
+
+bool jsonParser::isJson()
+{
+	return bJsonValid;
+}
+
+Value jsonParser::getRoot(string Json)
+{
+	Reader t_reader;
+	Value temp;
+	t_reader.parse( Json, temp, false);
+	return temp;
+
+}
+
+Value jsonParser::getRoot()
+{
+	return parsedFromString;
+}
+
+bool jsonParser::isValidFields()
+{
+	if(!bJsonValid)
+		return false;
+
+	if(parsedFromString[FIELD_TASK_ID].isNull())
+		return false;
+	if(parsedFromString[FIELD_CODE_TEXT].isNull())
+			return false;
+	if(parsedFromString[FIELD_CODE_LANGUAGE].isNull())
+			return false;
+
+	return true;
 }

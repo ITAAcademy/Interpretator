@@ -17,6 +17,7 @@ FCGI_Stream::FCGI_Stream( int socketId = 0) {
     cout_streambuf = cout.rdbuf();
     cerr_streambuf = cerr.rdbuf();
     status = false;
+    buffer = NULL;
     /*cin_fcgi_streambuf = NULL;
     cout_fcgi_streambuf = NULL;
     cerr_fcgi_streambuf = NULL;*/
@@ -69,27 +70,28 @@ bool FCGI_Stream::IsRequest() {
 		status = true;
 		return true;
 	}
+	return false;
 }
 
 bool FCGI_Stream::multiIsRequest() {
 	pthread_mutex_t accept_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-	printf("Try to accept new request\n");
+	logfile::addLog("Try to accept new request\n");
 	pthread_mutex_lock(&accept_mutex);
 	status = true;
 	int rc;
 	rc = FCGX_Accept_r(request);
 	pthread_mutex_unlock(&accept_mutex);
-	printf("hernia");
 	if(rc < 0)
 	{
 		status = false;
-		printf("Can not accept new request\n");
+		logfile::addLog("Can not accept new request\n");
 		return false;
 	}
-	printf("request is accepted\n");
+	logfile::addLog("request is accepted\n");
 	//////////////////////////////////////// get bufer
 	updateBuffer();
+	logfile::addLog("buffer is accepted\n");
 	/// ok
 	return true;
 }
@@ -102,11 +104,11 @@ void FCGI_Stream::updateBuffer()
 		{
 			content_length = 10;
 		}
-		/*if(buffer != NULL)
-			delete []buffer;*/
+		if(buffer != NULL)
+			delete []buffer;
 		buffer = new char[content_length];
 		if(!contentNULL)
-		FCGX_GetStr(buffer, content_length*sizeof(char), request->in);
+			FCGX_GetStr(buffer, content_length*sizeof(char), request->in);
 }
 
 void FCGI_Stream::reInitRequesBuffer()
@@ -246,4 +248,9 @@ int FCGI_Stream::getRequestSize()
 			content_length = strtol(content_length_str, &content_length_str, 10);
 		//operator <<(content_length);
 		return content_length;
+}
+
+string FCGI_Stream::getRequestBuffer()
+{
+	return string(buffer);
 }
