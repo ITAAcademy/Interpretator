@@ -156,16 +156,18 @@ void *doit(void *a)
 
 				}
 				stream << "  </body>\n </html>\n";
+
 			}
 			else
 			{
 				logfile::addLog( id, "Json format is not correct!!! \n::::::::::::::::::::::::\n" + stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
 				errorResponder.showError(400);
 			}
+
 		}
+
         //close session
         stream.close();
-
     }
 
     return NULL;

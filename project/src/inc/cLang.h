@@ -16,6 +16,7 @@ class LangCompiler{
 	string result;
 	string warning_err;
 
+
 public:
 	enum compilerFlag{ Flag_CPP, Flag_Java, Flag_TYPE3 };// future type of compiler
 
