@@ -33,7 +33,6 @@ ConnectorSQL::~ConnectorSQL(){
 		delete con;
 }
 ConnectorSQL& ConnectorSQL::getInstance(){
-
 	static ConnectorSQL conn;
 		conn.connect_table = false;
 		if(conn.driver == NULL){
@@ -90,7 +89,6 @@ if (driver == NULL)
 con = NULL;
 	//if (con == NULL)
 try {
-
 		con = driver->connect(host, user, password);
 }
 			catch (sql::SQLException e)
@@ -108,7 +106,7 @@ try {
 //}	return true;
 }
 bool ConnectorSQL::connectToTable(string table, vector<string> labels) {
-	std::lock_guard<std::recursive_mutex> locker(_lock);
+
 	connect_table = false;
 		//if (this->table.empty()) {
 	this->tableName=table;
@@ -120,7 +118,7 @@ bool ConnectorSQL::connectToTable(string table, vector<string> labels) {
 		labels_num++;
 	}
 
-
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 		try {
 			res = stmt->executeQuery("SELECT * FROM  `" + table + "` LIMIT 1");
 			//res->next();
@@ -145,7 +143,7 @@ return connect_table;
 }
 
 bool ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
-	std::lock_guard<std::recursive_mutex> locker(_lock);
+
 	string query= "INSERT INTO `" + tableName + "` ("+ this->labels +") Values (";// + this->records +");"
 			int num_of_querys = records.size();
 			//num of querys
@@ -172,6 +170,7 @@ bool ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
 			}
 			//cout<< query << "\n";
 			logfile::addLog(query);
+			std::lock_guard<std::recursive_mutex> locker(_lock);
 			try		{
 				stmt->execute(query) ;
 					}
@@ -187,7 +186,7 @@ bool ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
 }
 
 bool ConnectorSQL::addRecordsInToTable(map<int,string> records) {
-	std::lock_guard<std::recursive_mutex> locker(_lock);
+
 	string query= "INSERT INTO `" + tableName + "` ("+ labels +") Values (";// + this->records +");"
 	//int num_of_labels = labels_vec.size();
 				//get keys
@@ -208,6 +207,7 @@ bool ConnectorSQL::addRecordsInToTable(map<int,string> records) {
 				}
 				query += ");";
 				logfile::addLog(query);
+				std::lock_guard<std::recursive_mutex> locker(_lock);
 				try		{
 				stmt->execute(query) ;
 					}
@@ -237,15 +237,6 @@ string ConnectorSQL::getFullCodeOfProgram(string ID) {
 		logfile::addLog(quer);
 	return rezult;
 }
-std::string gulp(std::istream &in)
-{
-    std::string ret;
-    char buffer[596];
-    while (in.read(buffer, sizeof(buffer)))
-        ret.append(buffer, sizeof(buffer));
-    ret.append(buffer, in.gcount());
-    return ret;
-}
 
 string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program,int thrdId) {
 	std::lock_guard<std::recursive_mutex> locker(_lock);
@@ -257,7 +248,6 @@ string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program,in
 		try		{
 			logfile::addLog(quer);
 			res = stmt->executeQuery(quer);
-
 			}
 			catch (sql::SQLException e)
 			{
@@ -271,13 +261,8 @@ string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program,in
 		{
 		/* rezult = str_with_spec_character(res->getString(3)) + "\n" +
 				 str_with_spec_character(text_of_program) + "\n" +  res->getString(5);*/
-			 std::istream * header_stream = res->getBlob("header");
-			 std::istream * footer_stream = res->getBlob("footer");
-			string header = gulp(*header_stream);
-			string footer = gulp(*footer_stream);
-
-		 rezult = header + "\n" +
-		 				 text_of_program + "\n" +  footer;
+		 rezult = (res->getString(3)) + "\n" +
+		 				 (text_of_program) + "\n" +  res->getString(5);
 		}
 		else rezult = "ID does not exist";
 	}
@@ -309,7 +294,6 @@ vector<map<int,string> >  ConnectorSQL::getAllRecordsFromTable() {
 
 string getDateTime()
 {
-	std::lock_guard<std::recursive_mutex> locker(_lock);
 	 time_t t = time(0);   // get time now
 												struct tm * now = localtime( & t );
 					string s_datime; //'YYYY-MM-DD HH:MM:SS'

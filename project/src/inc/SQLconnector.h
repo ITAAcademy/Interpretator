@@ -25,10 +25,10 @@ extern Config* config;
 using namespace std;
 
 string getDateTime();
-std::recursive_mutex _lock;
+
 class ConnectorSQL
 {
-
+	std::recursive_mutex _lock;
 	  ConnectorSQL(ConnectorSQL const&);
 		  ConnectorSQL& operator= (ConnectorSQL const&);
 		  ConnectorSQL();

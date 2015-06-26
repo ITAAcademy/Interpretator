@@ -74,7 +74,7 @@ void *doit(void *a)
 				string outStr = code;
 				clr.ClearText(outStr);*/
 				cout.flush();
-				string code = jSON.getObject("code", true).asString();
+				string code = jSON.getObject("code", false).asString();
 				if(!code.empty())
 				{
 					 string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
@@ -108,23 +108,23 @@ void *doit(void *a)
 				labl.push_back("etalon");
 				labl.push_back("footer");
 
-				 lang = jSON.getObject("lang", true).asString();
+				lang = jSON.getObject("lang", false).asString();
+
 				string table;
 				if (lang == "c++" || lang == "C++" )
 				 table = "Assignment_CPP";//Config::getInstance().getTaskJavaTableName();
 				else if (lang == "Java" || lang == "java")
 					table = "Assignment_JAVA";
+				else
+					table = "Assignment_CPP";
 				if ( ConnectorSQL::getInstance().connectToTable(table,labl)==true) {
-					string task = jSON.getObject("task", true).asString();
+					string task = jSON.getObject("task", false).asString();
 
 					code = ConnectorSQL::getInstance().getCustomCodeOfProgram(task, code,id);
 					logfile::addLog(code);
 				}
 					}
 						}
-
-
-
 					//stream << code; // show input code text
 					logfile::addLog(id, "Start compiler");
 					//logfile::addLog(id, "Compile text:\n" + code);
@@ -136,6 +136,7 @@ void *doit(void *a)
 					compiler.compile(code, true, LangCompiler::Flag_Java);
 					else
 						compiler.compile(code, true);
+
 					string date = logfile::getDateStamp();
 					date[date.size() - 1] = '\0';
 					res["date"] = date;
