@@ -25,7 +25,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	string code_file_name;
 
 	string build_str ;
-
+	string prog_name;
 	string run_str ;
 	switch(flags){
 	case Flag_CPP:
@@ -33,11 +33,13 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
 	build_str = "cd src; clang++ -Wno-deprecated code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
 	run_str = " ./prog" + to_string(thID) + ".out;  rm prog" + to_string(thID) + ".out";
+	prog_name = "prog"+to_string(thID)+".out";
 	break;
 	case Flag_Java:
 		code_file_name = "Main" + to_string(thID) + ".class";
-			build_str = "cd src; javac Main" + to_string(thID) + ".java";
-			run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID);
+			build_str = "cd src; javac Main" + to_string(thID) + ".java -d ../";
+			run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID)+".class";
+			prog_name = "Main"+to_string(thID)+".class";
 			break;
 	}
 	/*
@@ -52,7 +54,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 
 	warning_err = getStdoutFromCommand(build_str);
 	cout.flush();
-	if(fileExist("prog" + to_string(thID) + ".out"))
+	if(fileExist(prog_name))
 	{
 		result.append(getStdoutFromCommand(run_str));
 	}

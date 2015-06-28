@@ -29,7 +29,7 @@ public:
 	 *  show == include in textEdit
 	 *
 	 */
-	string compile(string code, bool show, compilerFlag flags = Flag_CPP);
+	string compile(string code, bool show, compilerFlag flags = Flag_Java);
 
 	long double getTimeOut()const;
 
