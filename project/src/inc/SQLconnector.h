@@ -40,7 +40,8 @@ public:
 	bool connectToTable(string table, vector<string> labels);
 	bool addRecordsInToTable(vector<map<int,string> > records) ;
 	bool addRecordsInToTable(map<int,string>  records) ;
-	vector<map<int,string> >   getAllRecordsFromTable() ;
+	bool updateRecordsInToTable(map<int,string> records, vector<string> labels,string where) ;
+	vector<map<int,string> >   getAllRecordsFromTable(string where ="1") ;
 	//id-label is first label which you set!!!
 	bool isConnectedToTable();
 	string getCustomCodeOfProgram(string ID, string text_of_program,int thrdId);

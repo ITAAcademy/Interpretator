@@ -135,13 +135,30 @@ bool jsonParser::isValidFields()
 {
 	if(!bJsonValid)
 		return false;
+if (parsedFromString[FIELD_OPERATION]=="send")
+{
+		if(parsedFromString[FIELD_TASK_ID].isNull())
+				return false;
+			if(parsedFromString[FIELD_CODE_TEXT].isNull())
+				return false;
+			if(parsedFromString[FIELD_CODE_LANGUAGE].isNull())
+				return false;
+			if(parsedFromString[FIELD_JOBID].isNull())
+				return false;
+			if(parsedFromString[FIELD_SESSION].isNull())
+				return false;
+}
+else if (parsedFromString[FIELD_OPERATION]=="status"){
 
-	if(parsedFromString[FIELD_TASK_ID].isNull())
-		return false;
-	if(parsedFromString[FIELD_CODE_TEXT].isNull())
-			return false;
-	if(parsedFromString[FIELD_CODE_LANGUAGE].isNull())
-			return false;
+}
+else if (parsedFromString[FIELD_OPERATION]=="result"){
+	if(parsedFromString[FIELD_JOBID].isNull())
+						return false;
+					if(parsedFromString[FIELD_SESSION].isNull())
+						return false;
+}
+else return false ;
+
 
 	return true;
 }

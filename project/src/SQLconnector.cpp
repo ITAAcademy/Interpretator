@@ -221,6 +221,39 @@ bool ConnectorSQL::addRecordsInToTable(map<int,string> records) {
 					return true;
 }
 
+
+bool ConnectorSQL::updateRecordsInToTable(map<int,string> records, vector<string> labels,string where) {
+
+	string query= "UPDATE `"+ tableName+ "` SET ";
+	for (int i = 0; i < labels.size();i++)
+	{
+		if (records[i]=="")continue;
+		query = query + "`"+labels[i]+"`='"+records[i]+"'";
+		if (i!=labels.size()-2)query=query+", ";
+	}
+		query = query + " WHERE "+where;
+	//int num_of_labels = labels_vec.size();
+				//get keys
+				logfile::addLog(query);
+				std::lock_guard<std::recursive_mutex> locker(_lock);
+				try		{
+				stmt->execute(query) ;
+					}
+					catch (sql::SQLException *e)
+					{
+						string ss = "Could not update records in table:  ";
+						ss+=+ e->what() ;
+						logfile::addLog(ss);
+						return false;
+					}
+					return true;
+}
+
+
+
+
+
+
 //if return -1, then ID isn`t valid
 string ConnectorSQL::getFullCodeOfProgram(string ID) {
 	std::lock_guard<std::recursive_mutex> locker(_lock);
@@ -269,25 +302,26 @@ string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program,in
 	else rezult = "ID invalid";
 	//TEST
 
-	boost::replace_all(rezult,"#NUM#",std::to_string(thrdId));
+	boost::replace_all(rezult,"#NUM#",to_string(thrdId));
 	//TEST
 	return rezult;
 }
 
-vector<map<int,string> >  ConnectorSQL::getAllRecordsFromTable() {
+vector<map<int,string> >  ConnectorSQL::getAllRecordsFromTable(string where) {
 	std::lock_guard<std::recursive_mutex> locker(_lock);
 	vector<map<int,string> >  records;
-	string query = "SELECT * FROM  `" + tableName + "`";
+	string query = "SELECT * FROM  `" + tableName + "` WHERE "+where;
 	res = stmt->executeQuery(query);
 	//res = stmt->executeQuery(query);
 	 while (res->next()) {
-
 		 map<int,string> temp;
 		 for (int i=1; i<=labels_num; i++)
+		 {
 			 temp.insert( {i-1, res->getString(i) });
+		 }
 		 records.push_back(temp);
 	 }
-	 logfile::addLog(query);
+	 logfile::addLog(query + "records_num:"+to_string(records.size()));
 	 return records;
 }
 

@@ -92,11 +92,11 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 	// in the future
 	cout.flush();
 	ofstream file;
-		char str[50];
+		string str;
 	switch (flags)
 	{
 	case Flag_CPP:
-		sprintf(str, "src/code%d.cpp\0", thID);
+		str="src/code"+to_string(thID)+".cpp\0";
 		logfile::addLog(str);
 		file.open(str, fstream::out);
 		if(!file.is_open())
@@ -107,7 +107,7 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 		cout.flush();
 		break;
 	case Flag_Java:
-				sprintf(str, "src/Main%d.java\0", thID);
+				str="src/Main"+to_string(thID)+".java\0";
 				file.open(str, fstream::out);
 				if(!file.is_open())
 					return false;

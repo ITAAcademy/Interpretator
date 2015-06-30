@@ -14,7 +14,6 @@
 #include <jsoncpp/json/json.h>
 #include "logfile.h"
 
-
 //#include <chrono>
 
 #include "fcgi_config.h"

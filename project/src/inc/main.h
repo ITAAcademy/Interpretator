@@ -34,6 +34,7 @@ int main(void)
 #include "jsonParser.h"
 #include "SQLconnector.h"
 #include "config.h"
+#include "ctpl_stl.h"
 using namespace std;
 //#include <pstream.h>
 /*
@@ -46,10 +47,18 @@ using namespace std;
 */
 #include <cassert>
 #include <exception>
-
 #include "FCGI_Stream.h"
+
 //Config *config;
-static void *doit(void *a);
+struct Job {
+	string session;
+	int jobid;
+	string code;
+	int task;
+	string lang;
+};
+
+//static void *doit(void *a);
 int Apache(void);
 
 void show404()

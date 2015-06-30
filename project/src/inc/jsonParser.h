@@ -18,6 +18,9 @@ using namespace Json;
 #define	FIELD_TASK_ID  "task"
 #define FIELD_CODE_TEXT  "code"
 #define FIELD_CODE_LANGUAGE  "lang"
+#define FIELD_OPERATION "operation"
+#define FIELD_SESSION "session"
+#define FIELD_JOBID "jobid"
 #define JsonValue Value
 /*
 
