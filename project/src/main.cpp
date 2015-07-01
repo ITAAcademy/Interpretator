@@ -124,14 +124,13 @@ void processTask(int id,Job job) {
 				table = "Assignment_JAVA";
 			else
 				table = "Assignment_CPP";
-			if (ConnectorSQL::getInstance().connectToTable(
-					table, labl) == true) {
-				job.code =
-						ConnectorSQL::getInstance().getCustomCodeOfProgram(
-								to_string(job.task), job.code, id);
+			/*
+			if (ConnectorSQL::getInstance().connectToTable(	table, labl) == true)
+			{
+				job.code =	ConnectorSQL::getInstance().getCustomCodeOfProgram(	to_string(job.task), job.code, id);
 				logfile::addLog(job.code);
 			}
-
+*/
 			logfile::addLog(to_string(id)+ " Start compiler");
 			JsonValue res;
 
@@ -139,6 +138,8 @@ void processTask(int id,Job job) {
 				compiler.compile(job.code, true, LangCompiler::Flag_CPP);
 			else if (job.lang == "Java" || job.lang == "java")
 				compiler.compile(job.code, true, LangCompiler::Flag_Java);
+			else if (job.lang == "Js" || job.lang == "js")
+				compiler.compile(job.code, true, LangCompiler::Flag_JS);
 			else
 				compiler.compile(job.code, true);
 

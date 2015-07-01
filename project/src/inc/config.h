@@ -42,7 +42,7 @@ public:
 						COMMAND_SET_THREAD_COUNT=771660};
 
     //static Config *sConfig;
-	string  dataBasePort;
+
     string port;
     string userName;
     string password;
@@ -71,11 +71,9 @@ public:
     void setPassword(string value);
     void setDataBaseName(string value);
     void setDataBaseHost(string value);
+    void setTableName(string value);
     void setLogLocation(string value);
     void setThreadCount(int value);
-    void setDataBasePort(int value);
-
-
   /*  void setTaskCppTableName(string value);
     void setTaskJavaTableName(string value);
 
@@ -86,8 +84,8 @@ public:
     string getPassword();
     string getDataBaseName();
     string getDataBaseHost();
+    string getTableName();
     string getLogLocation();
-    string getDataBasePort();
     int getThreadCount();
 
 };
