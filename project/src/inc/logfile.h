@@ -42,7 +42,7 @@ public:
      */
     static void addLog(string str);
     static void addLog(int threadID, string str);
-    static char * getDateStamp();
+    static string getDateStamp();
 private:
     FCGX_Request *Request;
     char *returnIP();

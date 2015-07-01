@@ -26,9 +26,10 @@ void logfile::addLog(FCGX_Request *request, string addStr)
 	out += FCGX_GetParam( "REMOTE_ADDR", request->envp );
 	out += " request length: ";
 	out +=  FCGX_GetParam( "CONTENT_LENGTH", request->envp );
-
-
-	write << out << setw(100 - legthClearnStr(out)) << getDateStamp();
+	out += addStr;
+	cout.setf(ios::left);
+	write  << setw(30) << left << getDateStamp() << out <<  "\n";
+	cout.setf(ios::right);
 	write.close();
 
 	pthread_mutex_unlock(&accept_mutex);
@@ -41,7 +42,7 @@ void logfile::addLog(string str)
 	pthread_mutex_lock(&accept_mutex);
 	cout.flush();
     write.open("log.txt", std::ios_base::app);
-    write << str <<  setw(100 - legthClearnStr(str)) << getDateStamp();
+    write  << setw(30) << left << getDateStamp() << str <<  "\n";
 	write.close();
 	cout.flush();
 	pthread_mutex_unlock(&accept_mutex);
@@ -54,10 +55,13 @@ void logfile::addLog(int threadID, string str)
 	addLog(res.str() + str);
 }
 
-char *logfile::getDateStamp()
+string logfile::getDateStamp()
 {
 	time_t result = time(nullptr);
-	return asctime(localtime(&result));
+	string date = asctime(localtime(&result));
+	date.resize(date.size() - 1);
+	//date[date.size() - 1] = '\0';
+	return date;
 }
 
 int logfile::legthClearnStr(string str)

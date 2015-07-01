@@ -16,6 +16,7 @@ class LangCompiler{
 	string result;
 	string warning_err;
 
+#define TIME_OUT_NULL 0;
 
 public:
 	enum compilerFlag{ Flag_CPP, Flag_Java, Flag_TYPE3 };// future type of compiler
@@ -50,7 +51,7 @@ private:
 	 * second version of get command function // more stable
 	 * cmd === input string with command
 	 */
-	string getStdoutFromCommand(string cmd);
+	string getStdoutFromCommand(string cmd, int mTimeOut = 0, long double *executionTime = NULL);
 	/*
 	 * generation code file from head & footer
 	 */

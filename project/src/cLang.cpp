@@ -19,8 +19,9 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	if(!generetionSample(code, flags))
 	{
 		logfile::addLog("Canot open file with generation source code, maybe permission denied	");
-		return "Canot open file with generation source code, maybe permission denied	";
+		return "Canot open file with generation source code, maybe permission denied";
 	}
+	cout.flush();
 	cout.flush();
 	string code_file_name;
 
@@ -54,9 +55,10 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 
 	warning_err = getStdoutFromCommand(build_str);
 	cout.flush();
+	long double  comp_time;
 	if(fileExist(prog_name))
 	{
-		result.append(getStdoutFromCommand(run_str));
+		result.append(getStdoutFromCommand(run_str, 0, &comp_time));
 	}
 	cout.flush();
 	if(show)
@@ -92,11 +94,11 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 	// in the future
 	cout.flush();
 	ofstream file;
-		string str;
+		char str[50];
 	switch (flags)
 	{
 	case Flag_CPP:
-		str="src/code"+to_string(thID)+".cpp\0";
+		sprintf(str, "src/code%d.cpp\0", thID);
 		logfile::addLog(str);
 		file.open(str, fstream::out);
 		if(!file.is_open())
@@ -107,15 +109,15 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 		cout.flush();
 		break;
 	case Flag_Java:
-				str="src/Main"+to_string(thID)+".java\0";
-				file.open(str, fstream::out);
-				if(!file.is_open())
-					return false;
-				cout.flush();
-				file << code;
-				file.close();
-				cout.flush();
-				break;
+		sprintf(str, "src/Main%d.java\0", thID);
+		file.open(str, fstream::out);
+		if(!file.is_open())
+			return false;
+		cout.flush();
+		file << code;
+		file.close();
+		cout.flush();
+		break;
 
 	}
 
@@ -181,15 +183,15 @@ char* LangCompiler::getSystemOutput(char* cmd){
     return ret;
 }
 
-string LangCompiler::getStdoutFromCommand(string cmd) {
-
+string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double *executionTime)
+{
    string data;
    FILE * stream;
    const int max_buffer = 256;
    char buffer[max_buffer];
    cmd.append(" 2>&1");
    const long double sysTime = time(0);
-   printf("%lf", sysTime);
+   //printf("%lf", sysTime);
  //  const long double sysTimeMS = sysTime*1000;
    stream = popen(cmd.c_str(), "r");
    if (stream) {
@@ -197,9 +199,14 @@ string LangCompiler::getStdoutFromCommand(string cmd) {
    {
 	   if (fgets(buffer, max_buffer, stream) != NULL)
 		   data.append(buffer);
-	   if (sysTime - time(0) > timeOut)
+	   if (mTimeOut != 0 && sysTime - time(0) > mTimeOut)
+	   {
+		   data = "timeout";
 		   break;
+	   }
    }
+   if(executionTime != 0)
+	   executionTime[0] = sysTime - time(0);
    pclose(stream);
    }
    return data;

@@ -1,7 +1,6 @@
 #ifndef ERRORRESPONDER_H
 #define ERRORRESPONDER_H
 
-#include <string>
 #include <iostream>
 #include "FCGI_Stream.h"
 
