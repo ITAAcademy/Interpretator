@@ -42,14 +42,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 			run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID)+".class";
 			prog_name = "Main"+to_string(thID)+".class";
 			break;
-	case Flag_JS:
-		code_file_name = "Main" + to_string(thID) + ".class";
-			build_str = "java -jar js.jar Main" + to_string(thID) + ".js ../";
-			run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID)+".class";
-			prog_name = "Main"+to_string(thID)+".js";
-			break;
-	}//java -jar js.jar myscript.js
-
+	}
 	/*
 	 * BETA // don't delete
 	 *
@@ -59,6 +52,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	in.append("if [ -f /var/www/fcgi/srs/" + code_file_name + " ]; then ./" + code_file_name) + ";";
 	in.append("rm prog.out;");
 	in.append("fi;");*/
+
 	warning_err = getStdoutFromCommand(build_str);
 	cout.flush();
 	long double  comp_time;
@@ -124,17 +118,7 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 		file.close();
 		cout.flush();
 		break;
-		break;
-	case Flag_JS:
-		sprintf(str, "src/Main%d.js\0", thID);
-		file.open(str, fstream::out);
-		if(!file.is_open())
-			return false;
-		cout.flush();
-		file << code;
-		file.close();
-		cout.flush();
-		break;
+
 	}
 
 	return true;
