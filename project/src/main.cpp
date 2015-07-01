@@ -120,18 +120,11 @@ void processTask(int id,Job job) {
 				table = "Assignment_JS";
 			else
 				table = "Assignment_CPP";
-<<<<<<< HEAD
-
-			if (ConnectorSQL::getInstance().connectToTable(	table, labl) == true)
-			{
-				job.code =	ConnectorSQL::getInstance().getCustomCodeOfProgram(	to_string(job.task), job.code, id);
-=======
 			if (ConnectorSQL::getInstance().connectToTable(
 					table, labl) == true) {
 				job.code =
 						ConnectorSQL::getInstance().getCustomCodeOfProgram(
 								to_string(job.task), job.code, id);
->>>>>>> origin/SQL-fix3
 				logfile::addLog(job.code);
 			}
 
@@ -142,6 +135,8 @@ void processTask(int id,Job job) {
 				compiler.compile(job.code, true, LangCompiler::Flag_CPP);
 			else if (job.lang == "Java" || job.lang == "java")
 				compiler.compile(job.code, true, LangCompiler::Flag_Java);
+			else if (job.lang == "JS" || job.lang == "js")
+				compiler.compile(job.code, true, LangCompiler::Flag_JS);
 			else
 				compiler.compile(job.code, true);
 
@@ -313,13 +308,9 @@ void *receiveTask(void *a) {
 								temp.insert( { 4, s_datime });
 								//4
 								vector<map<int, string> > records =
-										ConnectorSQL::getInstance().getAllRecordsFromTable(
-												"`session` =" + session + " AND `jobid` ="+to_string(jobid));
-
+				ConnectorSQL::getInstance().getAllRecordsFromTable("`session` =" + session + " AND `jobid` ="+to_string(jobid));
+							//	ConnectorSQL::getInstance().getAllRecordsFromTable();
 								// l12(std::to_string(((int) records.size())) +" 111111111" );/////////////////
-
-
-
 
 								for (int i=0; i< records.size(); i++)
 								{

@@ -42,7 +42,6 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 			run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID)+".class";
 			prog_name = "Main"+to_string(thID)+".class";
 			break;
-<<<<<<< HEAD
 	case Flag_JS:
 		code_file_name = "Main" + to_string(thID) + ".class";
 			build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../";
@@ -51,9 +50,6 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 			break;
 	}//java -jar js.jar myscript.js
 
-=======
-	}
->>>>>>> origin/SQL-fix3
 	/*
 	 * BETA // don't delete
 	 *
@@ -63,12 +59,6 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	in.append("if [ -f /var/www/fcgi/srs/" + code_file_name + " ]; then ./" + code_file_name) + ";";
 	in.append("rm prog.out;");
 	in.append("fi;");*/
-<<<<<<< HEAD
-=======
-
-	warning_err = getStdoutFromCommand(build_str);
-	cout.flush();
->>>>>>> origin/SQL-fix3
 	long double  comp_time;
 	warning_err = getStdoutFromCommand(build_str, 0, &comp_time);
 	cout.flush();

@@ -66,7 +66,7 @@ void ConnectorSQL::closeConection() {
 
 //work12
 bool ConnectorSQL::connectToTable(string table, vector<string> labels) {
-	//std::lock_guard<std::recursive_mutex> locker(_lock);
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 	connect_table = false;
 		//if (this->table.empty()) {
 	this->tableName=table;
@@ -96,7 +96,7 @@ logfile::addLog ("Table " + table + " is empty");
 }
 
 bool ConnectorSQL::isConnectedToTable() {
-	//std::lock_guard<std::recursive_mutex> locker(_lock);
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 return connect_table;
 }
 
@@ -141,7 +141,7 @@ bool ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
 
 //work12
 bool ConnectorSQL::addRecordsInToTable(map<int,string> records) {
-	std::lock_guard<std::recursive_mutex> locker(_lock);
+
 		string quer= "INSERT INTO `" + tableName + "` ("+ this->labels +") Values (";// + this->records +");"
 		//string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
 
@@ -165,6 +165,7 @@ bool ConnectorSQL::addRecordsInToTable(map<int,string> records) {
 						 quer += ");";
 
 			//Zero for success. Nonzero if an error occurred.
+						 std::lock_guard<std::recursive_mutex> locker(_lock);
 			int query_state = 	mysql_query(connection, quer.c_str());
 				logfile::addLog (quer);
 				if (query_state==0) {
@@ -209,7 +210,7 @@ string ConnectorSQL::getFullCodeOfProgram(string ID,int thrdId)  {
 
 //work12
 string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program,int thrdId) {
-//std::lock_guard<std::recursive_mutex> locker(_lock);
+std::lock_guard<std::recursive_mutex> locker(_lock);
 string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
 //Zero for success. Nonzero if an error occurred.
 int query_state = 	mysql_query(connection, quer.c_str());
@@ -236,7 +237,7 @@ return rezult;
 
 //work12
 vector<map<int,string> >  ConnectorSQL::getAllRecordsFromTable(string where )  {
-	//std::lock_guard<std::recursive_mutex> locker(_lock);
+	std::lock_guard<std::recursive_mutex> locker(_lock);
 	 vector<map<int,string> >  records;
 	 	string quer = "SELECT * FROM  `" + tableName + "` WHERE "+where;
 	 	//Zero for success. Nonzero if an error occurred.
