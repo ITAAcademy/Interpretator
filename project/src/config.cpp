@@ -61,9 +61,6 @@ void Config::runCommandLine()
         case COMMAND_GET_DATABASE_HOST:
             cout << "dataBaseHost: " << getDataBaseHost() << "\n";
             break;
-        case COMMAND_GET_TABLE_NAME:
-            cout << "tableName: " << getTableName() << "\n";
-            break;
         case COMMAND_GET_LOG_LOCATION:
             cout << "logLocation: " << getLogLocation() << "\n";
             break;
@@ -100,11 +97,6 @@ void Config::runCommandLine()
             cout << "dataBaseHost: ";
             getline(cin, input);
             setDataBaseHost(input);
-            break;
-        case COMMAND_SET_TABLE_NAME:
-            cout << "tableName: ";
-            getline(cin, input);
-            setTableName(input);
             break;
         case COMMAND_SET_LOG_LOCATION:
             cout << "logLocation: ";
@@ -153,8 +145,8 @@ void Config::makeValueStructure()
     values[3].value = dataBaseName;
     values[4].name = "dataBaseHost";
     values[4].value = dataBaseHost;
-    values[5].name = "tableName";
-    values[5].value = tableName;
+    values[5].name = "dataBasePort";
+       values[5].value = dataBasePort;
     values[6].name = "logLocation";
     values[6].value = logLocation;
     values[7].name = "threadCount";
@@ -207,7 +199,7 @@ void Config::scanConfigFile()
     dataBaseHost = settings.substr(values[4].name.size()+2);
 
     getline(config,settings);
-    tableName = settings.substr(values[5].name.size()+2);
+       dataBasePort = settings.substr(values[5].name.size()+2);
 
     getline(config,settings);
     logLocation = settings.substr(values[6].name.size()+2);
@@ -242,11 +234,11 @@ void Config::showConfigFile()
 void Config::setDefaultConfig()
 {
     port = "8000";
-    userName = "-----";
-    password = "-----";
-    dataBaseName = "-----";
-    dataBaseHost = "-----";
-    tableName = "-----";
+    userName = "root";
+    password = "testsql";
+    dataBaseName = "ITA-codeforce";
+    dataBaseHost = "localhost";
+    dataBasePort =  "3306";
     logLocation = ".";
     threadCount = 8;
   /*  taskCppTableName = "Assignment_CPP";
@@ -362,11 +354,13 @@ void Config::setDataBaseHost(string value)
     makeConfigFile();
 }
 
-void Config::setTableName(string value)
+void Config::setDataBasePort(int value)
 {
-    tableName = value;
-    makeConfigFile();
+	dataBasePort = value;
+  makeConfigFile();
 }
+
+
 
 void Config::setLogLocation(string value)
 {
@@ -410,11 +404,6 @@ string Config::getDataBaseHost()
     return dataBaseHost;
 }
 
-string Config::getTableName()
-{
-    scanConfigFile();
-    return tableName;
-}
 
 string Config::getLogLocation()
 {
@@ -428,4 +417,9 @@ int Config::getThreadCount()
     return threadCount;
 }
 
+string Config::getDataBasePort()
+{
+	scanConfigFile();
+	    return dataBasePort;
+}
 

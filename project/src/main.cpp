@@ -2,7 +2,6 @@
 
 #include <ctime>
 #include <boost/date_time.hpp>
-
 #include "inc/ctpl_stl.h"
 //extern Config *config;
 using namespace std;
@@ -17,17 +16,22 @@ ctpl::thread_pool tasksPool(4);
 /*
  *  need insert into SQL
  */
+
+void l12(string ll) {
+	logfile::addLog(ll);
+}
+
+
 void addUserToHistory(string userIp, string code) {
-	if (ConnectorSQL::getInstance().connectToHost(
-			Config::getInstance().getDataBaseHost(),
-			Config::getInstance().getUserName(),
-			Config::getInstance().getPassword()) == true)
-
+	//logfile::addLog("11111111111111111111111111111111111");
+	if (ConnectorSQL::getInstance().connectToHostDB(
+	Config::getInstance().getDataBaseHost().c_str(),
+	Config::getInstance().getDataBasePort().c_str(),
+	Config::getInstance().getUserName().c_str(),
+	Config::getInstance().getPassword().c_str(),
+	Config::getInstance().getDataBaseName().c_str()
+	)==	true)
 	{
-
-		if (ConnectorSQL::getInstance().connectToDataBase(
-				Config::getInstance().getDataBaseName()) == true) {
-			logfile::addLog("Connection to database successful");
 			vector<string> labl;
 			labl.push_back("ID");
 			labl.push_back("ip");
@@ -43,8 +47,9 @@ void addUserToHistory(string userIp, string code) {
 				ConnectorSQL::getInstance().addRecordsInToTable(temp);
 			}
 		}
+	ConnectorSQL::getInstance().closeConection();
 	}
-}
+
 
 void processTask(int id,Job job) {
 
@@ -73,19 +78,9 @@ void processTask(int id,Job job) {
 	logfile::addLog("before code empty check");
 	if (!job.code.empty())
 	{
-		if (ConnectorSQL::getInstance().connectToHost(
-				Config::getInstance().getDataBaseHost(),
-				Config::getInstance().getUserName(),
-				Config::getInstance().getPassword()) == true)
 
-		{
-
-		if (ConnectorSQL::getInstance().connectToDataBase( Config::getInstance().getDataBaseName())	== true)
-		{
-			logfile::addLog("Connection to database successful");
 			vector<string> labl;
 			//ADD NEW STARTED COMPILING INFO TO DATABASE
-
 			labl.push_back("id");
 			labl.push_back("session");
 			labl.push_back("jobid");
@@ -97,7 +92,6 @@ void processTask(int id,Job job) {
 			logfile::addLog("Connection to results successful");
 			if (ConnectorSQL::getInstance().connectToTable("results", labl)	== true)
 			{
-				logfile::addLog("Connection to table results correct");
 				string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 				map<int, string> temp;
 				temp.insert( { 1, job.session });
@@ -126,10 +120,18 @@ void processTask(int id,Job job) {
 				table = "Assignment_JS";
 			else
 				table = "Assignment_CPP";
+<<<<<<< HEAD
 
 			if (ConnectorSQL::getInstance().connectToTable(	table, labl) == true)
 			{
 				job.code =	ConnectorSQL::getInstance().getCustomCodeOfProgram(	to_string(job.task), job.code, id);
+=======
+			if (ConnectorSQL::getInstance().connectToTable(
+					table, labl) == true) {
+				job.code =
+						ConnectorSQL::getInstance().getCustomCodeOfProgram(
+								to_string(job.task), job.code, id);
+>>>>>>> origin/SQL-fix3
 				logfile::addLog(job.code);
 			}
 
@@ -140,8 +142,6 @@ void processTask(int id,Job job) {
 				compiler.compile(job.code, true, LangCompiler::Flag_CPP);
 			else if (job.lang == "Java" || job.lang == "java")
 				compiler.compile(job.code, true, LangCompiler::Flag_Java);
-			else if (job.lang == "Js" || job.lang == "js")
-				compiler.compile(job.code, true, LangCompiler::Flag_JS);
 			else
 				compiler.compile(job.code, true);
 
@@ -172,17 +172,23 @@ void processTask(int id,Job job) {
 					temp.insert( { 5, "..." });
 					temp.insert( { 5, "..." });
 					//4
-					string where = "`results`.`jobid`='"+to_string(job.jobid)+"' AND `results`.`session`='"+job.session+"'";
-					ConnectorSQL::getInstance().updateRecordsInToTable(temp,labl,where);
-				}
-			}
+					//string where = "`results`.`jobid`='"+to_string(job.jobid)+"' AND `results`.`session`='"+job.session+"'";
+					map<int,string> where;
+					where.insert({1,job.session});
+					where.insert({2,to_string(job.jobid)});
+								//ConnectorSQL::getInstance().updateRecordsInToTable(temp,wher);
+					ConnectorSQL::getInstance().updateRecordsInToTable(temp,where);
+
 		}
+
+
 		logfile::addLog(to_string(id) + " Stop compiler");
 	}
 	else {
 	logfile::addLog(to_string(id)+" Json format is not correct!!! \n::::::::::::::::::::::::\n");
 	}
 }
+
 void *receiveTask(void *a) {
 	Thread2Arguments argumento = ((Thread2Arguments *) a)[0];
 	int rc, i;
@@ -214,8 +220,16 @@ void *receiveTask(void *a) {
 			/*
 			 * ALL OK START
 			 */
+			if (ConnectorSQL::getInstance().connectToHostDB(
+			Config::getInstance().getDataBaseHost().c_str(),
+			Config::getInstance().getDataBasePort().c_str(),
+			Config::getInstance().getUserName().c_str(),
+			Config::getInstance().getPassword().c_str(),
+			Config::getInstance().getDataBaseName().c_str()))
+			{
 			if (parsingSuccessful)
 			{
+
 				string ip_usera = FCGX_GetParam("REMOTE_ADDR", request->envp);
 				stream << "Content-type: text/html\r\n" << "\r\n";/* << "<html>\n" << "  <head>\n"
 						<< "    <title>Receiver	" << id << "</title>\n" // show ID thread in title
@@ -240,16 +254,7 @@ void *receiveTask(void *a) {
 				/*
 				 * BAD NEED FIX @BUDLO@ INCLUDE INTO sql
 				 */
-				if (ConnectorSQL::getInstance().connectToHost(
-							Config::getInstance().getDataBaseHost(),
-							Config::getInstance().getUserName(),
-							Config::getInstance().getPassword()) == true)
-				{
 
-					if (ConnectorSQL::getInstance().connectToDataBase(
-							Config::getInstance().getDataBaseName()) == true)
-					{
-						logfile::addLog("Connection to database successful");
 						vector<string> labl;
 						labl.push_back("id");
 						labl.push_back("session");
@@ -258,7 +263,8 @@ void *receiveTask(void *a) {
 						labl.push_back("date");
 						labl.push_back("result");
 						labl.push_back("warning");
-						if (ConnectorSQL::getInstance().connectToTable("results", labl) ){
+						if (ConnectorSQL::getInstance().connectToTable("results", labl) )
+						{
 							vector<map<int, string> > records = ConnectorSQL::getInstance().getAllRecordsFromTable("`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
 							logfile::addLog("overlap:"+(int)records.size());
 							if ((int)records.size()==0)
@@ -266,23 +272,28 @@ void *receiveTask(void *a) {
 							else
 								stream << "this job is already excist";
 						}
-					}
-				}
-				addUserToHistory(ip_usera, code);
+						//addUserToHistory(ip_usera, code);
+						labl.clear();
+						labl.push_back("ID");
+						labl.push_back("ip");
+						labl.push_back("code");
+						labl.push_back("date_time");
+						if (ConnectorSQL::getInstance().connectToTable("History", labl))
+						{
+							string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
+							map<int, string> temp;
+							temp.insert( { 1, ip_usera });
+							temp.insert( { 2, str_with_spec_character(code) });
+							temp.insert( { 3, s_datime });
+				ConnectorSQL::getInstance().addRecordsInToTable(temp);
+						}
+
+
 				// string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
 			}
 			else if (operation == "status")
 				{
 					//TO BE CONTINUED ...
-					if (ConnectorSQL::getInstance().connectToHost(
-							Config::getInstance().getDataBaseHost(),
-							Config::getInstance().getUserName(),
-							Config::getInstance().getPassword()) == true)
-					{
-
-						if (ConnectorSQL::getInstance().connectToDataBase(Config::getInstance().getDataBaseName()) == true)
-						{
-							logfile::addLog("Connection to database successful");
 							vector<string> labl;
 
 							labl.push_back("id");
@@ -305,7 +316,12 @@ void *receiveTask(void *a) {
 										ConnectorSQL::getInstance().getAllRecordsFromTable(
 												"`session` =" + session + " AND `jobid` ="+to_string(jobid));
 
-								for (int i = 0; i < (int) records.size(); i++)
+								// l12(std::to_string(((int) records.size())) +" 111111111" );/////////////////
+
+
+
+
+								for (int i=0; i< records.size(); i++)
 								{
 									/*Cool start for future code, NO delete
 									 * logfile::addLog("Id:"+records[i][0]);
@@ -321,20 +337,22 @@ void *receiveTask(void *a) {
 									 stream << "Session:"+records[i][1] << "\n";
 									 stream << "jobId:"+records[i][2] << "\n";
 									 */
-									stream << "status:" + records[i][3] << "\n";
+										//stream << "status:" +	 records[i].find(keys[r])->second ;
+									stream << "status:" + records[i][3] << "\n\n";
 									/*Cool code no delete
 									 stream << "date:"+records[i][4] << "\n";
 									 stream << "result:"+records[i][5] << "\n";
 									 stream << "warning:"+records[i][6] << "\n";
 									 */
 								}
-								logfile::addLog("Table 'results' outputed");
 
+								logfile::addLog("Table 'results' outputed");
 								//cout.flush();
-							}
 						}
+						}
+
 					}
-				}
+
 			/*res["date"] = date;
 			 res["result"] = compiler.getResult();
 			 res["warnings"] = compiler.getWarningErr();
@@ -350,7 +368,6 @@ void *receiveTask(void *a) {
 			 stream << parser.getObject(name, true).toStyledString();
 			 */
 
-			}
 			else
 			{
 				logfile::addLog(id,
@@ -358,9 +375,12 @@ void *receiveTask(void *a) {
 								+ stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
 				errorResponder.showError(400);
 			}
+			ConnectorSQL::getInstance().closeConection();
+						}
 		}
 	//close session
 	logfile::addLog("session closed");
+	errorResponder.showError(502,"Cant`t connect to host or database");
 	stream.close();
 	}
 	return NULL;
@@ -368,6 +388,7 @@ void *receiveTask(void *a) {
 
 	int main(void) {
 	int i;
+
 
 	 //config = new Config();
 	Config::getInstance().makeValueStructure();
@@ -379,7 +400,6 @@ void *receiveTask(void *a) {
 	 // open socket unix or TCP
 	string socket = "127.0.0.1:" + Config::getInstance().getPort();
 	socketId = FCGX_OpenSocket(socket.c_str(), 2000);
-
 	if (socketId < 0) {
 
 	logfile::addLog(string("Cannot open socket	" + socket));
