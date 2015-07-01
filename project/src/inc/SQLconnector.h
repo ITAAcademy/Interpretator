@@ -22,7 +22,7 @@
 #include "config.h"
 #include <mutex>
 #include </usr/include/mysql/mysql.h>
-#include </usr/include/sys/time.h>
+#include <time.h>
  #include </usr/include/mysql/errmsg.h>
 
 extern Config* config;
