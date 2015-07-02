@@ -27,3 +27,4 @@ using namespace std;
 static int socketId;
 
 string str_with_spec_character(string s) ;
+void l12(string ll);

@@ -8,6 +8,7 @@
 #include "inc/SQLconnector.h"
 #include "inc/logfile.h"
 #include <boost/foreach.hpp>
+#include <pthread.h>
 
 string str_with_spec_character(string s) {
 
@@ -25,10 +26,10 @@ string str_with_spec_character(string s) {
 }
 
 ConnectorSQL::ConnectorSQL() {
-	mysql_init(&mysql);
+	//mysql_init(&mysql);
 }
 ConnectorSQL::~ConnectorSQL(){
-	mysql_close (connection);
+	///mysql_close (connection);
 }
 ConnectorSQL& ConnectorSQL::getInstance(){
 	static ConnectorSQL conn;
@@ -40,10 +41,11 @@ ConnectorSQL& ConnectorSQL::getInstance(){
 //work12
 bool ConnectorSQL::connectToHostDB(const char * host,const char *port, const char *user,
 		const char *password, const char *database) {
+	return false;
 	std::lock_guard<std::recursive_mutex> locker(_lock);
 	 connect_table = false;
 
-		 connection = mysql_real_connect(&mysql,host,user,password,database,atoi(port),0,0);
+		// connection = mysql_real_connect(&mysql,host,user,password,database,atoi(port),0,0);
 		 if (connection==NULL)
 		 {
 			 logfile::addLog ("Connection to host and database failed");
@@ -56,16 +58,14 @@ bool ConnectorSQL::connectToHostDB(const char * host,const char *port, const cha
 
 
 void ConnectorSQL::closeConection() {
-	/* delete connection;
-	 delete resptr;
-	 delete row;
-	 delete field;*/
-	mysql_close (connection);
+	//mysql_close (connection);
 }
 
 
 //work12
 bool ConnectorSQL::connectToTable(string table, vector<string> labels) {
+
+	return false;
 	std::lock_guard<std::recursive_mutex> locker(_lock);
 	connect_table = false;
 		//if (this->table.empty()) {
@@ -78,15 +78,15 @@ bool ConnectorSQL::connectToTable(string table, vector<string> labels) {
 		labels_num++;
 	}
 	string quer = "SELECT * FROM  `" + table + "` ;";
-	int query_state = 	mysql_query(connection, quer.c_str());
-		resptr = mysql_store_result(connection);
+	int query_state = 12;//	mysql_query(connection, quer.c_str());
+	//	resptr = mysql_store_result(connection);
 	if  (query_state)
 	{
 		logfile::addLog ("Connection  to table " + table + " failed");
 		return false;
 	}
 
-if ((row = mysql_fetch_row(resptr)) == NULL)
+if (0)//(row = mysql_fetch_row(resptr)) == NULL)
 logfile::addLog ("Table " + table + " is empty");
 
 			logfile::addLog ("Connection  to table " + table + " successful");
@@ -102,6 +102,7 @@ return connect_table;
 
 //work12
 bool ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
+	return false;
 	std::lock_guard<std::recursive_mutex> locker(_lock);
 	string quer= "INSERT INTO `" + tableName + "` ("+ this->labels +") Values (";// + this->records +");"
 	//string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
@@ -128,7 +129,7 @@ bool ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
 					else  quer += ");";
 				}
 		//Zero for success. Nonzero if an error occurred.
-		int query_state = 	mysql_query(connection, quer.c_str());
+		int query_state = 12;//	mysql_query(connection, quer.c_str());
 			logfile::addLog (quer);
 			if (query_state==0) {
 				logfile::addLog ("Adding records in to table successfull");
@@ -141,6 +142,7 @@ bool ConnectorSQL::addRecordsInToTable(vector<map<int,string> > records) {
 
 //work12
 bool ConnectorSQL::addRecordsInToTable(map<int,string> records) {
+	return false;
 
 		string quer= "INSERT INTO `" + tableName + "` ("+ this->labels +") Values (";// + this->records +");"
 		//string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
@@ -166,7 +168,7 @@ bool ConnectorSQL::addRecordsInToTable(map<int,string> records) {
 
 			//Zero for success. Nonzero if an error occurred.
 						 std::lock_guard<std::recursive_mutex> locker(_lock);
-			int query_state = 	mysql_query(connection, quer.c_str());
+			int query_state = 12;//	mysql_query(connection, quer.c_str());
 				logfile::addLog (quer);
 				if (query_state==0) {
 					logfile::addLog ("Adding records in to table successfull");
@@ -178,17 +180,19 @@ bool ConnectorSQL::addRecordsInToTable(map<int,string> records) {
 
 //work12
 string ConnectorSQL::getFullCodeOfProgram(string ID,int thrdId)  {
+
 	std::lock_guard<std::recursive_mutex> locker(_lock);
 	string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
 	//Zero for success. Nonzero if an error occurred.
-	int query_state = 	mysql_query(connection, quer.c_str());
+	int query_state = 12;//	mysql_query(connection, quer.c_str());
 
 		string rezult ;
 		logfile::addLog (quer);
 		if (query_state==0) {
-			resptr = mysql_store_result(connection);
+			//resptr = mysql_store_result(connection);
 
-			 if ((row = mysql_fetch_row(resptr)) != NULL) {
+			 if (0)//(row = mysql_fetch_row(resptr)) != NULL)
+				 {
 				 string header = string(row[2]);
 				 boost::replace_all(header,"#NUM#",std::to_string(thrdId));
 				 string code = string(row[3]);
@@ -198,9 +202,8 @@ string ConnectorSQL::getFullCodeOfProgram(string ID,int thrdId)  {
 						 			str_with_spec_character(footer);
 					 }
 			 else rezult = "empty";
-			 mysql_free_result(resptr);
+			/// mysql_free_result(resptr);
 		}
-		else if (query_state == CR_SOCKET_CREATE_ERROR)rezult = "CR_SOCKET_CREATE_ERROR";
 		else
 			rezult = "failed";
 		//logfile::addLog (std::to_string(query_state));
@@ -213,13 +216,14 @@ string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program,in
 std::lock_guard<std::recursive_mutex> locker(_lock);
 string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
 //Zero for success. Nonzero if an error occurred.
-int query_state = 	mysql_query(connection, quer.c_str());
+int query_state = 12;//	mysql_query(connection, quer.c_str());
 
 string rezult ;
 logfile::addLog (quer);
 if (query_state==0) {
-resptr = mysql_store_result(connection);
-if ((row = mysql_fetch_row(resptr)) != NULL) {
+//resptr = mysql_store_result(connection);
+if (0)//(row = mysql_fetch_row(resptr)) != NULL)
+{
 string header = string(row[2]);
 string footer = string(row[4]);
 boost::replace_all(header,"#NUM#",std::to_string(thrdId));
@@ -228,7 +232,7 @@ text_of_program + "\n" +
 str_with_spec_character(footer);
 }
 else rezult = "empty";
-mysql_free_result(resptr);
+//mysql_free_result(resptr);
 }
 else
 rezult = "failed";
@@ -241,7 +245,7 @@ vector<map<int,string> >  ConnectorSQL::getAllRecordsFromTable(string where )  {
 	 vector<map<int,string> >  records;
 	 	string quer = "SELECT * FROM  `" + tableName + "` WHERE "+where;
 	 	//Zero for success. Nonzero if an error occurred.
-	 	int query_state = 	mysql_query(connection, quer.c_str());
+	 	int query_state = 12;//	mysql_query(connection, quer.c_str());
 
 	 		string rezult = "failed";
 
@@ -250,20 +254,21 @@ vector<map<int,string> >  ConnectorSQL::getAllRecordsFromTable(string where )  {
 	 			logfile::addLog ("Getting all records from table " + tableName + " failed.");
 	 		else {
 	 			logfile::addLog (quer);
-	 			resptr = mysql_store_result(connection);
-	 				while ( ( row = mysql_fetch_row(resptr)) != NULL ) {
+	 			//resptr = mysql_store_result(connection);
+	 			/*	while ( 0( row = mysql_fetch_row(resptr)) != NULL ) {
 	 				 map<int,string> temp;
 	 						 for (int i=0; i<labels_num; i++)
 	 							 temp.insert( {i, string(row[i]) });
 	 						 records.push_back(temp);
-	 					 }
-	 				 mysql_free_result(resptr);
+	 					 }*/
+	 				 //mysql_free_result(resptr);
 	 		}
 	 return records;
 }
 
 //work12
 bool ConnectorSQL::updateRecordsInToTable(map<int,string> records,map<int,string>  where) {
+	return false;
 //string where ="`" + tabl + "`.`ID`='"+id + "' AND `" + tabl +"`.`name`='"+"21"+"'";
 	string query= "UPDATE `"+ tableName+ "` SET ";
 	vector<int> keys;

@@ -6,132 +6,276 @@
  */
 
 #include "inc/SQLConnectionPool.h"
-/*
- MyConnectionPool::MyConnectionPool( const char *db, const char *server,
-                    const char *user, const char *password )
-  {
-    p_db = (db ? db : "" );
-    p_server = (server ? server : "" );
-    p_user = (user ? user : "" );
-    p_password = (password ? password : "" );
-  }
 
- MyConnectionPool::~MyConnectionPool()
-  {
-    clear();
-  }
-
- mysqlpp::Connection*  MyConnectionPool::create()
+ SqlConnectionPool&  SqlConnectionPool::getInstance()
  {
-logfile::addLog("Creating pool connection")
-   return new mysqlpp::Connection(
-    p_db.empty() ? 0 : p_db.c_str(), p_server.empty() ? 0 : p_server.c_str(),
-    p_user.empty() ? 0 : p_user.c_str(),
-    p_password.empty() ? 0 : p_password.c_str() );
+
+	static SqlConnectionPool connection (
+			Config::getInstance().dataBaseName.c_str(),
+			Config::getInstance().dataBaseHost.c_str() ,
+			Config::getInstance().userName.c_str() ,
+			Config::getInstance().password.c_str());
+
+	return connection;
+}
+
+
+ mysqlpp::Connection*  SqlConnectionPool::create() {};
+  void  SqlConnectionPool::destroy(mysqlpp::Connection*) {};
+
+
+  SqlConnectionPool::SqlConnectionPool(const char *db_name,const char * host,const char *user,const char *pass)
+  {
+	  connected_db = false;
+	  conn = new mysqlpp::Connection(db_name,host,user,pass);
+	  if (conn)
+	  {
+		  logfile::addLog ("Connection to host and database successful");
+		  connected_db = true;
+	  }
+	  else
+		  logfile::addLog ("Connection to host and database failed");
+  }
+
+
+
+
+ SqlConnectionPool::~SqlConnectionPool()
+  {
+	 this->release( conn );
+	    //delay 1-4 sec before it will be able to using
+	 srand( time(0) );
+	     sleep( rand()%4 + 1 );
+
+	delete conn;
+    clear();
+    mysqlpp::Connection::thread_end();
+    logfile::addLog("Pool connection deleted.");
+  }
+
+ //work12
+ bool SqlConnectionPool::connectToTable(string table, vector<string> labels) {
+		tableName=table;
+		this->labels_vec = labels;
+		string quer = "SHOW TABLES FROM  `" +
+		Config::getInstance().dataBaseName +"` LIKE  '" + table +"'";
+if (connected_db)
+{
+	mysqlpp::Connection::thread_start();
+		mysqlpp::Query query( conn->query( quer) );
+		mysqlpp::StoreQueryResult res = query.store();
+		mysqlpp::Connection::thread_end();
+		if (res.capacity()) {
+			 this->labels="`" + labels_vec[0] +"`" ;
+			 	for (int i=1; i<labels_vec.size(); i++)
+			 		this->labels+=",`" + labels_vec[i] +"`" ;
+
+		logfile::addLog ("Connection  to table " + table + " successfull");
+		return true;
+		}
+
+		logfile::addLog ("Connection  to table " + table + " failed");
+}
+return false;
  }
 
- void MyConnectionPool::destroy( mysqlpp::Connection *con )
-  {
-	 logfile::addLog("Deleting pool connection")
-    delete con;
-  }
+//work11
+ vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string where )  {
 
- unsigned int MyConnectionPool::max_idle_time()
+ 	 vector<map<int,string> >  records;
+ 	 	string quer = "SELECT * FROM `" + tableName + "` WHERE "+where;
+ 	 	l12 (quer);
+ 	 	if (connected_db)
+ 	 	{
+ 	 		mysqlpp::Connection::thread_start();
+ 	 				mysqlpp::Query query( conn->query( quer) );
+ 	 				mysqlpp::StoreQueryResult res = query.store();
+ 	 				mysqlpp::Connection::thread_end();
+ 	 	  if (res.capacity())
+ 	 	  {
+
+ 	 		mysqlpp::StoreQueryResult::const_iterator it;
+ 	 		            for (it = res.begin(); it != res.end(); ++it)
+ 	 		            {
+ 	 		            	map<int,string> temp;
+ 	 		                mysqlpp::Row row = *it;
+ 	 		              for( int i=0; i < res.num_fields(); i++)
+ 	 		              {
+ 	 		                string ss = string(row[i]);
+ 	 		              temp.insert( {i, ss } );
+ 	 		            //l12(ss);
+ 	 		              }
+ 	 		            records.push_back(temp);
+ 	 		             }
+ 	 	logfile::addLog ("Getting all records from table " + tableName + " successfull");
+ 	 	}
+ 	 	  else logfile::addLog ("Getting all records from table " + tableName + " failed or table is empty");
+ 	 	}
+ 	 return records;
+ }
+
+
+ string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_program,int thrdId) {
+	 string rezult ;
+ string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
+ if (connected_db)
+  	 	{
+  	 		mysqlpp::Connection::thread_start();
+  	 				mysqlpp::Query query( conn->query( quer) );
+  	 				mysqlpp::StoreQueryResult res = query.store();
+
+  	 				mysqlpp::Connection::thread_end();
+  	 				logfile::addLog (quer);
+
+
+ if (res.capacity())
+	 	  {
+	 mysqlpp::Row row = *res.begin();
+ string header = string(row[2]);
+ string footer = string(row[4]);
+ boost::replace_all(header,"#NUM#",std::to_string(thrdId));
+ rezult = str_with_spec_character(header) + "\n" +
+ text_of_program + "\n" +
+ str_with_spec_character(footer);
+ }
+ else rezult = "empty";
+ //mysql_free_result(resptr);
+ }
+ rezult = "failed, not connected to database";
+ return rezult;
+ }
+
+//work12
+ bool SqlConnectionPool::addRecordsInToTable(vector<map<int,string> > records) {
+	 if (connected_db)
+	 {
+ 	string quer= "INSERT INTO `" + tableName + "` ("+ this->labels +") Values (";
+ 	int num_of_querys = records.size();
+ 				//num of querys
+ 				for (int i=0; i<num_of_querys; i++) {
+ 					//get keys
+ 					// what a map<int, int> is made of
+ 						vector<int> keys;
+ 							for (	pair<int,string> me  : records[i])
+ 								keys.push_back(me.first);
+ 							std::sort(keys.begin(),keys.end());
+ 				int num_of_labels = labels_vec.size();
+ 				int r=0;
+ 					for (int y=0; y< num_of_labels; y++) {
+ 						if (keys[r] == y) {
+ 							quer += " \"" + records[i].find(keys[r])->second + "\" " ;
+ 							r++;
+ 						}
+ 						else quer += "DEFAULT";
+ 						if (y<num_of_labels - 1)  quer += ",";
+ 					}
+ 					if (i<num_of_querys - 1)  quer += "),(";
+ 					else  quer += ");";
+ 				}
+
+			mysqlpp::Connection::thread_start();
+			logfile::addLog (quer);
+					mysqlpp::Query query( conn->query( quer) );
+					query.exec();
+					mysqlpp::Connection::thread_end();
+			if (query.result_empty()) {
+ 				logfile::addLog ("Adding records in to table " + tableName + " successfull");
+ 				return true;
+ 			}
+ 				logfile::addLog ("Adding records in to table " + tableName + " failed");
+	 }
+ 					return false;
+
+ }
+
+//work12
+ bool SqlConnectionPool::addRecordsInToTable(map<int,string> records) {
+	 if (connected_db)
+	 {
+ 	string quer= "INSERT INTO `" + tableName + "` ("+ this->labels +") Values (";
+ 				{
+ 					//get keys
+ 					// what a map<int, int> is made of
+ 						vector<int> keys;
+ 							for (	pair<int,string> me  : records)
+ 								keys.push_back(me.first);
+ 							std::sort(keys.begin(),keys.end());
+ 				int num_of_labels = labels_vec.size();
+ 				int r=0;
+ 					for (int y=0; y< num_of_labels; y++) {
+ 						if (keys[r] == y) {
+ 							quer += " \"" + records.find(keys[r])->second + "\" " ;
+ 							r++;
+ 						}
+ 						else quer += "DEFAULT";
+ 						if (y<num_of_labels - 1)  quer += ",";
+ 					}
+ 					 quer += ");";
+ 				}
+			logfile::addLog (quer);
+			mysqlpp::Connection::thread_start();
+					mysqlpp::Query query( conn->query( quer) );
+					query.exec();
+					mysqlpp::Connection::thread_end();
+			if (query.result_empty()) {
+ 				logfile::addLog ("Adding records in to table " + tableName + " successfull");
+ 				return true;
+ 			}
+ 				logfile::addLog ("Adding records in to table " + tableName + " failed");
+	 }
+ 					return false;
+ }
+
+
+ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,string>  where) {
+	 if (connected_db)
+	 {
+ 	string quer= "UPDATE `"+ tableName+ "` SET ";
+ 	vector<int> keys;
+ 	for (	pair<int,string> me  : records)
+ 		keys.push_back(me.first);
+ 	std::sort(keys.begin(),keys.end());
+ 	int r=0;
+ 	for (int y=0; y< records.size(); y++) {
+ 	if (keys[r] == y) {
+ 		quer += "`"+ labels_vec[r] + "`=`" + records.find(keys[r])->second + "` " ;
+ 	r++;
+ 	quer += ",";
+ 	}
+ 	}
+ 	quer += " WHERE " ;
+
+ 	vector<int> keys2;
+ for (	pair<int,string> mal  : where)
+ 	keys2.push_back(mal.first);
+ std::sort(keys.begin(),keys.end());
+ r=0;
+ for (int y=0; y< labels_vec.size(); y++) {
+ if (keys2[r] == y) {
+	 quer += "`"+ labels_vec[r] + "`=`" + where.find(keys2[r])->second + "` " ;
+ r++;
+ quer += ",";
+ }
+ }
+ 				logfile::addLog(quer);
+ 				mysqlpp::Connection::thread_start();
+ 						mysqlpp::Query query( conn->query( quer) );
+ 						mysqlpp::Connection::thread_end();
+ 				if (query.result_empty()) {
+ 				logfile::addLog ("Updating records in table " + tableName +" successfull");
+ 				return true;
+ 				}
+ 				logfile::addLog ("Updating records in table " + tableName +" failed");
+	 }
+ 					return false;
+ }
+
+
+ unsigned int SqlConnectionPool::max_idle_time()
    {
-     // В данном примере достаточно 3 секунд
-     // В реальном приложении время ожидания следует вычислять в соответствии
-     // с условиями выполнения (таймаут сервера, кол-во соединений и т.д.)
+     //3 seconds
      return 3;
    }
- static void* MyConnectionPool::work_thread( void *running_flag )
- {
-   mysqlpp::Connection::thread_start();
-   for( int i=0; i < 6; i++ )
-   {
-     mysqlpp::Connection *con = pool->grab();
-     if( !con )
-     {
-       cerr << "Ошибка при получении соединения из пула" << endl;
-       break;
-     }
-     // Запрос на получение содержимого таблицы wares.
-     // Для краткости каждая полученная строка обозначена звёздочкой
-     mysqlpp::Query query( con->query( "SELECT * FROM wares" ) );
-     mysqlpp::StoreQueryResult res = query.store();
-     for( int j=0; j < res.num_rows(); j++ )
-       cout.put('*');
-
-     // Запрос выполнен - немедленно освобождаем соединение
-     pool->release( cp );
-     // Задержка от 1 до 4 секунд прежде чем данное соединение можно будет
-     // использовать повторно. В тех случаях, когда время задержки превышает
-     // макс. время ожидания, создаётся новое соединение в след.итерации цикла
-     sleep( rand()%4 + 1 );
-   }
-   // Оповещение основной программы о том, что данный поток больше не используется
-   *reinterpret_cast<bool*>(running_flag) = false;
-   mysqlpp::Connection::thread_end();
-   return 0;
- }
-
- static int MyConnectionPool::create_thread( (void *)(*worker)(void *), (void *)arg )
- {
-   pthread_t ptrd;
-   return pthread_create( &ptrd, 0, worker, arg );
- }
 
 
-int mainaa( int argc, char *argv[] )
-{
-#if defined(WITH_THREADS)
-  pool = new MyConnectionPool( "test_db", "localhost", "tdb_user", "tdb_password" );
-  try
-  {
-	  MyConnectionPool::Connection *con = pool->grab();
-    if( !con->thread_aware() )
-    {
-      cerr << "MySQL++ собрана без поддержки потоков" << endl;
-      return -1;
-    }
-    pool->release( cp );
-  }
-  catch( mysqlpp::Exception &ex )
-  {
-    cerr << "Ошибка при инициализации пула соединений: " << ex.what() << endl;
-    return -1;
-  }
-  cout << "Пул соединений успешно создан. Начинаем работу с потоками..." << endl;
-  srand( time(0) );
 
-  bool running[] = { true, true, true, true, true, true, true, true, true, true };
-  const size_t num_threads = sizeof(running) / sizeof(running[0]);
-
-  for( size_t i=0; i < num_threads; i++ )
-  {
-    if( int err = create_thread( work_thread, (running+i) ) )
-    {
-      cerr << "Ошибка при создании потока с номером " << i <<
-              ": код ошибки " << err << endl;
-      return -1;
-    }
-  }
-
-  // Проверка флагов активности потоков каждую секунду до тех пор,
-  // пока выполнение всех потоков не будет завершено
-  cout << "Ожидание завершения потоков..." << endl;
-  cout.flush();
-  do
-  {
-    sleep(1);
-    i = 0;
-    while( i < num_threads && !running[i] )
-      i++;
-  } while( i < num_threads );
-  cout << endl << "Все потоки остановлены" << endl;
-  delete pool;
-  cout << "Завершение работы программы" << endl;
-#else
-  cout << "Программе " << argv[0] << " необходима поддержка многопоточности" << endl;
-#endif
-  return 0;
-}*/
