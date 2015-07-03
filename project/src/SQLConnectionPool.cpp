@@ -141,7 +141,7 @@ return false;
  }
 
 
- string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_program,int thrdId) {
+ string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_program,int thrdId,string lang) {
 		pthread_mutex_lock(&accept_mutex);
 	 string rezult ;
  string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
@@ -165,12 +165,65 @@ return false;
 	 mysqlpp::Row row = *res.begin();
  string header = string(row[2]);
  string footer = string(row[4]);
- boost::replace_all(header,"#NUM#",std::to_string(thrdId));
- rezult = str_with_spec_character(header) + "\n" +
- text_of_program + "\n" +
- str_with_spec_character(footer);
+ string beforeHeader;
+ string beforeFooter;
+ if (lang=="c++"){
+	 beforeHeader=
+//"#pragma once\n"
+"#include <unistd.h>\n"
+"#include <ios>\n"
+"#include <iostream>\n"
+"#include <fstream>\n"
+"#include <string>\n"
+"void process_mem_usage(double& vm_usage, double& resident_set)\n"
+"{"
+   "using std::ios_base;\n"
+   "using std::ifstream;\n"
+   "using std::string;\n"
+   "vm_usage     = 0.0;\n"
+   "resident_set = 0.0;\n"
+   "ifstream stat_stream(\"/proc/self/stat\",ios_base::in);\n"
+   "string pid, comm, state, ppid, pgrp, session, tty_nr;\n"
+   "string tpgid, flags, minflt, cminflt, majflt, cmajflt;\n"
+   "string utime, stime, cutime, cstime, priority, nice;\n"
+   "string O, itrealvalue, starttime;\n"
+   "unsigned long vsize;\n"
+   "long rss;\n"
+   "stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr\n"
+               ">> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt\n"
+               ">> utime >> stime >> cutime >> cstime >> priority >> nice\n"
+               ">> O >> itrealvalue >> starttime >> vsize >> rss;\n" // don't care about the rest
+
+   "stat_stream.close();\n"
+   "long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024;\n" // in case x86-64 is configured to use 2MB pages
+   "vm_usage     = vsize / 1024.0;\n"
+   "resident_set = rss * page_size_kb;\n"
+"}\n";
+
+
+
+	 beforeFooter="using std::cout;"
+	   "using std::endl;"
+	   "double vm, rss;"
+	   "process_mem_usage(vm, rss);"
+	   "cout << \"VM: \" << vm << \"; RSS: \" << rss << endl;";
  }
- else rezult = "empty";
+ else if(lang=="java")
+	 beforeFooter =
+			 "System.gc();"
+		     "Runtime rt = Runtime.getRuntime();"
+		     "long usedMB = (rt.totalMemory() - rt.freeMemory()) / 1024 / 1024;"
+		     "System.out.println(\"memory usage\" + usedMB);";
+
+ //string memoryUsageC++ =
+
+ boost::replace_all(header,"#NUM#",std::to_string(thrdId));
+ rezult = beforeHeader + header + "\n" +
+ text_of_program + "\n" +
+ beforeFooter+footer;
+ logfile::addLog(rezult);
+ }
+ else  logfile::addLog("empty result ");
  //mysql_free_result(resptr);
  }
  l12("failed, not connected to database");

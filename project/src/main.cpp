@@ -114,7 +114,7 @@ void processTask(int id,Job job) {
 			{
 				job.code =
 						SqlConnectionPool::getInstance().getCustomCodeOfProgram(
-								to_string(job.task), job.code, id);
+								to_string(job.task), job.code, id,job.lang);
 				logfile::addLog(job.code);
 			}
 
