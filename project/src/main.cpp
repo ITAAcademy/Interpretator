@@ -155,7 +155,7 @@ void processTask(int id,Job job) {
 					temp.insert( { 3, "updated"});
 					temp.insert( { 4, s_datime });
 					temp.insert( { 5, "..." });
-					temp.insert( { 5, "..." });
+					//temp.insert( { 5, "..." });
 					//4
 					//string where = "`results`.`jobid`='"+to_string(job.jobid)+"' AND `results`.`session`='"+job.session+"'";
 					map<int,string> where;
@@ -408,7 +408,6 @@ void *receiveTask(void *a) {
 	}
 	delete[] id;
 	logfile::addLog("Server stoped successful");
-	delete pool;
 	return 0;
 	}
 

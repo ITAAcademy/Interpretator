@@ -28,7 +28,12 @@
   {
 		pthread_mutex_lock(&accept_mutex);
 	  connected_db = false;
+	  try{
 	  conn = new mysqlpp::Connection(db_name,host,user,pass);
+	  }
+	  catch(mysqlpp::ConnectionFailed &ex){
+		  logfile::addLog("PASSWORD INCORRECT");
+	  }
 	  if (conn)
 	  {
 		  logfile::addLog ("Connection to host and database successful");
@@ -245,7 +250,7 @@ return false;
 
 
  bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,string>  where) {
-		pthread_mutex_lock(&accept_mutex);
+	pthread_mutex_lock(&accept_mutex);
 	 if (connected_db)
 	 {
  	string quer= "UPDATE `"+ tableName+ "` SET ";
@@ -256,28 +261,31 @@ return false;
  	int r=0;
  	for (int y=0; y< records.size(); y++) {
  	if (keys[r] == y) {
- 		quer += "`"+ labels_vec[r] + "`=`" + records.find(keys[r])->second + "` " ;
+ 		quer += "`"+ labels_vec[keys[r]] + "`='" + records.find(keys[r])->second + "'" ;
  	r++;
- 	quer += ",";
+ 	quer += ", ";
  	}
  	}
+ 	quer.erase(quer.size()-2);
  	quer += " WHERE " ;
 
  	vector<int> keys2;
  for (	pair<int,string> mal  : where)
  	keys2.push_back(mal.first);
- std::sort(keys.begin(),keys.end());
+ std::sort(keys2.begin(),keys2.end());
  r=0;
  for (int y=0; y< labels_vec.size(); y++) {
  if (keys2[r] == y) {
-	 quer += "`"+ labels_vec[r] + "`=`" + where.find(keys2[r])->second + "` " ;
+	 quer += "`"+tableName+"`.`"+ labels_vec[keys2[r]] + "`='" + where.find(keys2[r])->second + "'" ;
  r++;
- quer += ",";
+ quer += " AND ";
  }
  }
+ quer.erase(quer.size()-4);
  				logfile::addLog(quer);
  				mysqlpp::Connection::thread_start();
- 						mysqlpp::Query query( conn->query( quer) );
+ 						mysqlpp::Query query( conn->query (quer) );
+ 						query.exec();
  						mysqlpp::Connection::thread_end();
  				if (query.result_empty()) {
  				logfile::addLog ("Updating records in table " + tableName +" successfull");
