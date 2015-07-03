@@ -51,7 +51,7 @@ public:
 	vector<map<int,string> >   getAllRecordsFromTable(string where ="1") ;
 	//id-label is first label which you set!!!
 	bool isConnectedToTable();
-	string getCustomCodeOfProgram(string ID, string text_of_program,int thrdId);
+	string getCustomCodeOfProgram(string ID, string text_of_program,int thrdId,string lang);
 	string getFullCodeOfProgram(string ID,int thrdId) ;
 void closeConection();
 private:

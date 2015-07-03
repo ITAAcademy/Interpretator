@@ -26,6 +26,7 @@ using namespace std;
 
 class SqlConnectionPool : public mysqlpp::ConnectionPool
 {
+
 public:
   static SqlConnectionPool&  getInstance( );
   ~SqlConnectionPool();
@@ -34,9 +35,10 @@ public:
   bool addRecordsInToTable(map<int,string>  records);
   bool updateRecordsInToTable(map<int,string> records,map<int,string>  where) ;
   bool connectToTable(string table, vector<string> labels);
-  string getCustomCodeOfProgram(string ID, string text_of_program,int thrdId) ;
+  string getCustomCodeOfProgram(string ID, string text_of_program,int thrdId, string lang) ;
   bool isConnected();
   void reconect();
+
 protected:
   unsigned int max_idle_time();
    mysqlpp::Connection* create() ;

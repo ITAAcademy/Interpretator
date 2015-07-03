@@ -212,7 +212,7 @@ string ConnectorSQL::getFullCodeOfProgram(string ID,int thrdId)  {
 }
 
 //work12
-string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program,int thrdId) {
+string ConnectorSQL::getCustomCodeOfProgram(string ID, string text_of_program,int thrdId,string lang) {
 std::lock_guard<std::recursive_mutex> locker(_lock);
 string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
 //Zero for success. Nonzero if an error occurred.
