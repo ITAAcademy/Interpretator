@@ -135,27 +135,27 @@ bool jsonParser::isValidFields()
 {
 	if(!bJsonValid)
 		return false;
-if (parsedFromString[FIELD_OPERATION]=="send")
+
+	if(parsedFromString[FIELD_JOBID].isNull() || !parsedFromString[FIELD_JOBID].isConvertibleTo(Json::intValue))
+		return false;
+	if(parsedFromString[FIELD_SESSION].isNull() || !parsedFromString[FIELD_SESSION].isConvertibleTo(Json::stringValue))
+		return false;
+
+if (parsedFromString[FIELD_OPERATION]=="start")
 {
-		if(parsedFromString[FIELD_TASK_ID].isNull() || !parsedFromString[FIELD_TASK_ID].isConvertibleTo(Json::intValue))
-				return false;
+
 			if(parsedFromString[FIELD_CODE_TEXT].isNull() || !parsedFromString[FIELD_CODE_TEXT].isConvertibleTo(Json::stringValue))
 				return false;
 			if(parsedFromString[FIELD_CODE_LANGUAGE].isNull() || !parsedFromString[FIELD_CODE_LANGUAGE].isConvertibleTo(Json::stringValue))
 				return false;
-			if(parsedFromString[FIELD_JOBID].isNull() || !parsedFromString[FIELD_JOBID].isConvertibleTo(Json::intValue))
-				return false;
-			if(parsedFromString[FIELD_SESSION].isNull() || !parsedFromString[FIELD_SESSION].isConvertibleTo(Json::stringValue))
-				return false;
+			if(parsedFromString[FIELD_TASK_ID].isNull() || !parsedFromString[FIELD_TASK_ID].isConvertibleTo(Json::intValue))
+							return false;
 }
 else if (parsedFromString[FIELD_OPERATION]=="status"){
 
 }
 else if (parsedFromString[FIELD_OPERATION]=="result"){
-	if(parsedFromString[FIELD_JOBID].isNull())
-						return false;
-					if(parsedFromString[FIELD_SESSION].isNull() || !parsedFromString[FIELD_SESSION].isConvertibleTo(Json::stringValue))
-						return false;
+
 }
 else return false ;
 /*

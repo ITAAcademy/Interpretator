@@ -35,6 +35,8 @@ public:
   bool updateRecordsInToTable(map<int,string> records,map<int,string>  where) ;
   bool connectToTable(string table, vector<string> labels);
   string getCustomCodeOfProgram(string ID, string text_of_program,int thrdId) ;
+  bool isConnected();
+  void reconect();
 protected:
   unsigned int max_idle_time();
    mysqlpp::Connection* create() ;

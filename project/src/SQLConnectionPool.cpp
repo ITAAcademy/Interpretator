@@ -166,9 +166,9 @@ return false;
  string header = string(row[2]);
  string footer = string(row[4]);
  boost::replace_all(header,"#NUM#",std::to_string(thrdId));
- rezult = str_with_spec_character(header) + "\n" +
- text_of_program + "\n" +
- str_with_spec_character(footer);
+ rezult = header/*str_with_spec_character(header)*/ + "\n" +
+ text_of_program + "\n" + footer;
+ //str_with_spec_character(footer);
  }
  else rezult = "empty";
  //mysql_free_result(resptr);
@@ -288,29 +288,25 @@ return false;
  	vector<int> keys;
  	for (	pair<int,string> me  : records)
  		keys.push_back(me.first);
- 	std::sort(keys.begin(),keys.end());
- 	int r=0;
- 	for (int y=0; y< records.size(); y++) {
- 	if (keys[r] == y) {
- 		quer += "`"+ labels_vec[keys[r]] + "`='" + records.find(keys[r])->second + "'" ;
- 	r++;
- 	quer += ", ";
- 	}
+ 	for(int a : keys){
+		quer += "`"+ labels_vec[a] + "`='" + str_with_spec_character(records.find(a)->second) + "'" ;
+		quer += ", ";
  	}
  	quer.erase(quer.size()-2);
  	quer += " WHERE " ;
 
+ 	//for(int a : keys)
+ 		//quer += "`"+ labels_vec[a] + "`='" + records.find(a)->second + "'" ;
+
+
+
+
  	vector<int> keys2;
  for (	pair<int,string> mal  : where)
  	keys2.push_back(mal.first);
- std::sort(keys2.begin(),keys2.end());
- r=0;
- for (int y=0; y< labels_vec.size(); y++) {
- if (keys2[r] == y) {
-	 quer += "`"+tableName+"`.`"+ labels_vec[keys2[r]] + "`='" + where.find(keys2[r])->second + "'" ;
- r++;
- quer += " AND ";
- }
+ for(int a : keys2){
+	 quer += "`"+tableName+"`.`"+ labels_vec[a] + "`='" + where.find(a)->second + "'" ;
+	 quer += " AND ";
  }
  quer.erase(quer.size()-4);
  				logfile::addLog(quer);
@@ -344,6 +340,36 @@ return false;
      return 3;
  	pthread_mutex_unlock(&accept_mutex);
    }
+
+ bool SqlConnectionPool::isConnected()
+ {
+	 return connected_db && conn->connected();
+ }
+
+ void SqlConnectionPool::reconect()
+ {
+	 if(!connected_db)
+	 {
+			pthread_mutex_lock(&accept_mutex);
+		  try{
+		  conn = new mysqlpp::Connection(	Config::getInstance().dataBaseName.c_str(),
+					Config::getInstance().dataBaseHost.c_str() ,
+					Config::getInstance().userName.c_str() ,
+					Config::getInstance().password.c_str());
+		  }
+		  catch(mysqlpp::Exception &ex){
+			  logfile::addLog("INCORRECT" + string(ex.what()));
+		  }
+		  if (conn)
+		  {
+			  logfile::addLog ("Connection to host and database successful");
+			  connected_db = true;
+		  }
+		  else
+			  logfile::addLog ("Connection to host and database failed");
+			pthread_mutex_unlock(&accept_mutex);
+	 }
+ }
 
 
 

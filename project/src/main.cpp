@@ -86,10 +86,10 @@ void processTask(int id,Job job) {
 				map<int, string> temp;
 				temp.insert( { 1, job.session });
 				temp.insert( { 2, to_string(job.jobid) });
-				temp.insert( { 3, "proccess"});
+				temp.insert( { 3, "in proccess"});
 				temp.insert( { 4, s_datime });
-				temp.insert( { 5, "..." });
-				temp.insert( { 6, "..." });
+				temp.insert( { 5, "" });
+				temp.insert( { 6, "" });
 				SqlConnectionPool::getInstance().addRecordsInToTable(temp);
 			}
 
@@ -152,7 +152,10 @@ void processTask(int id,Job job) {
 					map<int, string> temp;
 					temp.insert( { 1, job.session });
 					temp.insert( { 2, to_string(job.jobid) });
-					temp.insert( { 3, "updated"});
+					if(compiler.getResult().size() == 0)
+						temp.insert( { 3, "failed"});
+					else
+						temp.insert( { 3, "done"});
 					temp.insert( { 4, s_datime });
 					temp.insert( { 5, compiler.getResult()});
 					temp.insert( { 6, compiler.getWarningErr() });
@@ -201,6 +204,14 @@ void *receiveTask(void *a) {
 		}
 		else
 		{
+			if(!SqlConnectionPool::getInstance().isConnected())
+			{
+				errorResponder.showError(505, "DataBaseERR");
+				l12("Try reconect to DB");
+				SqlConnectionPool::getInstance().reconect();
+				stream.close();
+				return NULL;
+			}
 			jsonParser jSON(stream.getRequestBuffer());
 			bool parsingSuccessful = jSON.isValidFields(); //reader.parse( str, parsedFromString, false);// IsJSON
 			logfile::addLog("Before parsing");
@@ -208,12 +219,12 @@ void *receiveTask(void *a) {
 			 * ALL OK START
 			 */
 
-
 			if (parsingSuccessful)
 			{
 
 				string ip_usera = FCGX_GetParam("REMOTE_ADDR", request->envp);
-				stream << "Content-type: text/html\r\n" << "\r\n";/* << "<html>\n" << "  <head>\n"
+				//stream << "Content-type: text/html\r\n" << "\r\n";
+				/* << "<html>\n" << "  <head>\n"
 						<< "    <title>Receiver	" << id << "</title>\n" // show ID thread in title
 						<< "  </head>\n" << "  <body>\n";*/
 				cout.flush();
@@ -226,7 +237,7 @@ void *receiveTask(void *a) {
 				int jobid = jSON.getObject("jobid", false).asInt();
 
 				l12("no threa1");
-				if (operation == "send") {
+				if (operation == "start") {
 				string code = jSON.getObject("code", false).asString();
 				int task = jSON.getObject("task", false).asInt();
 				string lang = jSON.getObject("lang", false).asString();
@@ -250,6 +261,7 @@ void *receiveTask(void *a) {
 						labl.push_back("result");
 						labl.push_back("warning");
 						l12("no threa2");
+						bool taskComp = false;
 						if (SqlConnectionPool::getInstance().connectToTable(string("results"), labl))
 						{
 ////////////////////////////////////////////
@@ -259,7 +271,8 @@ void *receiveTask(void *a) {
 							if ((int)records.size()==0)
 								tasksPool.push(processTask,requestedTask);
 							else
-								stream << "this job is already excist";
+								taskComp = true;
+								//stream << "this job is already excist";
 						}
 						//addUserToHistory(ip_usera, code);
 						labl.clear();
@@ -281,11 +294,20 @@ void *receiveTask(void *a) {
 							SqlConnectionPool::getInstance().addRecordsInToTable(temp);
 							//MyConnectionPool::getInstance().tt();
 						}
+						if(taskComp)
+						{
+							stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+							JsonValue res;
+							res["status"] = "already exist";
+							stream << res.toStyledString();
+						}
+						else
+							stream << "Status: 204\r\n Content-type: text/html\r\n" << "\r\n";
 
 
 				// string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
 			}
-			else if (operation == "status")
+			else
 				{
 					//TO BE CONTINUED ...
 							vector<string> labl;
@@ -306,39 +328,60 @@ void *receiveTask(void *a) {
 				//3,skip
 				temp.insert( { 4, s_datime });
 				//4
-				vector<map<int, string> > records =
-				SqlConnectionPool::getInstance().getAllRecordsFromTable("`session` =" + session + " AND `jobid` ="+to_string(jobid));
-				for (int i=0; i< records.size(); i++)
-			{
-				/*Cool start for future code, NO delete
-				 * logfile::addLog("Id:"+records[i][0]);
-				 logfile::addLog("Session:"+records[i][1]);
-				 logfile::addLog("jobId:"+records[i][2]);
-				 logfile::addLog("requested status for session:"+session+":"+records[i][3]);
-				 logfile::addLog("date:"+records[i][4]);
-				 logfile::addLog("result:"+records[i][5]);
-				 logfile::addLog("warning:"+records[i][6]);
-				 */
-				/*Cool code no delete
-				 stream << "Id:"+records[i][0] << "\n";
-				 stream << "Session:"+records[i][1] << "\n";
-				 stream << "jobId:"+records[i][2] << "\n";
-				 */
-					//stream << "status:" +	 records[i].find(keys[r])->second ;
-				stream << "status:" + records[i][3] << "\n\n";
-				/*Cool code no delete
-				 stream << "date:"+records[i][4] << "\n";
-				 stream << "result:"+records[i][5] << "\n";
-				 stream << "warning:"+records[i][6] << "\n";
-				 */
-			}
+				vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
+										"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
+										//	logfile::addLog(std::to_string(records.size()));
+				//for (int i=0; i< records.size(); i++)
+				{
+					/*Cool start for future code, NO delete
+					 * logfile::addLog("Id:"+records[i][0]);
+					 logfile::addLog("Session:"+records[i][1]);
+					 logfile::addLog("jobId:"+records[i][2]);
+					 logfile::addLog("requested status for session:"+session+":"+records[i][3]);
+					 logfile::addLog("date:"+records[i][4]);
+					 logfile::addLog("result:"+records[i][5]);
+					 logfile::addLog("warning:"+records[i][6]);
+					 */
+					/*Cool code no delete
+					 stream << "Id:"+records[i][0] << "\n";
+					 stream << "Session:"+records[i][1] << "\n";
+					 stream << "jobId:"+records[i][2] << "\n";
+					 */
+						//stream << "status:" +	 records[i].find(keys[r])->second ;
+					/*
+					 * RESULT
+					 */
+					stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+					l12("OPERATION::	" + operation);
+					JsonValue res;
+					if(records.size() > 0)
+					{
+						res["status"] = records[0][3];
+						if (operation == "result")
+						{
+							res["date"] = records[i][4];
+							res["warning"] = records[i][6];
+							res["result"] = records[i][5];
+						}
+					}
+					else
+						res["status"] = "not found";
+
+					stream << res.toStyledString();
+				//	stream << "status:" + records[0][3] << "\n\n";
+					/*Cool code no delete
+					 stream << "date:"+records[i][4] << "\n";
+					 stream << "result:"+records[i][5] << "\n";
+					 stream << "warning:"+records[i][6] << "\n";
+					 */
+				}
 
 			logfile::addLog("Table 'results' outputed");
 			//cout.flush();
-						}
-						}
+		}
+	}
 
-					}
+}
 
 			/*res["date"] = date;
 			 res["result"] = compiler.getResult();
@@ -365,7 +408,6 @@ void *receiveTask(void *a) {
 		}
 	//close session
 	logfile::addLog("session closed");
-	errorResponder.showError(502,"Cant`t connect to host or database");
 	stream.close();
 	}
 	//delete connection;
@@ -464,7 +506,7 @@ void *receiveTask(void *a) {
 	cout << "  </body>\n" << "</html>\n";
 
 	} else {
-	show404();
+		show404();
 	}
 	}
 	stream.initSTD_Stream();

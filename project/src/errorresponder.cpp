@@ -466,6 +466,17 @@ void ErrorResponder::showError(int nErrorCode, str sMoreText)
              << "<hr>"
              << "</body></html>";
     break;
+    default:
+    	stream->operator <<( "Status: " + to_string(nErrorCode) +"\r\n")
+             << "Content-type: text/html\r\n"
+             << "\r\n"
+             << " <html><head>"
+             << "<title>" + to_string(nErrorCode) + sMoreText + "</title>"
+             << "</head><body>"
+             << "<h1>" + sMoreText + "</h1>"
+             << "<hr>"
+             << "</body></html>";
+
     }
 }
 
