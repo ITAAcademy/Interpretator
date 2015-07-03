@@ -154,16 +154,16 @@ void processTask(int id,Job job) {
 					temp.insert( { 2, to_string(job.jobid) });
 					temp.insert( { 3, "updated"});
 					temp.insert( { 4, s_datime });
-					temp.insert( { 5, "..." });
-					temp.insert( { 5, "..." });
-					//4
+					temp.insert( { 5, compiler.getResult()});
+					temp.insert( { 6, compiler.getWarningErr() });
+					//4j
 					//string where = "`results`.`jobid`='"+to_string(job.jobid)+"' AND `results`.`session`='"+job.session+"'";
 					map<int,string> where;
 					where.insert({1,job.session});
 					where.insert({2,to_string(job.jobid)});
 								//ConnectorSQL::getInstance().updateRecordsInToTable(temp,wher);
 					SqlConnectionPool::getInstance().updateRecordsInToTable(temp,where);
-l12("55555555555555555");
+
 		}
 
 

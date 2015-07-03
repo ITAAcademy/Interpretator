@@ -44,6 +44,7 @@ public:
     static void addLog(int threadID, string str);
     static void clear();
     static string getDateStamp();
+
 private:
     FCGX_Request *Request;
     char *returnIP();

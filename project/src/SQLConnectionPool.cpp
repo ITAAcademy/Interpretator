@@ -31,8 +31,8 @@
 	  try{
 	  conn = new mysqlpp::Connection(db_name,host,user,pass);
 	  }
-	  catch(mysqlpp::ConnectionFailed &ex){
-		  logfile::addLog("PASSWORD INCORRECT");
+	  catch(mysqlpp::Exception &ex){
+		  logfile::addLog("INCORRECT" + string(ex.what()));
 	  }
 	  if (conn)
 	  {
@@ -72,20 +72,26 @@
 if (connected_db)
 {
 	mysqlpp::Connection::thread_start();
+	mysqlpp::StoreQueryResult res;
+	try{
 		mysqlpp::Query query( conn->query( quer) );
-		mysqlpp::StoreQueryResult res = query.store();
-		mysqlpp::Connection::thread_end();
-		if (res.capacity()) {
-			 this->labels="`" + labels_vec[0] +"`" ;
-			 	for (int i=1; i<labels_vec.size(); i++)
-			 		this->labels+=",`" + labels_vec[i] +"`" ;
+		res = query.store();
+	}
+	catch(mysqlpp::Exception &ex){
+		logfile::addLog("connectToTable INCORRECT" + string(ex.what()));
+	}
+	mysqlpp::Connection::thread_end();
+	if (res.capacity()) {
+		 this->labels="`" + labels_vec[0] +"`" ;
+			for (int i=1; i<labels_vec.size(); i++)
+				this->labels+=",`" + labels_vec[i] +"`" ;
 
-		logfile::addLog ("Connection  to table " + table + " successfull");
-		pthread_mutex_unlock(&accept_mutex);
-		return true;
-		}
+	logfile::addLog ("Connection  to table " + table + " successfull");
+	pthread_mutex_unlock(&accept_mutex);
+	return true;
+	}
 
-		logfile::addLog ("Connection  to table " + table + " failed");
+	logfile::addLog ("Connection  to table " + table + " failed");
 }
 pthread_mutex_unlock(&accept_mutex);
 return false;
@@ -101,8 +107,14 @@ return false;
  	 	if (connected_db)
  	 	{
  	 		mysqlpp::Connection::thread_start();
+ 	 		mysqlpp::StoreQueryResult res;
+ 	 		try{
  	 				mysqlpp::Query query( conn->query( quer) );
- 	 				mysqlpp::StoreQueryResult res = query.store();
+ 	 				res = query.store();
+ 		}
+ 		catch(mysqlpp::Exception &ex){
+ 			  logfile::addLog("getAllRecordsFromTable INCORRECT" + string(ex.what()));
+ 		}
  	 				mysqlpp::Connection::thread_end();
  	 	  if (res.capacity())
  	 	  {
@@ -136,9 +148,14 @@ return false;
  if (connected_db)
   	 	{
   	 		mysqlpp::Connection::thread_start();
+  	 		mysqlpp::StoreQueryResult res;
+  	 	try{
   	 				mysqlpp::Query query( conn->query( quer) );
-  	 				mysqlpp::StoreQueryResult res = query.store();
-
+  	 				res = query.store();
+ 		}
+ 		catch(mysqlpp::Exception &ex){
+ 			  logfile::addLog("getCustomCodeOfProgram INCORRECT" + string(ex.what()));
+ 		}
   	 				mysqlpp::Connection::thread_end();
   	 				logfile::addLog (quer);
 
@@ -156,7 +173,7 @@ return false;
  else rezult = "empty";
  //mysql_free_result(resptr);
  }
- rezult = "failed, not connected to database";
+ l12("failed, not connected to database");
  pthread_mutex_unlock(&accept_mutex);
  return rezult;
  }
@@ -191,12 +208,19 @@ return false;
  				}
 
 			mysqlpp::Connection::thread_start();
+			mysqlpp::Query *query;
 			logfile::addLog (quer);
-					mysqlpp::Query query( conn->query( quer) );
-					query.exec();
+		try{
+					query = new mysqlpp::Query( conn->query( quer) );
+					query->exec();
+		}
+		catch(mysqlpp::Exception &ex){
+			  logfile::addLog("getCustomCodeOfProgram INCORRECT" + string(ex.what()));
+		}
 					mysqlpp::Connection::thread_end();
-			if (query.result_empty()) {
+			if (query->result_empty()) {
  				logfile::addLog ("Adding records in to table " + tableName + " successfull");
+ 				delete query;
  				pthread_mutex_unlock(&accept_mutex);
  				return true;
  			}
@@ -234,11 +258,18 @@ return false;
  				}
 			logfile::addLog (quer);
 			mysqlpp::Connection::thread_start();
-					mysqlpp::Query query( conn->query( quer) );
-					query.exec();
-					mysqlpp::Connection::thread_end();
-			if (query.result_empty()) {
+			mysqlpp::Query *query;
+			try{
+						query = new mysqlpp::Query( conn->query( quer) );
+						query->exec();
+			}
+			catch(mysqlpp::Exception &ex){
+				  logfile::addLog("getCustomCodeOfProgram INCORRECT" + string(ex.what()));
+			}
+			mysqlpp::Connection::thread_end();
+			if (query->result_empty()) {
  				logfile::addLog ("Adding records in to table " + tableName + " successfull");
+ 				delete query;
  				pthread_mutex_unlock(&accept_mutex);
  				return true;
  			}
@@ -284,11 +315,18 @@ return false;
  quer.erase(quer.size()-4);
  				logfile::addLog(quer);
  				mysqlpp::Connection::thread_start();
- 						mysqlpp::Query query( conn->query (quer) );
- 						query.exec();
+ 				mysqlpp::Query *query;
+				try{
+							query = new mysqlpp::Query( conn->query( quer) );
+							query->exec();
+				}
+				catch(mysqlpp::Exception &ex){
+					  logfile::addLog("getCustomCodeOfProgram INCORRECT" + string(ex.what()));
+				}
  						mysqlpp::Connection::thread_end();
- 				if (query.result_empty()) {
+ 				if (query->result_empty()) {
  				logfile::addLog ("Updating records in table " + tableName +" successfull");
+ 				delete query;
  				pthread_mutex_unlock(&accept_mutex);
  				return true;
  				}
