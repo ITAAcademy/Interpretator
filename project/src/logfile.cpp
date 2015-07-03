@@ -34,7 +34,16 @@ void logfile::addLog(FCGX_Request *request, string addStr)
 
 	pthread_mutex_unlock(&accept_mutex);
 }
-
+void logfile::clear()
+{
+	std::ofstream write;
+		pthread_mutex_t accept_mutex = PTHREAD_MUTEX_INITIALIZER;
+		pthread_mutex_lock(&accept_mutex);
+		cout.flush();
+	    write.open("log.txt", std::ios_base::out);
+	    write.clear();
+	    write.close();
+}
 void logfile::addLog(string str)
 {
     std::ofstream write;

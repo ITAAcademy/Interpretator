@@ -155,7 +155,7 @@ void processTask(int id,Job job) {
 					temp.insert( { 3, "updated"});
 					temp.insert( { 4, s_datime });
 					temp.insert( { 5, "..." });
-					//temp.insert( { 5, "..." });
+					temp.insert( { 5, "..." });
 					//4
 					//string where = "`results`.`jobid`='"+to_string(job.jobid)+"' AND `results`.`session`='"+job.session+"'";
 					map<int,string> where;
@@ -220,11 +220,12 @@ void *receiveTask(void *a) {
 				logfile::addLog("Parsing successful");
 				/////
 				//cout.flush();
+				l12("no threa0");
 				string operation = jSON.getObject("operation", false).asString();
 				string session = jSON.getObject("session", false).asString();
 				int jobid = jSON.getObject("jobid", false).asInt();
 
-
+				l12("no threa1");
 				if (operation == "send") {
 				string code = jSON.getObject("code", false).asString();
 				int task = jSON.getObject("task", false).asInt();
@@ -235,7 +236,7 @@ void *receiveTask(void *a) {
 				requestedTask.lang = lang;
 				requestedTask.session = session;
 				requestedTask.task = task;
-
+				l12("no threa2");
 				/*
 				 * BAD NEED FIX @BUDLO@ INCLUDE INTO sql
 				 */
@@ -248,7 +249,7 @@ void *receiveTask(void *a) {
 						labl.push_back("date");
 						labl.push_back("result");
 						labl.push_back("warning");
-
+						l12("no threa2");
 						if (SqlConnectionPool::getInstance().connectToTable(string("results"), labl))
 						{
 ////////////////////////////////////////////
@@ -380,6 +381,7 @@ void *receiveTask(void *a) {
 
 	pthread_t *id = new pthread_t[Config::getInstance().getThreadCount()];
 	FCGX_Init();
+	logfile::clear();
 	logfile::addLog("\n\n\n\nStart server ==== Lib is inited");
 	 // system("mkdir -m 777 src");
 	 // open socket unix or TCP
@@ -410,7 +412,6 @@ void *receiveTask(void *a) {
 	logfile::addLog("Server stoped successful");
 	return 0;
 	}
-
 	/*
 	 *  Apache main function
 	 */
