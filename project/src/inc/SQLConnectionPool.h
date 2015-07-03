@@ -27,10 +27,8 @@ using namespace std;
 class SqlConnectionPool : public mysqlpp::ConnectionPool
 {
 public:
-
-  SqlConnectionPool(const char *db_name,const char * host,const char *user,const char *pass);
-  ~SqlConnectionPool();
   static SqlConnectionPool&  getInstance( );
+  ~SqlConnectionPool();
   vector<map<int,string> >   getAllRecordsFromTable( string where ="1") ;
   bool addRecordsInToTable(vector<map<int,string> > records);
   bool addRecordsInToTable(map<int,string>  records);
@@ -43,7 +41,9 @@ protected:
    void destroy(mysqlpp::Connection*) ;
 
 private:
+   SqlConnectionPool(const char *db_name,const char * host,const char *user,const char *pass);
    bool connected_db;
+	pthread_mutex_t accept_mutex = PTHREAD_MUTEX_INITIALIZER;
   mysqlpp::Connection* conn;
   vector<string> labels_vec;
   string labels;

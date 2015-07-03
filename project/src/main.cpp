@@ -8,7 +8,6 @@
 using namespace std;
 //using namespace boost;
 using namespace Json;
-SqlConnectionPool *pool;
 
 
 struct ThreadArguments {
@@ -225,6 +224,7 @@ void *receiveTask(void *a) {
 				string session = jSON.getObject("session", false).asString();
 				int jobid = jSON.getObject("jobid", false).asInt();
 
+
 				if (operation == "send") {
 				string code = jSON.getObject("code", false).asString();
 				int task = jSON.getObject("task", false).asInt();
@@ -251,7 +251,6 @@ void *receiveTask(void *a) {
 
 						if (SqlConnectionPool::getInstance().connectToTable(string("results"), labl))
 						{
-
 ////////////////////////////////////////////
 	vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
 						"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
@@ -276,6 +275,7 @@ void *receiveTask(void *a) {
 							temp.insert( { 2, str_with_spec_character(code) });
 							temp.insert( { 3, s_datime });
 							rec.push_back(temp);
+
 							//MyConnectionPool::getInstance().getAllRecordsFromTable();
 							SqlConnectionPool::getInstance().addRecordsInToTable(temp);
 							//MyConnectionPool::getInstance().tt();

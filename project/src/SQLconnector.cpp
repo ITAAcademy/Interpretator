@@ -33,7 +33,7 @@ ConnectorSQL::~ConnectorSQL(){
 }
 ConnectorSQL& ConnectorSQL::getInstance(){
 	static ConnectorSQL conn;
-		conn.connect_table = false;
+	//	conn.connect_table = false;
 	return conn;
 }
 

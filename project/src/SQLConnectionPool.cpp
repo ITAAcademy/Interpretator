@@ -26,6 +26,7 @@
 
   SqlConnectionPool::SqlConnectionPool(const char *db_name,const char * host,const char *user,const char *pass)
   {
+		pthread_mutex_lock(&accept_mutex);
 	  connected_db = false;
 	  conn = new mysqlpp::Connection(db_name,host,user,pass);
 	  if (conn)
@@ -35,6 +36,7 @@
 	  }
 	  else
 		  logfile::addLog ("Connection to host and database failed");
+		pthread_mutex_unlock(&accept_mutex);
   }
 
 
@@ -42,6 +44,7 @@
 
  SqlConnectionPool::~SqlConnectionPool()
   {
+		pthread_mutex_lock(&accept_mutex);
 	 this->release( conn );
 	    //delay 1-4 sec before it will be able to using
 	 srand( time(0) );
@@ -51,10 +54,12 @@
     clear();
     mysqlpp::Connection::thread_end();
     logfile::addLog("Pool connection deleted.");
+    pthread_mutex_unlock(&accept_mutex);
   }
 
  //work12
  bool SqlConnectionPool::connectToTable(string table, vector<string> labels) {
+		pthread_mutex_lock(&accept_mutex);
 		tableName=table;
 		this->labels_vec = labels;
 		string quer = "SHOW TABLES FROM  `" +
@@ -71,16 +76,19 @@ if (connected_db)
 			 		this->labels+=",`" + labels_vec[i] +"`" ;
 
 		logfile::addLog ("Connection  to table " + table + " successfull");
+		pthread_mutex_unlock(&accept_mutex);
 		return true;
 		}
 
 		logfile::addLog ("Connection  to table " + table + " failed");
 }
+pthread_mutex_unlock(&accept_mutex);
 return false;
  }
 
 //work11
  vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string where )  {
+		pthread_mutex_lock(&accept_mutex);
 
  	 vector<map<int,string> >  records;
  	 	string quer = "SELECT * FROM `" + tableName + "` WHERE "+where;
@@ -111,11 +119,13 @@ return false;
  	 	}
  	 	  else logfile::addLog ("Getting all records from table " + tableName + " failed or table is empty");
  	 	}
+ 	 	pthread_mutex_unlock(&accept_mutex);
  	 return records;
  }
 
 
  string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_program,int thrdId) {
+		pthread_mutex_lock(&accept_mutex);
 	 string rezult ;
  string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
  if (connected_db)
@@ -142,11 +152,13 @@ return false;
  //mysql_free_result(resptr);
  }
  rezult = "failed, not connected to database";
+ pthread_mutex_unlock(&accept_mutex);
  return rezult;
  }
 
 //work12
  bool SqlConnectionPool::addRecordsInToTable(vector<map<int,string> > records) {
+		pthread_mutex_lock(&accept_mutex);
 	 if (connected_db)
 	 {
  	string quer= "INSERT INTO `" + tableName + "` ("+ this->labels +") Values (";
@@ -180,16 +192,19 @@ return false;
 					mysqlpp::Connection::thread_end();
 			if (query.result_empty()) {
  				logfile::addLog ("Adding records in to table " + tableName + " successfull");
+ 				pthread_mutex_unlock(&accept_mutex);
  				return true;
  			}
  				logfile::addLog ("Adding records in to table " + tableName + " failed");
 	 }
+	 pthread_mutex_unlock(&accept_mutex);
  					return false;
 
  }
 
 //work12
  bool SqlConnectionPool::addRecordsInToTable(map<int,string> records) {
+		pthread_mutex_lock(&accept_mutex);
 	 if (connected_db)
 	 {
  	string quer= "INSERT INTO `" + tableName + "` ("+ this->labels +") Values (";
@@ -219,15 +234,18 @@ return false;
 					mysqlpp::Connection::thread_end();
 			if (query.result_empty()) {
  				logfile::addLog ("Adding records in to table " + tableName + " successfull");
+ 				pthread_mutex_unlock(&accept_mutex);
  				return true;
  			}
  				logfile::addLog ("Adding records in to table " + tableName + " failed");
 	 }
+	 pthread_mutex_unlock(&accept_mutex);
  					return false;
  }
 
 
  bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,string>  where) {
+		pthread_mutex_lock(&accept_mutex);
 	 if (connected_db)
 	 {
  	string quer= "UPDATE `"+ tableName+ "` SET ";
@@ -263,18 +281,22 @@ return false;
  						mysqlpp::Connection::thread_end();
  				if (query.result_empty()) {
  				logfile::addLog ("Updating records in table " + tableName +" successfull");
+ 				pthread_mutex_unlock(&accept_mutex);
  				return true;
  				}
  				logfile::addLog ("Updating records in table " + tableName +" failed");
 	 }
  					return false;
+ 					pthread_mutex_unlock(&accept_mutex);
  }
 
 
  unsigned int SqlConnectionPool::max_idle_time()
    {
+		pthread_mutex_lock(&accept_mutex);
      //3 seconds
      return 3;
+ 	pthread_mutex_unlock(&accept_mutex);
    }
 
 
