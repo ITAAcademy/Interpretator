@@ -32,7 +32,8 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	case Flag_CPP:
 	code_file_name = "prog" + to_string(thID) + ".out";
 	//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
-	build_str = "cd src; clang++ -Wno-deprecated code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
+	build_str = "cd src; clang++ -Wno-deprecated code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) +
+			".out ;		rm code" + to_string(thID) + ".cpp ";
 	run_str = " ./prog" + to_string(thID) + ".out;  rm prog" + to_string(thID) + ".out";
 	prog_name = "prog"+to_string(thID)+".out";
 	break;

@@ -29,7 +29,7 @@ void addUserToHistory(string userIp, string code) {
 			labl.push_back("ip");
 			labl.push_back("code");
 			labl.push_back("date_time");
-			if (SqlConnectionPool::getInstance().connectToTable("History", labl))
+			if (SqlConnectionPool::getInstance().connectToTable("history", labl))
 			{
 				string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 				map<int, string> temp;
@@ -91,7 +91,7 @@ void processTask(int id,Job job) {
 				temp.insert( { 5, "" });
 				temp.insert( { 6, "" });
 				SqlConnectionPool::getInstance().addRecordsInToTable(temp);
-			}
+
 
 			////////////////
 			labl.clear();
@@ -103,13 +103,13 @@ void processTask(int id,Job job) {
 
 			string table;
 			if (job.lang == "c++" || job.lang == "C++")
-				table = "Assignment_CPP"; //Config::getInstance().getTaskJavaTableName();
+				table = "assignment_cpp"; //Config::getInstance().getTaskJavaTableName();
 			else if (job.lang == "Java" || job.lang == "java")
-				table = "Assignment_JAVA";
+				table = "assignment_java";
 			else if (job.lang == "Js" || job.lang == "js")
-				table = "Assignment_JS";
+				table = "assignment_js";
 			else
-				table = "Assignment_CPP";
+				table = "assignment_cpp";
 			if (SqlConnectionPool::getInstance().connectToTable(table, labl))
 			{
 				job.code =
@@ -176,6 +176,7 @@ void processTask(int id,Job job) {
 	logfile::addLog(to_string(id)+" Json format is not correct!!! \n::::::::::::::::::::::::\n");
 	}
 }
+}
 
 void *receiveTask(void *a) {
 	ThreadArguments argumento = ((ThreadArguments *) a)[0];
@@ -237,7 +238,8 @@ void *receiveTask(void *a) {
 				int jobid = jSON.getObject("jobid", false).asInt();
 
 				l12("no threa1");
-				if (operation == "start") {
+				if (operation == "start")
+				{
 				string code = jSON.getObject("code", false).asString();
 				int task = jSON.getObject("task", false).asInt();
 				string lang = jSON.getObject("lang", false).asString();
@@ -264,7 +266,6 @@ void *receiveTask(void *a) {
 						bool taskComp = false;
 						if (SqlConnectionPool::getInstance().connectToTable(string("results"), labl))
 						{
-////////////////////////////////////////////
 	vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
 						"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
 						//	logfile::addLog(std::to_string(records.size()));
@@ -273,14 +274,14 @@ void *receiveTask(void *a) {
 							else
 								taskComp = true;
 								//stream << "this job is already excist";
-						}
+
 						//addUserToHistory(ip_usera, code);
 						labl.clear();
 						labl.push_back("ID");
 						labl.push_back("ip");
 						labl.push_back("code");
 						labl.push_back("date_time");
-						if (SqlConnectionPool::getInstance().connectToTable("History", labl))
+						if (SqlConnectionPool::getInstance().connectToTable("history", labl))
 						{
 							string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 							vector <map<int, string> > rec;
@@ -293,16 +294,28 @@ void *receiveTask(void *a) {
 							//MyConnectionPool::getInstance().getAllRecordsFromTable();
 							SqlConnectionPool::getInstance().addRecordsInToTable(temp);
 							//MyConnectionPool::getInstance().tt();
+							if(taskComp)
+							{
+								stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+								JsonValue res;
+								res["status"] = "already exist";
+								stream << res.toStyledString();
+							}
+							else
+								stream << "Status: 204\r\n Content-type: text/html\r\n" << "\r\n";
 						}
-						if(taskComp)
-						{
-							stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-							JsonValue res;
-							res["status"] = "already exist";
-							stream << res.toStyledString();
+							else
+							{
+								errorResponder.showError(505, "DataBaseERR");
+								stream.close();
+							}
 						}
 						else
-							stream << "Status: 204\r\n Content-type: text/html\r\n" << "\r\n";
+						{
+							errorResponder.showError(505, "DataBaseERR");
+							stream.close();
+						}
+
 
 
 				// string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
@@ -378,6 +391,11 @@ void *receiveTask(void *a) {
 
 			logfile::addLog("Table 'results' outputed");
 			//cout.flush();
+		}
+		else
+		{
+				errorResponder.showError(505, "DataBaseERR");
+				stream.close();
 		}
 	}
 
