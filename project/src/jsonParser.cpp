@@ -133,24 +133,27 @@ Value jsonParser::getRoot()
 
 bool jsonParser::isValidFields()
 {
-	if(!bJsonValid)
-			return false;
+
 l12("111111111111111111111111111111111111111111111111111111");
 	if (parsedFromString[FIELD_OPERATION]=="addtask")
 	{
 		if(parsedFromString[FIELD_HEADER].isNull() || !parsedFromString[FIELD_HEADER].isConvertibleTo(Json::stringValue))
 				return false;
+		l12("zz1");
 		if(parsedFromString[FIELD_ETALON].isNull() || !parsedFromString[FIELD_ETALON].isConvertibleTo(Json::stringValue))
 				return false;
+		l12("zz2");
 		if(parsedFromString[FIELD_FOOTER].isNull() || !parsedFromString[FIELD_FOOTER].isConvertibleTo(Json::stringValue))
 					return false;
+		l12("zz3");
 		if(parsedFromString[FIELD_CODE_LANGUAGE].isNull() || !parsedFromString[FIELD_CODE_LANGUAGE].isConvertibleTo(Json::stringValue))
 					return false;
 
 
 		return true;
 	}
-
+	if(!bJsonValid)
+			return false;
 
 	if(parsedFromString[FIELD_JOBID].isNull() || !parsedFromString[FIELD_JOBID].isConvertibleTo(Json::intValue))
 		return false;

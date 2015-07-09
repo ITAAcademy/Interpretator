@@ -9,13 +9,11 @@
 
  SqlConnectionPool&  SqlConnectionPool::getInstance()
  {
-	 l12(" q1");
 	static SqlConnectionPool connection (
 			Config::getInstance().dataBaseName.c_str(),
 			Config::getInstance().dataBaseHost.c_str() ,
 			Config::getInstance().userName.c_str() ,
 			Config::getInstance().password.c_str());
-	l12(" q3");
 	return connection;
 }
 
@@ -28,20 +26,16 @@
   {
 
 		pthread_mutex_lock(&accept_mutex);
-	  connected_db = false;
-	 // max_time = this->max_idle_time();
-	  l12(" q2");
-	  //timer = timeSeconds();
+	  start_time = clock();
 	  try{
 	  conn = new mysqlpp::Connection(db_name,host,user,pass);
 	  }
 	  catch(mysqlpp::Exception &ex){
-		  logfile::addLog("INCORRECT" + string(ex.what()));
+		  logfile::addLog("SqlConnectionPool(constructor) INCORRECT " + string(ex.what()));
 	  }
 	  if (conn)
 	  {
 		  logfile::addLog ("Connection to host and database successful");
-		  connected_db = true;
 	  }
 	  else
 		  logfile::addLog ("Connection to host and database failed");
@@ -73,7 +67,7 @@
 		this->labels_vec = labels;
 		string quer = "SHOW TABLES FROM  `" +
 		Config::getInstance().dataBaseName +"` LIKE  '" + table +"'";
-if (connected_db)
+if (conn->connected())
 {
 	mysqlpp::Connection::thread_start();
 	mysqlpp::StoreQueryResult res;
@@ -108,7 +102,7 @@ return false;
  	 vector<map<int,string> >  records;
  	 	string quer = "SELECT * FROM `" + tableName + "` WHERE "+where;
  	 	l12 (quer);
- 	 	if (connected_db)
+ 	 	if (conn->connected())
  	 	{
  	 		mysqlpp::Connection::thread_start();
  	 		mysqlpp::StoreQueryResult res;
@@ -117,7 +111,7 @@ return false;
  	 				res = query.store();
  		}
  		catch(mysqlpp::Exception &ex){
- 			  logfile::addLog("getAllRecordsFromTable INCORRECT" + string(ex.what()));
+ 			  logfile::addLog("getAllRecordsFromTable INCORRECT " + string(ex.what()));
  		}
  	 				mysqlpp::Connection::thread_end();
  	 	  if (res.capacity())
@@ -149,7 +143,7 @@ return false;
 		pthread_mutex_lock(&accept_mutex);
 	 string rezult ;
  string quer = "SELECT * FROM  `" + tableName + "` where `" + labels_vec[0] +"` = "+ ID +";";
- if (connected_db)
+ if (conn->connected())
   	 	{
   	 		mysqlpp::Connection::thread_start();
   	 		mysqlpp::StoreQueryResult res;
@@ -158,7 +152,7 @@ return false;
   	 				res = query.store();
  		}
  		catch(mysqlpp::Exception &ex){
- 			  logfile::addLog("getCustomCodeOfProgram INCORRECT" + string(ex.what()));
+ 			  logfile::addLog("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
  		}
   	 				mysqlpp::Connection::thread_end();
   	 				logfile::addLog (quer);
@@ -238,7 +232,7 @@ return false;
 //work12
  bool SqlConnectionPool::addRecordsInToTable(vector<map<int,string> > records) {
 		pthread_mutex_lock(&accept_mutex);
-	 if (connected_db)
+	 if (conn->connected())
 	 {
  	string quer= "INSERT INTO `" + tableName + "` ("+ this->labels +") Values (";
  	int num_of_querys = records.size();
@@ -273,7 +267,7 @@ return false;
 					result=query->execute();
 		}
 		catch(mysqlpp::Exception &ex){
-			  logfile::addLog("getCustomCodeOfProgram INCORRECT" + string(ex.what()));
+			  logfile::addLog("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
 		}
 					mysqlpp::Connection::thread_end();
 			if (result.rows()) {
@@ -292,7 +286,7 @@ return false;
 //work12
  bool SqlConnectionPool::addRecordsInToTable(map<int,string> records) {
 		pthread_mutex_lock(&accept_mutex);
-	 if (connected_db)
+	 if (conn->connected())
 	 {
  	string quer= "INSERT INTO `" + tableName + "` ("+ this->labels +") Values (";
  				{
@@ -324,7 +318,7 @@ return false;
 						result=query->execute();
 			}
 			catch(mysqlpp::Exception &ex){
-				  logfile::addLog("getCustomCodeOfProgram INCORRECT" + string(ex.what()));
+				  logfile::addLog("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
 			}
 			mysqlpp::Connection::thread_end();
 			if (result.rows()) {
@@ -342,7 +336,7 @@ return false;
 
  bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,string>  where) {
 	pthread_mutex_lock(&accept_mutex);
-	 if (connected_db)
+	 if (conn->connected())
 	 {
  	string quer= "UPDATE `"+ tableName+ "` SET ";
  	vector<int> keys;
@@ -378,7 +372,7 @@ return false;
 							result=query->execute();
 				}
 				catch(mysqlpp::Exception &ex){
-					  logfile::addLog("getCustomCodeOfProgram INCORRECT" + string(ex.what()));
+					  logfile::addLog("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
 				}
  						mysqlpp::Connection::thread_end();
  				if (result.rows()) {
@@ -398,18 +392,19 @@ return false;
    {
 		pthread_mutex_lock(&accept_mutex);
      //3 seconds
-     return 3;
+     return 300;
  	pthread_mutex_unlock(&accept_mutex);
    }
 
  bool SqlConnectionPool::isConnected()
  {
-	 return connected_db && conn->connected();
+	 return conn->connected() ;//&& (((end_time-start_time)/CLOCKS_PER_SEC*1000- max_idle_time())>0);
  }
 
  void SqlConnectionPool::reconect()
  {
-	 if(!connected_db )//|| ((end_time - start_time) / CLOCKS_PER_SEC * 1000))
+	 end_time = clock();
+	 if(!conn->connected())
 	 {
 			pthread_mutex_lock(&accept_mutex);
 		  try{
@@ -419,12 +414,11 @@ return false;
 					Config::getInstance().password.c_str());
 		  }
 		  catch(mysqlpp::Exception &ex){
-			  logfile::addLog("INCORRECT" + string(ex.what()));
+			  logfile::addLog("reconect INCORRECT " + string(ex.what()));
 		  }
 		  if (conn)
 		  {
 			  logfile::addLog ("Connection to host and database successful");
-			  connected_db = true;
 		  }
 		  else
 			  logfile::addLog ("Connection to host and database failed");

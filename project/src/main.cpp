@@ -211,10 +211,10 @@ void *receiveTask(void *a) {
 				errorResponder.showError(505, "DataBaseERR");
 				l12("Try reconect to DB");
 				SqlConnectionPool::getInstance().reconect();
-				stream.close();
-				return NULL;
+				//stream.close();
+				//return NULL;  //////////////////////////////
 			}
-			l12("mmmm3");
+
 			jsonParser jSON(stream.getRequestBuffer());
 			bool parsingSuccessful = jSON.isValidFields(); //reader.parse( str, parsedFromString, false);// IsJSON
 			logfile::addLog("Before parsing");
@@ -257,19 +257,32 @@ void *receiveTask(void *a) {
 					{
 					map<int, string> temp;
 					string header = jSON.getObject("header", false).asString();
+					l12("header ");
 					string etalon = jSON.getObject("etalon", false).asString();
+					l12("etalon");
 					string footer = jSON.getObject("footer", false).asString();
+					l12("footer");
 					string name = jSON.getObject("name", false).asString();
-
-					string task = jSON.getObject("task", false).asString();
-					if (task.size())
-						temp.insert( { 0, task });
-					temp.insert( { 1, name });
-					temp.insert( { 2, header});
-					temp.insert( { 3, etalon });
-					temp.insert( { 3, footer });
-					temp.insert( { 4, footer });
-					SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+					l12("name");
+					int task = jSON.getObject("task", false).asInt();
+					l12("task");
+					l12(std::to_string(task));
+				//	if (task)
+						temp.insert( { 0, std::to_string(task) });
+					temp.insert( { 1, name }); //str_with_spec_character(
+					temp.insert( { 2, str_with_spec_character(header)});
+					temp.insert( { 3, str_with_spec_character(etalon )});
+					temp.insert( { 4, str_with_spec_character(footer) });
+					l12("temp.insert");
+					stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+					if (SqlConnectionPool::getInstance().addRecordsInToTable(temp))
+					stream << "New task added";
+					else
+						stream << "Adding of new task failed.";
+					stream.close();
+					logfile::addLog("session closed");
+						stream.close();
+						return NULL;
 					}
 				}
 				else
@@ -290,7 +303,7 @@ void *receiveTask(void *a) {
 				requestedTask.lang = lang;
 				requestedTask.session = session;
 				requestedTask.task = task;
-				l12("no threa2");
+				l12("no threa22");
 				/*
 				 * BAD NEED FIX @BUDLO@ INCLUDE INTO sql
 				 */
@@ -303,10 +316,11 @@ void *receiveTask(void *a) {
 						labl.push_back("date");
 						labl.push_back("result");
 						labl.push_back("warning");
-						l12("no threa2");
+
 						bool taskComp = false;
 						if (SqlConnectionPool::getInstance().connectToTable(string("results"), labl))
 						{
+							l12("no threa2");
 	vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
 						"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
 						//	logfile::addLog(std::to_string(records.size()));
@@ -349,12 +363,14 @@ void *receiveTask(void *a) {
 							{
 								errorResponder.showError(505, "DataBaseERR");
 								stream.close();
+								return NULL;
 							}
 						}
 						else
 						{
 							errorResponder.showError(505, "DataBaseERR");
 							stream.close();
+							return NULL;
 						}
 
 
@@ -405,6 +421,7 @@ void *receiveTask(void *a) {
 					/*
 					 * RESULT
 					 */
+
 					stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 					l12("OPERATION::	" + operation);
 					JsonValue res;
@@ -422,6 +439,7 @@ void *receiveTask(void *a) {
 						res["status"] = "not found";
 
 					stream << res.toStyledString();
+
 				//	stream << "status:" + records[0][3] << "\n\n";
 					/*Cool code no delete
 					 stream << "date:"+records[i][4] << "\n";
@@ -437,6 +455,7 @@ void *receiveTask(void *a) {
 		{
 				errorResponder.showError(505, "DataBaseERR");
 				stream.close();
+				return NULL;
 		}
 	}
 			}
@@ -448,12 +467,14 @@ void *receiveTask(void *a) {
 								+ stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
 				errorResponder.showError(505, "DataBaseERR");
 				stream.close();
+				return NULL;
 			}
 
 		}
 	}
 	//close session
 	logfile::addLog("session closed");
+
 	stream.close();
 	return NULL;
 }
@@ -499,71 +520,4 @@ l12("AAA0");
 	logfile::addLog("Server stoped successful");
 	return 0;
 	}
-	/*
-	 *  Apache main function
-	 */
-	int Apache(void)
-	{
-	 // Backup the stdio streambufs
-	FCGX_Init();
-	FCGX_Request *request;
-	FCGI_Stream stream(socketId);
-	request = stream.getRequest();
-
-	 //  char j = ~(27-1);
-
-	while (stream.IsRequest()) {
-	stream.initFCGI_Stream();
-	stream.reInitRequesBuffer();
-
-	if (strcmp(stream.getRequestMethod(), "GET") == 0) {
-	show404();
-	} else {
-	Json::Value parsedFromString;
-	Json::Reader reader;
-	bool parsingSuccessful = true; //reader.parse( str, parsedFromString, false);// IsJSON
-
-	 // print(pt);
-	if (parsingSuccessful) {
-
-	//	char ** envp = request->envp;
-	cout << "Content-type: text/html\r\n" << "\r\n" << "<html>\n" << "  <head>\n"
-			<< "    <title>Hello, World!</title>\n" << "  </head>\n"
-			<< "  <body>\n";
-	LangCompiler compiler(0);
-	char * code = stream.getFormParam("text");
-	cout << code;
-	cout << compiler.compile(code, true);
-	/*					if(!parsedFromString["root"].isNull())
-	 {
-	 Value v1 = parsedFromString["root"];
-	 Value v = v1["values"];
-	 if(v.isArray())
-	 {
-	 for(unsigned int index=0; index<v.size(); ++index)
-	 {
-	 cout << v[index].toStyledString();
-	 }
-	 }
-	 }
-	 else cout << "==============================================NULL";
-	 */
-	cout << "  </body>\n" << "</html>\n";
-
-	} else {
-		show404();
-	}
-	}
-	stream.initSTD_Stream();
-
-	//		{ "root": { "values": [1, 2, 3, 4, 5 ] } }
-	/*
-	 for ( ; *envp; ++envp)
-	 {
-	 cout << *envp << "\n";
-	 }*/
-	}
-
-	return 0;
-}
 
