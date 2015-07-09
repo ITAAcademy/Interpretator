@@ -30,7 +30,7 @@ using namespace std;
 
 string getDateTime();
 
-string getDateTime();
+int timeSeconds();
 
 string str_with_spec_character(string s) ;
 

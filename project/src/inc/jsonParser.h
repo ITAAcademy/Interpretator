@@ -22,6 +22,9 @@ using namespace Json;
 #define FIELD_SESSION "session"
 #define FIELD_JOBID "jobid"
 #define JsonValue Value
+#define FIELD_HEADER "header"
+#define FIELD_ETALON "etalon"
+#define FIELD_FOOTER "footer"
 /*
 
 

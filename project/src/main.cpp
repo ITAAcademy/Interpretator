@@ -181,7 +181,6 @@ void processTask(int id,Job job) {
 void *receiveTask(void *a) {
 	ThreadArguments argumento = ((ThreadArguments *) a)[0];
 
-
 	int rc, i;
 	int id = argumento.id;
 	char * inputSTR;
@@ -189,23 +188,25 @@ void *receiveTask(void *a) {
 	FCGI_Stream stream(socketId);
 	ErrorResponder errorResponder(&stream);
 	request = stream.getRequest();
-	string lang;
+	//string lang;
 
 	for (;;)
 	{
-		if (!stream.multiIsRequest()) {
-			break;
-		}
+		if (stream.multiIsRequest()) { /////////////!!!!!!!!!!!!!!!!!!!
+		//	break;
+			l12("mmmm0");
 		logfile::addLog(request);
-
+		l12("mmmm1");
 		if (strcmp(stream.getRequestMethod(), "GET") == 0)
 		{
 			logfile::addLog(id, "Request Method don't POST !!!");
 			errorResponder.showError(404);
+			logfile::addLog("session closed");
+			stream.close();
+			return NULL;
 		}
-		else
-		{
-			if(!SqlConnectionPool::getInstance().isConnected())
+			l12("mmmm2");
+			if(!SqlConnectionPool::getInstance().isConnected()  )
 			{
 				errorResponder.showError(505, "DataBaseERR");
 				l12("Try reconect to DB");
@@ -213,16 +214,17 @@ void *receiveTask(void *a) {
 				stream.close();
 				return NULL;
 			}
+			l12("mmmm3");
 			jsonParser jSON(stream.getRequestBuffer());
 			bool parsingSuccessful = jSON.isValidFields(); //reader.parse( str, parsedFromString, false);// IsJSON
 			logfile::addLog("Before parsing");
 			/*
-			 * ALL OK START
+			 * ALL OK STARTif (SqlConnectionPool::getInstance().connectToTable(string("results"), labl))
 			 */
 
 			if (parsingSuccessful)
 			{
-
+				l12("mmmm4");
 				string ip_usera = FCGX_GetParam("REMOTE_ADDR", request->envp);
 				//stream << "Content-type: text/html\r\n" << "\r\n";
 				/* << "<html>\n" << "  <head>\n"
@@ -230,10 +232,49 @@ void *receiveTask(void *a) {
 						<< "  </head>\n" << "  <body>\n";*/
 				cout.flush();
 				logfile::addLog("Parsing successful");
-				/////
-				//cout.flush();
-				l12("no threa0");
+
 				string operation = jSON.getObject("operation", false).asString();
+				l12("no threa0");
+				if (operation == "addtask")
+				{
+					string lang = jSON.getObject("lang", false).asString();
+					string table;
+					if (lang == "c++" || lang == "C++")
+						table = "assignment_cpp"; //Config::getInstance().getTaskJavaTableName();
+					else if (lang == "Java" || lang == "java")
+						table = "assignment_java";
+					else if (lang == "Js" || lang == "js")
+						table = "assignment_js";
+					else
+						table = "assignment_cpp";
+					vector<string> labl;
+					labl.push_back("ID");
+					labl.push_back("name");
+					labl.push_back("header");
+					labl.push_back("etalon");
+					labl.push_back("footer");
+					if (SqlConnectionPool::getInstance().connectToTable(table, labl))
+					{
+					map<int, string> temp;
+					string header = jSON.getObject("header", false).asString();
+					string etalon = jSON.getObject("etalon", false).asString();
+					string footer = jSON.getObject("footer", false).asString();
+					string name = jSON.getObject("name", false).asString();
+
+					string task = jSON.getObject("task", false).asString();
+					if (task.size())
+						temp.insert( { 0, task });
+					temp.insert( { 1, name });
+					temp.insert( { 2, header});
+					temp.insert( { 3, etalon });
+					temp.insert( { 3, footer });
+					temp.insert( { 4, footer });
+					SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+					}
+				}
+				else
+				{
+
 				string session = jSON.getObject("session", false).asString();
 				int jobid = jSON.getObject("jobid", false).asInt();
 
@@ -398,37 +439,22 @@ void *receiveTask(void *a) {
 				stream.close();
 		}
 	}
-
+			}
 }
-
-			/*res["date"] = date;
-			 res["result"] = compiler.getResult();
-			 res["warnings"] = compiler.getWarningErr();
-			 stream << res.toStyledString();
-			 */
-
-			/*
-			 * test Json class // don't delete
-			 */
-			/*
-			 stream << code << "\r\n" << name << "\r\n";
-			 jsonParser parser(code);
-			 stream << parser.getObject(name, true).toStyledString();
-			 */
-
 			else
 			{
 				logfile::addLog(id,
 						"Json format is not correct!!! \n::::::::::::::::::::::::\n"
 								+ stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
-				errorResponder.showError(400);
+				errorResponder.showError(505, "DataBaseERR");
+				stream.close();
 			}
+
 		}
+	}
 	//close session
 	logfile::addLog("session closed");
 	stream.close();
-	}
-	//delete connection;
 	return NULL;
 }
 
@@ -436,7 +462,7 @@ void *receiveTask(void *a) {
 		Config::getInstance().makeValueStructure();
 			Config::getInstance().scanConfigFile();
 
-
+l12("AAA0");
 	 //config = new Config();
 
 	pthread_t *id = new pthread_t[Config::getInstance().getThreadCount()];
@@ -448,10 +474,10 @@ void *receiveTask(void *a) {
 	string socket = "127.0.0.1:" + Config::getInstance().getPort();
 	socketId = FCGX_OpenSocket(socket.c_str(), 2000);
 	if (socketId < 0) {
-
 	logfile::addLog(string("Cannot open socket	" + socket));
 	return 1;
 	}
+	l12("AAA1");
 	logfile::addLog(
 	"Socket is opened " + socket + "...  create "
 	+ to_string(Config::getInstance().getThreadCount()) + " threads");
@@ -460,6 +486,7 @@ void *receiveTask(void *a) {
 	for (i = 0; i < Config::getInstance().getThreadCount(); i++) {
 		ThreadArguments argumento;
 	argumento.id = i;
+	l12("AAA2");
 	pthread_create(&id[i], NULL, receiveTask, (void *) &argumento);
 	// pthread_create(&id[i], NULL, doit, (void *)&i);
 	}

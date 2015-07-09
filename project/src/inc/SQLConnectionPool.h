@@ -45,6 +45,9 @@ protected:
    void destroy(mysqlpp::Connection*) ;
 
 private:
+   int max_time;
+   int timer;
+   int start_time,end_time;
    SqlConnectionPool(const char *db_name,const char * host,const char *user,const char *pass);
    bool connected_db;
 	pthread_mutex_t accept_mutex = PTHREAD_MUTEX_INITIALIZER;

@@ -9,13 +9,13 @@
 
  SqlConnectionPool&  SqlConnectionPool::getInstance()
  {
-
+	 l12(" q1");
 	static SqlConnectionPool connection (
 			Config::getInstance().dataBaseName.c_str(),
 			Config::getInstance().dataBaseHost.c_str() ,
 			Config::getInstance().userName.c_str() ,
 			Config::getInstance().password.c_str());
-
+	l12(" q3");
 	return connection;
 }
 
@@ -26,8 +26,12 @@
 
   SqlConnectionPool::SqlConnectionPool(const char *db_name,const char * host,const char *user,const char *pass)
   {
+
 		pthread_mutex_lock(&accept_mutex);
 	  connected_db = false;
+	 // max_time = this->max_idle_time();
+	  l12(" q2");
+	  //timer = timeSeconds();
 	  try{
 	  conn = new mysqlpp::Connection(db_name,host,user,pass);
 	  }
@@ -78,7 +82,7 @@ if (connected_db)
 		res = query.store();
 	}
 	catch(mysqlpp::Exception &ex){
-		logfile::addLog("connectToTable INCORRECT" + string(ex.what()));
+		logfile::addLog("connectToTable INCORRECT " + string(ex.what()));
 	}
 	mysqlpp::Connection::thread_end();
 	if (res.capacity()) {
@@ -405,7 +409,7 @@ return false;
 
  void SqlConnectionPool::reconect()
  {
-	 if(!connected_db)
+	 if(!connected_db )//|| ((end_time - start_time) / CLOCKS_PER_SEC * 1000))
 	 {
 			pthread_mutex_lock(&accept_mutex);
 		  try{
