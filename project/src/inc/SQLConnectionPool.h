@@ -45,6 +45,7 @@ protected:
    void destroy(mysqlpp::Connection*) ;
 
 private:
+   bool iscon ;
    int max_time;
    int timer;
    int start_time,end_time;
