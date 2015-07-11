@@ -14,6 +14,7 @@
 			Config::getInstance().dataBaseHost.c_str() ,
 			Config::getInstance().userName.c_str() ,
 			Config::getInstance().password.c_str());
+	l12("getInstance");
 	return connection;
 }
 
@@ -26,11 +27,13 @@
   {
 
 		pthread_mutex_lock(&accept_mutex);
-	  start_time = clock();
+	 // start_time = clock();
 	  try{
 	  conn = new mysqlpp::Connection(db_name,host,user,pass);
+	  iscon = true;
 	  }
 	  catch(mysqlpp::Exception &ex){
+		  iscon = false;
 		  logfile::addLog("SqlConnectionPool(constructor) INCORRECT " + string(ex.what()));
 	  }
 	  if (conn)
@@ -392,26 +395,51 @@ return false;
    {
 		pthread_mutex_lock(&accept_mutex);
      //3 seconds
-     return 300;
+     return 3;
  	pthread_mutex_unlock(&accept_mutex);
    }
 
  bool SqlConnectionPool::isConnected()
  {
-	 return conn->connected() ;//&& (((end_time-start_time)/CLOCKS_PER_SEC*1000- max_idle_time())>0);
+	// end_time = clock();
+	 //
+		pthread_mutex_lock(&accept_mutex);
+		 l12("isConnected( )");
+		 if (conn)
+		 {
+	 	 	string quer = "show databases;";
+	 	 		mysqlpp::Connection::thread_start();
+	 	 		mysqlpp::StoreQueryResult res;
+	 	 		try{
+	 	 				mysqlpp::Query query( conn->query( quer) );
+	 	 				res = query.store();
+	 	 				iscon = true;
+	 		}
+	 		catch(mysqlpp::Exception &ex){
+	 			iscon = false;
+	 			  logfile::addLog("Server not connected to DB" + string(ex.what()));
+	 		}
+	 	 				mysqlpp::Connection::thread_end();
+	 	 				l12("Server connected to DB");
+		 }
+		 else logfile::addLog("Server not connected to DB");
+		 pthread_mutex_unlock(&accept_mutex);
+	 return iscon ;//&& (((end_time-start_time)/CLOCKS_PER_SEC*1000- max_idle_time())>0);
  }
 
  void SqlConnectionPool::reconect()
- {
-	 end_time = clock();
-	 if(!conn->connected())
-	 {
+ {l12("recoon0");
+
 			pthread_mutex_lock(&accept_mutex);
+			l12("recoon1");
+
 		  try{
+			  l12("recoon3");
 		  conn = new mysqlpp::Connection(	Config::getInstance().dataBaseName.c_str(),
 					Config::getInstance().dataBaseHost.c_str() ,
 					Config::getInstance().userName.c_str() ,
 					Config::getInstance().password.c_str());
+		  l12("recoon5");
 		  }
 		  catch(mysqlpp::Exception &ex){
 			  logfile::addLog("reconect INCORRECT " + string(ex.what()));
@@ -423,7 +451,7 @@ return false;
 		  else
 			  logfile::addLog ("Connection to host and database failed");
 			pthread_mutex_unlock(&accept_mutex);
-	 }
+
  }
 
 

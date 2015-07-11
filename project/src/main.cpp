@@ -208,11 +208,12 @@ void *receiveTask(void *a) {
 			l12("mmmm2");
 			if(!SqlConnectionPool::getInstance().isConnected()  )
 			{
+
 				errorResponder.showError(505, "DataBaseERR");
 				l12("Try reconect to DB");
-				SqlConnectionPool::getInstance().reconect();
-				//stream.close();
-				//return NULL;  //////////////////////////////
+				stream.close();
+				SqlConnectionPool::getInstance().reconect(); //124
+				return NULL;  //////////////////////////////
 			}
 
 			jsonParser jSON(stream.getRequestBuffer());
