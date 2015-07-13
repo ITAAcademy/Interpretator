@@ -242,7 +242,7 @@ void *receiveTask(void *a)
 					if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp)))
 						succsesful = false;
 				}
-				else
+				if (operation == "result" || operation == "status")
 				{
 					if(!result_status(stream, jSON, operation))
 						succsesful = false;
@@ -271,6 +271,7 @@ void *receiveTask(void *a)
 	stream.close();
 	return NULL;
 }
+
 /*
  *
  *  				NEW TASK
