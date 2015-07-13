@@ -86,3 +86,6 @@ void show404()
 
 //void print(boost::property_tree::ptree const& pt);
 
+bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation);
+bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user);
+bool addNewtask( FCGI_Stream &stream, jsonParser &jSON);
