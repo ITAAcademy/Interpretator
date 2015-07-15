@@ -307,6 +307,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		string name = jSON.getObject("name", false).asString();
 		l12("name");
 		int task = jSON.getObject("task", false).asInt();
+		int id = jSON.getObject("task",false).asInt();
 		l12("task");
 		l12(std::to_string(task));
 //	if (task)
@@ -317,10 +318,17 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		temp.insert( { 4, str_with_spec_character(footer) });
 		l12("temp.insert");
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+		JsonValue res;
 		if (SqlConnectionPool::getInstance().addRecordsInToTable(temp))
-			stream << "New task added";
-		else
-			stream << "Adding of new task failed.";
+			{
+
+						res["status"] = "success";
+						res["table"] = table;
+						res["id"] = to_string(id);
+
+			}
+		else res["status"] = "failed";
+		stream << res.toStyledString();
 		stream.close();
 		return true;
 	}
