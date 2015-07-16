@@ -279,6 +279,7 @@ void *receiveTask(void *a)
  */
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 {
+	l12("addNewtask");
 	string lang = jSON.getObject("lang", false).asString();
 	string table;
 	if (lang == "c++" || lang == "C++")
@@ -295,6 +296,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 	labl.push_back("header");
 	labl.push_back("etalon");
 	labl.push_back("footer");
+	l12("addNewtask2");
 	if (SqlConnectionPool::getInstance().connectToTable(table, labl))
 	{
 		map<int, string> temp;
@@ -308,8 +310,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		l12("name");
 		int task = jSON.getObject("task", false).asInt();
 		int id = jSON.getObject("task",false).asInt();
-		l12("task");
-		l12(std::to_string(task));
+
 //	if (task)
 		temp.insert( { 0, std::to_string(task) });
 		temp.insert( { 1, name }); //str_with_spec_character(
@@ -319,9 +320,15 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		l12("temp.insert");
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 		JsonValue res;
+		l12("temp.insert2");
 		if (SqlConnectionPool::getInstance().addRecordsInToTable(temp))
 			{
-
+			if (id == 0)
+			{
+				id = SqlConnectionPool::getInstance().lastInsertId();
+				l12("ID    task "+std::to_string(task));
+			}
+			l12("task "+std::to_string(task));
 						res["status"] = "success";
 						res["table"] = table;
 						res["id"] = to_string(id);

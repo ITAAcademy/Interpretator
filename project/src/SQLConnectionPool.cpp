@@ -142,6 +142,38 @@ return false;
  }
 
 
+
+ int SqlConnectionPool::lastInsertId()
+ {
+	 string quer = " SELECT LAST_INSERT_ID();" ;
+	 pthread_mutex_lock(&accept_mutex);
+	 int rezult =-1;
+	 if (conn->connected())
+	   	 	{
+	   	 		mysqlpp::Connection::thread_start();
+	   	 		mysqlpp::StoreQueryResult res;
+	   	 	try{
+	   	 				mysqlpp::Query query( conn->query( quer) );
+	   	 				res = query.store();
+	  		}
+	  		catch(mysqlpp::Exception &ex){
+	  			  logfile::addLog("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
+	  		}
+	   	 				mysqlpp::Connection::thread_end();
+	   	 				logfile::addLog (quer);
+
+
+	  if (res.capacity())
+	 	 	  {
+	 	 mysqlpp::Row row = *res.begin();
+	 	rezult = int(row[0]);
+	 	 	  }
+	   	 	}
+	 pthread_mutex_unlock(&accept_mutex);
+	  	 return rezult;
+ }
+
+
  string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_program,int thrdId, string lang) {
 		pthread_mutex_lock(&accept_mutex);
 	 string rezult ;
@@ -285,6 +317,7 @@ return false;
  					return false;
 
  }
+
 
 //work12
  bool SqlConnectionPool::addRecordsInToTable(map<int,string> records) {
