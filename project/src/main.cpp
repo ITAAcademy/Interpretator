@@ -319,8 +319,9 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		temp.insert( { 4, str_with_spec_character(footer) });
 		l12("temp.insert");
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-		JsonValue res;
 		l12("temp.insert2");
+		JsonValue res;
+		l12("temp.insert3");
 		if (SqlConnectionPool::getInstance().addRecordsInToTable(temp))
 			{
 			if (id == 0)
