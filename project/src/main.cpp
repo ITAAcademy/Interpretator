@@ -237,11 +237,6 @@ void *receiveTask(void *a)
 					if(!addNewtask(stream, jSON))
 						succsesful = false;
 				}
-				if (operation == "edittask")
-				{
-					if(!editTask(stream, jSON))
-						succsesful = false;
-				}
 				if (operation == "start")
 				{
 					if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp)))
@@ -284,7 +279,6 @@ void *receiveTask(void *a)
  */
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 {
-	l12("addNewtask");
 	string lang = jSON.getObject("lang", false).asString();
 	string table;
 	if (lang == "c++" || lang == "C++")
@@ -301,7 +295,6 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 	labl.push_back("header");
 	labl.push_back("etalon");
 	labl.push_back("footer");
-	l12("addNewtask2");
 	if (SqlConnectionPool::getInstance().connectToTable(table, labl))
 	{
 		map<int, string> temp;
@@ -315,7 +308,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		l12("name");
 		int task = jSON.getObject("task", false).asInt();
 		int id = jSON.getObject("task",false).asInt();
-
+		l12("task");
+		l12(std::to_string(task));
 //	if (task)
 		temp.insert( { 0, std::to_string(task) });
 		temp.insert( { 1, name }); //str_with_spec_character(
@@ -324,95 +318,14 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		temp.insert( { 4, str_with_spec_character(footer) });
 		l12("temp.insert");
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-		l12("temp.insert2");
 		JsonValue res;
-		l12("temp.insert3");
 		if (SqlConnectionPool::getInstance().addRecordsInToTable(temp))
 			{
-			if (id == 0)
-			{
-				id = SqlConnectionPool::getInstance().lastInsertId();
-				l12("ID    task "+std::to_string(task));
-			}
-			l12("task "+std::to_string(task));
+
 						res["status"] = "success";
 						res["table"] = table;
 						res["id"] = to_string(id);
 
-			}
-		else res["status"] = "failed";
-		stream << res.toStyledString();
-		stream.close();
-		return true;
-	}
-	else
-		return false;
-}
-
-/////////////
-
-bool editTask( FCGI_Stream &stream, jsonParser &jSON)
-{
-	l12("editTask");
-	string lang = jSON.getObject("lang", false).asString();
-	string table;
-	if (lang == "c++" || lang == "C++")
-		table = "assignment_cpp"; //Config::getInstance().getTaskJavaTableName();
-	else if (lang == "Java" || lang == "java")
-		table = "assignment_java";
-	else if (lang == "Js" || lang == "js")
-		table = "assignment_js";
-	else
-		table = "assignment_cpp";
-	vector<string> labl;
-	labl.push_back("ID");
-	labl.push_back("name");
-	labl.push_back("header");
-	labl.push_back("etalon");
-	labl.push_back("footer");
-	l12("editTask2");
-	if (SqlConnectionPool::getInstance().connectToTable(table, labl))
-	{
-		map<int, string> temp;
-		string header = jSON.getObject("header", false).asString();
-		l12("header ");
-		string etalon = jSON.getObject("etalon", false).asString();
-		l12("etalon");
-		string footer = jSON.getObject("footer", false).asString();
-		l12("footer");
-		string name = jSON.getObject("name", false).asString();
-		l12("name");
-		int task = jSON.getObject("task", false).asInt();
-		int id = jSON.getObject("task",false).asInt();
-
-//	if (task)
-
-		temp.insert( { 0, std::to_string(task) });
-		if (name.size())
-		temp.insert( { 1, name }); //str_with_spec_character(
-		if (header.size())
-		temp.insert( { 2, str_with_spec_character(header)});
-		if (etalon.size())
-		temp.insert( { 3, str_with_spec_character(etalon )});
-		if (footer.size())
-		temp.insert( { 4, str_with_spec_character(footer) });
-		l12("temp.insert");
-		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-		l12("temp.insert2");
-		JsonValue res;
-		l12("temp.insert3");
-					//4j
-					//string where = "`results`.`jobid`='"+to_string(job.jobid)+"' AND `results`.`session`='"+job.session+"'";
-					map<int,string> where;
-					where.insert({0,std::to_string(task)}); //1234
-					;
-
-		if (SqlConnectionPool::getInstance().updateRecordsInToTable(temp,where))
-			{
-			l12("task edited"+std::to_string(task));
-						res["status"] = "success";
-						res["table"] = table;
-						res["id"] = to_string(id);
 			}
 		else res["status"] = "failed";
 		stream << res.toStyledString();

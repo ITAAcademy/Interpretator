@@ -32,20 +32,7 @@ void CodeClear::SomeExtraSpace(string &str)
 
 void CodeClear::Trim(string &str)
 {
-    if(str[0] == ' ')
-    {
-        for(int i = 0; i < (int)str.size(); i++)
-        {
-            str[i] = str[i+1];
-        }
-
-        str.resize(str.size() - 1);
-    }
-
-    if(str[str.size()] == ' ')
-    {
-        str.resize(str.size() - 1);
-    }
+	str.erase(str.find_last_not_of(" \n\r\t")+1);
 }
 
 void CodeClear::ClearText(string &str)
