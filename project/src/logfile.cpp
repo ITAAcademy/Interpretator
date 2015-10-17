@@ -68,7 +68,7 @@ string logfile::getDateStamp()
 {
 	time_t result = time(nullptr);
 	string date = asctime(localtime(&result));
-	date.resize(date.size() - 1);
+	date.resize(date.size());
 	//date[date.size() - 1] = '\0';
 	return date;
 }
