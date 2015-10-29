@@ -37,14 +37,7 @@ int main(void)
 #include "ctpl_stl.h"
 using namespace std;
 //#include <pstream.h>
-/*
- * BOOST
- */
-/*
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/foreach.hpp>
-*/
+
 #include <cassert>
 #include <exception>
 #include "FCGI_Stream.h"
@@ -60,6 +53,8 @@ struct Job {
 
 //static void *doit(void *a);
 int Apache(void);
+
+
 
 void show404()
 {
@@ -84,7 +79,6 @@ void show404()
 	*/
 }
 
-//void print(boost::property_tree::ptree const& pt);
 
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation);
 bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user);

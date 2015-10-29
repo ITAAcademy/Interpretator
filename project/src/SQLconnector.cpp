@@ -7,7 +7,6 @@
 
 #include "inc/SQLconnector.h"
 #include "inc/logfile.h"
-#include <boost/foreach.hpp>
 #include <pthread.h>
 
 string str_with_spec_character(string s) {
@@ -194,7 +193,7 @@ string ConnectorSQL::getFullCodeOfProgram(string ID,int thrdId)  {
 			 if (0)//(row = mysql_fetch_row(resptr)) != NULL)
 				 {
 				 string header = string(row[2]);
-				 boost::replace_all(header,"#NUM#",std::to_string(thrdId));
+				 ReplaceAll(header,"#NUM#",std::to_string(thrdId));
 				 string code = string(row[3]);
 				 string footer = string(row[4]);
 						 rezult = str_with_spec_character(header) + "\n" +
@@ -226,7 +225,7 @@ if (0)//(row = mysql_fetch_row(resptr)) != NULL)
 {
 string header = string(row[2]);
 string footer = string(row[4]);
-boost::replace_all(header,"#NUM#",std::to_string(thrdId));
+ReplaceAll(header,"#NUM#",std::to_string(thrdId));
 rezult = str_with_spec_character(header) + "\n" +
 text_of_program + "\n" +
 str_with_spec_character(footer);

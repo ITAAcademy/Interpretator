@@ -250,7 +250,7 @@ return false;
 
  //string memoryUsageC++ =
 
- boost::replace_all(header,"#NUM#",std::to_string(thrdId));
+ ReplaceAll(header,"#NUM#",std::to_string(thrdId));
  rezult = beforeHeader + header + "\n" +
  text_of_program + "\n" +
  beforeFooter+footer;

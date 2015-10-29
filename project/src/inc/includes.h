@@ -1,3 +1,5 @@
+#ifndef INCLUDES_H_
+#define INCLUDES_H_
 #pragma once
 #include <iostream>
 #include <stdio.h>      /* printf */
@@ -27,4 +29,6 @@ using namespace std;
 static int socketId;
 
 string str_with_spec_character(string s) ;
+void ReplaceAll(std::string &str, const std::string& from, const std::string& to);
 void l12(string ll);
+#endif

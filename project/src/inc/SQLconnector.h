@@ -14,11 +14,10 @@
 #include <cppconn/statement.h>
 #include <vector>
 #include <cstdlib>
-#include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
 #include <map>
 #include <set>
-#include <boost/lexical_cast.hpp>
+#include <algorithm>
+#include <string>
 #include "config.h"
 #include <mutex>
 #include </usr/include/mysql/mysql.h>

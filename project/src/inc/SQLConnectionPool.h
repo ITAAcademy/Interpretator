@@ -17,9 +17,7 @@
 #include <iostream>
 #include "includes.h"
 #include "config.h"
-#include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
-
+#include <algorithm>
 using namespace std;
 
 
