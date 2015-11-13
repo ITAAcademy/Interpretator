@@ -112,6 +112,8 @@ void processTask(int id,Job job) {
 				table = "assignment_java";
 			else if (job.lang == "Js" || job.lang == "js")
 				table = "assignment_js";
+			else if (job.lang == "PHP" || job.lang == "php")
+				table = "assignment_php";
 			else
 				table = "assignment_cpp";
 			if (SqlConnectionPool::getInstance().connectToTable(table, labl))
@@ -131,6 +133,8 @@ void processTask(int id,Job job) {
 				compiler.compile(job.code, true, LangCompiler::Flag_Java);
 			else if (job.lang == "JS" || job.lang == "js")
 				compiler.compile(job.code, true, LangCompiler::Flag_JS);
+			else if (job.lang == "PHP" || job.lang == "php")
+				compiler.compile(job.code, true, LangCompiler::Flag_PHP);
 			else
 				compiler.compile(job.code, true);
 
@@ -289,6 +293,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		table = "assignment_cpp"; //Config::getInstance().getTaskJavaTableName();
 	else if (lang == "Java" || lang == "java")
 		table = "assignment_java";
+	else if (lang == "PHP" || lang == "php")
+		table = "assignment_php";
 	else if (lang == "Js" || lang == "js")
 		table = "assignment_js";
 	else

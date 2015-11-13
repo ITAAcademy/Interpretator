@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "logfile.h"
+#include <unistd.h>
+
 using namespace std;
 //using namespace std::chrono;
 
@@ -19,7 +21,7 @@ class LangCompiler{
 #define TIME_OUT_NULL 0;
 
 public:
-	enum compilerFlag{ Flag_CPP, Flag_Java, Flag_JS };// future type of compiler
+	enum compilerFlag{ Flag_CPP, Flag_Java, Flag_JS, Flag_PHP};// future type of compiler
 
 	LangCompiler(int ID);
 

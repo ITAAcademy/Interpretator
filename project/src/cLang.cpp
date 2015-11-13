@@ -49,6 +49,12 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 			run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID)+".class";
 			prog_name = "Main"+to_string(thID)+".js";
 			break;
+	case Flag_PHP:
+		code_file_name = "./src/Main" + to_string(thID) + ".php";
+		build_str = "";
+		run_str = "cd src; php Main" + to_string(thID) + ".php;  ";
+		prog_name = code_file_name;
+		break;
 	}//java -jar js.jar myscript.js
 
 	/*
@@ -136,6 +142,16 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 		break;
 	case Flag_Java:
 		sprintf(str, "src/Main%d.java\0", thID);
+		file.open(str, fstream::out);
+		if(!file.is_open())
+			return false;
+		cout.flush();
+		file << code;
+		file.close();
+		cout.flush();
+		break;
+	case Flag_PHP:
+		sprintf(str, "src/Main%d.php\0", thID);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
@@ -253,13 +269,18 @@ void LangCompiler::setTimeOut(long double timeOut) {
 
 bool LangCompiler::fileExist( string name )
 {
-	FILE *file;
+/*	FILE *file;
 	    if (file = fopen(name.c_str(), "r"))
 	    {
 	        fclose(file);
 	        return 1;
 	    }
-	    return 0;
+	    return 0;*/
+	if( access( name.c_str(), F_OK ) != -1 ) {
+	    return 1;
+	} else {
+		return 0;
+	}
 }
 
 bool LangCompiler::fileRemove ( string name )
