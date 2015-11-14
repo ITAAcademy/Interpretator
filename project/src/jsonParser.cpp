@@ -135,6 +135,10 @@ bool jsonParser::isValidFields()
 {
 
 l12("111111111111111111111111111111111111111111111111111111");
+if(parsedFromString[FIELD_JOBID].isNull() || !parsedFromString[FIELD_JOBID].isConvertibleTo(Json::intValue))
+		return false;
+	if(parsedFromString[FIELD_SESSION].isNull() || !parsedFromString[FIELD_SESSION].isConvertibleTo(Json::stringValue))
+		return false;
 if(!bJsonValid || parsedFromString[FIELD_OPERATION].isNull())
 		return false;
 	if (parsedFromString[FIELD_OPERATION]=="addtask" || parsedFromString[FIELD_OPERATION]=="edittask")
@@ -155,11 +159,6 @@ if(!bJsonValid || parsedFromString[FIELD_OPERATION].isNull())
 		return true;
 	}
 
-
-	if(parsedFromString[FIELD_JOBID].isNull() || !parsedFromString[FIELD_JOBID].isConvertibleTo(Json::intValue))
-		return false;
-	if(parsedFromString[FIELD_SESSION].isNull() || !parsedFromString[FIELD_SESSION].isConvertibleTo(Json::stringValue))
-		return false;
 
 if (parsedFromString[FIELD_OPERATION]=="start")
 {
