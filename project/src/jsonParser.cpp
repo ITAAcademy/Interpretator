@@ -134,9 +134,10 @@ Value jsonParser::getRoot()
 bool jsonParser::isValidFields()
 {
 
-l12("111111111111111111111111111111111111111111111111111111");
-if (parsedFromString==nullValue)
+l12("before parsedFromString==nullValue");
+if ((parsedFromString==nullValue) || (parsedFromString.size()==0))
 	return false;
+l12("before FIELD_JOBID");
 if(parsedFromString[FIELD_JOBID].isNull() || !parsedFromString[FIELD_JOBID].isConvertibleTo(Json::intValue))
 		return false;
 l12("after FIELD_JOBID check");
