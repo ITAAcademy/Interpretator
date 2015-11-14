@@ -221,9 +221,13 @@ void *receiveTask(void *a)
 				SqlConnectionPool::getInstance().reconect(); //124
 				continue;  //////////////////////////////
 			}
-
+			logfile::addLog("Before jsonParser jSON(stream.getRequestBuffer());");
 			jsonParser jSON(stream.getRequestBuffer());
-			bool parsingSuccessful = jSON.isValidFields(); //reader.parse( str, parsedFromString, false);// IsJSON
+			logfile::addLog("Before parsing successful check");
+
+			bool parsingSuccessful = jSON.isJson();
+			if (parsingSuccessful)
+			parsingSuccessful = jSON.isValidFields(); //reader.parse( str, parsedFromString, false);// IsJSON
 			logfile::addLog("Before parsing");
 			/*
 			 * ALL OK STARTif (SqlConnectionPool::getInstance().connectToTable(string("results"), labl))
