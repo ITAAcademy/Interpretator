@@ -177,6 +177,13 @@ else if (parsedFromString[FIELD_OPERATION]=="status"){
 else if (parsedFromString[FIELD_OPERATION]=="result"){
 
 }
+else if (parsedFromString[FIELD_OPERATION]=="getToken"){
+
+}
+else if (parsedFromString[FIELD_OPERATION]=="getFromToken"){
+	if(parsedFromString[FIELD_TOKEN].isNull() || !parsedFromString[FIELD_TOKEN].isConvertibleTo(Json::stringValue))
+		return false;
+}
 else return false ;
 /*
  *  conver test  add

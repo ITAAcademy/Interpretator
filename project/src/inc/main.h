@@ -35,12 +35,21 @@ int main(void)
 #include "SQLconnector.h"
 #include "config.h"
 #include "ctpl_stl.h"
+
+#include <ctime>
 using namespace std;
 //#include <pstream.h>
 
 #include <cassert>
 #include <exception>
 #include "FCGI_Stream.h"
+
+
+//TIMER
+#include <functional>
+#include <chrono>
+#include <future>
+#include <cstdio>
 
 //Config *config;
 struct Job {
@@ -49,6 +58,11 @@ struct Job {
 	string code;
 	int task;
 	string lang;
+};
+
+struct Token{
+	string session;
+	long jobId;
 };
 
 //static void *doit(void *a);
@@ -84,3 +98,6 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation);
 bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user);
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON);
 bool editTask( FCGI_Stream &stream, jsonParser &jSON);
+bool generationToken(FCGI_Stream &stream, jsonParser &jSON, map<string, Token> &token);
+bool getFromToken(FCGI_Stream &stream, jsonParser &jSON, map<string, Token> &tokenList);
+void deleteToken(string tok);

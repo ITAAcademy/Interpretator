@@ -52,6 +52,7 @@ public:
    // string taskCppTableName;
    // string taskJavaTableName;
     string logLocation;
+    int tokenTimeOut;
     int threadCount;
 
     void runCommandLine();
@@ -90,6 +91,21 @@ public:
     string getDataBasePort();
     int getThreadCount();
 
+	const string& getTableName() const {
+		return tableName;
+	}
+
+	void setTableName(const string& tableName) {
+		this->tableName = tableName;
+	}
+
+	int getTokenTimeOut() const {
+		return tokenTimeOut;
+	}
+
+	void setTokenTimeOut(int tokenTimeOut) {
+		this->tokenTimeOut = tokenTimeOut;
+	}
 };
 
 #endif // CONFIG_H
