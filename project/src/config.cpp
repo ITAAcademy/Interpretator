@@ -4,7 +4,7 @@
 using namespace std;
 
 
-const int commandsCount = 8;
+const int commandsCount = 9;
 
 Config::Config(){
 
@@ -151,6 +151,8 @@ void Config::makeValueStructure()
     values[6].value = logLocation;
     values[7].name = "threadCount";
     values[7].value = to_string(threadCount);
+    values[8].name = "tokenTimeOut";
+    values[8].value = to_string(tokenTimeOut);
   /*  values[8].name = "taskCppTableName";
 	values[8].value = taskCppTableName;
 	values[9].name = "taskJavaTableName";
@@ -207,7 +209,10 @@ void Config::scanConfigFile()
     getline(config,settings);
     threadCount = stoi(settings.substr(values[7].name.size()+2));
 
-   /* getline(config,settings);
+    getline(config,settings);
+    tokenTimeOut = stoi(settings.substr(values[8].name.size()+2));
+
+    /* getline(config,settings);
     taskCppTableName = stoi(settings.substr(values[8].name.size()+2));
 
     getline(config,settings);
@@ -241,6 +246,7 @@ void Config::setDefaultConfig()
     dataBasePort =  "3306";
     logLocation = ".";
     threadCount = 8;
+    tokenTimeOut = 10000;
   /*  taskCppTableName = "Assignment_CPP";
     taskJavaTableName = "Assignment_JAVA";*/
     makeConfigFile();
