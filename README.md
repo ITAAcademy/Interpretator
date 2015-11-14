@@ -30,3 +30,24 @@ JSON sample:
 "task": 1,
 "lang": "c++"
 }
+
+{
+"operation": "getFromToken",
+"token": "-8668338574358268261",
+"session" : "1054003",
+"jobid" : 54554,
+"code" : "<html>
+ <head>
+  <title>Тестируем PHP</title>
+ </head>
+ <body>
+ <?php echo '<p>Привет, мир!</p>'; ?>
+ </body>
+</html>",
+"etalon" : " j",
+"header" : " j",
+"footer" : " j",
+"name" : "12143",
+"task": 545,
+"lang": "php"
+}
