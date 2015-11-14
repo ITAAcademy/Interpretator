@@ -251,6 +251,7 @@ void *receiveTask(void *a)
 			}
 			logfile::addLog("Before jsonParser jSON(stream.getRequestBuffer());");
 			jsonParser jSON(stream.getRequestBuffer());
+
 			logfile::addLog("Before parsing successful check");
 			bool parsingSuccessful = jSON.isJson();
 			logfile::addLog("Before jSON.isJson()");

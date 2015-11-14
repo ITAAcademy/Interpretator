@@ -23,7 +23,7 @@ jsonParser::~jsonParser() {
 
 bool jsonParser::setJson(string in_json)
 {
-	if(!reader.parse(in_json, parsedFromString))
+	if(!reader.parse(in_json, parsedFromString) || in_json.find('{') == string::npos)
 	{
 		json.clear();
 		bJsonValid = false;
@@ -135,11 +135,13 @@ bool jsonParser::isValidFields()
 {
 
 l12("before parsedFromString==nullValue");
-if ((parsedFromString==nullValue) || (parsedFromString.size()==0))
+if ((parsedFromString==nullValue) || (parsedFromString.size()==0) || !isJson())
 	return false;
+
 l12("before FIELD_JOBID");
 if(parsedFromString[FIELD_JOBID].isNull() || !parsedFromString[FIELD_JOBID].isConvertibleTo(Json::intValue))
 		return false;
+
 l12("after FIELD_JOBID check");
 	if(parsedFromString[FIELD_SESSION].isNull() || !parsedFromString[FIELD_SESSION].isConvertibleTo(Json::stringValue))
 		return false;
@@ -147,6 +149,8 @@ l12("after FIELD_JOBID check");
 if(!bJsonValid || parsedFromString[FIELD_OPERATION].isNull())
 		return false;
 l12("after FIELD_OPERATION check");
+
+
 	if (parsedFromString[FIELD_OPERATION]=="addtask" || parsedFromString[FIELD_OPERATION]=="edittask")
 	{
 		if(parsedFromString[FIELD_HEADER].isNull() || !parsedFromString[FIELD_HEADER].isConvertibleTo(Json::stringValue))
