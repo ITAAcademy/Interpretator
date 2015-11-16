@@ -47,7 +47,7 @@ public:
  *  need insert into SQL
  */
 
- void l12(string ll) {
+void l12(string ll) {
 	logfile::addLog(ll);
 }
 
@@ -344,33 +344,57 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		table = "assignment_js";
 	else
 		table = "assignment_cpp";
+
 	vector<string> labl;
 	labl.push_back("ID");
-	labl.push_back("name");
-	labl.push_back("header");
-	labl.push_back("etalon");
-	labl.push_back("footer");
+			labl.push_back("name");
+			labl.push_back("header");
+			labl.push_back("etalon");
+			labl.push_back("footer");
+	l12("before connectToTable");
 	if (SqlConnectionPool::getInstance().connectToTable(table, labl))
 	{
+		l12("connectedToTable");
 		map<int, string> temp;
-		string header = jSON.getObject("header", false).asString();
-		l12("header ");
+		FunctionData functionData;
 		string etalon = jSON.getObject("etalon", false).asString();
 		l12("etalon");
-		string footer = jSON.getObject("footer", false).asString();
-		l12("footer");
 		string name = jSON.getObject("name", false).asString();
 		l12("name");
-		int task = jSON.getObject("task", false).asInt();
 		int id = jSON.getObject("task",false).asInt();
 		l12("task");
-		l12(std::to_string(task));
-		//	if (task)
-		temp.insert( { 0, std::to_string(task) });
-		temp.insert( { 1, name }); //str_with_spec_character(
-		temp.insert( { 2, str_with_spec_character(header)});
-		temp.insert( { 3, str_with_spec_character(etalon )});
-		temp.insert( { 4, str_with_spec_character(footer) });
+		l12(std::to_string(id));
+		Value functionValue = jSON.getObject("function",false);
+
+		functionData.functionName= functionValue["function_name"].asString();
+
+
+		//for (int i=0; i<argsValue.size(); i++)
+		//{
+			FunctionArgument functionArgument;
+			functionArgument.isArray = functionValue["args"]["is_array"].asBool();
+			functionArgument.size = functionValue["args"]["size"].asInt();
+			functionArgument.type = functionValue["args"]["type"].asInt();
+			functionArgument.name = functionValue["args"]["arg_name"].asString();
+			functionArgument.value = functionValue["args"]["value"].asString();
+			functionData.args.push_back(functionArgument);
+		//}
+
+
+
+		//new code for testcases part
+
+		int valuesCount = 0;
+
+
+
+
+		temp.insert( { valuesCount++, std::to_string(id) });
+		temp.insert( { valuesCount++, name }); //str_with_spec_character(
+		temp.insert( { valuesCount++, str_with_spec_character(generateHeader(functionData))});
+		temp.insert( { valuesCount++, str_with_spec_character(etalon)});
+		temp.insert( { valuesCount++, str_with_spec_character(generateFooter(functionData) )});
+
 		l12("temp.insert");
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 		JsonValue res;
@@ -380,7 +404,6 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 			res["status"] = "success";
 			res["table"] = table;
 			res["id"] = to_string(id);
-
 		}
 		else res["status"] = "failed";
 		stream << res.toStyledString();
@@ -621,7 +644,7 @@ bool generationToken(FCGI_Stream &stream, jsonParser &jSON, map<string, Token> &
 	stream << res.toStyledString();
 
 	Later later_delete(Config::getInstance().getTokenTimeOut(), true, &deleteToken, value);
-	 //Later later_test2(1000, false, &test2, 101);
+	//Later later_test2(1000, false, &test2, 101);
 
 	return true;
 
@@ -639,7 +662,7 @@ bool getFromToken(FCGI_Stream &stream, jsonParser &jSON, map<string, Token> &tok
 		stream << res.toStyledString();
 		logfile::addLog("Token time out");
 		l12( "GET FROM TOKEN" );
-			l12( to_string(tokenList.size()) );
+		l12( to_string(tokenList.size()) );
 		cout.flush();
 		return true;
 	}
@@ -727,3 +750,69 @@ void deleteToken(string tok)
 {
 	TokenList.erase(tok);
 }
+string generateHeader(FunctionData functionData){
+	string include = "#include <iostream>\n\
+#include <cstdlib>\n";
+	string functionStr =include+"function(";
+	string space=" ";
+	char divider=',';
+	int argCount = 0;
+
+	for(FunctionArgument arg : functionData.args){
+		if (argCount>0)functionStr +=divider;
+		switch(arg.type){
+		case FunctionData::RET_VAL_BOOL:
+			functionStr += "bool";
+			break;
+		case FunctionData::RET_VAL_FLOAT:
+			functionStr += "float";
+			break;
+		case FunctionData::RET_VAL_INT:
+			functionStr += "int";
+			break;
+		case FunctionData::RET_VAL_STRING:
+			functionStr += "string";
+			break;
+		}
+		functionStr+=space;
+		functionStr+=arg.name;
+		argCount++;
+	}
+	//close prototype and open body of function
+	functionStr += "){\n";
+	return functionStr;
+}
+bool to_bool(std::string const& s) {
+     return s != "0";
+}
+string generateFooter(FunctionData functionData){
+	string footerBody = "}\n";//Close function body
+	string space=" ";
+	char divider=',';
+	footerBody+="int main(){\n";
+	footerBody+=functionData.functionName+"(";//open function call body;
+	int argCount=0;
+	for(FunctionArgument arg : functionData.args){
+		if(argCount>0)footerBody+= divider;
+		string argStringValue =arg.value;
+		switch(arg.type){
+		case FunctionData::RET_VAL_BOOL:
+			footerBody += to_bool(argStringValue);
+					break;
+				case FunctionData::RET_VAL_FLOAT:
+					footerBody += std::atof(argStringValue.c_str());
+					break;
+				case FunctionData::RET_VAL_INT:
+					footerBody += argStringValue.c_str();
+					break;
+				case FunctionData::RET_VAL_STRING:
+					footerBody += argStringValue;
+					break;
+		}
+		footerBody+=arg.value;
+		argCount++;
+	}
+	footerBody+=");}";//closefunction call body;
+	return footerBody;
+}
+

@@ -26,6 +26,16 @@ using namespace Json;
 #define FIELD_HEADER "header"
 #define FIELD_ETALON "etalon"
 #define FIELD_FOOTER "footer"
+#define FIELD_NAME "name"
+#define FIELD_FUNCTION_NAME "function_name"
+#define FIELD_ARGS "args"
+#define FIELD_IS_ARRAY "is_array"
+#define FIELD_SIZE "size"
+#define FIELD_TYPE "type"
+#define FIELD_ARG_NAME "arg_name"
+#define FIELD_VALUE "value"
+#define FUNCTION "function"
+#define ARGS "args"
 /*
 
 

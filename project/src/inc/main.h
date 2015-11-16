@@ -64,6 +64,19 @@ struct Token{
 	string session;
 	long jobId;
 };
+struct FunctionArgument{
+	int type=0;
+	bool isArray = false;
+	int size=0;
+	string value;
+	string name;
+};
+struct FunctionData{
+	enum ReturnValueTypes {RET_VAL_INT,RET_VAL_FLOAT,RET_VAL_BOOL,RET_VAL_STRING};
+	int returnValueType = RET_VAL_INT;
+	string functionName;
+	vector<FunctionArgument> args;
+};
 
 //static void *doit(void *a);
 int Apache(void);
@@ -101,3 +114,6 @@ bool editTask( FCGI_Stream &stream, jsonParser &jSON);
 bool generationToken(FCGI_Stream &stream, jsonParser &jSON, map<string, Token> &token);
 bool getFromToken(FCGI_Stream &stream, jsonParser &jSON, map<string, Token> &tokenList);
 void deleteToken(string tok);
+bool to_bool(std::string const& s);
+string generateHeader(FunctionData functionData);
+string generateFooter(FunctionData functionData);

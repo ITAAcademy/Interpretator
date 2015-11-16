@@ -51,3 +51,21 @@ JSON sample:
 "task": 545,
 "lang": "php"
 }
+
+{
+"operation": "addtask",
+  "etalon": "hff",
+  "name": "test example",
+  "lang": "c++",
+  "task": 205,
+  "function": {
+    "function_name": "function",
+    "args": {
+      "is_array": false,
+      "size": 1,
+      "type": 1,
+      "arg_name": "x",
+      "value": "2"
+    }
+  }
+}
