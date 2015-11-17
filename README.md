@@ -57,15 +57,24 @@ JSON sample:
   "etalon": "hff",
   "name": "test example",
   "lang": "c++",
-  "task": 205,
+  "task": 209,
   "function": {
     "function_name": "function",
-    "args": {
+    "args": 	[
+	{
       "is_array": false,
       "size": 1,
       "type": 1,
       "arg_name": "x",
       "value": "2"
-    }
+    	},
+	{
+      "is_array": false,
+      "size": 1,
+      "type": 3,
+      "arg_name": "vasya",
+      "value": true
+    	}
+		]
   }
 }

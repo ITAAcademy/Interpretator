@@ -368,17 +368,18 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 
 		functionData.functionName= functionValue["function_name"].asString();
 
-
-		//for (int i=0; i<argsValue.size(); i++)
-		//{
+Value functionArgs = functionValue["args"];
+		for (int i=0; i<functionArgs.size(); i++)
+		{
+			Value argumentValue = functionArgs.get(i,false);
 			FunctionArgument functionArgument;
-			functionArgument.isArray = functionValue["args"]["is_array"].asBool();
-			functionArgument.size = functionValue["args"]["size"].asInt();
-			functionArgument.type = functionValue["args"]["type"].asInt();
-			functionArgument.name = functionValue["args"]["arg_name"].asString();
-			functionArgument.value = functionValue["args"]["value"].asString();
+			functionArgument.isArray = argumentValue["is_array"].asBool();
+			functionArgument.size = argumentValue["size"].asInt();
+			functionArgument.type = argumentValue["type"].asInt();
+			functionArgument.name = argumentValue["arg_name"].asString();
+			functionArgument.value = argumentValue["value"].asString();
 			functionData.args.push_back(functionArgument);
-		//}
+		}
 
 
 
@@ -806,7 +807,7 @@ string generateFooter(FunctionData functionData){
 					footerBody += argStringValue.c_str();
 					break;
 				case FunctionData::RET_VAL_STRING:
-					footerBody += argStringValue;
+					footerBody += '"'+argStringValue+'"';
 					break;
 		}
 		footerBody+=arg.value;

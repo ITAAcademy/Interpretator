@@ -170,7 +170,7 @@ bool jsonParser::isValidFields()
 		//if(parsedFromString[FIELD_ARGS].isNull() || !parsedFromString[FIELD_ARGS].isArray())
 			//return false;//TODO
 		//l12("FIELD_ARGS");
-		if(parsedFromString[FUNCTION][ARGS][FIELD_IS_ARRAY].isNull() || !parsedFromString[FIELD_IS_ARRAY].isConvertibleTo(Json::booleanValue))
+		/*if(parsedFromString[FUNCTION][ARGS][FIELD_IS_ARRAY].isNull() || !parsedFromString[FIELD_IS_ARRAY].isConvertibleTo(Json::booleanValue))
 			return false;
 		l12("FIELD_IS_ARRAY");
 		if(parsedFromString[FUNCTION][ARGS][FIELD_SIZE].isNull() || !parsedFromString[FIELD_SIZE].isConvertibleTo(Json::intValue))
@@ -181,7 +181,7 @@ bool jsonParser::isValidFields()
 		if(parsedFromString[FUNCTION][ARGS][FIELD_ARG_NAME].isNull() || !parsedFromString[FIELD_ARG_NAME].isConvertibleTo(Json::stringValue))
 			return false;
 		if(parsedFromString[FUNCTION][ARGS][FIELD_VALUE].isNull() || !parsedFromString[FIELD_VALUE].isConvertibleTo(Json::stringValue))
-			return false;
+			return false;*/
 
 
 		return true;
