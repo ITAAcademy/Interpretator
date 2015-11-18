@@ -7,6 +7,12 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "logfile.h"
+#include <string>
+#include <iostream>
+#include <cstdio>
+#include <memory>
+#include <string>
+#include <iostream>
 #include <unistd.h>
 
 using namespace std;
@@ -21,7 +27,7 @@ class LangCompiler{
 #define TIME_OUT_NULL 0;
 
 public:
-	enum compilerFlag{ Flag_CPP, Flag_Java, Flag_JS, Flag_PHP};// future type of compiler
+	enum compilerFlag{ Flag_CPP = 0, Flag_Java = 1, Flag_JS = 2, Flag_PHP = 3};// future type of compiler
 
 	LangCompiler(int ID);
 

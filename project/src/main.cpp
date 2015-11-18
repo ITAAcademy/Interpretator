@@ -366,9 +366,20 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		l12(std::to_string(id));
 		Value functionValue = jSON.getObject("function",false);
 
-		functionData.functionName= functionValue["function_name"].asString();
+		functionData.functionName = functionValue["function_name"].asString();
+		functionData.returnValueType = functionValue["type"].asInt();
+		functionData.isArray = functionValue["is_array"].asBool();
 
-Value functionArgs = functionValue["args"];
+		for(JsonValue value:functionValue["results"])
+		{
+			if(functionData.isArray == false)
+			{
+				functionData.result.push_back(value.asString());
+				l12("qwe");
+			}
+		}
+
+		Value functionArgs = functionValue["args"];
 		for (int i=0; i<functionArgs.size(); i++)
 		{
 			Value argumentValue = functionArgs.get(i,false);
@@ -377,7 +388,14 @@ Value functionArgs = functionValue["args"];
 			functionArgument.size = argumentValue["size"].asInt();
 			functionArgument.type = argumentValue["type"].asInt();
 			functionArgument.name = argumentValue["arg_name"].asString();
-			functionArgument.value = argumentValue["value"].asString();
+			for(JsonValue value:argumentValue["value"])
+			{
+				if(functionArgument.isArray == false)
+				{
+					functionArgument.value.push_back(value.asString());
+					l12("qwe2");
+				}
+			}
 			functionData.args.push_back(functionArgument);
 		}
 
@@ -394,6 +412,7 @@ Value functionArgs = functionValue["args"];
 		temp.insert( { valuesCount++, name }); //str_with_spec_character(
 		temp.insert( { valuesCount++, str_with_spec_character(generateHeader(functionData))});
 		temp.insert( { valuesCount++, str_with_spec_character(etalon)});
+		l12("qwe33");
 		temp.insert( { valuesCount++, str_with_spec_character(generateFooter(functionData) )});
 
 		l12("temp.insert");
@@ -747,34 +766,22 @@ bool getFromToken(FCGI_Stream &stream, jsonParser &jSON, map<string, Token> &tok
 		return false;
 	return true;
 }
+
 void deleteToken(string tok)
 {
 	TokenList.erase(tok);
 }
+
 string generateHeader(FunctionData functionData){
-	string include = "#include <iostream>\n\
-#include <cstdlib>\n";
-	string functionStr =include+"function(";
-	string space=" ";
-	char divider=',';
+
+	string functionStr = getStandartInclude(LangCompiler::Flag_CPP) + generationType(functionData.returnValueType, 0)  + "function(";
+	const string space=" ";
+	const char divider=',';
 	int argCount = 0;
 
 	for(FunctionArgument arg : functionData.args){
 		if (argCount>0)functionStr +=divider;
-		switch(arg.type){
-		case FunctionData::RET_VAL_BOOL:
-			functionStr += "bool";
-			break;
-		case FunctionData::RET_VAL_FLOAT:
-			functionStr += "float";
-			break;
-		case FunctionData::RET_VAL_INT:
-			functionStr += "int";
-			break;
-		case FunctionData::RET_VAL_STRING:
-			functionStr += "string";
-			break;
-		}
+		functionStr += generationType(arg.type, 0);// 0 == C++
 		functionStr+=space;
 		functionStr+=arg.name;
 		argCount++;
@@ -790,30 +797,124 @@ string generateFooter(FunctionData functionData){
 	string footerBody = "}\n";//Close function body
 	string space=" ";
 	char divider=',';
+
+	//C++
 	footerBody+="int main(){\n";
-	footerBody+=functionData.functionName+"(";//open function call body;
-	int argCount=0;
-	for(FunctionArgument arg : functionData.args){
-		if(argCount>0)footerBody+= divider;
-		string argStringValue =arg.value;
-		switch(arg.type){
-		case FunctionData::RET_VAL_BOOL:
-			footerBody += to_bool(argStringValue);
-					break;
-				case FunctionData::RET_VAL_FLOAT:
-					footerBody += std::atof(argStringValue.c_str());
-					break;
-				case FunctionData::RET_VAL_INT:
-					footerBody += argStringValue.c_str();
-					break;
-				case FunctionData::RET_VAL_STRING:
-					footerBody += '"'+argStringValue+'"';
-					break;
+	for(int i = 0; i < functionData.result.size(); i++)
+	{
+		footerBody += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
+		int argCount=0;
+		for(FunctionArgument arg : functionData.args){
+			if(argCount>0)
+				footerBody+= divider;
+
+			string argStringValue =arg.value[i];
+			switch(arg.type){
+			case FunctionData::RET_VAL_BOOL:
+				footerBody += to_bool(argStringValue);
+				break;
+			case FunctionData::RET_VAL_FLOAT:
+				footerBody += std::atof(argStringValue.c_str());
+				break;
+			case FunctionData::RET_VAL_INT:
+				footerBody += argStringValue.c_str();
+				break;
+			case FunctionData::RET_VAL_STRING:
+				footerBody += '"'+argStringValue+'"';
+				break;
+			}
+			//footerBody+=arg.value[0];//@BAD@
+			argCount++;
 		}
-		footerBody+=arg.value;
-		argCount++;
+		footerBody+="))\n";//closefunction call body;
+		footerBody += "std::cout << " + to_string(i) + " << \"OqweK\";\n";
+
 	}
-	footerBody+=");}";//closefunction call body;
+	footerBody += "\n}";
+	//C++
+
 	return footerBody;
 }
 
+string generationType(int type, int lang)
+{
+	string result;
+	switch(type){
+	case FunctionData::RET_VAL_BOOL:
+		result += "bool";
+		break;
+	case FunctionData::RET_VAL_FLOAT:
+		result += "float";
+		break;
+	case FunctionData::RET_VAL_INT:
+		result += "int";
+		break;
+	case FunctionData::RET_VAL_STRING:
+		result += "string";
+		break;
+	}
+	result += " ";
+	return result;
+}
+string generationVar(int type, string name, int lang, string value)
+{
+	string result;
+	result = generationType(type, lang) + name + " ";
+
+	/*if(value.length() > 0)
+	switch(type){
+		case FunctionData::RET_VAL_BOOL:
+			result += to_bool(argStringValue);
+					break;
+				case FunctionData::RET_VAL_FLOAT:
+					result += std::atof(argStringValue.c_str());
+					break;
+				case FunctionData::RET_VAL_INT:
+					result += argStringValue.c_str();
+					break;
+				case FunctionData::RET_VAL_STRING:
+					result += '"'+argStringValue+'"';
+					break;
+		}*/
+	return result;
+
+}
+string getStandartInclude(int lang)
+{
+	string include;
+	switch(lang)
+	{
+	case LangCompiler::Flag_CPP:{
+		include = "#include <iostream>\n\
+		#include <cstdlib>";
+	}
+	case LangCompiler::Flag_Java:{
+		//...
+		}
+	}
+	return include + "\n";
+
+}
+string convertStringToType(string argStringValue, int type, int lang)
+{
+	string result;
+	switch(type){
+	case FunctionData::RET_VAL_BOOL:
+		result += to_bool(argStringValue);
+		break;
+	case FunctionData::RET_VAL_FLOAT:
+		result += std::atof(argStringValue.c_str());
+		break;
+	case FunctionData::RET_VAL_INT:
+		result += argStringValue.c_str();
+		break;
+	case FunctionData::RET_VAL_STRING:
+		result += '"'+argStringValue+'"';
+		break;
+	}
+	return result;
+}
+string convertTypeToString(int type, int lang)
+{
+
+}

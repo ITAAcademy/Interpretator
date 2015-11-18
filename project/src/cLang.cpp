@@ -32,8 +32,8 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	case Flag_CPP:
 	code_file_name = "prog" + to_string(thID) + ".out";
 	//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
-	build_str = "cd src; clang++ -Wno-deprecated code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) +
-			".out ;		rm code" + to_string(thID) + ".cpp ";
+	build_str = "clang++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
+			".out 2>&1;	";//rm code" + to_string(thID) + ".cpp
 	run_str = " ./prog" + to_string(thID) + ".out;  rm prog" + to_string(thID) + ".out";
 	prog_name = "prog"+to_string(thID)+".out";
 	break;
@@ -67,9 +67,9 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	in.append("rm prog.out;");
 	in.append("fi;");*/
 	long double  comp_time;
-	warning_err = getStdoutFromCommand(build_str, 0, &comp_time);
+	warning_err.append(getStdoutFromCommand(build_str, 0, &comp_time));
+	logfile::addLog("build time: " + to_string(comp_time) + warning_err);
 	cout.flush();
-	logfile::addLog("build time: " + to_string(comp_time));
 	if(fileExist(prog_name))
 	{
 		result.append(getStdoutFromCommand(run_str, 0, &comp_time));
@@ -235,7 +235,8 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
    //     std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
    const int max_buffer = 256;
    char buffer[max_buffer];
-   cmd.append(" 2>&1");
+
+   cmd.append(" 2>&1 ");//>/dev/null
    const long double sysTime = time(0) *1000;
    //printf("%lf", sysTime);
  //  const long double sysTimeMS = sysTime*1000;
@@ -256,7 +257,17 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
    logfile::addLog(to_string(time(0)));
    pclose(stream);
    }
+
    return data;
+	 /*std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
+	    if (!pipe) return "ERROR";
+	    char buffer[128];
+	    std::string result = "";
+	    while (!feof(pipe.get())) {
+	        if (fgets(buffer, 128, pipe.get()) != NULL)
+	            result += buffer;
+	    }
+	    return result;*/
    }
 
 long double LangCompiler::getTimeOut() const{
@@ -269,18 +280,18 @@ void LangCompiler::setTimeOut(long double timeOut) {
 
 bool LangCompiler::fileExist( string name )
 {
-/*	FILE *file;
+	FILE *file;
 	    if (file = fopen(name.c_str(), "r"))
 	    {
 	        fclose(file);
 	        return 1;
 	    }
-	    return 0;*/
-	if( access( name.c_str(), F_OK ) != -1 ) {
+	    return 0;
+	/*if( access( name.c_str(), F_OK ) != -1 ) {
 	    return 1;
 	} else {
 		return 0;
-	}
+	}*/
 }
 
 bool LangCompiler::fileRemove ( string name )

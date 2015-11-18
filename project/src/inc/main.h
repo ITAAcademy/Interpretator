@@ -68,13 +68,16 @@ struct FunctionArgument{
 	int type=0;
 	bool isArray = false;
 	int size=0;
-	string value;
+	vector<string> value;
 	string name;
 };
 struct FunctionData{
-	enum ReturnValueTypes {RET_VAL_INT,RET_VAL_FLOAT,RET_VAL_BOOL,RET_VAL_STRING};
+	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3};
 	int returnValueType = RET_VAL_INT;
+	bool isArray = false;
+	int size=0;
 	string functionName;
+	vector<string> result;
 	vector<FunctionArgument> args;
 };
 
@@ -117,3 +120,10 @@ void deleteToken(string tok);
 bool to_bool(std::string const& s);
 string generateHeader(FunctionData functionData);
 string generateFooter(FunctionData functionData);
+string generationType(int type, int lang);
+string generationVar(int type, string name, int lang, string value = string());
+
+string convertStringToType(string argStringValue, int type, int lang);
+string convertTypeToString(int type, int lang);
+
+string getStandartInclude(int lang);
