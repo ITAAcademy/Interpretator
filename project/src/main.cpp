@@ -807,7 +807,7 @@ bool to_bool(std::string const& s) {
      return s != "0";
 }
 string generateFooter(FunctionData functionData){
-	string footerBody = "}\n";//Close function body
+	string footerBody = "return 0;}\n";//Close function body
 	string space=" ";
 	char divider=',';
 
