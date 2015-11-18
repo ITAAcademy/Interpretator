@@ -66,11 +66,11 @@ JSON sample:
     "results": ["10", "12"],
     "args": 	[
 	{
-      "is_array": false,
+      "is_array": true,
       "size": 1,
       "type": 0,
       "arg_name": "x",
-      "value": ["2", "3"]
+      "value": [["1,2"], "3"]
     	},
 	{
       "is_array": false,
@@ -82,3 +82,34 @@ JSON sample:
 		]
   }
 }
+
+{
+"operation": "start",
+"token": "-8668338574358268261",
+"session" : "1054003",
+"jobid" : 54554,
+"code" : "
+",
+"etalon" : " j",
+"header" : " j",
+"footer" : " j",
+"name" : "12143",
+"task": 222,
+"lang": "c++"
+}
+
+{
+"operation": "result",
+"token": "-8668338574358268261",
+"session" : "1054003",
+"jobid" : 54554,
+"code" : "
+",
+"etalon" : " j",
+"header" : " j",
+"footer" : " j",
+"name" : "12143",
+"task": 222,
+"lang": "c++"
+}
+

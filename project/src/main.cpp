@@ -395,6 +395,18 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 					functionArgument.value.push_back(value.asString());
 					l12("qwe2");
 				}
+				else{
+					string arrString="{";
+					int elmCount =0;
+					for (int j = 0; j < value.size(); j++){
+						if (elmCount>0)arrString+=",";
+						arrString+=value[j].asString();
+
+						elmCount++;
+					}
+					arrString+="}";
+					functionArgument.value.push_back(arrString);
+				}
 			}
 			functionData.args.push_back(functionArgument);
 		}
@@ -784,6 +796,7 @@ string generateHeader(FunctionData functionData){
 		functionStr += generationType(arg.type, 0);// 0 == C++
 		functionStr+=space;
 		functionStr+=arg.name;
+		if(arg.isArray)functionStr+="[]";
 		argCount++;
 	}
 	//close prototype and open body of function
@@ -800,36 +813,69 @@ string generateFooter(FunctionData functionData){
 
 	//C++
 	footerBody+="int main(){\n";
+	string argsString;
+	int arraysCount=0;
 	for(int i = 0; i < functionData.result.size(); i++)
 	{
-		footerBody += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
+		argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
 		int argCount=0;
 		for(FunctionArgument arg : functionData.args){
 			if(argCount>0)
-				footerBody+= divider;
+				argsString+= divider;
 
 			string argStringValue =arg.value[i];
+			string arrType;
+			string arrName="array"+std::to_string(arraysCount);
 			switch(arg.type){
 			case FunctionData::RET_VAL_BOOL:
-				footerBody += to_bool(argStringValue);
+				if (arg.isArray){
+					arrType="bool";//add array type
+					argsString += arrName;
+				}
+				else
+				argsString += to_bool(argStringValue);
 				break;
 			case FunctionData::RET_VAL_FLOAT:
-				footerBody += std::atof(argStringValue.c_str());
+				if (arg.isArray){
+					arrType="float";//add array type
+					argsString += arrName;
+				}
+				else
+				argsString += std::atof(argStringValue.c_str());
 				break;
 			case FunctionData::RET_VAL_INT:
-				footerBody += argStringValue.c_str();
+				if (arg.isArray){
+				arrType="int";//add array type
+				argsString += arrName;
+				}
+				else
+				argsString += argStringValue.c_str();
 				break;
 			case FunctionData::RET_VAL_STRING:
-				footerBody += '"'+argStringValue+'"';
+				if (arg.isArray){
+				arrType="string";//add array type
+				argsString += arrName;
+				}
+				else
+				argsString += '"'+argStringValue+'"';
 				break;
 			}
+			if (arg.isArray)
+			{
+			string arrayDeclaration;
+			arrayDeclaration+=arrType+" "+arrName+"[]="+argStringValue.c_str();
+			footerBody+=arrayDeclaration+";\n";
+			arraysCount++;
+			}
+
 			//footerBody+=arg.value[0];//@BAD@
 			argCount++;
 		}
-		footerBody+="))\n";//closefunction call body;
-		footerBody += "std::cout << " + to_string(i) + " << \"OqweK\";\n";
+		argsString+="))\n";//closefunction call body;
+		argsString += "std::cout << " + to_string(i) + " << \"OqweK\";\n";
 
 	}
+	footerBody+=argsString;
 	footerBody += "\n}";
 	//C++
 
