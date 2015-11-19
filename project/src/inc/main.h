@@ -55,34 +55,7 @@ using namespace std;
 #include <cstdio>
 
 //Config *config;
-struct Job {
-	string session;
-	int jobid;
-	string code;
-	int task;
-	string lang;
-};
 
-struct Token{
-	string session;
-	long jobId;
-};
-struct FunctionArgument{
-	int type=0;
-	bool isArray = false;
-	int size=0;
-	vector<string> value;
-	string name;
-};
-struct FunctionData{
-	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3};
-	int returnValueType = RET_VAL_INT;
-	bool isArray = false;
-	int size=0;
-	string functionName;
-	vector<string> result;
-	vector<FunctionArgument> args;
-};
 
 //static void *doit(void *a);
 int Apache(void);

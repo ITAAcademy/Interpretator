@@ -15,7 +15,7 @@ using namespace Json;
 #define JSONPARSER_H_
 
 
-#define	FIELD_TASK_ID  "task"
+#define	 FIELD_TASK_ID  "task"
 #define FIELD_CODE_TEXT  "code"
 #define FIELD_CODE_LANGUAGE  "lang"
 #define FIELD_OPERATION "operation"
@@ -34,6 +34,7 @@ using namespace Json;
 #define FIELD_TYPE "type"
 #define FIELD_ARG_NAME "arg_name"
 #define FIELD_VALUE "value"
+#define FIELD_RESULTS "results"
 #define FUNCTION "function"
 #define ARGS "args"
 /*
@@ -64,10 +65,13 @@ class jsonParser {
 	string json;
 	bool bJsonValid;
 	list <Value> t_find;
+	string last_error;
 public:
+	string getLastError();
 	jsonParser(string json);
 	jsonParser();
 	bool setJson(string in_json);
+
 	/*
 	 *  not wooooorking
 	 */
