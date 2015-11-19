@@ -375,6 +375,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		functionData.functionName = functionValue["function_name"].asString();
 		functionData.returnValueType = functionValue["type"].asInt();
 		functionData.isArray = functionValue["is_array"].asBool();
+		functionData.size = functionValue["size"].asInt();
 
 		for(JsonValue value:functionValue["results"])
 		{
@@ -399,6 +400,18 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 
 					l12("qwe");*/
 			}
+			else{
+				string arrString="{";
+									int elmCount =0;
+									for (int j = 0; j < value.size(); j++){
+										if (elmCount>0)arrString+=",";
+										arrString+=value[j].asString();
+
+										elmCount++;
+									}
+									arrString+="}";
+									functionData.result.push_back(arrString);
+			}
 		}
 
 		Value functionArgs = functionValue["args"];
@@ -416,6 +429,18 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 				{
 					functionArgument.value.push_back(value.toStyledString());
 					l12("qwe2");
+				}
+				else{
+					string arrString="{";
+					int elmCount =0;
+					for (int j = 0; j < value.size(); j++){
+						if (elmCount>0)arrString+=",";
+						arrString+=value[j].asString();
+
+						elmCount++;
+					}
+					arrString+="}";
+					functionArgument.value.push_back(arrString);
 				}
 			}
 			functionData.args.push_back(functionArgument);
@@ -865,7 +890,10 @@ void deleteToken(string tok)
 
 string generateHeader(FunctionData functionData){
 
-	string functionStr = getStandartInclude(LangCompiler::Flag_CPP) + generationType(functionData.returnValueType, 0)  + "function(";
+	string functionStr = getStandartInclude(LangCompiler::Flag_CPP) + generationType(functionData.returnValueType, 0);
+			if (functionData.isArray)
+				functionStr+="* ";
+		functionStr	+= "function(";
 	const string space=" ";
 	const char divider=',';
 	int argCount = 0;
@@ -875,6 +903,7 @@ string generateHeader(FunctionData functionData){
 		functionStr += generationType(arg.type, 0);// 0 == C++
 		functionStr+=space;
 		functionStr+=arg.name;
+		if(arg.isArray)functionStr+="[]";
 		argCount++;
 	}
 	//close prototype and open body of function
@@ -885,44 +914,103 @@ bool to_bool(std::string const& s) {
 	return s != "0";
 }
 string generateFooter(FunctionData functionData){
-	string footerBody = "}\n";//Close function body
+	string footerBody = "return 0;}\n";//Close function body
 	string space=" ";
 	char divider=',';
 
 	//C++
+	string arrCompFuncStr="template<typename T,int size>\n\
+	bool compareArrs(T arr1[size],T arr2[size]){\n\
+		for (int i=0;i<size;i++){if (arr1[i]!=arr2[i])return false;}\
+			return true;\n\
+	}";
+	footerBody+=arrCompFuncStr;
 	footerBody+="int main(){\n";
+	string argsString;
+	int arraysCount=0;
 	for(int i = 0; i < functionData.result.size(); i++)
 	{
-		footerBody += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
+
+		if (functionData.isArray){
+			string arrType = functionData.getReturnType();
+			string arrName="array"+std::to_string(arraysCount);
+			string arrayDeclaration=arrType+" "+arrName+"[]="+functionData.result[i];
+			footerBody+=arrayDeclaration+";\n";
+			arraysCount++;
+			//if (std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)))
+			argsString += "if (compareArrs<"+arrType+","+
+					std::to_string(functionData.size)+">("+arrName+","+functionData.functionName+"(";
+			//argsString += "if (compareArrs("+arrName+","+functionData.functionName+"(";
+
+			//argsString += "if ( std::equal("+arrName+".begin,"+arrName+".end,std::begin("+
+				//	functionData.functionName+"(";
+		}
+		else
+			argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
 		int argCount=0;
 		for(FunctionArgument arg : functionData.args){
 			if(argCount>0)
-				footerBody+= divider;
+				argsString+= divider;
 
 			string argStringValue =arg.value[i];
+			string arrType;
+			string arrName="array"+std::to_string(arraysCount);
 			switch(arg.type){
 			case FunctionData::RET_VAL_BOOL:
-				footerBody += to_bool(argStringValue);
+				if (arg.isArray){
+					arrType="bool";//add array type
+					argsString += arrName;
+				}
+				else
+					argsString += to_bool(argStringValue);
 				break;
 			case FunctionData::RET_VAL_FLOAT:
-				footerBody += std::atof(argStringValue.c_str());
+				if (arg.isArray){
+					arrType="float";//add array type
+					argsString += arrName;
+				}
+				else
+					argsString += std::atof(argStringValue.c_str());
 				break;
 			case FunctionData::RET_VAL_INT:
-				footerBody += argStringValue.c_str();
+				if (arg.isArray){
+					arrType="int";//add array type
+					argsString += arrName;
+				}
+				else
+					argsString += argStringValue.c_str();
 				break;
 			case FunctionData::RET_VAL_STRING:
-				footerBody += argStringValue;
+				if (arg.isArray){
+					arrType="string";//add array type
+					argsString += arrName;
+				}
+				else
+					argsString += '"'+argStringValue+'"';
+
 				break;
 			}
+			if (arg.isArray)
+			{
+				string arrayDeclaration;
+				arrayDeclaration+=arrType+" "+arrName+"[]="+argStringValue.c_str();
+				footerBody+=arrayDeclaration+";\n";
+				arraysCount++;
+			}
+
 			//footerBody+=arg.value[0];//@BAD@
 			argCount++;
 		}
-		footerBody+="))\n";//closefunction call body;
-		footerBody += "std::cout << \" @" + to_string(i) + "@\";\n";
-		footerBody += "else\n";
-		footerBody += "std::cout << \" @" + to_string(i) + "!@\";\n";
+		argsString+="))";
+		if (functionData.isArray)argsString+=")";
+		argsString+="\n";//closefunction call body;
+		argsString += "std::cout << \" @" + to_string(i) + "@\";\n";
+		argsString += "else\n";
+		argsString += "std::cout << \" @" + to_string(i) + "!@\";\n";
+
 
 	}
+	footerBody+=argsString;
 	footerBody += "\n}";
 	//C++
 
@@ -979,7 +1067,9 @@ string getStandartInclude(int lang)
 	{
 	case LangCompiler::Flag_CPP:{
 		include = "#include <iostream>\n\
-		#include <cstdlib>\n using namespace std;";
+		#include <cstdlib>\n\
+		#include <algorithm>\n using namespace std;\n";
+
 	}
 	case LangCompiler::Flag_Java:{
 		//...

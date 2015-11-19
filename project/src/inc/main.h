@@ -55,6 +55,51 @@ using namespace std;
 #include <cstdio>
 
 //Config *config;
+struct Job {
+	string session;
+	int jobid;
+	string code;
+	int task;
+	string lang;
+};
+
+struct Token{
+	string session;
+	long jobId;
+};
+struct FunctionArgument{
+	int type=0;
+	bool isArray = false;
+	int size=0;
+	vector<string> value;
+	string name;
+};
+struct FunctionData{
+	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3};
+	int returnValueType = RET_VAL_INT;
+	bool isArray = false;
+	int size=0;
+	string functionName;
+	vector<string> result;
+	vector<FunctionArgument> args;
+	string getReturnType(){
+		switch(returnValueType){
+		case RET_VAL_INT:
+			return "int";
+			break;
+		case RET_VAL_FLOAT:
+			return "float";
+			break;
+		case RET_VAL_BOOL:
+			return "bool";
+			break;
+		case RET_VAL_STRING:
+			return "string";
+			break;
+		}
+		return "";
+	}
+};
 
 
 //static void *doit(void *a);
