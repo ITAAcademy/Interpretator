@@ -51,6 +51,11 @@ void l12(string ll) {
 	logfile::addLog(ll);
 }
 
+void l12(int ll) {
+	logfile::addLog(to_string(ll));
+}
+
+
 
 void addUserToHistory(string userIp, string code) {
 	vector<string> labl;
@@ -114,13 +119,12 @@ void processTask(int id,Job job) {
 			string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 			map<int, string> temp;
 			temp.insert( { 1, job.session });
-			temp.insert( { 2, to_string(job.jobid) });
+			temp.insert( { 2, std::to_string(job.jobid) });
 			temp.insert( { 3, "in proccess"});
 			temp.insert( { 4, s_datime });
 			temp.insert( { 5, "" });
 			temp.insert( { 6, "" });
 			SqlConnectionPool::getInstance().addRecordsInToTable(temp);
-
 
 			////////////////
 			labl.clear();
@@ -312,7 +316,7 @@ void *receiveTask(void *a)
 			else
 			{
 				logfile::addLog(id,	"Json format is not correct!!! \n::::::::::::::::::::::::\n" + stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
-				errorResponder.showError(400, " ");
+				errorResponder.showError(400, jSON.getLastError());
 				stream.close();
 				continue;
 			}
@@ -332,6 +336,8 @@ void *receiveTask(void *a)
  */
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 {
+	if ( !jSON.isValidFields() )
+		return false;
 	string lang = jSON.getObject("lang", false).asString();
 	string table;
 	if (lang == "c++" || lang == "C++")
@@ -347,10 +353,10 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 
 	vector<string> labl;
 	labl.push_back("ID");
-			labl.push_back("name");
-			labl.push_back("header");
-			labl.push_back("etalon");
-			labl.push_back("footer");
+	labl.push_back("name");
+	labl.push_back("header");
+	labl.push_back("etalon");
+	labl.push_back("footer");
 	l12("before connectToTable");
 	if (SqlConnectionPool::getInstance().connectToTable(table, labl))
 	{
@@ -372,10 +378,26 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 
 		for(JsonValue value:functionValue["results"])
 		{
-			if(functionData.isArray == false)
+			//if(functionData.isArray == false)
 			{
-				functionData.result.push_back(value.asString());
-				l12("qwe");
+				functionData.result.push_back(value.toStyledString());
+
+				/*switch(type_rezult)
+				{
+					case FunctionData::RET_VAL_BOOL:
+						functionData.result.push_back(value.asBool());
+											break;
+					case FunctionData::RET_VAL_FLOAT:
+						functionData.result.push_back(value.asFloat());
+											break;
+					case FunctionData::RET_VAL_INT:
+						functionData.result.push_back(value.asInt());
+											break;
+					case FunctionData::RET_VAL_STRING:
+					functionData.result.push_back(value.asString());
+					break;
+
+					l12("qwe");*/
 			}
 		}
 
@@ -392,7 +414,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 			{
 				if(functionArgument.isArray == false)
 				{
-					functionArgument.value.push_back(value.asString());
+					functionArgument.value.push_back(value.toStyledString());
 					l12("qwe2");
 				}
 			}
@@ -791,7 +813,7 @@ string generateHeader(FunctionData functionData){
 	return functionStr;
 }
 bool to_bool(std::string const& s) {
-     return s != "0";
+	return s != "0";
 }
 string generateFooter(FunctionData functionData){
 	string footerBody = "}\n";//Close function body
@@ -890,7 +912,7 @@ string getStandartInclude(int lang)
 	}
 	case LangCompiler::Flag_Java:{
 		//...
-		}
+	}
 	}
 	return include + "\n";
 
