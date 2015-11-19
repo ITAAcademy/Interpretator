@@ -37,6 +37,7 @@ void l12(int ll);
 
 
 
+//Config *config;
 struct Job {
 	string session;
 	int jobid;
@@ -64,6 +65,23 @@ struct FunctionData{
 	string functionName;
 	vector<string> result;
 	vector<FunctionArgument> args;
+	string getReturnType(){
+		switch(returnValueType){
+		case RET_VAL_INT:
+			return "int";
+			break;
+		case RET_VAL_FLOAT:
+			return "float";
+			break;
+		case RET_VAL_BOOL:
+			return "bool";
+			break;
+		case RET_VAL_STRING:
+			return "string";
+			break;
+		}
+		return "";
+	}
 };
 
 

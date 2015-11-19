@@ -379,7 +379,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 
 		for(JsonValue value:functionValue["results"])
 		{
-			//if(functionData.isArray == false)
+			if(functionData.isArray == false)///////////////@BAG@
 			{
 				functionData.result.push_back(value.toStyledString());
 
