@@ -911,7 +911,7 @@ string generateFooter(FunctionData functionData){
 				footerBody += argStringValue.c_str();
 				break;
 			case FunctionData::RET_VAL_STRING:
-				footerBody += '"'+argStringValue+'"';
+				footerBody += argStringValue;
 				break;
 			}
 			//footerBody+=arg.value[0];//@BAD@
@@ -979,7 +979,7 @@ string getStandartInclude(int lang)
 	{
 	case LangCompiler::Flag_CPP:{
 		include = "#include <iostream>\n\
-		#include <cstdlib>";
+		#include <cstdlib>\n using namespace std;";
 	}
 	case LangCompiler::Flag_Java:{
 		//...
@@ -1002,7 +1002,7 @@ string convertStringToType(string argStringValue, int type, int lang)
 		result += argStringValue.c_str();
 		break;
 	case FunctionData::RET_VAL_STRING:
-		result += '"'+argStringValue+'"';
+		result += argStringValue;
 		break;
 	}
 	return result;
