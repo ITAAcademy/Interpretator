@@ -583,7 +583,76 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 			{
 				res["date"] = records[0][4];
 				res["warning"] = records[0][6];
-				res["result"] = records[0][5];
+				//////////////////////////////////////////////////NEW//17.11.15
+
+		/*		string result = records[0][5];
+				  smatch m;
+				  regex e ("\\b(sub)([^ ]*)");   // matches words beginning by "sub"
+
+
+				  while (std::regex_search (result,m,e)) {
+				    for (auto x:m) std::cout << x << " ";
+				    std::cout << std::endl;
+				    result = m.suffix().str();
+				  }
+*/
+				res["testResult"] = JsonValue(arrayValue);
+
+				string part = records[0][5];
+				int start = part.find('@');
+
+				if(start == string::npos)
+				{
+					res["result"] = records[0][5];
+				}
+				else
+				{
+					res["result"] = part.substr(0, start);
+					int count = 0;
+					bool done = true;
+					while(start++ != string::npos)// need test after first fail?
+					{
+						int next = part.substr(start).find('@');
+						string number;
+						if(next != string::npos)
+						{
+							if(next -1 >= 0 && part[start + next - 1] == '!')
+							{
+								number = part.substr(start, next - 1);
+								res["testResult"][count] = JsonValue(false);
+								done = false;
+							}
+							else
+							{
+								number = part.substr(start, next );
+								res["testResult"][count] = JsonValue(true);
+							}
+						}
+						part = part.substr(start + next + 1);
+						count++;
+						start = part.find('@');
+					}
+					res["done"] = JsonValue(done);
+					/*
+					 *	int next = part.substr(start).find('@');
+						string number;
+
+						/*if(part[next-1] == '!')
+						{
+							number = part.substr(start, next - start - 1);
+							res["result"][count] = JsonValue(false);
+						}
+						else
+						{
+							number = part.substr(start, next - start);
+							res["result"][count] = JsonValue(true);
+						}
+					//	part = part.substr(next);
+						l12(part);
+						start = part.find('@');
+						count++;
+					 */
+				}
 			}
 		}
 		else
@@ -827,7 +896,9 @@ string generateFooter(FunctionData functionData){
 			argCount++;
 		}
 		footerBody+="))\n";//closefunction call body;
-		footerBody += "std::cout << " + to_string(i) + " << \"OqweK\";\n";
+		footerBody += "std::cout << \" @" + to_string(i) + "@\";\n";
+		footerBody += "else\n";
+		footerBody += "std::cout << \" @" + to_string(i) + "!@\";\n";
 
 	}
 	footerBody += "\n}";

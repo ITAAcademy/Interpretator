@@ -35,6 +35,9 @@ int main(void)
 #include "SQLconnector.h"
 #include "config.h"
 #include "ctpl_stl.h"
+#include <iostream>
+#include <string>
+#include <regex>
 
 #include <ctime>
 using namespace std;
