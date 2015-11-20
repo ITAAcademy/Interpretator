@@ -78,7 +78,7 @@ Value jsonParser::findInArray(Value &array, string &name)
 	for(int i = 0; i < array.getMemberNames().size(); i++)
 	{
 		stt.append(array.getMemberNames()[i] + "	\\\\\\\\\n");
-
+value": [[1,2], [3,4]]
 	}
 	logfile::addLog(stt);*/
 	if(size != 0)
@@ -138,7 +138,6 @@ string jsonParser::getLastError()
 
 bool jsonParser::isValidFields()
 {
-
 	l12("before parsedFromString==nullValue");
 	if ((parsedFromString==nullValue) || (parsedFromString.size()==0) || !isJson())
 	{
@@ -195,7 +194,6 @@ bool jsonParser::isValidFields()
 			return false;
 		}
 		l12("__3");
-
 		/*if(parsedFromString[FIELD_CODE_LANGUAGE].isNull())
 		{
 			last_error = "error: json format is not correct. Field \"code\" not exist"; //
@@ -405,8 +403,10 @@ bool jsonParser::isValidFields()
 				}
 				break;
 			default:
+			{
 				last_error = "error: json format is not correct. Result type don*t recognized";
 				return false;
+			}
 			}
 		}
 		else
@@ -533,10 +533,10 @@ bool jsonParser::isValidFields()
 		//bool args_0_values_is_array =
 
 
-		bool values_0_is_array_seted = false;
+		/*bool values_0_is_array_seted = false;
 		bool args_0_values_0_is_array;
 		int args_0_value_type;
-		int args_0_values_size;
+		int args_0_values_size;*/
 
 		for (int i=0; i < args_size; i++)
 		{
@@ -599,27 +599,27 @@ bool jsonParser::isValidFields()
 				return false;
 			}
 
-			if (!values_0_is_array_seted)
+			/*if (!values_0_is_array_seted)
 			{
 				args_0_values_0_is_array = parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][0].isArray();
 				values_0_is_array_seted = true;
 				args_0_value_type = value_type;
-			}
-			if ( value_type != args_0_value_type)
+			}*/
+			/*if ( value_type != args_0_value_type)
 			{
 				last_error = "error: json format is not correct. Args[" + to_string(i) +
 						"] type (" + to_string(value_type) + ") != args[0] type (" + to_string(args_0_value_type)+ ")";
 				return false;
-			}
+			}*/
 
 			bool values_0_is_array = parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][0].isArray();
 
-			if ( args_0_values_0_is_array != values_0_is_array)
+			/*if ( args_0_values_0_is_array != values_0_is_array)
 			{
 				last_error = "error: json format is not correct. Args[" + to_string(i) +
 						"] values[0].isArray() = " + to_string(values_0_is_array) + "), but args[0] values[0].isArray() = " + to_string(args_0_values_0_is_array);
 				return false;
-			}
+			}*/
 
 
 			if ( !values_0_is_array )

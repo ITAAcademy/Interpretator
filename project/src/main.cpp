@@ -405,7 +405,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 									int elmCount =0;
 									for (int j = 0; j < value.size(); j++){
 										if (elmCount>0)arrString+=",";
-										arrString+=value[j].asString();
+										arrString+=value[j].toStyledString();
 
 										elmCount++;
 									}
@@ -435,7 +435,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 					int elmCount =0;
 					for (int j = 0; j < value.size(); j++){
 						if (elmCount>0)arrString+=",";
-						arrString+=value[j].asString();
+						arrString+=value[j].toStyledString();
 
 						elmCount++;
 					}
