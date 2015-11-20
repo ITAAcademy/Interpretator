@@ -300,100 +300,260 @@ bool jsonParser::isValidFields()
 		l12("1___111");
 		vector<string> args_array = parsedFromString[FUNCTION][FIELD_ARGS].getMemberNames();
 		 */
-		int results_size = parsedFromString[FUNCTION][FIELD_RESULTS].size();
-		int args_size = parsedFromString[FUNCTION][FIELD_ARGS].size();
-		l12("sizes: ");
-		l12(results_size);
-		l12(results_size);
+		if ( !parsedFromString[FUNCTION][FIELD_RESULTS].isArray())
+		{
+			last_error = "error: json format is not correct. Results is not array";					;
+			return false;
+		}
+		if ( !parsedFromString[FUNCTION][FIELD_ARGS].isArray())
+		{
+			last_error = "error: json format is not correct. Args is not array";					;
+			return false;
+		}
 
-		if ( results_size != args_size)
+		int results_size = parsedFromString[FUNCTION][FIELD_RESULTS].size();
+		if ( results_size < 1)
+		{
+			last_error = "error: json format is not correct. Size of results (" + to_string(results_size) +
+					") < 1. Where results?";
+			return false;
+		}
+
+		int args_size = parsedFromString[FUNCTION][FIELD_ARGS].size();
+		if ( args_size < 1)
+		{
+			last_error = "error: json format is not correct. Size of args (" + to_string(args_size) +
+					") < 1. Where args?";
+			return false;
+		}
+
+		/*if ( results_size != args_size)
 		{
 			last_error = "error: json format is not correct. Size of results (" + to_string(results_size) +
 					") != size of args (" + to_string(args_size) + ")"
 					;
 			return false;
-		}
-		l12("___112");
+		}*/
 
-		switch(type_rezult)
+		bool results_0_is_array = parsedFromString[FUNCTION][FIELD_RESULTS][0].isArray();
+		if ( !results_0_is_array )
 		{
+			switch(type_rezult)
+			{
+			case FunctionData::RET_VAL_BOOL:
+				for (int i=0; i < results_size; i++)
+				{
+					if ( parsedFromString[FUNCTION][FIELD_RESULTS][i].isArray())
+					{
+						last_error = "error: json format is not correct. results[" + to_string(i) +
+								"] is array, but results[0] isn`t";					;
+						return false;
+					}
+					if ( !parsedFromString[FUNCTION][FIELD_RESULTS][i ].isBool())
+					{
+						last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t boolean"; //
+						return false;
+					}
+				}
+				break;
+			case FunctionData::RET_VAL_FLOAT	:
+				for (int i=0; i < results_size; i++)
+				{
+					if ( parsedFromString[FUNCTION][FIELD_RESULTS][i].isArray())
+					{
+						last_error = "error: json format is not correct. results[" + to_string(i) +
+								"] is array, but results[0] isn`t";					;
+						return false;
+					}
+					if ( !parsedFromString[FUNCTION][FIELD_RESULTS][ i ].isDouble())
+					{
+						last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t float"; //
+						return false;
+					}
+				}
+				break;
+			case FunctionData::RET_VAL_INT	:
+				for (int i=0; i < results_size; i++)
+				{
+					if ( parsedFromString[FUNCTION][FIELD_RESULTS][i].isArray())
+					{
+						last_error = "error: json format is not correct. results[" + to_string(i) +
+								"] is array, but results[0] isn`t";					;
+						return false;
+					}
+					if ( !parsedFromString[FUNCTION][FIELD_RESULTS][ i ].isInt())
+					{
+						last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t integer"; //
+						return false;
+					}
+				}
+				break;
+			case FunctionData::RET_VAL_STRING:
+				for (int i=0; i < results_size ; i++)
+				{
+					if ( parsedFromString[FUNCTION][FIELD_RESULTS][i].isArray())
+					{
+						last_error = "error: json format is not correct. results[" + to_string(i) +
+								"] is array, but results[0] isn`t";					;
+						return false;
+					}
+					if ( !parsedFromString[FUNCTION][FIELD_RESULTS][ i ].isString())
+					{
+						last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t string"; //
+						return false;
+					}
+				}
+				break;
+			default:
+				last_error = "error: json format is not correct. Result type don*t recognized";
+				return false;
+			}
+		}
+		else
+		{
+			int results_0_array_size  = parsedFromString[FUNCTION][FIELD_RESULTS][0].size();
 
-		case FunctionData::RET_VAL_BOOL:
-			for (int i=0; i < results_size; i++)
+			if ( results_0_array_size < 1)
 			{
-				if ( !parsedFromString[FUNCTION][FIELD_RESULTS][i ].isBool())
+				last_error = "error: json format is not correct. Results[0] size < 1. Where results[0] values?";
+				return false;
+			}
+
+			if ( parsedFromString[FUNCTION][FIELD_RESULTS][0][0].isArray())
+			{
+				if ( parsedFromString[FUNCTION][FIELD_RESULTS][0][0][0].isArray())
 				{
-					last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t boolean"; //
+					last_error = "error: json format is not correct. Results[0][0][0] can`t be array";
 					return false;
 				}
 			}
-			break;
-		case FunctionData::RET_VAL_FLOAT	:
-			for (int i=0; i < results_size; i++)
+
+
+			for (int k=0; k < results_size; k++)
 			{
-				if ( !parsedFromString[FUNCTION][FIELD_RESULTS][ i ].isDouble())
+				if ( !parsedFromString[FUNCTION][FIELD_RESULTS][k].isArray())
 				{
-					last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t float"; //
+					last_error = "error: json format is not correct. Results[" + to_string(k) +
+							"] not array, but results[0] is array";
 					return false;
 				}
-			}
-			break;
-		case FunctionData::RET_VAL_INT	:
-			for (int i=0; i < results_size; i++)
-			{
-				if ( !parsedFromString[FUNCTION][FIELD_RESULTS][ i ].isInt())
+				int results_k_array_size  = parsedFromString[FUNCTION][FIELD_RESULTS][k].size();
+
+				if ( results_k_array_size < 1)
 				{
-					last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t integer"; //
+					last_error = "error: json format is not correct. Results[" + to_string(k) +
+							"] size < 1. Where results[" + to_string(k) + "] values?";
 					return false;
 				}
-			}
-			break;
-		case FunctionData::RET_VAL_STRING:
-			for (int i=0; i < results_size ; i++)
-			{
-				if ( !parsedFromString[FUNCTION][FIELD_RESULTS][ i ].isString())
+
+				if ( results_k_array_size != results_0_array_size)
 				{
-					last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t string"; //
+					last_error = "error: json format is not correct. Results[" + to_string(k) +
+							"] size = "+ to_string(results_k_array_size) +
+							", but results[0] size = " + to_string(results_0_array_size);
 					return false;
 				}
+				///////////////
+				{
+					switch(type_rezult)
+					{
+					case FunctionData::RET_VAL_BOOL:
+						for (int i=0; i < results_k_array_size; i++)
+						{
+							if ( parsedFromString[FUNCTION][FIELD_RESULTS][k][i].isArray())
+							{
+								last_error = "error: json format is not correct. Results[" + to_string(k) +
+										"][" + to_string(i) + "] can`t be array";
+								return false;
+							}
+							if ( !parsedFromString[FUNCTION][FIELD_RESULTS][k][i ].isBool())
+							{
+								last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t boolean"; //
+								return false;
+							}
+						}
+						break;
+					case FunctionData::RET_VAL_FLOAT	:
+						for (int i=0; i < results_k_array_size; i++)
+						{
+							if ( !parsedFromString[FUNCTION][FIELD_RESULTS][k][i][0].isArray())
+							{
+								last_error = "error: json format is not correct. Results[" + to_string(k) +
+										"][" + to_string(i) + "] can`t be array";
+								return false;
+							}
+							if ( !parsedFromString[FUNCTION][FIELD_RESULTS][k][ i ].isDouble())
+							{
+								last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t float"; //
+								return false;
+							}
+						}
+						break;
+					case FunctionData::RET_VAL_INT	:
+						for (int i=0; i < results_k_array_size; i++)
+						{
+							if ( parsedFromString[FUNCTION][FIELD_RESULTS][k][i].isArray())
+							{
+								last_error = "error: json format is not correct. Results[" + to_string(k) +
+										"][" + to_string(i) + "] can`t be array";
+								return false;
+							}
+							if ( !parsedFromString[FUNCTION][FIELD_RESULTS][k][ i ].isInt())
+							{
+								last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t integer"; //
+								return false;
+							}
+						}
+						break;
+					case FunctionData::RET_VAL_STRING:
+						for (int i=0; i < results_k_array_size ; i++)
+						{
+							if ( !parsedFromString[FUNCTION][FIELD_RESULTS][k][i][0].isArray())
+							{
+								last_error = "error: json format is not correct. Results[" + to_string(k) +
+										"][" + to_string(i) + "] can`t be array";
+								return false;
+							}
+							if ( !parsedFromString[FUNCTION][FIELD_RESULTS][k][ i ].isString())
+							{
+								last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t string"; //
+								return false;
+							}
+						}
+						break;
+					default:
+						last_error = "error: json format is not correct. Result type don*t recognized";
+						return false;
+					}
+				}
 			}
-			break;
-		default:
-			last_error = "error: json format is not correct. Result type don*t recognized";
-			return false;
 		}
 
-		l12("___113");
+
+		//bool args_0_values_is_array =
+
+
+		bool values_0_is_array_seted = false;
+		bool args_0_values_0_is_array;
+		int args_0_value_type;
+		int args_0_values_size;
+
 		for (int i=0; i < args_size; i++)
 		{
-			/*if(parsedFromString[FUNCTION][FIELD_ARG_NAME][ i ][FIELD_SIZE].isNull())
-			{
-				last_error = "error: json format is not correct. Field \"size\" of args[" +
-						to_string(i) + "] not exist"; //
-				return false;
-			}
-			if ( !parsedFromString[FUNCTION][FIELD_ARG_NAME][ i][FIELD_SIZE].isInt())
-			{
-				last_error = "error: json format is not correct. Field \"size\" of args[" +
-						to_string(i) + "] not integer"; //
-				return false;
-			}*/
-			l12("___114");
-			//if(!parsedFromString[FUNCTION][FIELD_ARGS][ i ].isMember(FIELD_TYPE))
 			if(parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_TYPE].isNull())
 			{
 				last_error = "error: json format is not correct. Field \"type\" of args[" +
 						to_string(i) + "] not exist"; //
 				return false;
 			}
-			l12("___115");
+
 			if ( !parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_TYPE].isInt())
 			{
 				last_error = "error: json format is not correct. Field \"type\" of args[" +
 						to_string(i) + "] not integer"; //
 				return false;
 			}
-			l12("___116");
+
 			int value_type = parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_TYPE].asInt();
 			if ( value_type >= FunctionData::Last)
 			{
@@ -401,84 +561,274 @@ bool jsonParser::isValidFields()
 						to_string(i) + "] out of types"; //
 				return false;
 			}
-			l12("___117");
-			//if(!parsedFromString[FUNCTION][FIELD_ARGS][ i ].isMember(FIELD_ARG_NAME))
+
 			if(parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_ARG_NAME].isNull())
 			{
 				last_error = "error: json format is not correct. Field \"arg_name\" of args[" +
 						to_string(i) + "] not exist"; //
 				return false;
 			}
-			l12("___118");
+
 			if ( !parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_ARG_NAME].isString())
 			{
 				last_error = "error: json format is not correct. Field \"arg_name\" of args[" +
 						to_string(i) + "] not string"; //
 				return false;
 			}
-			l12("___119");
-			//if (!parsedFromString[FUNCTION][FIELD_ARGS][ i ].isMember(FIELD_VALUE))
+
 			if(parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_VALUE].isNull())
 			{
 				last_error = "error: json format is not correct. Field \"value\" of args[" +
 						to_string(i) + "] not exist"; //
 				return false;
 			}
-			l12("___120");
-
-			switch (value_type)
+			/////////////////////////
+			if ( !parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE].isArray() )
 			{
-			case FunctionData::RET_VAL_BOOL :
-				l12("___121");
-				for (int j=0; j < parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_VALUE].size(); j++ )
+				last_error = "error: json format is not correct. Args[" + to_string(i) +
+						"] isn`t array";
+				return false;
+			}
+
+			int values_size = parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE].size();
+
+			if ( values_size < 1 )
+			{
+				last_error = "error: json format is not correct. Args[" + to_string(i) +
+						"] values size (" + to_string(values_size) + ") < 1";
+				return false;
+			}
+
+			if (!values_0_is_array_seted)
+			{
+				args_0_values_0_is_array = parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][0].isArray();
+				values_0_is_array_seted = true;
+				args_0_value_type = value_type;
+			}
+			if ( value_type != args_0_value_type)
+			{
+				last_error = "error: json format is not correct. Args[" + to_string(i) +
+						"] type (" + to_string(value_type) + ") != args[0] type (" + to_string(args_0_value_type)+ ")";
+				return false;
+			}
+
+			bool values_0_is_array = parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][0].isArray();
+
+			if ( args_0_values_0_is_array != values_0_is_array)
+			{
+				last_error = "error: json format is not correct. Args[" + to_string(i) +
+						"] values[0].isArray() = " + to_string(values_0_is_array) + "), but args[0] values[0].isArray() = " + to_string(args_0_values_0_is_array);
+				return false;
+			}
+
+
+			if ( !values_0_is_array )
+			{
+				switch(value_type)
 				{
-					if ( !parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_VALUE][j].isBool())
+				////// 2
+				case FunctionData::RET_VAL_INT	:
+					for (int j=0; j < values_size; j++)
 					{
-						last_error = "error: json format is not correct. Args[" + to_string(i)
-																			+ "]  value[" + to_string(j) + "] isn*t boolean"; //
+						if ( parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][j].isArray())
+						{
+							last_error = "error: json format is not correct. Args[" + to_string(i) +
+									"] values[" + to_string(j) + "] is array, but Args[0] values[0] isn`t";			;
+							return false;
+						}
+						if ( !parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][ j ].isInt())
+						{
+							last_error = "error: json format is not correct. Args[" + to_string(i) + "] values[" +
+									to_string(j) + "]  isn*t integer"; //
+							return false;
+						}
+					}
+					break;
+				case FunctionData::RET_VAL_FLOAT	:
+					for (int j=0; j < values_size; j++)
+					{
+						if ( parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][j].isArray())
+						{
+							last_error = "error: json format is not correct. Args[" + to_string(i) +
+									"] values[" + to_string(j) + "] is array, but Args[0] values[0] isn`t";			;
+							return false;
+						}
+						if ( !parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][ j ].isDouble())
+						{
+							last_error = "error: json format is not correct. Args[" + to_string(i) + "] values[" +
+									to_string(j) + "]  isn*t float"; //
+							return false;
+						}
+					}
+					break;
+				case FunctionData::RET_VAL_BOOL	:
+					for (int j=0; j < values_size; j++)
+					{
+						if ( parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][j].isArray())
+						{
+							last_error = "error: json format is not correct. Args[" + to_string(i) +
+									"] values[" + to_string(j) + "] is array, but Args[0] values[0] isn`t";			;
+							return false;
+						}
+						if ( !parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][ j ].isBool())
+						{
+							last_error = "error: json format is not correct. Args[" + to_string(i) + "] values[" +
+									to_string(j) + "]  isn*t boolean"; //
+							return false;
+						}
+					}
+					break;
+				case FunctionData::RET_VAL_STRING	:
+					for (int j=0; j < values_size; j++)
+					{
+						if ( parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][j].isArray())
+						{
+							last_error = "error: json format is not correct. Args[" + to_string(i) +
+									"] values[" + to_string(j) + "] is array, but Args[0] values[0] isn`t";			;
+							return false;
+						}
+						if ( !parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][ j ].isString())
+						{
+							last_error = "error: json format is not correct. Args[" + to_string(i) + "] values[" +
+									to_string(j) + "]  isn*t string"; //
+							return false;
+						}
+					}
+					break;
+
+				default:
+					last_error = "error: json format is not correct. Args[" + to_string(i) + "] type don*t recognized";
+					return false;
+				}
+			}
+			else
+			{
+				int values_0_array_size  = parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][0].size();
+
+				if ( values_0_array_size < 1)
+				{
+					last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[0] size < 1?";
+					return false;
+				}
+
+				if ( parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][0][0].isArray())
+				{
+					if ( parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][0][0][0].isArray())
+					{
+						last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[0][0] can`t be array";
 						return false;
 					}
 				}
-				break;
-			case FunctionData::RET_VAL_INT :
-				l12("___122");
-				for (unsigned int j=0; j < parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_VALUE].size(); j++ )
+
+
+				for (int k=0; k < values_size; k++)
 				{
-					l12("___122_00");
-					if ( !parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_VALUE][j].isInt())
+					if ( !parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][k].isArray())
 					{
-						last_error = "error: json format is not correct. Args[" + to_string(i)
-																					+ "]  value[" + to_string(j) + "] isn*t integer"; //
+						last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[" + to_string(k) +
+								"] not array, but Args[0] values[0] is array";
 						return false;
 					}
-				}
-				break;
-			case FunctionData::RET_VAL_FLOAT :
-				l12("___123");
-				for (int j=0; j < parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_VALUE].size(); j++ )
-				{
-					if ( !parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_VALUE][j].isDouble())
+					int values_k_array_size  = parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][k].size();
+
+					if ( values_k_array_size < 1)
 					{
-						last_error = "error: json format is not correct. Args[" + to_string(i)
-																							+ "]  value[" + to_string(j) + "] isn*t float"; //
+						last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[" + to_string(k) +
+								"] size < 1";
 						return false;
 					}
-				}
-				break;
-			case FunctionData::RET_VAL_STRING :
-				l12("___124");
-				for (int j=0; j < parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_VALUE].size(); j++ )
-				{
-					if ( !parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_VALUE][j].isString())
+
+					if ( values_k_array_size != values_0_array_size)
 					{
-						last_error = "error: json format is not correct. Args[" + to_string(i)
-																							+ "]  value[" + to_string(j) + "] isn*t string"; //
+						last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[" + to_string(k) +
+								"] size = "+ to_string(values_k_array_size) +
+								", but Args[" + to_string(i) +"] values[0] size = " + to_string(values_0_array_size);
 						return false;
 					}
+					///////////////
+					{
+						switch(value_type)
+						{
+						///////// 1
+						case FunctionData::RET_VAL_INT	:
+							for (int j=0; j < values_k_array_size; j++)
+							{
+								if ( parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][k][j].isArray())
+								{
+									last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[" + to_string(k) +
+											"][" + to_string(i) + "] can`t be array";
+									return false;
+								}
+								if ( !parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][k][ j ].isInt())
+								{
+									last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[" +
+											to_string(i) + "] isn*t integer"; //
+									return false;
+								}
+							}
+							break;
+						case FunctionData::RET_VAL_FLOAT	:
+							for (int j=0; j < values_k_array_size; j++)
+							{
+								if ( parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][k][j].isArray())
+								{
+									last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[" + to_string(k) +
+											"][" + to_string(i) + "] can`t be array";
+									return false;
+								}
+								if ( !parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][k][ j ].isDouble())
+								{
+									last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[" +
+											to_string(i) + "] isn*t integer"; //
+									return false;
+								}
+							}
+							break;
+						case FunctionData::RET_VAL_BOOL	:
+							for (int j=0; j < values_k_array_size; j++)
+							{
+								if ( parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][k][j].isArray())
+								{
+									last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[" + to_string(k) +
+											"][" + to_string(i) + "] can`t be array";
+									return false;
+								}
+								if ( !parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][k][ j ].isBool())
+								{
+									last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[" +
+											to_string(i) + "] isn*t boolean"; //
+									return false;
+								}
+							}
+							break;
+						case FunctionData::RET_VAL_STRING:
+							for (int j=0; j < values_k_array_size; j++)
+							{
+								if ( parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][k][j].isArray())
+								{
+									last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[" + to_string(k) +
+											"][" + to_string(i) + "] can`t be array";
+									return false;
+								}
+								if ( !parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][k][ j ].isString())
+								{
+									last_error = "error: json format is not correct. Args[" + to_string(i) +"] values[" +
+											to_string(i) + "] isn*t string"; //
+									return false;
+								}
+							}
+							break;
+
+						default:
+							last_error = "error: json format is not correct. Args[" + to_string(i) +" type don*t recognized";
+							return false;
+						}
+					}
 				}
-				break;
 			}
 		}
+
+
 
 
 		l12("FIELD_FUNCTION_NAME");
