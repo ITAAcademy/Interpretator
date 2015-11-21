@@ -15,7 +15,7 @@
 #include <list>
 #include <jsoncpp/json/json.h>
 #include "logfile.h"
-
+#include <regex>
 
 //#include <chrono>
 
@@ -58,9 +58,10 @@ struct FunctionArgument{
 	string name;
 };
 struct FunctionData{
-	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3, Last};
+	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3,RET_VAL_RANGE = 4, Last = 5};
 	int returnValueType = RET_VAL_INT;
 	bool isArray = false;
+	bool isRange = false;
 	int size=0;
 	string functionName;
 	vector<string> result;
@@ -79,10 +80,15 @@ struct FunctionData{
 		case RET_VAL_STRING:
 			return "string";
 			break;
+		case RET_VAL_RANGE:
+			return "range";
+			break;
 		}
 		return "";
 	}
+
 };
+
 
 
 

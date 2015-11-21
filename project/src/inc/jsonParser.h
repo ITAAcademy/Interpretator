@@ -66,12 +66,24 @@ class jsonParser {
 	bool bJsonValid;
 	list <Value> t_find;
 	string last_error;
+
+	int range_first;
+	int range_last;
+
+	bool is_results_array;
+	bool is_results_range;
+
+	int unit_test_num;
 public:
+	bool isResultsArray();
+	bool isResultsRange();
 	string getLastError();
 	jsonParser(string json);
 	jsonParser();
 	bool setJson(string in_json);
 
+	int getRangeFirst();
+	int getRangeLast();
 	/*
 	 *  not wooooorking
 	 */

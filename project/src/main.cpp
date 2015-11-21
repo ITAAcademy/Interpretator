@@ -374,16 +374,37 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 
 		functionData.functionName = functionValue["function_name"].asString();
 		functionData.returnValueType = functionValue["type"].asInt();
+
 		functionData.isArray = functionValue["results"][0].isArray();
 		functionData.size = functionValue["results"][0].size();
+		functionData.isRange = jSON.isResultsRange();
 
 		for(JsonValue value:functionValue["results"])
 		{
-			if(functionData.isArray == false)///////////////@BAG@
+			if (jSON.isResultsRange())
 			{
-				functionData.result.push_back(value.toStyledString());
+				int val1 = jSON.getRangeFirst();
+				int val2 = jSON.getRangeLast();
 
-				/*switch(type_rezult)
+				string arrString="{";
+				int elmCount =0;
+				for (int j = val1; j <= val2; j++){
+					if (elmCount>0)arrString+=",";
+					arrString += to_string(j);
+
+					elmCount++;
+				}
+				arrString+="}";
+				functionData.result.push_back(arrString);  //___opo
+				functionData.returnValueType = 0;
+				functionData.isArray = true;
+			}
+			else
+				if(functionData.isArray == false)///////////////@BAG@
+				{
+					functionData.result.push_back(value.toStyledString());
+
+					/*switch(type_rezult)
 				{
 					case FunctionData::RET_VAL_BOOL:
 						functionData.result.push_back(value.asBool());
@@ -399,19 +420,20 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 					break;
 
 					l12("qwe");*/
-			}
-			else{
-				string arrString="{";
-									int elmCount =0;
-									for (int j = 0; j < value.size(); j++){
-										if (elmCount>0)arrString+=",";
-										arrString+=value[j].toStyledString();
+				}
+				else
+				{
+					string arrString="{";
+					int elmCount =0;
+					for (int j = 0; j < value.size(); j++){
+						if (elmCount>0)arrString+=",";
+						arrString+=value[j].toStyledString();
 
-										elmCount++;
-									}
-									arrString+="}";
-									functionData.result.push_back(arrString);
-			}
+						elmCount++;
+					}
+					arrString+="}";
+					functionData.result.push_back(arrString);  //___opo
+				}
 		}
 
 		Value functionArgs = functionValue["args"];
@@ -440,21 +462,14 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 						elmCount++;
 					}
 					arrString+="}";
-					functionArgument.value.push_back(arrString);
+					functionArgument.value.push_back(arrString); //_opo
 				}
 			}
 			functionData.args.push_back(functionArgument);
 		}
-
-
-
 		//new code for testcases part
 
 		int valuesCount = 0;
-
-
-
-
 		temp.insert( { valuesCount++, std::to_string(id) });
 		temp.insert( { valuesCount++, name }); //str_with_spec_character(
 		temp.insert( { valuesCount++, str_with_spec_character(generateHeader(functionData))});
@@ -632,7 +647,7 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 				res["warning"] = records[0][6];
 				//////////////////////////////////////////////////NEW//17.11.15
 
-		/*		string result = records[0][5];
+				/*		string result = records[0][5];
 				  smatch m;
 				  regex e ("\\b(sub)([^ ]*)");   // matches words beginning by "sub"
 
@@ -642,7 +657,7 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 				    std::cout << std::endl;
 				    result = m.suffix().str();
 				  }
-*/
+				 */
 				res["testResult"] = JsonValue(arrayValue);
 
 				string part = records[0][5];
@@ -900,9 +915,9 @@ void deleteToken(string tok)
 string generateHeader(FunctionData functionData){
 
 	string functionStr = getStandartInclude(LangCompiler::Flag_CPP) + generationType(functionData.returnValueType, 0);
-			if (functionData.isArray)
-				functionStr+="* ";
-		functionStr	+= "function(";
+	if (functionData.isArray)
+		functionStr+="* ";
+	functionStr	+= "function(";
 	const string space=" ";
 	const char divider=',';
 	int argCount = 0;
@@ -940,22 +955,25 @@ string generateFooter(FunctionData functionData){
 	for(int i = 0; i < functionData.result.size(); i++)
 	{
 
-		if (functionData.isArray){
-			string arrType = functionData.getReturnType();
-			string arrName="array"+std::to_string(arraysCount);
-			string arrayDeclaration=arrType+" "+arrName+"[]="+functionData.result[i];
-			footerBody+=arrayDeclaration+";\n";
-			arraysCount++;
-			//if (std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)))
-			argsString += "if (compareArrs<"+arrType+","+
-					std::to_string(functionData.size)+">("+arrName+","+functionData.functionName+"(";
-			//argsString += "if (compareArrs("+arrName+","+functionData.functionName+"(";
+		/*if (functionData.isRange )
+		{
 
-			//argsString += "if ( std::equal("+arrName+".begin,"+arrName+".end,std::begin("+
-				//	functionData.functionName+"(";
 		}
-		else
-			argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
+		else*/
+			if (functionData.isArray )
+			{
+				string arrType = functionData.getReturnType();
+				string arrName="array"+std::to_string(arraysCount);
+				string arrayDeclaration=arrType+" "+arrName+"[]="+functionData.result[i];
+				footerBody+=arrayDeclaration+";\n";
+				arraysCount++;
+				//if (std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)))
+				argsString += "if (compareArrs<"+arrType+","+
+						std::to_string(functionData.size)+">("+arrName+","+functionData.functionName+"(";
+
+			}
+			else
+				argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
 		int argCount=0;
 		for(FunctionArgument arg : functionData.args){
 			if(argCount>0)
@@ -997,6 +1015,16 @@ string generateFooter(FunctionData functionData){
 				else
 					argsString += argStringValue;
 				break;
+
+			/*case FunctionData::RET_VAL_RANGE
+						if (arg.isArray){
+							arrType="string";//add array type
+							argsString += arrName;
+						}
+						else
+							argsString += '"'+argStringValue+'"';
+
+						break;*/
 			}
 			if (arg.isArray)
 			{
