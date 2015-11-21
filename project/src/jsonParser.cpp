@@ -476,12 +476,12 @@ bool jsonParser::isValidFields()
 					case FunctionData::RET_VAL_FLOAT	:
 						for (int i=0; i < results_k_array_size; i++)
 						{
-							if ( !parsedFromString[FUNCTION][FIELD_RESULTS][k][i][0].isArray())
+						/*	if ( !parsedFromString[FUNCTION][FIELD_RESULTS][k][i][0].isArray())
 							{
 								last_error = "error: json format is not correct. Results[" + to_string(k) +
 										"][" + to_string(i) + "] can`t be array";
 								return false;
-							}
+							}*/
 							if ( !parsedFromString[FUNCTION][FIELD_RESULTS][k][ i ].isDouble())
 							{
 								last_error = "error: json format is not correct. Results[" + to_string(i) + "] isn*t float"; //

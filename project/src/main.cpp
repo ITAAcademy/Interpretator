@@ -374,8 +374,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 
 		functionData.functionName = functionValue["function_name"].asString();
 		functionData.returnValueType = functionValue["type"].asInt();
-		functionData.isArray = functionValue["is_array"].asBool();
-		functionData.size = functionValue["size"].asInt();
+		functionData.isArray = functionValue["results"][0].isArray();
+		functionData.size = functionValue["results"][0].size();
 
 		for(JsonValue value:functionValue["results"])
 		{
@@ -419,8 +419,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		{
 			Value argumentValue = functionArgs.get(i,false);
 			FunctionArgument functionArgument;
-			functionArgument.isArray = argumentValue["is_array"].asBool();
-			functionArgument.size = argumentValue["size"].asInt();
+			functionArgument.isArray = argumentValue["value"][0].isArray();
+			functionArgument.size = argumentValue["value"][0].size();
 			functionArgument.type = argumentValue["type"].asInt();
 			functionArgument.name = argumentValue["arg_name"].asString();
 			for(JsonValue value:argumentValue["value"])
@@ -650,7 +650,16 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 
 				if(start == string::npos)
 				{
-					res["result"] = records[0][5];
+					int position = records[0][5].find("exception");
+					if( string::npos != position)
+					{
+						int p = records[0][5].substr(0, position).find_last_of("\n");
+						res["result"] = records[0][5].substr(p + 1);//records[0][5].substr(0, p - 1);
+						res["done"] = false;//records[0][5].substr(p);
+					}
+					else
+						res["result"] = records[0][5];
+
 				}
 				else
 				{
@@ -927,7 +936,7 @@ string generateFooter(FunctionData functionData){
 	footerBody+=arrCompFuncStr;
 	footerBody+="int main(){\n";
 	string argsString;
-	int arraysCount=0;
+	int arraysCount = 0;
 	for(int i = 0; i < functionData.result.size(); i++)
 	{
 
@@ -986,8 +995,7 @@ string generateFooter(FunctionData functionData){
 					argsString += arrName;
 				}
 				else
-					argsString += '"'+argStringValue+'"';
-
+					argsString += argStringValue;
 				break;
 			}
 			if (arg.isArray)
@@ -1086,7 +1094,7 @@ string convertStringToType(string argStringValue, int type, int lang)
 		result += to_bool(argStringValue);
 		break;
 	case FunctionData::RET_VAL_FLOAT:
-		result += std::atof(argStringValue.c_str());
+		result += argStringValue.c_str();
 		break;
 	case FunctionData::RET_VAL_INT:
 		result += argStringValue.c_str();

@@ -144,3 +144,53 @@ JSON sample:
 "lang": "c++"
 }
 
+{
+"operation": "addtask",
+  "etalon": "hff",
+  "name": "test example",
+  "lang": "c++",
+  "task": 269,
+  "function": {
+    "function_name": "function",
+    "type": 1,
+    "results": [10.0, 12.0],
+    "args": 	[
+	{
+      "type": 0,
+      "arg_name": "x",
+      "value": [2, 3]
+    	},
+	{
+      "type": 3,
+      "arg_name": "vasya",
+      "value": ["20", "5"]
+    	}
+		]
+  }
+}
+
+{
+"operation": "addtask",
+  "etalon": "hff",
+  "name": "test example",
+  "lang": "c++",
+  "task": 279,
+  "function": {
+    "function_name": "function",
+    "type": 1,
+    "results": [[10.0, 12.0]],
+    "args": 	[
+	{
+      "type": 1,
+      "arg_name": "x",
+      "value": [[10.0, 12.0]]
+    	},
+	{
+      "type": 3,
+      "arg_name": "vasya",
+      "value": [["20", "5"]]
+    	}
+		]
+  }
+}
+
