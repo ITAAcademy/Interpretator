@@ -374,16 +374,33 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 
 		functionData.functionName = functionValue["function_name"].asString();
 		functionData.returnValueType = functionValue["type"].asInt();
-		functionData.isArray = functionValue["is_array"].asBool();
+		functionData.isArray = jSON.isResultsArray();        // functionValue["is_array"].asBool();
 		functionData.size = functionValue["size"].asInt();
-
+		functionData.isRange = jSON.isResultsRange();
 		for(JsonValue value:functionValue["results"])
 		{
-			if(functionData.isArray == false)///////////////@BAG@
+			if (jSON.isResultsRange())
 			{
-				functionData.result.push_back(value.toStyledString());
+				int val1 = jSON.getRangeFirst();
+				int val2 = jSON.getRangeLast();
 
-				/*switch(type_rezult)
+				string arrString="{";
+				int elmCount =0;
+				for (int j = val1; j <= val2; j++){
+					if (elmCount>0)arrString+=",";
+					arrString += to_string(j);
+
+					elmCount++;
+				}
+				arrString+="}";
+				functionData.result.push_back(arrString);  //___opo
+			}
+			else
+				if(functionData.isArray == false)///////////////@BAG@
+				{
+					functionData.result.push_back(value.toStyledString());
+
+					/*switch(type_rezult)
 				{
 					case FunctionData::RET_VAL_BOOL:
 						functionData.result.push_back(value.asBool());
@@ -399,19 +416,20 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 					break;
 
 					l12("qwe");*/
-			}
-			else{
-				string arrString="{";
-									int elmCount =0;
-									for (int j = 0; j < value.size(); j++){
-										if (elmCount>0)arrString+=",";
-										arrString+=value[j].toStyledString();
+				}
+				else
+				{
+					string arrString="{";
+					int elmCount =0;
+					for (int j = 0; j < value.size(); j++){
+						if (elmCount>0)arrString+=",";
+						arrString+=value[j].toStyledString();
 
-										elmCount++;
-									}
-									arrString+="}";
-									functionData.result.push_back(arrString);
-			}
+						elmCount++;
+					}
+					arrString+="}";
+					functionData.result.push_back(arrString);  //___opo
+				}
 		}
 
 		Value functionArgs = functionValue["args"];
@@ -440,7 +458,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 						elmCount++;
 					}
 					arrString+="}";
-					functionArgument.value.push_back(arrString);
+					functionArgument.value.push_back(arrString); //_opo
 				}
 			}
 			functionData.args.push_back(functionArgument);
@@ -632,7 +650,7 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 				res["warning"] = records[0][6];
 				//////////////////////////////////////////////////NEW//17.11.15
 
-		/*		string result = records[0][5];
+				/*		string result = records[0][5];
 				  smatch m;
 				  regex e ("\\b(sub)([^ ]*)");   // matches words beginning by "sub"
 
@@ -642,7 +660,7 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 				    std::cout << std::endl;
 				    result = m.suffix().str();
 				  }
-*/
+				 */
 				res["testResult"] = JsonValue(arrayValue);
 
 				string part = records[0][5];
@@ -891,9 +909,9 @@ void deleteToken(string tok)
 string generateHeader(FunctionData functionData){
 
 	string functionStr = getStandartInclude(LangCompiler::Flag_CPP) + generationType(functionData.returnValueType, 0);
-			if (functionData.isArray)
-				functionStr+="* ";
-		functionStr	+= "function(";
+	if (functionData.isArray)
+		functionStr+="* ";
+	functionStr	+= "function(";
 	const string space=" ";
 	const char divider=',';
 	int argCount = 0;
@@ -943,7 +961,7 @@ string generateFooter(FunctionData functionData){
 			//argsString += "if (compareArrs("+arrName+","+functionData.functionName+"(";
 
 			//argsString += "if ( std::equal("+arrName+".begin,"+arrName+".end,std::begin("+
-				//	functionData.functionName+"(";
+			//	functionData.functionName+"(";
 		}
 		else
 			argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
