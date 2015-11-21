@@ -72,6 +72,8 @@ class jsonParser {
 
 	bool is_results_array;
 	bool is_results_range;
+
+	int unit_test_num;
 public:
 	bool isResultsArray();
 	bool isResultsRange();

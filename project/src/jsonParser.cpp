@@ -356,6 +356,8 @@ bool jsonParser::isValidFields()
 		}*/
 
 		is_results_array = parsedFromString[FUNCTION][FIELD_RESULTS][0].isArray();
+		unit_test_num = parsedFromString[FUNCTION][FIELD_RESULTS].size();
+
 		if ( !is_results_array )
 		{
 			switch(type_rezult)
@@ -679,10 +681,11 @@ bool jsonParser::isValidFields()
 
 			int values_size = parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE].size();
 
-			if ( values_size < 1 )
+			if ( values_size != unit_test_num )
 			{
 				last_error = "error: json format is not correct. Args[" + to_string(i) +
-						"] values size (" + to_string(values_size) + ") < 1";
+						"] values size (" + to_string(values_size) + ") != results size (" +
+						to_string(unit_test_num) + ")";
 				return false;
 			}
 

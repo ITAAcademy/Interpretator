@@ -394,6 +394,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 				}
 				arrString+="}";
 				functionData.result.push_back(arrString);  //___opo
+				functionData.returnValueType = 0;
+				functionData.isArray = true;
 			}
 			else
 				if(functionData.isArray == false)///////////////@BAG@
@@ -463,16 +465,9 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 			}
 			functionData.args.push_back(functionArgument);
 		}
-
-
-
 		//new code for testcases part
 
 		int valuesCount = 0;
-
-
-
-
 		temp.insert( { valuesCount++, std::to_string(id) });
 		temp.insert( { valuesCount++, name }); //str_with_spec_character(
 		temp.insert( { valuesCount++, str_with_spec_character(generateHeader(functionData))});
@@ -949,22 +944,25 @@ string generateFooter(FunctionData functionData){
 	for(int i = 0; i < functionData.result.size(); i++)
 	{
 
-		if (functionData.isArray){
-			string arrType = functionData.getReturnType();
-			string arrName="array"+std::to_string(arraysCount);
-			string arrayDeclaration=arrType+" "+arrName+"[]="+functionData.result[i];
-			footerBody+=arrayDeclaration+";\n";
-			arraysCount++;
-			//if (std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)))
-			argsString += "if (compareArrs<"+arrType+","+
-					std::to_string(functionData.size)+">("+arrName+","+functionData.functionName+"(";
-			//argsString += "if (compareArrs("+arrName+","+functionData.functionName+"(";
+		/*if (functionData.isRange )
+		{
 
-			//argsString += "if ( std::equal("+arrName+".begin,"+arrName+".end,std::begin("+
-			//	functionData.functionName+"(";
 		}
-		else
-			argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
+		else*/
+			if (functionData.isArray )
+			{
+				string arrType = functionData.getReturnType();
+				string arrName="array"+std::to_string(arraysCount);
+				string arrayDeclaration=arrType+" "+arrName+"[]="+functionData.result[i];
+				footerBody+=arrayDeclaration+";\n";
+				arraysCount++;
+				//if (std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)))
+				argsString += "if (compareArrs<"+arrType+","+
+						std::to_string(functionData.size)+">("+arrName+","+functionData.functionName+"(";
+
+			}
+			else
+				argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
 		int argCount=0;
 		for(FunctionArgument arg : functionData.args){
 			if(argCount>0)
@@ -1007,6 +1005,16 @@ string generateFooter(FunctionData functionData){
 					argsString += '"'+argStringValue+'"';
 
 				break;
+
+			/*case FunctionData::RET_VAL_RANGE
+						if (arg.isArray){
+							arrType="string";//add array type
+							argsString += arrName;
+						}
+						else
+							argsString += '"'+argStringValue+'"';
+
+						break;*/
 			}
 			if (arg.isArray)
 			{
