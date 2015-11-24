@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Хост: localhost
--- Время создания: Ноя 24 2015 г., 22:05
+-- Время создания: Ноя 24 2015 г., 22:23
 -- Версия сервера: 5.5.46-0ubuntu0.14.04.2
 -- Версия PHP: 5.5.9-1ubuntu4.14
 
@@ -42,9 +42,7 @@ CREATE TABLE IF NOT EXISTS `tests_signatures` (
 --
 
 INSERT INTO `tests_signatures` (`task_id`, `lang`, `signature`, `etalon`) VALUES
-(408, 'c++', '{"alpha":"1","beta":"2"}\n', '...'),
-(409, 'c++', '{"alpha":"1","beta":"2"}\n', '...'),
-(410, 'c++', '{"return type":1,"types":[0,0,0,1,1,2,3]}\n', '...');
+(436, 'c++', '{"return type":1,"types":[0,0,0,1,1,2,3]}\n', '...');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

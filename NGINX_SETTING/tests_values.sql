@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Хост: localhost
--- Время создания: Ноя 24 2015 г., 22:05
+-- Время создания: Ноя 24 2015 г., 22:22
 -- Версия сервера: 5.5.46-0ubuntu0.14.04.2
 -- Версия PHP: 5.5.9-1ubuntu4.14
 
@@ -27,25 +27,22 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `tests_values` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `task_id` int(11) NOT NULL,
   `return_value` text NOT NULL,
-  `arguments` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `arguments` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
 
 --
 -- Дамп данных таблицы `tests_values`
 --
 
-INSERT INTO `tests_values` (`task_id`, `return_value`, `arguments`) VALUES
-(409, 'null\n', 'null\n'),
-(409, 'null\n', 'null\n'),
-(409, 'null\n', 'null\n'),
-(409, 'null\n', 'null\n'),
-(409, '[1,2]\n', '[1,2]\n'),
-(409, '[1,2]\n', '[[1],2]\n'),
-(409, '[1,2]\n', '[[1],2]\n'),
-(409, '[1,2]\n', '[[1],2]\n'),
-(410, '[1,2]\n', '[[1],2]\n');
+INSERT INTO `tests_values` (`id`, `task_id`, `return_value`, `arguments`) VALUES
+(1, 412, '[1,2]\n', '[[1],2]\n'),
+(2, 436, '[1,2]\n', '[[1],2]\n'),
+(3, 436, '[1,2]\n', '[[1],2]\n'),
+(4, 436, '[1,2]\n', '[[1],2]\n');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

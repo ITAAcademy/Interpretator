@@ -663,6 +663,7 @@ bool addTestValues(FCGI_Stream &stream, jsonParser &jSON)
 	Json::Value argsValue = jSON.getObject("args",false);
 	std::string args = fastWriter.write(argsValue);
 	vector<string> labl;
+	labl.push_back("id");
 	labl.push_back("task_id");
 	labl.push_back("return_value");
 	labl.push_back("arguments");
@@ -681,9 +682,9 @@ bool taskComp = true;
 
 			vector <map<int, string> > rec;
 			map<int, string> temp;
-			temp.insert( { 0, std::to_string(task)});
-			temp.insert( { 1, str_with_spec_character(returnStr)});
-			temp.insert( { 2, str_with_spec_character(args) });
+			temp.insert( { 1, std::to_string(task)});
+			temp.insert( { 2, str_with_spec_character(returnStr)});
+			temp.insert( { 3, str_with_spec_character(args) });
 
 			//rec.push_back(temp);
 
