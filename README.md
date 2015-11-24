@@ -194,3 +194,21 @@ JSON sample:
   }
 }
 
+operations: 
+addtestssig |for adding test arg types and return type. require fields - task,lang etalon,signature
+addtestsval |for adding test values. require fields - task, return_val, args.
+
+{
+"operation": "addtestsig",
+"task":410,
+"lang":"c++",
+"etalon":"...",
+"return_val":[1,2],
+"args":[[1],2],
+"signature":{
+"arg_types":[0,0,0,1,1,2,3],
+"return type": 1
+}
+}
+
+
