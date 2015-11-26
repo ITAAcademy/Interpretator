@@ -261,7 +261,7 @@ void *receiveTask(void *a)
 			logfile::addLog("Before jSON.isJson()");
 			if (parsingSuccessful)
 				logfile::addLog("Before jSON.isValidFields()");
-			parsingSuccessful = jSON.isValidFields(); //reader.parse( str, parsedFromString, false);// IsJSON
+			//parsingSuccessful = jSON.isValidFields(); //reader.parse( str, parsedFromString, false);// IsJSON
 			logfile::addLog("Before parsing");
 			/*
 			 * ALL OK STARTif (SqlConnectionPool::getInstance().connectToTable(string("results"), labl))
@@ -287,6 +287,16 @@ void *receiveTask(void *a)
 				{
 					if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp)))
 						succsesful = false;
+				}
+				if (operation == "addtestsig")
+				{
+				if(!addTestSignature(stream, jSON))
+				succsesful = false;
+				}
+				if (operation == "addtestval")
+				{
+				if (!addTestValues(stream,jSON))
+					succsesful = false;
 				}
 				if (operation == "result" || operation == "status")
 				{
@@ -582,6 +592,126 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 	// string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
 
 }
+
+bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON)
+{
+	//string session = jSON.getObject("session", false).asString();
+	int task = jSON.getObject("task", false).asInt();
+	string lang = jSON.getObject("lang", false).asString();
+	//string signature = jSON.getObject("tests_signatures",false).asString();
+	string etalon = jSON.getObject("etalon",false).asString();
+	Json::FastWriter fastWriter;
+	Json::Value signatureValue = jSON.getObject("signature",false);
+	std::string signature = fastWriter.write(signatureValue);
+	vector<string> labl;
+	labl.push_back("task_id");
+	labl.push_back("lang");
+	labl.push_back("signature");
+	labl.push_back("etalon");
+
+bool taskComp = true;
+	if (SqlConnectionPool::getInstance().connectToTable(string("tests_signatures"), labl))
+	{
+		l12("no threa2");
+				vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
+						"`task_id`='"+std::to_string(task)+"'");
+				if ((int)records.size()==0)
+					taskComp=true;
+				else
+					taskComp = false;
+
+
+			vector <map<int, string> > rec;
+			map<int, string> temp;
+			temp.insert( { 0, std::to_string(task)});
+			temp.insert( { 1, lang});
+			temp.insert( { 2, str_with_spec_character(signature) });
+			temp.insert( { 3, etalon });
+			//rec.push_back(temp);
+
+			//MyConnectionPool::getInstance().getAllRecordsFromTable();
+			bool res = SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+			//MyConnectionPool::getInstance().tt();
+			if(!taskComp)
+			{
+				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+				JsonValue res;
+				res["status"] = "already exist";
+				stream << res.toStyledString();
+			}
+			else //204
+				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n"
+				<<"success:"<<to_string(res)<<"signature:"<<signature;
+
+
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+	// string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
+
+}
+bool addTestValues(FCGI_Stream &stream, jsonParser &jSON)
+{
+	//string session = jSON.getObject("session", false).asString();
+	int task = jSON.getObject("task", false).asInt();
+	Json::FastWriter fastWriter;
+	Json::Value returnVal = jSON.getObject("return_val", false);
+	string returnStr = fastWriter.write(returnVal);
+	Json::Value argsValue = jSON.getObject("args",false);
+	std::string args = fastWriter.write(argsValue);
+	vector<string> labl;
+	labl.push_back("id");
+	labl.push_back("task_id");
+	labl.push_back("return_value");
+	labl.push_back("arguments");
+
+bool taskComp = true;
+	if (SqlConnectionPool::getInstance().connectToTable(string("tests_values"), labl))
+	{
+		/*l12("no threa2");
+				vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
+						"`task_id`='"+std::to_string(task)+"'");
+				if ((int)records.size()==0)
+					taskComp=true;
+				else
+					taskComp = false;
+*/
+
+			vector <map<int, string> > rec;
+			map<int, string> temp;
+			temp.insert( { 1, std::to_string(task)});
+			temp.insert( { 2, str_with_spec_character(returnStr)});
+			temp.insert( { 3, str_with_spec_character(args) });
+
+			//rec.push_back(temp);
+
+			//MyConnectionPool::getInstance().getAllRecordsFromTable();
+			bool res = SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+			//MyConnectionPool::getInstance().tt();
+			/*if(!taskComp)
+			{
+				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+				JsonValue res;
+				res["status"] = "already exist";
+				stream << res.toStyledString();
+			}
+			else *///204
+				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n" <<"success:"<<res;
+
+
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+	// string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
+
+}
+
 
 /*
  *
