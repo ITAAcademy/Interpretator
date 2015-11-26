@@ -27,7 +27,7 @@ class LangCompiler{
 #define TIME_OUT_NULL 0;
 
 public:
-	enum compilerFlag{ Flag_CPP = 0, Flag_Java = 1, Flag_JS = 2, Flag_PHP = 3};// future type of compiler
+	enum compilerFlag{ Flag_CPP = 0, Flag_Java = 1, Flag_JS = 2, Flag_PHP = 3, Flag_CS = 4 };// future type of compiler
 
 	LangCompiler(int ID);
 

@@ -12,11 +12,17 @@ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 60 --slave 
 Остання робить 4.9 дефолтним компілятором.
 
 
+Щоб компілить С#, треба поставити с#-mono:
+sudo apt-get install mono-mcs
+
+msc file_name.cs // compilation
+mono file_name.exe //run compiled program
+
 
 
 1.	запускаєм термінал
 2.	наступною командою ставимо необхідні для роботи сервера бібліотеки
-3.	sudo apt-get fcgi pthread jsoncpp lmysqlcppconn lmysql-server clang openjdk-7-jdk libmysql++-dev node.js 
+3.	sudo apt-get fcgi pthread jsoncpp lmysqlcppconn lmysql-server clang openjdk-7-jdk libmysql++-dev node.js mono-mcs
 4.	заходимо в директорію з ісходніками і мейкфайлом:  cd /dir..
 5.	запускаєм компіляцію:	 make -f Makefile
 6.	як зібралося, має з*явитися файл test.fcgi
@@ -193,7 +199,7 @@ ii.intita.com
     "function_name": "function",
     "type": 1,
     "results": [[10.0, 12.0]],
-    "args": 	[
+    "args": 	[mono-mcs
 	{
       "type": 1,
       "arg_name": "x",

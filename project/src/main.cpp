@@ -143,6 +143,8 @@ void processTask(int id,Job job) {
 				table = "assignment_js";
 			else if (job.lang == "PHP" || job.lang == "php")
 				table = "assignment_php";
+			else if (job.lang == "C#" || job.lang == "c#" )
+				table = "assignment_cs";
 			else
 				table = "assignment_cpp";
 			if (SqlConnectionPool::getInstance().connectToTable(table, labl))
@@ -164,6 +166,8 @@ void processTask(int id,Job job) {
 				compiler.compile(job.code, true, LangCompiler::Flag_JS);
 			else if (job.lang == "PHP" || job.lang == "php")
 				compiler.compile(job.code, true, LangCompiler::Flag_PHP);
+			else if (job.lang == "C#" || job.lang == "c#" )
+				compiler.compile(job.code, true, LangCompiler::Flag_CS);
 			else
 				compiler.compile(job.code, true);
 
@@ -290,13 +294,13 @@ void *receiveTask(void *a)
 				}
 				if (operation == "addtestsig")
 				{
-				if(!addTestSignature(stream, jSON))
-				succsesful = false;
+					if(!addTestSignature(stream, jSON))
+						succsesful = false;
 				}
 				if (operation == "addtestval")
 				{
-				if (!addTestValues(stream,jSON))
-					succsesful = false;
+					if (!addTestValues(stream,jSON))
+						succsesful = false;
 				}
 				if (operation == "result" || operation == "status")
 				{
@@ -609,39 +613,39 @@ bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON)
 	labl.push_back("signature");
 	labl.push_back("etalon");
 
-bool taskComp = true;
+	bool taskComp = true;
 	if (SqlConnectionPool::getInstance().connectToTable(string("tests_signatures"), labl))
 	{
 		l12("no threa2");
-				vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
-						"`task_id`='"+std::to_string(task)+"'");
-				if ((int)records.size()==0)
-					taskComp=true;
-				else
-					taskComp = false;
+		vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
+				"`task_id`='"+std::to_string(task)+"'");
+		if ((int)records.size()==0)
+			taskComp=true;
+		else
+			taskComp = false;
 
 
-			vector <map<int, string> > rec;
-			map<int, string> temp;
-			temp.insert( { 0, std::to_string(task)});
-			temp.insert( { 1, lang});
-			temp.insert( { 2, str_with_spec_character(signature) });
-			temp.insert( { 3, etalon });
-			//rec.push_back(temp);
+		vector <map<int, string> > rec;
+		map<int, string> temp;
+		temp.insert( { 0, std::to_string(task)});
+		temp.insert( { 1, lang});
+		temp.insert( { 2, str_with_spec_character(signature) });
+		temp.insert( { 3, etalon });
+		//rec.push_back(temp);
 
-			//MyConnectionPool::getInstance().getAllRecordsFromTable();
-			bool res = SqlConnectionPool::getInstance().addRecordsInToTable(temp);
-			//MyConnectionPool::getInstance().tt();
-			if(!taskComp)
-			{
-				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-				JsonValue res;
-				res["status"] = "already exist";
-				stream << res.toStyledString();
-			}
-			else //204
-				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n"
-				<<"success:"<<to_string(res)<<"signature:"<<signature;
+		//MyConnectionPool::getInstance().getAllRecordsFromTable();
+		bool res = SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+		//MyConnectionPool::getInstance().tt();
+		if(!taskComp)
+		{
+			stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+			JsonValue res;
+			res["status"] = "already exist";
+			stream << res.toStyledString();
+		}
+		else //204
+			stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n"
+			<<"success:"<<to_string(res)<<"signature:"<<signature;
 
 
 	}
@@ -668,7 +672,7 @@ bool addTestValues(FCGI_Stream &stream, jsonParser &jSON)
 	labl.push_back("return_value");
 	labl.push_back("arguments");
 
-bool taskComp = true;
+	bool taskComp = true;
 	if (SqlConnectionPool::getInstance().connectToTable(string("tests_values"), labl))
 	{
 		/*l12("no threa2");
@@ -678,20 +682,20 @@ bool taskComp = true;
 					taskComp=true;
 				else
 					taskComp = false;
-*/
+		 */
 
-			vector <map<int, string> > rec;
-			map<int, string> temp;
-			temp.insert( { 1, std::to_string(task)});
-			temp.insert( { 2, str_with_spec_character(returnStr)});
-			temp.insert( { 3, str_with_spec_character(args) });
+		vector <map<int, string> > rec;
+		map<int, string> temp;
+		temp.insert( { 1, std::to_string(task)});
+		temp.insert( { 2, str_with_spec_character(returnStr)});
+		temp.insert( { 3, str_with_spec_character(args) });
 
-			//rec.push_back(temp);
+		//rec.push_back(temp);
 
-			//MyConnectionPool::getInstance().getAllRecordsFromTable();
-			bool res = SqlConnectionPool::getInstance().addRecordsInToTable(temp);
-			//MyConnectionPool::getInstance().tt();
-			/*if(!taskComp)
+		//MyConnectionPool::getInstance().getAllRecordsFromTable();
+		bool res = SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+		//MyConnectionPool::getInstance().tt();
+		/*if(!taskComp)
 			{
 				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 				JsonValue res;
@@ -699,7 +703,7 @@ bool taskComp = true;
 				stream << res.toStyledString();
 			}
 			else *///204
-				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n" <<"success:"<<res;
+		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n" <<"success:"<<res;
 
 
 	}
@@ -1090,20 +1094,20 @@ string generateFooter(FunctionData functionData){
 
 		}
 		else*/
-			if (functionData.isArray )
-			{
-				string arrType = functionData.getReturnType();
-				string arrName="array"+std::to_string(arraysCount);
-				string arrayDeclaration=arrType+" "+arrName+"[]="+functionData.result[i];
-				footerBody+=arrayDeclaration+";\n";
-				arraysCount++;
-				//if (std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)))
-				argsString += "if (compareArrs<"+arrType+","+
-						std::to_string(functionData.size)+">("+arrName+","+functionData.functionName+"(";
+		if (functionData.isArray )
+		{
+			string arrType = functionData.getReturnType();
+			string arrName="array"+std::to_string(arraysCount);
+			string arrayDeclaration=arrType+" "+arrName+"[]="+functionData.result[i];
+			footerBody+=arrayDeclaration+";\n";
+			arraysCount++;
+			//if (std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)))
+			argsString += "if (compareArrs<"+arrType+","+
+					std::to_string(functionData.size)+">("+arrName+","+functionData.functionName+"(";
 
-			}
-			else
-				argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
+		}
+		else
+			argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
 		int argCount=0;
 		for(FunctionArgument arg : functionData.args){
 			if(argCount>0)
@@ -1146,7 +1150,7 @@ string generateFooter(FunctionData functionData){
 					argsString += argStringValue;
 				break;
 
-			/*case FunctionData::RET_VAL_RANGE
+				/*case FunctionData::RET_VAL_RANGE
 						if (arg.isArray){
 							arrType="string";//add array type
 							argsString += arrName;

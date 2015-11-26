@@ -30,29 +30,35 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	string run_str ;
 	switch(flags){
 	case Flag_CPP:
-	code_file_name = "prog" + to_string(thID) + ".out";
-	//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
-	build_str = "clang++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
-			".out 2>&1;	rm ./src/code" + to_string(thID) + ".cpp";
-	run_str = " ./prog" + to_string(thID) + ".out 2>&1;  rm prog" + to_string(thID) + ".out";
-	prog_name = "prog"+to_string(thID)+".out";
-	break;
+		code_file_name = "prog" + to_string(thID) + ".out";
+		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
+		build_str = "clang++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
+				".out 2>&1;	rm ./src/code" + to_string(thID) + ".cpp";
+		run_str = " ./prog" + to_string(thID) + ".out 2>&1;  rm prog" + to_string(thID) + ".out";
+		prog_name = code_file_name;
+		break;
 	case Flag_Java:
 		code_file_name = "Main" + to_string(thID) + ".class";
-			build_str = "cd src; javac Main" + to_string(thID) + ".java -d ../";
-			run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID)+".class";
-			prog_name = "Main"+to_string(thID)+".class";
-			break;
+		build_str = "cd src; javac Main" + to_string(thID) + ".java -d ../";
+		run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID)+".class";
+		prog_name = "Main"+to_string(thID)+".class";
+		break;
 	case Flag_JS:
 		code_file_name = "Main" + to_string(thID) + ".class";
-			build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../";
-			run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID)+".class";
-			prog_name = "Main"+to_string(thID)+".js";
-			break;
+		build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../";
+		run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID)+".class";
+		prog_name = "Main"+to_string(thID)+".js";
+		break;
 	case Flag_PHP:
 		code_file_name = "./src/Main" + to_string(thID) + ".php";
 		build_str = "";
 		run_str = "cd src; php Main" + to_string(thID) + ".php;  ";
+		prog_name = code_file_name;
+		break;
+	case Flag_CS:
+		code_file_name = "Main" + to_string(thID) + ".cs";
+		build_str = "mcs Main" + to_string(thID) ;  // + "; rm " + code_file_name;
+		run_str = "mono Main" + to_string(thID) + ".exe";//;  rm Main" + to_string(thID) + ".exe";
 		prog_name = code_file_name;
 		break;
 	}//java -jar js.jar myscript.js
@@ -75,22 +81,26 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		result.append(getStdoutFromCommand(run_str, 0, &comp_time));
 		logfile::addLog("compute time: " + to_string(comp_time));
 	}
+	else
+	{
+		l12("cLang colpilation: file not exist");
+	}
 	cout.flush();
 	/*
 	 * parse error and result if not found err
 	 */
 	if(flags == Flag_JS)
 	{
-		  if(std::size_t pos = warning_err.find("/var/www/fcgi/src/") != -1)      // position of "live" in str
-		  {
-			  warning_err = warning_err.substr (pos + 18); // 18 - Length of @/var/www/fcgi/src/@
-			  result = " ";
-		  }
-		  else
-		  {
-			  result = warning_err;
-			  warning_err = "";
-		  }
+		if(std::size_t pos = warning_err.find("/var/www/fcgi/src/") != -1)      // position of "live" in str
+		{
+			warning_err = warning_err.substr (pos + 18); // 18 - Length of @/var/www/fcgi/src/@
+			result = " ";
+		}
+		else
+		{
+			result = warning_err;
+			warning_err = "";
+		}
 
 	}
 	if(show)
@@ -116,8 +126,8 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 						 << "    <title>Result!</title>\n"
 						 << "  </head>\n"
 						 << "  <body>\n";*/
-						 	 //cout << "<form><textarea style=\"width: 100%; height: 400px;\">"  << k<< "</textarea></form>";
-						 /*cout << "  </body>\n"
+	//cout << "<form><textarea style=\"width: 100%; height: 400px;\">"  << k<< "</textarea></form>";
+	/*cout << "  </body>\n"
 						 << "</html>\n";*/
 }
 
@@ -126,7 +136,7 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 	// in the future
 	cout.flush();
 	ofstream file;
-		char str[50];
+	char str[50];
 	switch (flags)
 	{
 	case Flag_CPP:
@@ -160,6 +170,16 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 		file.close();
 		cout.flush();
 		break;
+	case Flag_CS:
+		sprintf(str, "src/Main%d.cs\0", thID);
+		file.open(str, fstream::out);
+		if(!file.is_open())
+			return false;
+		cout.flush();
+		file << code;
+		file.close();
+		cout.flush();
+		break;
 
 	}
 
@@ -173,9 +193,9 @@ char* LangCompiler::getSystemOutput(char* cmd){
 	char* ret = NULL;
 	string str = "";
 
-    int fd[2];
-    int old_fd[3];
-    pipe(fd);
+	int fd[2];
+	int old_fd[3];
+	pipe(fd);
 
 
 	old_fd[0] = !STDIN_FILENO;
@@ -188,78 +208,78 @@ char* LangCompiler::getSystemOutput(char* cmd){
 
 	int pid = fork();
 	switch(pid){
-		case 0:
-			close(fd[0]);
-			close(STDOUT_FILENO);
-			close(STDERR_FILENO);
-			dup2(fd[1], STDOUT_FILENO);
-			dup2(fd[1], STDERR_FILENO);
-			system(cmd);
-			close (fd[1]);
-			exit(1);
-			break;
-		case -1:
-			cerr << "GetSystemOutput/fork() error\n" << endl;
-			exit(1);
-		default:
-			close(fd[1]);
-			dup2(fd[0], STDIN_FILENO);
+	case 0:
+		close(fd[0]);
+		close(STDOUT_FILENO);
+		close(STDERR_FILENO);
+		dup2(fd[1], STDOUT_FILENO);
+		dup2(fd[1], STDERR_FILENO);
+		system(cmd);
+		close (fd[1]);
+		exit(1);
+		break;
+	case -1:
+		cerr << "GetSystemOutput/fork() error\n" << endl;
+		exit(1);
+	default:
+		close(fd[1]);
+		dup2(fd[0], STDIN_FILENO);
 
-			while (read(fd[0], buff, buff_size)){
-				str.append(buff);
-				memset(buff, 0, buff_size);
-			}
+		while (read(fd[0], buff, buff_size)){
+			str.append(buff);
+			memset(buff, 0, buff_size);
+		}
 
-			ret = new char (strlen((char*)str.c_str()));
+		ret = new char (strlen((char*)str.c_str()));
 
-			strcpy(ret, (char*)str.c_str());
+		strcpy(ret, (char*)str.c_str());
 
-			waitpid(pid, NULL, 0);
-			close(fd[0]);
+		waitpid(pid, NULL, 0);
+		close(fd[0]);
 	}
 
 	dup2(STDIN_FILENO, old_fd[0]);
 	dup2(STDOUT_FILENO, old_fd[1]);
 	dup2(STDERR_FILENO, old_fd[2]);
 
-    return ret;
+	return ret;
 }
 
 string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double *executionTime)
 {
-   string data;
-   FILE * stream;
-   std::clock_t    start;
-   start = std::clock();
-        // your test
-   //     std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
-   const int max_buffer = 256;
-   char buffer[max_buffer];
+	string data;
+	FILE * stream;
+	std::clock_t    start;
+	start = std::clock();
+	// your test
+	//     std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+	const int max_buffer = 256;
+	char buffer[max_buffer];
 
-   cmd.append(" 2>&1 ");//>/dev/null
-   const long double sysTime = time(0) *1000;
-   //printf("%lf", sysTime);
- //  const long double sysTimeMS = sysTime*1000;
-   stream = popen(cmd.c_str(), "r");
-   if (stream) {
-   while (!feof(stream))
-   {
-	   if (fgets(buffer, max_buffer, stream) != NULL)
-		   data.append(buffer);
-	   if (mTimeOut != 0 && (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) > mTimeOut)
-	   {
-		   data = "timeout";
-		   break;
-	   }
-   }
-   if(executionTime != 0)
-	   executionTime[0] = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
-   logfile::addLog(to_string(time(0)));
-   pclose(stream);
-   }
+	cmd.append(" 2>&1 ");//>/dev/null
+	const long double sysTime = time(0) *1000;
+	//printf("%lf", sysTime);
+	//  const long double sysTimeMS = sysTime*1000;
+	stream = popen(cmd.c_str(), "r");
+	if (stream) {
+		while (!feof(stream))
+		{
+			if (fgets(buffer, max_buffer, stream) != NULL)
+				data.append(buffer);
+			if (mTimeOut != 0 && (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) > mTimeOut)
+			{
+				data = "timeout";
+				break;
+			}
+		}
+		if(executionTime != 0)
+			executionTime[0] = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
+		logfile::addLog(to_string(time(0)));
+		pclose(stream);
+	}
 
-   return data;
-	 /*std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
+	return data;
+	/*std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
 	    if (!pipe) return "ERROR";
 	    char buffer[128];
 	    std::string result = "";
@@ -268,7 +288,7 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
 	            result += buffer;
 	    }
 	    return result;*/
-   }
+}
 
 long double LangCompiler::getTimeOut() const{
 	return timeOut*1000;
@@ -281,12 +301,12 @@ void LangCompiler::setTimeOut(long double timeOut) {
 bool LangCompiler::fileExist( string name )
 {
 	FILE *file;
-	    if (file = fopen(name.c_str(), "r"))
-	    {
-	        fclose(file);
-	        return 1;
-	    }
-	    return 0;
+	if (file = fopen(name.c_str(), "r"))
+	{
+		fclose(file);
+		return 1;
+	}
+	return 0;
 	/*if( access( name.c_str(), F_OK ) != -1 ) {
 	    return 1;
 	} else {
