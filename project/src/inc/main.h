@@ -88,6 +88,8 @@ void show404()
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation);
 bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user);
 bool addTestValues(FCGI_Stream &stream, jsonParser &jSON);
+bool addTests(FCGI_Stream &stream, jsonParser &jSON);
+bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON);
 bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON);
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON);
 bool editTask( FCGI_Stream &stream, jsonParser &jSON);
