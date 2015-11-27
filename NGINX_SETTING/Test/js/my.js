@@ -1,28 +1,10 @@
- var data = {
-  people: [
-    {
-      first:"Jeff",
-      last: "Adams"
-    },
-    {
-      first:"Eugenia",
-      last: "Tyzak"
-    }
-  ]
-};
 
 $( document ).ready(function() {
-$.templates({
-  peopleTmpl: "#peopleTemplate"
-});
+  protoInit();
 
-$.templates.peopleTmpl.link("#people", data);
-
-$("#add").on("click", function() {
-  $.observable(data.people).insert({
-    first:"Amos",
-    last: "Sanchez"
-  });
-});
+ $('.collapsible').collapsible({
+      accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+    });
+$('select').material_select();
 
 });

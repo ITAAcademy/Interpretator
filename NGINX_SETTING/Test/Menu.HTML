@@ -1,51 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Travel - Travel Main Menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Travel - Travel Main Menu</title>
 
-<!-- CSS  -->
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-	rel="stylesheet" />
-<link href="./css/materialize.css" type="text/css" rel="stylesheet"
-	media="screen,projection" />
-<link href="./css/style.css" type="text/css" rel="stylesheet"
-	media="screen,projection" />
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  rel="stylesheet" />
+  <link href="./css/materialize.css" type="text/css" rel="stylesheet"
+  media="screen,projection" />
+  <link href="./css/style.css" type="text/css" rel="stylesheet"
+  media="screen,projection" />
 </head>
 <div th:replace="Head"></div>
-<body class="backgroundImage" onmousewheel="changeColorNav(event)">
+<body class="backgroundImage" >
 	<!-- menu -->
 	<div class=" z-depth-1 container">
-	  <div class="row">
+   <div class="row">
     <div class=" col s12">
       <ul class="tabs">
         <li class="tab col s3"><a href="#params">Params</a></li>
         <li class="tab col s3"><a class="active" href="#values">Values</a></li>
       </ul>
     </div>
-    <div id="params" class="col s12">Test 1</div>
+    <div id="params" class="col s12">
+    <div>
+    <b>Name</b><input type="text"  id="test_arg_name"/><br>
+    <div class="input-field ">
+      <select id="test_arg_subtype" >
+        <option value="Primitive">Primitive</option>
+        <option value="Array">Array</option>
+      </select>
+      <label>Subtype Select</label>
+    </div>
+    <b>Size</b><input type="text" id="test_arg_size"/><br>
+    <div class="input-field ">
+      <select id="test_arg_type" >
+        <option value="Integer">Integer</option>
+        <option value="Float">Float</option>
+        <option value="Boolean">Boolean</option>
+        <option value="String">String</option>
+      </select>
+      <label>Type Select</label>
+    </div>
+    <button id="addPrototype">Add prototype</button>
+  </div>
+    </div>
+    
     <div id="values" class="col s12">
-	
-		  <ul class="collapsible popout" data-collapsible="accordion">
-    <li>
-      <div class="collapsible-header"><i class="material-icons">filter_drama</i>First</div>
-      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-    </li>
-    <li>
-      <div class="collapsible-header"><i class="material-icons">place</i>Second</div>
-      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-    </li>
-    <li>
-      <div class="collapsible-header"><i class="material-icons">whatshot</i>Third</div>
-      <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-    </li>
-  </ul>
-	
-	</div>
+
+      <ul class="collapsible popout" data-collapsible="accordion">
+        <li>
+          <div class="collapsible-header"><i class="material-icons">filter_drama</i>First</div>
+          <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+        </li>
+        <li>
+          <div class="collapsible-header"><i class="material-icons">place</i>Second</div>
+          <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+        </li>
+        <li>
+          <div class="collapsible-header"><i class="material-icons">whatshot</i>Third</div>
+          <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+        </li>
+      </ul>
+
+    </div>
   </div>
   
-	</div>
+</div>
 
 <script src="js/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="jquery.json-2.3.min.js"></script>
@@ -53,20 +76,63 @@
 <script src="js/init.js"></script>
 <script src="js/jsviews.js"></script>
 <script src="js/my.js"></script>
+<script src="js/proto.js"></script>
+
 
 <style>
   .person { padding: 3px; margin: 5px; }
 </style>
 
-<div id="people"></div>
+<div id="prototypes"></div>
 
-<script id="peopleTemplate" type="text/x-jsrender">
-  <button id="add">Add person</button>
-  {^{for people}}
-    <div class="person">
-      {{:first}} <b>{{:last}}</b>
+
+<script id="prototypeTemplate" type="text/x-jsrender">
+
+  <div>
+  <div>
+
+    <div class="input-field ">
+      <select id="test_return_subtype" >
+        <option value="Primitive">Primitive</option>
+        <option value="Array">Array</option>
+      </select>
+      <label>Materialize Select</label>
     </div>
-  {{/for}}
+    
+    <b>Size</b><input type="text" id="test_return_size" data-link="size"/><br>
+    <div class="input-field ">
+      <select id="test_return_type" data-link="type">
+        <option value="Integer">Integer</option>
+        <option value="Float">Float</option>
+        <option value="Boolean">Boolean</option>
+        <option value="String">String</option>
+      </select>
+      <label>Type Select</label>
+    </div>
+    <button id="addTask" href="#" onclick="sendTask()">Add task</button>
+  </div>
+
+    <div >
+     <b>Result type:</b>{{:result.type}}<br/>
+     <b>Result_isArray:</b>{{:result.is_array}}
+
+     <table>
+     <tbody>
+     {^{for args}}
+    
+    <tr>
+      <td>{{:arg_name}} </td>
+    <td>{{:type}}</td>
+    <td>{{:is_array}}</td>
+     </tr>
+    
+    {{/for}}
+    </tbody>
+    </table>
+    
+  </div>
+
+</div>
 </script>
 
 </body>
