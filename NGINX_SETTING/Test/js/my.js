@@ -68,25 +68,25 @@ var json = {
 				"val" : [14, 15]
 			}
 		],
-		"args" : [{
-				"type" : 0,
-				"arg_name" : "x",
-				"value" : [{
-						"val" : [10, 12]
-					}, {
-						"val" : [14, 15]
-					}
-				]
+		"args" : [/*{
+			"type" : 0,
+			"arg_name" : "x",
+			"value" : [{
+			"val" : [10, 12]
 			}, {
-				"type" : 0,
-				"arg_name" : "vasya",
-				"value" : [{
-						"val" : [16, 12]
-					}, {
-						"val" : [13, 15]
-					}
-				]
+			"val" : [14, 15]
 			}
+			]
+			}, {
+			"type" : 0,
+			"arg_name" : "vasya",
+			"value" : [{
+			"val" : [16, 12]
+			}, {
+			"val" : [13, 15]
+			}
+			]
+			}*/
 		]
 	}
 }
@@ -100,11 +100,10 @@ $(document).ready(function () {
 	$.templates({
 		peopleTmpl : "#peopleTemplate"
 	});
-
-	$.templates.peopleTmpl.link("#list", obj, changeHandler);
+	protoInit();
+	//$.templates.peopleTmpl.link("#list", obj, changeHandler);
 
 	$("#add").on("click", function () {
-
 		console.log("size" + json.function .args.length)
 			for (var i = 0; i < json.function .args.length;
 				i++) {
@@ -116,22 +115,25 @@ $(document).ready(function () {
 						"val" : [10, 22]
 					});
 
+					$('.collapsible').collapsible({
+						accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+					});
+
 	})
 
 	$("#save").on("click", function () {
 
-	console.log(JSON.stringify(json));
+		console.log(JSON.stringify(json));
 		$.ajax({
 			type : 'post',
 			url : 'http://192.168.144.130/',
 			data : JSON.stringify(json),
+			 contentType:"application/json; charset=utf-8",
 			//crossDomain:true,
-		//	response : 'json',
-			//dataType : 'jsonp',
-			error : function (xhr, status, error) {
-						for(var key in xhr.responseText){
-        console.log(key);
-   }
+			//	response : 'json',
+			dataType : 'text',
+			error : function (xhr) {
+				console.log(xhr.responseText);
 			},
 			success : function (data) {
 				alert(data);
@@ -144,13 +146,12 @@ $(document).ready(function () {
 	$('.collapsible').collapsible({
 		accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
 	});
+	$('select').material_select();
 
 });
 
 function changeHandler(ev, eventArgs) {
-	$('.collapsible').collapsible({
-		accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
-	});
+
 	//alert(obj.json.function.results);
 
 }

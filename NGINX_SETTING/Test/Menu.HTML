@@ -23,7 +23,30 @@
 						<li class="tab col s3"><a class="active" href="#values">Values</a></li>
 					</ul>
 				</div>
-				<div id="params" class="col s12">Test 1</div>
+				<div id="params" class="col s12">
+				    <div>
+    <b>Name</b><input type="text"  id="test_arg_name"/><br>
+    <div class="input-field ">
+      <select id="test_arg_subtype" >
+        <option value="Primitive">Primitive</option>
+        <option value="Array">Array</option>
+      </select>
+      <label>Subtype Select</label>
+    </div>
+    <b>Size</b><input type="text" id="test_arg_size"/><br>
+    <div class="input-field ">
+      <select id="test_arg_type" >
+        <option value="0">Integer</option>
+        <option value="1">Float</option>
+        <option value="2">Boolean</option>
+        <option value="3">String</option>
+      </select>
+      <label>Type Select</label>
+    </div>
+    <button id="addPrototype">Add prototype</button>
+  </div>
+				</div>
+				
 				<div id="values" class="col s12">
 
 					<ul id="list" class="collapsible popout" data-collapsible="accordion">
@@ -40,7 +63,6 @@
 							<div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
 						</li>
 					</ul>
-
 				</div>
 			</div>
 		</div>
@@ -79,6 +101,61 @@
 					{{/for}}	
 				</script>
 
+<div id="prototypes"></div>
+
+
+<script id="prototypeTemplate" type="text/x-jsrender">
+
+  <div>
+  <div>
+
+    <div class="input-field ">
+      <select id="test_return_subtype" >
+        <option value="Primitive">Primitive</option>
+        <option value="Array">Array</option>
+      </select>
+      <label>Materialize Select</label>
+    </div>
+    
+    <b>Size</b><input type="text" id="test_return_size" data-link="size"/><br>
+    <div class="input-field ">
+
+      <select id="test_return_type" data-link="{:result.type:}">
+        <option value="0">Integer</option>
+        <option value="1">Float</option>
+        <option value="2">Boolean</option>
+        <option value="3">String</option>
+		
+      </select>
+      <label>Type Select</label>
+    </div>
+    <button id="addTask" href="#" onclick="sendTask()">Add task</button>
+  </div>
+
+    <div >
+     <b>Result type:</b>{{:result.type}}<br/>
+     <b>Result_isArray:</b>{{:result.is_array}}
+
+     <table>
+     <tbody>
+     {^{for args}}
+    
+    <tr>
+      <td>{{:arg_name}} </td>
+    <td>{{:type}}</td>
+    <td>{{:is_array}}</td>
+     </tr>
+    
+    {{/for}}
+    </tbody>
+    </table>
+    
+  </div>
+
+</div>
+</script>
+
+
 				<div id="add" class="fixed-action-btn" style="top: 45px; right: 24px;">
 					<a class="btn-floating btn-large red">
 						<i class="large material-icons">add</i>
@@ -97,6 +174,7 @@
 				<script src="js/init.js"></script>
 				<script src="js/jsviews.js"></script>
 				<script src="js/my.js"></script>
+				<script src="js/proto.js"></script>
 
 				<style>
 					.person { padding: 3px; margin: 5px; }
