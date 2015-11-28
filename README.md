@@ -9,14 +9,22 @@ sudo apt-get update
 sudo apt-get install g++-4.9
 sudo apt-get install gcc-4.8 g++-4.8
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
-Остання робить 4.9 дефолтним компілятором.
+Остання робить 4.9 дефолтним компілятором. якщо не зробить, то вводимо
+sudo update-alternatives --config gcc
+і вибираєм версію 4.9
 
+
+Щоб компілить С#, треба поставити с#-mono:
+sudo apt-get install mono-mcs mono-xsp2 mono-xsp2-base
+
+gmcs file_name.cs // compilation
+mono file_name.exe //run compiled program
 
 
 
 1.	запускаєм термінал
 2.	наступною командою ставимо необхідні для роботи сервера бібліотеки
-3.	sudo apt-get fcgi pthread jsoncpp lmysqlcppconn lmysql-server clang openjdk-7-jdk libmysql++-dev node.js 
+3.	sudo apt-get fcgi pthread jsoncpp lmysqlcppconn lmysql-server clang openjdk-7-jdk libmysql++-dev node.js mono-mcs
 4.	заходимо в директорію з ісходніками і мейкфайлом:  cd /dir..
 5.	запускаєм компіляцію:	 make -f Makefile
 6.	як зібралося, має з*явитися файл test.fcgi
@@ -193,7 +201,7 @@ ii.intita.com
     "function_name": "function",
     "type": 1,
     "results": [[10.0, 12.0]],
-    "args": 	[
+    "args": 	[mono-mcs
 	{
       "type": 1,
       "arg_name": "x",
