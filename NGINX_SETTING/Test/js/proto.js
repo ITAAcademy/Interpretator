@@ -11,41 +11,47 @@ var prototypes_data = {
 		"size" : 12
 	},
 
-	"args" : [{
-			"type" : 0,
-			"arg_name" : "x",
-			"is_array" : true,
-			"size" : 12
-		}, {
-			"type" : 0,
-			"arg_name" : "vasya",
-			"is_array" : true,
-			"size" : 12
-		}
+	"args" : [
 	]
 
 }
+ function removeItem(index){
+    $.observable(prototypes_data.args).remove(index);
+    $('select').material_select();
+}
+app = {
+    selectedIndex: null,
+    prototypes_data: prototypes_data,
+    select: function(index) {
+      if (this.selectedIndex !== index) {
+        $.observable(this).setProperty("selectedIndex", index);
+      }
+    }
+  };
 
-function cloneObject(obj) {
-	if (obj === null || typeof obj !== 'object') {
-		return obj;
-	}
+function clone(obj) {
+    if (null == obj || "object" != typeof obj) return obj;
+    var copy = obj.constructor();
+    for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    }
+    return copy;
 }
 
 function sendTask() {
-	signature = prototypes_data;
+<<<<<<< c7aaf4c296052a2cd6cb4a42a86e6adf021b1ac2
+	signature = JSON.parse(JSON.stringify(prototypes_data));
 	var value = json.function .args;
+=======
+	signature = prototypes_data;
+	var value = json.function.args;
+>>>>>>> e2b6917dc5ba7424219c21104110f3a17a164e38
 	//debugger;
 	for (var i = 0; i < prototypes_data.args.length; i++) {
 		value[i] = {
 			"type" : prototypes_data.args[i].type,
 			"arg_name" : prototypes_data.args[i].arg_name,
-			"value" : [{
-					"val" : [10, 12]
-				}, {
-					"val" : [14, 15]
-				}
-			]
+			"value" : []
 		};
 
 	}
@@ -55,8 +61,7 @@ function sendTask() {
 		"json" : json
 	}
 
-	$.templates.peopleTmpl.link("#list", obj, changeHandler);
-	setTimeout(function() { $('.collapsible').collapsible({
+	setTimeout(function() { $.templates.peopleTmpl.link("#list", obj, changeHandler); $('.collapsible').collapsible({
 		accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
 	}); }, 1000);
 	
@@ -69,15 +74,22 @@ function protoInit() {
 		prototypeTmpl : "#prototypeTemplate"
 	});
 
+
 	$.templates.prototypeTmpl.link("#prototypes", prototypes_data);
+
+
+  $("#removeArg").on("click",function() {
+   
+  });
 
 	$("#addPrototype").on("click", function () {
 		$.observable(prototypes_data.args).insert({
-			"type" : $('#test_arg_type').val(),
+			"type" : parseInt($('#test_arg_type').val()),
 			"arg_name" : "" + $('#test_arg_name').val(),
 			"is_array" : $('#test_arg_subtype').val() === "Array",
 			"size" : $('#test_arg_size').val()
 
 		});
+     $('select').material_select();
 	});
 }
