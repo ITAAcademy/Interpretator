@@ -1,30 +1,30 @@
+
 <!DOCTYPE html>
 <html>
-<head>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Travel - Travel Main Menu</title>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Travel - Travel Main Menu</title>
 
-	<!-- CSS  -->
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-	rel="stylesheet" />
-	<link href="./css/materialize.css" type="text/css" rel="stylesheet"
-	media="screen,projection" />
-	<link href="./css/style.css" type="text/css" rel="stylesheet"
-	media="screen,projection" />
-</head>
-<body>
-	<!-- menu -->
-	<div class=" z-depth-1 container">
-		<div class="row " >
-			<div class=" col s12">
-				<ul class="tabs">
-					<li class="tab col s3"><a href="#params">Params</a></li>
-					<li class="tab col s3"><a class="active" href="#values">Values</a></li>
-				</ul>
-			</div>
-			<div id="params" class="col s6  offset-s3">
-				<div>
+		<!-- CSS  -->
+		<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+				rel="stylesheet" />
+		<link href="./css/materialize.css" type="text/css" rel="stylesheet"
+				media="screen,projection" />
+		<link href="./css/style.css" type="text/css" rel="stylesheet"
+				media="screen,projection" />
+	</head>
+	<body>
+		<!-- menu -->
+		<div class=" z-depth-1 container">
+			<div class="row">
+				<div class=" col s12">
+					<ul class="tabs">
+						<li class="tab col s3"><a href="#params">Params</a></li>
+						<li class="tab col s3"><a class="active" href="#values">Values</a></li>
+					</ul>
+				</div>
+							<div id="params" class="col s6  offset-s3">
 					<b>Name</b><input type="text"  id="test_arg_name"/><br>
 					<div class="input-field ">
 						<select id="test_arg_subtype" >
@@ -46,9 +46,27 @@
 					<button id="addPrototype">Add prototype</button>
 					<div id="prototypes"></div>
 				</div>
-			</div>
+				
+				<div id="values" class="col s12">
 
-<<<<<<< c7aaf4c296052a2cd6cb4a42a86e6adf021b1ac2
+					<ul id="list" class="collapsible popout" data-collapsible="accordion">
+						<li>
+							<div class="collapsible-header"><i class="material-icons">filter_drama</i>First</div>
+							<div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+						</li>
+						<li class = "active">
+							<div class="collapsible-header"><i class="material-icons \ ">place</i>Second</div>
+							<div id="people" class="collapsible-body "><p>Lorem ipsum dolor sit amet.</p></div>
+						</li>
+						<li>
+							<div class="collapsible-header"><i class="material-icons">whatshot</i>Third</div>
+							<div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
 		<script id="peopleTemplate" type="text/x-jsrender">
 
 			{^{for json.function.results }}
@@ -78,66 +96,15 @@
 									<label for="value">Last Name</label>
 								</div>
 							</div>
-=======
-			<div id="values" class="col s12">
-
-				<ul id="list" class="collapsible popout" data-collapsible="accordion">
-					<li>
-						<div class="collapsible-header"><i class="material-icons">filter_drama</i>First</div>
-						<div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-					</li>
-					<li class = "active">
-						<div class="collapsible-header"><i class="material-icons \ ">place</i>Second</div>
-						<div id="people" class="collapsible-body "><p>Lorem ipsum dolor sit amet.</p></div>
-					</li>
-					<li>
-						<div class="collapsible-header"><i class="material-icons">whatshot</i>Third</div>
-						<div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</div>
-
-	<script id="peopleTemplate" type="text/x-jsrender">
-
-		{^{for json.function.results }}
-		<li class = "active">
-			<div class="collapsible-header"><i class="material-icons \ ">place</i>Task number: {{:#getIndex()}}</div>
-			<div class="collapsible-body ">
-				{^{for ~root.signature.args ~parent=#getIndex()}}
-				<div class="person">
-					<div class="row s6">
-						<div class="input-field col s3">
-							<label class="blue-text text-darken-2">Name: {{:arg_name}}, type: {{:type}}</label>
 						</div>
-						<div class="input-field col s3">
-							<input id="value" type="text" class="validate" data-link="{to:~root.json.function.args[#index].value[~parent].val:strToArr}">
-							<label for="value">Last Name {{:~parent}}</label>
->>>>>>> e2b6917dc5ba7424219c21104110f3a17a164e38
-						</div>
-					</div>
-				</div>
-				{{/for}}
-				<hr/>
-				<div class="row s6">
-					<div class="input-field col s3">
-						<label class="blue-text text-darken-2">Result type: {{:~root.signature.result.type}} = </label>
-					</div>
-					<div class="input-field col s3">
-						<input class="browser-default" data-link="{to:~root.json.function.results[#index].val:strToArr}" id="value" type="text" class="validate" value=" ">
-						<label for="value">Last Name</label>
-					</div>
-				</div>
-			</div>
-		</li>
-		{{/for}}	
-	</script>
+					</li>
+					{{/for}}	
+				</script>
+
+<div id="prototypes"></div>
 
 
-
-
-	<script id="prototypeTemplate" type="text/x-jsrender">
+<script id="prototypeTemplate" type="text/x-jsrender">
 
 		<div>
 			<div>
@@ -203,29 +170,30 @@
 			</script>
 
 
-			<div id="add" class="fixed-action-btn" style="height:70px; top: 45px; right: 24px;">
-				<a class="btn-floating btn-large red">
-					<i class="large material-icons">add</i>
-				</a>
-			</div>
-			<div id="save" class="fixed-action-btn " style="height:70px;top: 140px; right: 24px;">
-				<a class="btn-floating btn-large teal">
-					<i class="large material-icons">offline_pin</i>
-				</a>
-			</div>
+
+				<div id="add" class="fixed-action-btn" style="top: 45px; right: 24px;">
+					<a class="btn-floating btn-large red">
+						<i class="large material-icons">add</i>
+					</a>
+				</div>
+				<div id="save" class="fixed-action-btn " style="top: 140px; right: 24px;">
+					<a class="btn-floating btn-large teal">
+						<i class="large material-icons">offline_pin</i>
+					</a>
+				</div>
 
 
-			<script src="js/jquery-2.1.1.min.js"></script>
-			<script type="text/javascript" src="jquery.json-2.3.min.js"></script>
-			<script src="js/materialize.js"></script>
-			<script src="js/init.js"></script>
-			<script src="js/jsviews.js"></script>
-			<script src="js/my.js"></script>
-			<script src="js/proto.js"></script>
+				<script src="js/jquery-2.1.1.min.js"></script>
+				<script type="text/javascript" src="jquery.json-2.3.min.js"></script>
+				<script src="js/materialize.js"></script>
+				<script src="js/init.js"></script>
+				<script src="js/jsviews.js"></script>
+				<script src="js/my.js"></script>
+				<script src="js/proto.js"></script>
 
-			<style>
-				.person { padding: 3px; margin: 5px; }
-			</style>
+				<style>
+					.person { padding: 3px; margin: 5px; }
+				</style>
 
-		</body>
+			</body>
 		</html>

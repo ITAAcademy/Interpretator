@@ -15,27 +15,29 @@ var prototypes_data = {
 	]
 
 }
- function removeItem(index){
-    $.observable(prototypes_data.args).remove(index);
-    $('select').material_select();
+function removeItem(index) {
+	$.observable(prototypes_data.args).remove(index);
+	$('select').material_select();
 }
 app = {
-    selectedIndex: null,
-    prototypes_data: prototypes_data,
-    select: function(index) {
-      if (this.selectedIndex !== index) {
-        $.observable(this).setProperty("selectedIndex", index);
-      }
-    }
-  };
+	selectedIndex : null,
+	prototypes_data : prototypes_data,
+	select : function (index) {
+		if (this.selectedIndex !== index) {
+			$.observable(this).setProperty("selectedIndex", index);
+		}
+	}
+};
 
 function clone(obj) {
-    if (null == obj || "object" != typeof obj) return obj;
-    var copy = obj.constructor();
-    for (var attr in obj) {
-        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
-    }
-    return copy;
+	if (null == obj || "object" != typeof obj)
+		return obj;
+	var copy = obj.constructor();
+	for (var attr in obj) {
+		if (obj.hasOwnProperty(attr))
+			copy[attr] = obj[attr];
+	}
+	return copy;
 }
 
 function sendTask() {
@@ -45,8 +47,8 @@ function sendTask() {
 	//debugger;
 	for (var i = 0; i < prototypes_data.args.length; i++) {
 		value[i] = {
-			"type" : prototypes_data.args[i].type,
-			"arg_name" : prototypes_data.args[i].arg_name,
+			"type" : JSON.parse(JSON.stringify(prototypes_data.args[i].type)),
+			"arg_name" : JSON.parse(JSON.stringify(prototypes_data.args[i].arg_name)),
 			"value" : []
 		};
 
@@ -56,11 +58,14 @@ function sendTask() {
 		"signature" : signature,
 		"json" : json
 	}
+	setTimeout(function () {
+		$('.collapsible').collapsible({
+			accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+		});
+	}, 1000);
 
-	setTimeout(function() { $.templates.peopleTmpl.link("#list", obj, changeHandler); $('.collapsible').collapsible({
-		accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
-	}); }, 1000);
-	
+	$.templates.peopleTmpl.link("#list", obj, changeHandler);
+
 	console.log(JSON.stringify(json));
 
 }
@@ -70,13 +75,9 @@ function protoInit() {
 		prototypeTmpl : "#prototypeTemplate"
 	});
 
-
 	$.templates.prototypeTmpl.link("#prototypes", prototypes_data);
 
-
-  $("#removeArg").on("click",function() {
-   
-  });
+	$("#removeArg").on("click", function () {});
 
 	$("#addPrototype").on("click", function () {
 		$.observable(prototypes_data.args).insert({
@@ -86,6 +87,6 @@ function protoInit() {
 			"size" : $('#test_arg_size').val()
 
 		});
-     $('select').material_select();
+		$('select').material_select();
 	});
 }
