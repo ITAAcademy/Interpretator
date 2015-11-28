@@ -11,41 +11,29 @@ var prototypes_data = {
 		"size" : 12
 	},
 
-	"args" : [{
-			"type" : 0,
-			"arg_name" : "x",
-			"is_array" : true,
-			"size" : 12
-		}, {
-			"type" : 0,
-			"arg_name" : "vasya",
-			"is_array" : true,
-			"size" : 12
-		}
+	"args" : [
 	]
 
 }
 
-function cloneObject(obj) {
-	if (obj === null || typeof obj !== 'object') {
-		return obj;
-	}
+function clone(obj) {
+    if (null == obj || "object" != typeof obj) return obj;
+    var copy = obj.constructor();
+    for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    }
+    return copy;
 }
 
 function sendTask() {
-	signature = prototypes_data;
+	signature = JSON.parse(JSON.stringify(prototypes_data));
 	var value = json.function .args;
 	//debugger;
 	for (var i = 0; i < prototypes_data.args.length; i++) {
 		value[i] = {
 			"type" : prototypes_data.args[i].type,
 			"arg_name" : prototypes_data.args[i].arg_name,
-			"value" : [{
-					"val" : [10, 12]
-				}, {
-					"val" : [14, 15]
-				}
-			]
+			"value" : []
 		};
 
 	}
@@ -55,8 +43,7 @@ function sendTask() {
 		"json" : json
 	}
 
-	$.templates.peopleTmpl.link("#list", obj, changeHandler);
-	setTimeout(function() { $('.collapsible').collapsible({
+	setTimeout(function() { $.templates.peopleTmpl.link("#list", obj, changeHandler); $('.collapsible').collapsible({
 		accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
 	}); }, 1000);
 	
@@ -73,7 +60,7 @@ function protoInit() {
 
 	$("#addPrototype").on("click", function () {
 		$.observable(prototypes_data.args).insert({
-			"type" : $('#test_arg_type').val(),
+			"type" : parseInt($('#test_arg_type').val()),
 			"arg_name" : "" + $('#test_arg_name').val(),
 			"is_array" : $('#test_arg_subtype').val() === "Array",
 			"size" : $('#test_arg_size').val()

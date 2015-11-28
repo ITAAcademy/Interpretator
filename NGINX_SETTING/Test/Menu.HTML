@@ -80,7 +80,7 @@
 								<label class="blue-text text-darken-2">Name: {{:arg_name}}, type: {{:type}}</label>
 							</div>
 							<div class="input-field col s3">
-								<input id="value" type="text" class="validate" data-link="{to:~root.json.function.args[#index].value[~parent].val:strToArr}">
+								<input id="value" type="text" class="validate" data-link="{to:~root.json.function.args[#index].value[~parent].val:strToInt}">
 									<label for="value">Last Name {{:~parent}}</label>
 								</div>
 							</div>
@@ -92,7 +92,7 @@
 								<label class="blue-text text-darken-2">Result type: {{:~root.signature.result.type}} = </label>
 							</div>
 							<div class="input-field col s3">
-								<input class="browser-default" data-link="{to:~root.json.function.results[#index].val:strToArr}" id="value" type="text" class="validate" value=" ">
+								<input class="browser-default" data-link="{to:~root.json.function.results[#index].val:strToInt}" id="value" type="text" class="validate" value=" ">
 									<label for="value">Last Name</label>
 								</div>
 							</div>

@@ -34,18 +34,18 @@ $.views.converters({
 
 var signature = {
 	"result" : {
-		"type" : 1,
+		"type" : 0,
 		"is_array" : true,
 		"size" : 12
 	},
 
 	"args" : [{
-			"type" : 1,
+			"type" : 0,
 			"arg_name" : "x",
 			"is_array" : true,
 			"size" : 12
 		}, {
-			"type" : 3,
+			"type" : 0,
 			"arg_name" : "vasya",
 			"is_array" : true,
 			"size" : 12
@@ -58,15 +58,11 @@ var json = {
 	"etalon" : "hff",
 	"name" : "test example",
 	"lang" : "c++",
-	"task" : 279,
+	"task" : 282,
 	"function" : {
 		"function_name" : "function",
 		"type" : 0,
-		"results" : [{
-				"val" : [10, 12]
-			}, {
-				"val" : [14, 15]
-			}
+		"results" : [
 		],
 		"args" : [/*{
 			"type" : 0,
@@ -108,11 +104,11 @@ $(document).ready(function () {
 			for (var i = 0; i < json.function .args.length;
 				i++) {
 				$.observable(json.function .args[i].value).insert({
-						"val" : [10, 22]
+						"val" : 0
 					});
 			}
 				$.observable(json.function .results).insert({
-						"val" : [10, 22]
+						"val" : 0
 					});
 
 					$('.collapsible').collapsible({
