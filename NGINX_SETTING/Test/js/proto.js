@@ -39,13 +39,9 @@ function clone(obj) {
 }
 
 function sendTask() {
-<<<<<<< c7aaf4c296052a2cd6cb4a42a86e6adf021b1ac2
+
 	signature = JSON.parse(JSON.stringify(prototypes_data));
 	var value = json.function .args;
-=======
-	signature = prototypes_data;
-	var value = json.function.args;
->>>>>>> e2b6917dc5ba7424219c21104110f3a17a164e38
 	//debugger;
 	for (var i = 0; i < prototypes_data.args.length; i++) {
 		value[i] = {
