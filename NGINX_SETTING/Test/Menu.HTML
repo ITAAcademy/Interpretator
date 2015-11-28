@@ -157,7 +157,7 @@
 								</td>
 								<td> <input value="{{:is_array}}" id="result_arg_is_array{{:#index}}" 
 									data-link="is_array" type="text"></td>
-									<td><span  id ="removeArg" onclick="removeItem({{:#index}});" class="material-icons">delete</span></td>
+									<td><span  id ="removeArg" onclick="removeItem(" + {{:#getIndex()}} + ");" class="material-icons">delete</span></td>
 								</tr>
 
 								{{/for}}
