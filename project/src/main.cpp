@@ -214,7 +214,9 @@ void processTask(int id,Job job) {
 			logfile::addLog(to_string(id) + " Stop compiler");
 		}
 		else {
-			logfile::addLog(to_string(id)+" Json format is not correct!!! \n::::::::::::::::::::::::\n");
+
+			string error = to_string(id)+"Error: Can`t connect to results table \n";
+			logfile::addLog(error);
 		}
 	}
 }

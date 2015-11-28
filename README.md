@@ -9,13 +9,15 @@ sudo apt-get update
 sudo apt-get install g++-4.9
 sudo apt-get install gcc-4.8 g++-4.8
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
-Остання робить 4.9 дефолтним компілятором.
+Остання робить 4.9 дефолтним компілятором. якщо не зробить, то вводимо
+sudo update-alternatives --config gcc
+і вибираєм версію 4.9
 
 
 Щоб компілить С#, треба поставити с#-mono:
-sudo apt-get install mono-mcs
+sudo apt-get install mono-mcs mono-xsp2 mono-xsp2-base
 
-msc file_name.cs // compilation
+gmcs file_name.cs // compilation
 mono file_name.exe //run compiled program
 
 

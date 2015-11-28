@@ -40,25 +40,25 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	case Flag_Java:
 		code_file_name = "Main" + to_string(thID) + ".class";
 		build_str = "cd src; javac Main" + to_string(thID) + ".java -d ../";
-		run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID)+".class";
+		run_str = " java Main" + to_string(thID) + " 2>&1 ;  rm Main" + to_string(thID)+".class";
 		prog_name = "Main"+to_string(thID)+".class";
 		break;
 	case Flag_JS:
 		code_file_name = "Main" + to_string(thID) + ".class";
 		build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../";
-		run_str = " java Main" + to_string(thID) + ";  rm Main" + to_string(thID)+".class";
+		run_str = " java Main" + to_string(thID) + " 2>&1 ;  rm Main" + to_string(thID)+".class";
 		prog_name = "Main"+to_string(thID)+".js";
 		break;
 	case Flag_PHP:
 		code_file_name = "./src/Main" + to_string(thID) + ".php";
 		build_str = "";
-		run_str = "cd src; php Main" + to_string(thID) + ".php;  ";
+		run_str = "cd src; php Main" + to_string(thID) + ".php 2>&1 ;  ";
 		prog_name = code_file_name;
 		break;
 	case Flag_CS:
-		code_file_name = "Main" + to_string(thID) + ".cs";
-		build_str = "mcs Main" + to_string(thID) ;  // + "; rm " + code_file_name;
-		run_str = "mono Main" + to_string(thID) + ".exe";//;  rm Main" + to_string(thID) + ".exe";
+		code_file_name = "./src/Main" + to_string(thID) + ".exe";
+		build_str = "gmcs ./src/Main" + to_string(thID) + ".cs";
+		run_str = " mono ./src/Main" + to_string(thID) + ".exe 2>&1 " + "; rm ./src/Main" + to_string(thID) + ".exe";
 		prog_name = code_file_name;
 		break;
 	}//java -jar js.jar myscript.js
@@ -73,7 +73,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	in.append("rm prog.out;");
 	in.append("fi;");*/
 	long double  comp_time;
-	warning_err.append(getStdoutFromCommand(build_str, 0, &comp_time));
+	warning_err.append(getStdoutFromCommand(build_str+" 2>&1 ", 0, &comp_time));
 	logfile::addLog("build time: " + to_string(comp_time) + warning_err);
 	cout.flush();
 	if(fileExist(prog_name))
@@ -256,7 +256,7 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
 	const int max_buffer = 256;
 	char buffer[max_buffer];
 
-	cmd.append(" 2>&1 ");//>/dev/null
+	//cmd.append(" 2>&1 ");//>/dev/null
 	const long double sysTime = time(0) *1000;
 	//printf("%lf", sysTime);
 	//  const long double sysTimeMS = sysTime*1000;
