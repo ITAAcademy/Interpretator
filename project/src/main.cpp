@@ -226,6 +226,7 @@ static map<string, Token> TokenList;
 
 void *receiveTask(void *a)
 {
+	l12("void *receiveTask(void *a) ");
 	ThreadArguments argumento = ((ThreadArguments *) a)[0];
 
 	int rc, i;
@@ -305,15 +306,15 @@ void *receiveTask(void *a)
 						succsesful = false;
 				}
 				if (operation == "add_tests")
-								{
-								if (!addTests(stream,jSON))
-									succsesful = false;
-								}
+				{
+					if (!addTests(stream,jSON))
+						succsesful = false;
+				}
 				if (operation == "retreive_tests")
-												{
-												if (!retreiveTests(stream,jSON))
-													succsesful = false;
-												}
+				{
+					if (!retreiveTests(stream,jSON))
+						succsesful = false;
+				}
 				if (operation == "result" || operation == "status")
 				{
 					if(!result_status(stream, jSON, operation))
@@ -363,7 +364,11 @@ void *receiveTask(void *a)
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 {
 	if ( !jSON.isValidFields() )
+	{
+		stream << jSON.getLastError();
+		stream.close();
 		return false;
+	}
 	string lang = jSON.getObject("lang", false).asString();
 	string table;
 	if (lang == "c++" || lang == "C++")
@@ -739,7 +744,7 @@ bool addTests(FCGI_Stream &stream, jsonParser &jSON)
 	labl.push_back("task_id");
 	labl.push_back("json");
 
-bool taskComp = true;
+	bool taskComp = true;
 	if (SqlConnectionPool::getInstance().connectToTable(string("tests"), labl))
 	{
 		/*l12("no threa2");
@@ -749,17 +754,17 @@ bool taskComp = true;
 					taskComp=true;
 				else
 					taskComp = false;
-*/
+		 */
 
-			vector <map<int, string> > rec;
-			map<int, string> temp;
-			temp.insert( { 0, std::to_string(task)});
-			temp.insert( { 1, str_with_spec_character(json)});
-			//rec.push_back(temp);
-			//MyConnectionPool::getInstance().getAllRecordsFromTable();
-			bool res = SqlConnectionPool::getInstance().addRecordsInToTable(temp);
-			//MyConnectionPool::getInstance().tt();
-			/*if(!taskComp)
+		vector <map<int, string> > rec;
+		map<int, string> temp;
+		temp.insert( { 0, std::to_string(task)});
+		temp.insert( { 1, str_with_spec_character(json)});
+		//rec.push_back(temp);
+		//MyConnectionPool::getInstance().getAllRecordsFromTable();
+		bool res = SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+		//MyConnectionPool::getInstance().tt();
+		/*if(!taskComp)
 			{
 				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 				JsonValue res;
@@ -767,7 +772,7 @@ bool taskComp = true;
 				stream << res.toStyledString();
 			}
 			else *///204
-				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n" <<"success:"<<res;
+		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n" <<"success:"<<res;
 
 
 	}
@@ -787,7 +792,7 @@ bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON)
 	vector<string> labl;
 	labl.push_back("task_id");
 
-bool taskComp = true;
+	bool taskComp = true;
 	if (SqlConnectionPool::getInstance().connectToTable(string("tests"), labl))
 	{
 		/*l12("no threa2");
@@ -797,19 +802,19 @@ bool taskComp = true;
 					taskComp=true;
 				else
 					taskComp = false;
-*/
+		 */
 
 		vector<map<int, string> > records = SqlConnectionPool::getInstance().getAllRecordsFromTable("`task_id`='"+std::to_string(task)+"'");
-			//MyConnectionPool::getInstance().tt();
+		//MyConnectionPool::getInstance().tt();
 		bool recordsEmpty = records.size() == 0;
 		if (recordsEmpty)stream << "Status: 204\r\n Content-type: text/html\r\n" << "\r\n" <<"task with this id doesn't excist";
 		else
-			{
-				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-				JsonValue res;
-				res["json"] = records[0][1];
-				stream << res.toStyledString();
-			}
+		{
+			stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+			JsonValue res;
+			res["json"] = records[0][1];
+			stream << res.toStyledString();
+		}
 
 	}
 	else
@@ -1154,25 +1159,72 @@ void deleteToken(string tok)
 
 string generateHeader(FunctionData functionData){
 
-	string functionStr = getStandartInclude(LangCompiler::Flag_CPP) + generationType(functionData.returnValueType, 0);
+	string headerStr = getStandartInclude(LangCompiler::Flag_CPP) + "\n";
+
+	string functionStr = generationType(functionData.returnValueType, 0);
 	if (functionData.isArray)
-		functionStr+="* ";
+		functionStr += "* ";
 	functionStr	+= "function(";
 	const string space=" ";
 	const char divider=',';
 	int argCount = 0;
 
+	int array_cnt = 0;
+	/*for(int i = 0; i < functionData.result.size(); i++)
+	{
+		string arrType = functionData.getReturnType();
+		string arrName="array"+std::to_string(array_cnt);
+		if (functionData.isArray )
+		{
+			string arrayDeclaration=arrType+" " + arrName + "[]=" + functionData.result[i];
+			headerStr += arrayDeclaration + ";\n";
+		}
+
+		for(FunctionArgument arg : functionData.args)
+		if (arg.isArray)
+		{
+			string argStringValue =arg.value[i];
+			string arrayDeclaration;
+			arrayDeclaration += arrType+" " + arrName + "[]=" + argStringValue.c_str();
+			headerStr += arrayDeclaration + ";\n";
+		}
+		array_cnt++;
+	}*/
+
+
+	/*headerStr += functionData.getReturnType() + " result";
+	if (functionData.isArray )
+	{
+		headerStr  += "[" + to_string(functionData.size) + "]";
+	}
+	headerStr += ";\n";*/
+
 	for(FunctionArgument arg : functionData.args){
-		if (argCount>0)functionStr +=divider;
-		functionStr += generationType(arg.type, 0);// 0 == C++
-		functionStr+=space;
-		functionStr+=arg.name;
-		if(arg.isArray)functionStr+="[]";
+		if (argCount>0)
+			functionStr += divider;
+		string type = generationType(arg.type, 0);// 0 == C++
+		functionStr += type + space;
+
+
+		//headerStr += type + space +  arg.name;
+		if ( arg.isArray )
+		{
+			functionStr += "*" + arg.name;
+			//headerStr  += "[" + to_string(arg.size) + "]";
+		}
+		else
+		{
+			functionStr += "&" + arg.name;
+		}
+		//headerStr += ";\n";
 		argCount++;
 	}
 	//close prototype and open body of function
 	functionStr += "){\n";
-	return functionStr;
+	headerStr += functionStr;
+	/*l12("Yura: 2202:");
+	l12(headerStr);*/
+	return headerStr;
 }
 bool to_bool(std::string const& s) {
 	return s != "0";
@@ -1185,43 +1237,128 @@ string generateFooter(FunctionData functionData){
 	//C++
 	string arrCompFuncStr="template<typename T,int size>\n\
 	bool compareArrs(T arr1[size],T arr2[size]){\n\
-		for (int i=0;i<size;i++){if (arr1[i]!=arr2[i])return false;}\
+		for (int i=0;i<size;i++){if (strcmp(typeid(T).name(), \"f\") == 0)\
+		{	float diff = arr1[i] - arr2[i];	if (abs(arr1[i] - arr2[i] ) > 0.009) return false;\
+		} else	if (arr1[i]!=arr2[i])return false;}\
 			return true;\n\
 	}";
 	footerBody+=arrCompFuncStr;
 	footerBody+="int main(){\n";
+
+	footerBody += functionData.getReturnType() + " result";
+	if (functionData.isArray )
+	{
+		footerBody  += "[" + to_string(functionData.size) + "]";
+	}
+	footerBody += ";\n";
+	for(FunctionArgument arg : functionData.args)
+	{
+		footerBody += generationType(arg.type, 0) + " " +  arg.name;
+		if ( arg.isArray )
+		{
+			footerBody  += "[" + to_string(arg.size) + "]";
+		}
+		footerBody += ";\n";
+	}
+
+
 	string argsString;
 	int arraysCount = 0;
 	for(int i = 0; i < functionData.result.size(); i++)
 	{
 
+		if ( !functionData.isArray)
+		{
+			footerBody += "result = " + functionData.result[i] + ";\n";
+		}
+		else
+		{
+			//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
+			string values_u = functionData.result[i].substr(1, functionData.result[i].size() - 2 );
+			string indiv_value = "";
+			//values_u[0] = " ";
+			int v_size = values_u.size();
+			//values_u[v_size - 1] = " ";
+			int rez_size = 0;
+			for (int h = 0; h < v_size; h++)
+			{
+				if (values_u[h] != ',')
+					indiv_value += values_u[h];
+				else
+				{
+					footerBody += "result[" + to_string(rez_size) + "] = " + indiv_value + ";\n";
+					indiv_value = "";
+					rez_size++;
+				}
+			}
+			if (indiv_value.size() != 0)
+				footerBody += "result[" + to_string(rez_size) + "] = " + indiv_value + ";\n";
+
+			//for (int u=0; u < arg.value[i].size(); u++)		footerBody += arg.name +"[" + to_string(u) + "] = " + arg.value[i] + ";\n";
+		}
 		/*if (functionData.isRange )
 		{
 
 		}
 		else*/
+
 		if (functionData.isArray )
 		{
 			string arrType = functionData.getReturnType();
-			string arrName="array"+std::to_string(arraysCount);
-			string arrayDeclaration=arrType+" "+arrName+"[]="+functionData.result[i];
-			footerBody+=arrayDeclaration+";\n";
+			string arrName = "array"+std::to_string(arraysCount);
+			/*string arrayDeclaration=arrType+" "+arrName+"[]="+functionData.result[i];
+			footerBody+=arrayDeclaration+";\n";*/
+
 			arraysCount++;
 			//if (std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)))
 			argsString += "if (compareArrs<"+arrType+","+
-					std::to_string(functionData.size)+">("+arrName+","+functionData.functionName+"(";
+					std::to_string(functionData.size)+">(result,"+functionData.functionName+"(";
 
 		}
 		else
-			argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP) + " == " +  functionData.functionName+"(";//open function call body;
-		int argCount=0;
-		for(FunctionArgument arg : functionData.args){
-			if(argCount>0)
-				argsString+= divider;
+			argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP)
+			+ " == " +  functionData.functionName+"(";//open function call body;
 
-			string argStringValue =arg.value[i];
+
+		int argCount = 0;
+		for(FunctionArgument arg : functionData.args){
+			if ( !arg.isArray )
+			{
+				footerBody += arg.name + " = " + arg.value[i] + ";\n";
+			}
+			else
+			{
+				//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
+				string values_u = arg.value[i].substr(1, arg.value[i].size() - 2 );
+				string indiv_value = "";
+				//values_u[0] = " ";
+				int v_size = values_u.size();
+				//values_u[v_size - 1] = " ";
+				int arg_size = 0;
+				for (int h = 0; h < v_size; h++)
+				{
+					if (values_u[h] != ',')
+						indiv_value += values_u[h];
+					else
+					{
+						footerBody += arg.name +"[" + to_string(arg_size) + "] = " + indiv_value + ";\n";
+						indiv_value = "";
+						arg_size++;
+					}
+				}
+				if (indiv_value.size() != 0)
+					footerBody += arg.name +"[" + to_string(arg_size) + "] = " + indiv_value + ";\n";
+
+				//for (int u=0; u < arg.value[i].size(); u++)		footerBody += arg.name +"[" + to_string(u) + "] = " + arg.value[i] + ";\n";
+			}
+
+
+			if(argCount>0)
+				argsString += divider;
+
+			string argStringValue = arg.value[i];
 			string arrType;
-			string arrName="array"+std::to_string(arraysCount);
+			string arrName=  arg.name;//    "array"+std::to_string(arraysCount);
 			switch(arg.type){
 			case FunctionData::RET_VAL_BOOL:
 				if (arg.isArray){
@@ -1253,7 +1390,7 @@ string generateFooter(FunctionData functionData){
 					argsString += arrName;
 				}
 				else
-					argsString += argStringValue;
+					argsString += arrName;//argStringValue;
 				break;
 
 				/*case FunctionData::RET_VAL_RANGE
@@ -1268,9 +1405,9 @@ string generateFooter(FunctionData functionData){
 			}
 			if (arg.isArray)
 			{
-				string arrayDeclaration;
+				/*string arrayDeclaration;
 				arrayDeclaration+=arrType+" "+arrName+"[]="+argStringValue.c_str();
-				footerBody+=arrayDeclaration+";\n";
+				footerBody+=arrayDeclaration+";\n";*/
 				arraysCount++;
 			}
 
@@ -1290,6 +1427,8 @@ string generateFooter(FunctionData functionData){
 	footerBody += "\n}";
 	//C++
 
+	l12("Yura:: 00001");
+	l12(footerBody);
 	return footerBody;
 }
 
@@ -1344,7 +1483,11 @@ string getStandartInclude(int lang)
 	case LangCompiler::Flag_CPP:{
 		include = "#include <iostream>\n\
 		#include <cstdlib>\n\
-		#include <algorithm>\n using namespace std;\n";
+		#include <algorithm>\n using namespace std;\n\
+		#include <cxxabi.h>\n\
+		#include <cmath>\n\
+		#include <stdio.h>\n\
+		#include <string.h>";
 
 	}
 	case LangCompiler::Flag_Java:{

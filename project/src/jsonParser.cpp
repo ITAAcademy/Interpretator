@@ -17,6 +17,11 @@ bool jsonParser::isResultsArray()
 	return is_results_array;
 }
 
+int jsonParser::getResultsArraySize()
+{
+	return results_array_size;
+}
+
 bool jsonParser::isResultsRange()
 {
 	return is_results_range;
@@ -493,6 +498,8 @@ bool jsonParser::isValidFields()
 		else
 		{
 			int results_0_array_size  = parsedFromString[FUNCTION][FIELD_RESULTS][0].size();
+			results_array_size = results_0_array_size;
+
 
 			if ( results_0_array_size < 1)
 			{

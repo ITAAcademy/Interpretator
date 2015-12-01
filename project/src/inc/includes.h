@@ -62,10 +62,15 @@ struct FunctionData{
 	int returnValueType = RET_VAL_INT;
 	bool isArray = false;
 	bool isRange = false;
+	int result_array_size;
 	int size=0;
 	string functionName;
 	vector<string> result;
 	vector<FunctionArgument> args;
+	int getResultArraySize()
+	{
+		return result_array_size;
+	}
 	string getReturnType(){
 		switch(returnValueType){
 		case RET_VAL_INT:

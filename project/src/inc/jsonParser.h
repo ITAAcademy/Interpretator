@@ -71,11 +71,13 @@ class jsonParser {
 	int range_last;
 
 	bool is_results_array;
+	int results_array_size;
 	bool is_results_range;
 
 	int unit_test_num;
 public:
 	bool isResultsArray();
+	int getResultsArraySize();
 	bool isResultsRange();
 	string getLastError();
 	jsonParser(string json);
