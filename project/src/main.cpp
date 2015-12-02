@@ -496,6 +496,25 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 					functionArgument.value.push_back(arrString); //_opo
 				}
 			}
+			for(JsonValue modvalue:argumentValue["etalon_value"])
+			{
+				if(functionArgument.isArray == false)
+					functionArgument.etalonValue.push_back(modvalue.toStyledString());
+				else{
+					string arrString="{";
+					int elmCount =0;
+					for (int j = 0; j < modvalue.size(); j++){
+						if (elmCount>0)arrString+=",";
+						arrString+=modvalue[j].toStyledString();
+
+						elmCount++;
+					}
+					arrString+="}";
+					functionArgument.etalonValue.push_back(arrString); //_opo
+				}
+			}
+
+
 			functionData.args.push_back(functionArgument);
 		}
 		//new code for testcases part
@@ -1160,7 +1179,6 @@ void deleteToken(string tok)
 string generateHeader(FunctionData functionData){
 
 	string headerStr = getStandartInclude(LangCompiler::Flag_CPP) + "\n";
-
 	string functionStr = generationType(functionData.returnValueType, 0);
 	if (functionData.isArray)
 		functionStr += "* ";
@@ -1233,7 +1251,7 @@ string generateFooter(FunctionData functionData){
 	string footerBody = "return 0;}\n";//Close function body
 	string space=" ";
 	char divider=',';
-
+	string modifiedArgComparsion;
 	//C++
 	string arrCompFuncStr="template<typename T,int size>\n\
 	bool compareArrs(T arr1[size],T arr2[size]){\n\
@@ -1253,17 +1271,27 @@ string generateFooter(FunctionData functionData){
 	footerBody += ";\n";
 	for(FunctionArgument arg : functionData.args)
 	{
-		footerBody += generationType(arg.type, 0) + " " +  arg.name;
+		string argumentDeclaration="",argumentEtalonDeclaration="";
+		argumentDeclaration = generationType(arg.type, 0) + " " +  arg.name;
+		argumentEtalonDeclaration =  generationType(arg.type,0) + " " + arg.name + ETALON_ENDING;
+		//footerBody +=
 		if ( arg.isArray )
 		{
-			footerBody  += "[" + to_string(arg.size) + "]";
+			argumentDeclaration  += "[" + to_string(arg.size) + "]";
+			argumentEtalonDeclaration += "[" + to_string(arg.size) + "]";
 		}
-		footerBody += ";\n";
+		argumentDeclaration += ";\n";
+		argumentEtalonDeclaration += ";\n";
+
+		//add etalon variables
+		footerBody += argumentDeclaration + argumentEtalonDeclaration;
+
 	}
 
 
 	string argsString;
-	int arraysCount = 0;
+	string etalongArgsString;
+
 	for(int i = 0; i < functionData.result.size(); i++)
 	{
 
@@ -1305,12 +1333,12 @@ string generateFooter(FunctionData functionData){
 		if (functionData.isArray )
 		{
 			string arrType = functionData.getReturnType();
-			string arrName = "array"+std::to_string(arraysCount);
 			/*string arrayDeclaration=arrType+" "+arrName+"[]="+functionData.result[i];
 			footerBody+=arrayDeclaration+";\n";*/
 
-			arraysCount++;
 			//if (std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)))
+
+
 			argsString += "if (compareArrs<"+arrType+","+
 					std::to_string(functionData.size)+">(result,"+functionData.functionName+"(";
 
@@ -1319,51 +1347,92 @@ string generateFooter(FunctionData functionData){
 			argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP)
 			+ " == " +  functionData.functionName+"(";//open function call body;
 
-
+		string argumentDefinition;
+		string argumentEtalonDefinition;
 		int argCount = 0;
+		string variablesCorrect = "bool variablesCorrect = ";
 		for(FunctionArgument arg : functionData.args){
 			if ( !arg.isArray )
 			{
-				footerBody += arg.name + " = " + arg.value[i] + ";\n";
+				string currentArgDef = arg.name + " = " + arg.value[i] + ";\n";
+				string currentArgEtalonDef = arg.name + string(ETALON_ENDING) + string(" = ") +
+						arg.etalonValue[i] + string(";\n"); //etalon value for argument
+				argumentDefinition += currentArgDef;
+				argumentEtalonDefinition += currentArgEtalonDef;
+				variablesCorrect += "("+currentArgDef+"=="+currentArgEtalonDef+")";
+				if (argCount!=functionData.args.size()-1)variablesCorrect+=" && ";
+				else variablesCorrect+=";";
 			}
 			else
 			{
 				//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
 				string values_u = arg.value[i].substr(1, arg.value[i].size() - 2 );
+				string etalons_values_u = arg.etalonValue[i].substr(1, arg.etalonValue[i].size() - 2 );
 				string indiv_value = "";
+				string etal_value = "";
 				//values_u[0] = " ";
 				int v_size = values_u.size();
+				int v_etalons_size = etalons_values_u.size();
 				//values_u[v_size - 1] = " ";
 				int arg_size = 0;
+				int etalon_arg_size = 0;
 				for (int h = 0; h < v_size; h++)
 				{
 					if (values_u[h] != ',')
 						indiv_value += values_u[h];
 					else
 					{
-						footerBody += arg.name +"[" + to_string(arg_size) + "] = " + indiv_value + ";\n";
+						argumentDefinition += arg.name +"[" + to_string(arg_size) + "] = " + indiv_value + ";\n";
 						indiv_value = "";
 						arg_size++;
 					}
 				}
-				if (indiv_value.size() != 0)
-					footerBody += arg.name +"[" + to_string(arg_size) + "] = " + indiv_value + ";\n";
+				for (int h = 0; h < v_etalons_size; h++)
+				{
+					if (etalons_values_u[h] != ',')
+						etal_value += values_u[h];
+					else
+					{
+						argumentEtalonDefinition += arg.name+ETALON_ENDING+"[" + to_string(etalon_arg_size) + "] = " + etal_value + ";\n";
+
+						etal_value = "";
+						etalon_arg_size++;
+					}
+				}
+				variablesCorrect+= "compareArrs<"+arg.getType()+","+
+						std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_ENDING+")";
+				if (argCount!=functionData.args.size()-1)variablesCorrect+=" && ";
+			//	else variablesCorrect+=");";
+
+
+				if (indiv_value.size() != 0){
+					argumentDefinition += arg.name +"[" + to_string(arg_size) + "] = " + indiv_value + ";\n";
+				}
+				if (etal_value.size() != 0){
+					argumentEtalonDefinition  += arg.name+ETALON_ENDING +"[" + to_string(etalon_arg_size) + "] = " + etal_value + ";\n";
+				}
 
 				//for (int u=0; u < arg.value[i].size(); u++)		footerBody += arg.name +"[" + to_string(u) + "] = " + arg.value[i] + ";\n";
 			}
 
 
 			if(argCount>0)
+			{
 				argsString += divider;
+				//etalongArgsString += divider;
+			}
 
 			string argStringValue = arg.value[i];
+			string etalonStringValue = arg.etalonValue[i];
 			string arrType;
 			string arrName=  arg.name;//    "array"+std::to_string(arraysCount);
+			string etalonArrName = arrName+ETALON_ENDING;
 			switch(arg.type){
 			case FunctionData::RET_VAL_BOOL:
 				if (arg.isArray){
 					arrType="bool";//add array type
 					argsString += arrName;
+					//etalongArgsString += etalonArrName;
 				}
 				else
 					argsString += to_bool(argStringValue);
@@ -1372,6 +1441,7 @@ string generateFooter(FunctionData functionData){
 				if (arg.isArray){
 					arrType="float";//add array type
 					argsString += arrName;
+					//etalongArgsString += etalonArrName;
 				}
 				else
 					argsString += std::atof(argStringValue.c_str());
@@ -1380,6 +1450,7 @@ string generateFooter(FunctionData functionData){
 				if (arg.isArray){
 					arrType="int";//add array type
 					argsString += arrName;
+					//etalongArgsString += etalonArrName;
 				}
 				else
 					argsString += argStringValue.c_str();
@@ -1388,9 +1459,13 @@ string generateFooter(FunctionData functionData){
 				if (arg.isArray){
 					arrType="string";//add array type
 					argsString += arrName;
+					//etalongArgsString += etalonArrName;
 				}
 				else
+				{
 					argsString += arrName;//argStringValue;
+					//etalongArgsString += etalonArrName;
+				}
 				break;
 
 				/*case FunctionData::RET_VAL_RANGE
@@ -1403,19 +1478,21 @@ string generateFooter(FunctionData functionData){
 
 						break;*/
 			}
-			if (arg.isArray)
-			{
-				/*string arrayDeclaration;
-				arrayDeclaration+=arrType+" "+arrName+"[]="+argStringValue.c_str();
-				footerBody+=arrayDeclaration+";\n";*/
-				arraysCount++;
-			}
+
 
 			//footerBody+=arg.value[0];//@BAD@
 			argCount++;
 		}
-		argsString+="))";
-		if (functionData.isArray)argsString+=")";
+		footerBody += argumentDefinition;
+		footerBody += argumentEtalonDefinition;
+		argsString.insert(0,variablesCorrect+";");
+		argsString+=")";
+
+		if (functionData.isArray){
+			argsString+=")&& variablesCorrect";
+//TODO
+		}
+			argsString+=")";
 		argsString+="\n";//closefunction call body;
 		argsString += "std::cout << \" @" + to_string(i) + "@\";\n";
 		argsString += "else\n";

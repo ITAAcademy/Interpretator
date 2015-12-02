@@ -24,6 +24,7 @@ int main(void)
             ++count, getenv("SERVER_HOSTNAME"));
   }
 }*/
+#define ETALON_ENDING "_etalon"
 #include "includes.h"
 #include "fcgio.h"
 #include <sstream>

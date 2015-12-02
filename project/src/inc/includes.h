@@ -51,11 +51,33 @@ struct Token{
 	long jobId;
 };
 struct FunctionArgument{
+	enum ValueTypes {VAL_INT = 0,VAL_FLOAT  = 1,VAL_BOOL = 2,VAL_STRING = 3,VAL_RANGE = 4, VAL_Last = 5};
 	int type=0;
 	bool isArray = false;
 	int size=0;
+	vector<string> etalonValue;
 	vector<string> value;
 	string name;
+	string getType(){
+			switch(type){
+			case VAL_INT:
+				return "int";
+				break;
+			case VAL_FLOAT:
+				return "float";
+				break;
+			case VAL_BOOL:
+				return "bool";
+				break;
+			case VAL_STRING:
+				return "string";
+				break;
+			case VAL_RANGE:
+				return "range";
+				break;
+			}
+			return "";
+		}
 };
 struct FunctionData{
 	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3,RET_VAL_RANGE = 4, Last = 5};
