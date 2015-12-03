@@ -80,6 +80,7 @@ public:
 	FCGI_Stream operator << ( int num);
 	FCGI_Stream operator << ( double num);
 	void operator >> (char *res);
+	string toString();
 
 	//void getRequestContent();
 private:

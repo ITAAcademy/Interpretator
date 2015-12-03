@@ -16,6 +16,9 @@ void ErrorResponder::selectStream(FCGI_Stream *stream)
 }
 void ErrorResponder::showError(int nErrorCode, str sMoreText)
 {
+	//string my_error = stream->toString();
+
+	//sMoreText += my_error;
     switch(nErrorCode)
     {
      case 400:
@@ -467,7 +470,8 @@ void ErrorResponder::showError(int nErrorCode, str sMoreText)
              << "</body></html>";
     break;
     default:
-    	stream->operator <<( "Status: " + to_string(nErrorCode) +"\r\n")
+    	//stream->operator <<( "Status: " + to_string(nErrorCode) +"\r\n")
+    	stream->operator << ("Status: ") << nErrorCode << "\r\n"
              << "Content-type: text/html\r\n"
              << "\r\n"
              << " <html><head>"
@@ -476,6 +480,19 @@ void ErrorResponder::showError(int nErrorCode, str sMoreText)
              << "<h1>" + sMoreText + "</h1>"
              << "<hr>"
              << "</body></html>";
+
+           /*  stream->operator <<("Status: ") << (nErrorCode) + "\r\n"
+             		<< "Content-type: text/html\r\n"
+             		<< "\r\n"
+             		<< " <html><head>"
+             		<< "<title>" + to_string(nErrorCode) + " Bad Request</title>"
+             		<< "</head><body>"
+             		<< "<h1>Bad Request</h1>"
+             		<< "<p>"
+             		<< sMoreText
+             		<< "</p>"
+             		<< "<hr>"
+             		<< "</body></html>";*/
 
     }
 }

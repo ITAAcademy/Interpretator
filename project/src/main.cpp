@@ -290,51 +290,58 @@ void *receiveTask(void *a)
 					if(!addNewtask(stream, jSON))
 						succsesful = false;
 				}
-				if (operation == "start")
-				{
-					if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp)))
-						succsesful = false;
-				}
-				if (operation == "addtestsig")
-				{
-					if(!addTestSignature(stream, jSON))
-						succsesful = false;
-				}
-				if (operation == "addtestval")
-				{
-					if (!addTestValues(stream,jSON))
-						succsesful = false;
-				}
-				if (operation == "add_tests")
-				{
-					if (!addTests(stream,jSON))
-						succsesful = false;
-				}
-				if (operation == "retreive_tests")
-				{
-					if (!retreiveTests(stream,jSON))
-						succsesful = false;
-				}
-				if (operation == "result" || operation == "status")
-				{
-					if(!result_status(stream, jSON, operation))
-						succsesful = false;
-				}
-
-				if (operation == "getToken")
-				{
-					if(!generationToken(stream, jSON, TokenList))
-						succsesful = false;
-				}
-				if (operation == "getFromToken")
-				{
-					if(!getFromToken(stream, jSON, TokenList))
-						succsesful = false;
-				}
+				else
+					if (operation == "start")
+					{
+						if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp)))
+							succsesful = false;
+					}
+					else
+						if (operation == "addtestsig")
+						{
+							if(!addTestSignature(stream, jSON))
+								succsesful = false;
+						}
+						else
+							if (operation == "addtestval")
+							{
+								if (!addTestValues(stream,jSON))
+									succsesful = false;
+							}
+							else
+								if (operation == "add_tests")
+								{
+									if (!addTests(stream,jSON))
+										succsesful = false;
+								}
+								else
+									if (operation == "retreive_tests")
+									{
+										if (!retreiveTests(stream,jSON))
+											succsesful = false;
+									}
+									else
+										if (operation == "result" || operation == "status")
+										{
+											if(!result_status(stream, jSON, operation))
+												succsesful = false;
+										}
+										else
+											if (operation == "getToken")
+											{
+												if(!generationToken(stream, jSON, TokenList))
+													succsesful = false;
+											}
+											else
+												if (operation == "getFromToken")
+												{
+													if(!getFromToken(stream, jSON, TokenList))
+														succsesful = false;
+												}
 
 				if(!succsesful)
 				{
-					errorResponder.showError(505, "DataBaseERR");
+					errorResponder.showError(505, jSON.getLastError());
 					stream.close();
 					continue;
 				}
@@ -343,7 +350,7 @@ void *receiveTask(void *a)
 			else
 			{
 				logfile::addLog(id,	"Json format is not correct!!! \n::::::::::::::::::::::::\n" + stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
-				errorResponder.showError(400, jSON.getLastError());
+				errorResponder.showError(400, "Json format is not correct!!!");
 				stream.close();
 				continue;
 			}
@@ -365,8 +372,9 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 {
 	if ( !jSON.isValidFields() )
 	{
-		stream << jSON.getLastError();
-		stream.close();
+		//string error = jSON.getLastError();
+		//stream << error;
+		//stream.close();
 		return false;
 	}
 	string lang = jSON.getObject("lang", false).asString();
@@ -1248,20 +1256,30 @@ bool to_bool(std::string const& s) {
 	return s != "0";
 }
 string generateFooter(FunctionData functionData){
-	string footerBody = "return 0;}\n";//Close function body
+	string footerBody = "return 0;\n}\n";//Close function body
 	string space=" ";
 	char divider=',';
 	string modifiedArgComparsion;
 	//C++
 	string arrCompFuncStr="template<typename T,int size>\n\
-	bool compareArrs(T arr1[size],T arr2[size]){\n\
-		for (int i=0;i<size;i++){if (strcmp(typeid(T).name(), \"f\") == 0)\
-		{	float diff = arr1[i] - arr2[i];	if (abs(arr1[i] - arr2[i] ) > 0.009) return false;\
-		} else	if (arr1[i]!=arr2[i])return false;}\
+	bool compareArrs(T arr1[size],T arr2[size])\n\
+		{\n\
+		for (int i=0;i<size;i++)\n\
+		{\n\
+		if (strcmp(typeid(T).name(), \"f\") == 0)\n\
+		{\n	\
+		if (abs(arr1[i] - arr2[i] ) > 0.009) \n\
+			return false;\n\
+		}\n \
+		else	\n\
+			if (arr1[i] != arr2[i])\n\
+				return false;\n\
+			}\n\
 			return true;\n\
-	}";
+	}\n";
 	footerBody+=arrCompFuncStr;
-	footerBody+="int main(){\n";
+	footerBody+="int main()\n\
+			{\n";
 
 	footerBody += functionData.getReturnType() + " result";
 	if (functionData.isArray )
@@ -1339,12 +1357,12 @@ string generateFooter(FunctionData functionData){
 			//if (std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)))
 
 
-			argsString += "if (compareArrs<"+arrType+","+
+			argsString += "\n if (compareArrs<"+arrType+","+
 					std::to_string(functionData.size)+">(result,"+functionData.functionName+"(";
 
 		}
 		else
-			argsString += "if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP)
+			argsString += "\n if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP)
 			+ " == " +  functionData.functionName+"(";//open function call body;
 
 		string argumentDefinition;
@@ -1402,7 +1420,7 @@ string generateFooter(FunctionData functionData){
 				variablesCorrect+= "compareArrs<"+arg.getType()+","+
 						std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_ENDING+")";
 				if (argCount!=functionData.args.size()-1)variablesCorrect+=" && ";
-			//	else variablesCorrect+=");";
+				//	else variablesCorrect+=");";
 
 
 				if (indiv_value.size() != 0){
@@ -1490,9 +1508,9 @@ string generateFooter(FunctionData functionData){
 
 		if (functionData.isArray){
 			argsString+=")&& variablesCorrect";
-//TODO
+			//TODO
 		}
-			argsString+=")";
+		argsString+=")";
 		argsString+="\n";//closefunction call body;
 		argsString += "std::cout << \" @" + to_string(i) + "@\";\n";
 		argsString += "else\n";
