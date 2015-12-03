@@ -410,6 +410,11 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		functionData.size = functionValue["results"][0].size();
 		functionData.isRange = jSON.isResultsRange();
 
+		for (Value arg_index : functionValue["checkable_args_indexes"])
+		{
+			functionData.checkableArgsIndexes.push_back(arg_index.asInt());
+		}
+
 		for(JsonValue value:functionValue["results"])
 		{
 			if (jSON.isResultsRange())
@@ -1269,6 +1274,8 @@ string generateFooter(FunctionData functionData){
 		footerBody  += "[" + to_string(functionData.size) + "]";
 	}
 	footerBody += ";\n";
+	string correctArgumentsConditionName = "variablesCorrect";
+	string argumentsEqualToEtalonConditionName = "variablesCorrectByEtalon";
 	for(FunctionArgument arg : functionData.args)
 	{
 		string argumentDeclaration="",argumentEtalonDeclaration="";
@@ -1284,9 +1291,12 @@ string generateFooter(FunctionData functionData){
 		argumentEtalonDeclaration += ";\n";
 
 		//add etalon variables
-		footerBody += argumentDeclaration + argumentEtalonDeclaration;
-
+		footerBody+=argumentDeclaration + argumentEtalonDeclaration;
 	}
+	string conditionsVariableDeclaration = "bool " +argumentsEqualToEtalonConditionName+","
+					+correctArgumentsConditionName+";\n";
+	footerBody+= conditionsVariableDeclaration;
+
 
 
 	string argsString;
@@ -1349,22 +1359,42 @@ string generateFooter(FunctionData functionData){
 
 		string argumentDefinition;
 		string argumentEtalonDefinition;
+
 		int argCount = 0;
-		string variablesCorrect = "bool variablesCorrect = ";
+		string variablesCorrect = ""+correctArgumentsConditionName+" = ";
+		string variablesCorrectByEtalon = ""+argumentsEqualToEtalonConditionName+" = ";
+		vector<int> checkableArgsIndexes = functionData.checkableArgsIndexes;
+		int checkableArgsCount = 0;
 		for(FunctionArgument arg : functionData.args){
 			if ( !arg.isArray )
 			{
+				if (std::find(checkableArgsIndexes.begin(),checkableArgsIndexes.end(),i)!=checkableArgsIndexes.end())
+				{
+					if (checkableArgsCount>0)variablesCorrectByEtalon+=" && ";
+					variablesCorrectByEtalon+=arg.name += "=="+arg.name+ETALON_FOR_FUNCTION_ENDING;
+					checkableArgsCount++;
+				}
 				string currentArgDef = arg.name + " = " + arg.value[i] + ";\n";
 				string currentArgEtalonDef = arg.name + string(ETALON_ENDING) + string(" = ") +
 						arg.etalonValue[i] + string(";\n"); //etalon value for argument
 				argumentDefinition += currentArgDef;
 				argumentEtalonDefinition += currentArgEtalonDef;
 				variablesCorrect += "("+currentArgDef+"=="+currentArgEtalonDef+")";
+				variablesCorrectByEtalon += 1;
 				if (argCount!=functionData.args.size()-1)variablesCorrect+=" && ";
 				else variablesCorrect+=";";
 			}
 			else
 			{
+				if (std::find(checkableArgsIndexes.begin(),checkableArgsIndexes.end(),i)!=checkableArgsIndexes.end())
+								{
+									if (checkableArgsCount>0)variablesCorrectByEtalon+=" && ";
+									variablesCorrectByEtalon+="compareArrs<"+arg.getType()+","+
+											std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_FOR_FUNCTION_ENDING+")";
+									checkableArgsCount++;
+
+
+								}
 				//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
 				string values_u = arg.value[i].substr(1, arg.value[i].size() - 2 );
 				string etalons_values_u = arg.etalonValue[i].substr(1, arg.etalonValue[i].size() - 2 );
@@ -1402,7 +1432,7 @@ string generateFooter(FunctionData functionData){
 				variablesCorrect+= "compareArrs<"+arg.getType()+","+
 						std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_ENDING+")";
 				if (argCount!=functionData.args.size()-1)variablesCorrect+=" && ";
-			//	else variablesCorrect+=");";
+				//	else variablesCorrect+=");";
 
 
 				if (indiv_value.size() != 0){
@@ -1414,6 +1444,7 @@ string generateFooter(FunctionData functionData){
 
 				//for (int u=0; u < arg.value[i].size(); u++)		footerBody += arg.name +"[" + to_string(u) + "] = " + arg.value[i] + ";\n";
 			}
+
 
 
 			if(argCount>0)
@@ -1483,16 +1514,18 @@ string generateFooter(FunctionData functionData){
 			//footerBody+=arg.value[0];//@BAD@
 			argCount++;
 		}
+		variablesCorrectByEtalon+= ";";
 		footerBody += argumentDefinition;
 		footerBody += argumentEtalonDefinition;
+		footerBody += variablesCorrectByEtalon;
 		argsString.insert(0,variablesCorrect+";");
 		argsString+=")";
 
 		if (functionData.isArray){
 			argsString+=")&& variablesCorrect";
-//TODO
+			//TODO
 		}
-			argsString+=")";
+		argsString+=")";
 		argsString+="\n";//closefunction call body;
 		argsString += "std::cout << \" @" + to_string(i) + "@\";\n";
 		argsString += "else\n";

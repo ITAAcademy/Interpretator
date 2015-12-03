@@ -25,6 +25,7 @@ int main(void)
   }
 }*/
 #define ETALON_ENDING "_etalon"
+#define ETALON_FOR_FUNCTION_ENDING "_for_etalon"
 #include "includes.h"
 #include "fcgio.h"
 #include <sstream>
@@ -39,6 +40,7 @@ int main(void)
 #include <iostream>
 #include <string>
 #include <regex>
+#include <algorithm>
 
 #include <ctime>
 using namespace std;
