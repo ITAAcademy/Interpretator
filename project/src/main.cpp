@@ -1310,6 +1310,7 @@ string generateFooter(FunctionData functionData){
 	string argsString;
 	string etalongArgsString;
 
+	bool is_float = (functionData.returnValueType == FunctionArgument::VAL_FLOAT);
 	for(int i = 0; i < functionData.result.size(); i++)
 	{
 
@@ -1332,13 +1333,21 @@ string generateFooter(FunctionData functionData){
 					indiv_value += values_u[h];
 				else
 				{
-					footerBody += "result[" + to_string(rez_size) + "] = " + indiv_value + ";\n";
+					footerBody += "result[" + to_string(rez_size) + "] = ";
+					if (is_float)
+						footerBody += " (float) ";
+					footerBody += indiv_value + ";\n";
 					indiv_value = "";
 					rez_size++;
 				}
 			}
 			if (indiv_value.size() != 0)
-				footerBody += "result[" + to_string(rez_size) + "] = " + indiv_value + ";\n";
+			{
+				footerBody += "result[" + to_string(rez_size) + "] = ";
+				if (is_float)
+					footerBody += " (float) ";
+				footerBody += indiv_value + ";\n";
+			}
 
 			//for (int u=0; u < arg.value[i].size(); u++)		footerBody += arg.name +"[" + to_string(u) + "] = " + arg.value[i] + ";\n";
 		}
@@ -1364,11 +1373,12 @@ string generateFooter(FunctionData functionData){
 		else
 			argsString += "\n if ( " + convertStringToType(functionData.result[i], functionData.returnValueType, LangCompiler::Flag_CPP)
 			+ " == " +  functionData.functionName+"(";//open function call body;
-
+		//55555
 		string argumentDefinition;
 		string argumentEtalonDefinition;
 		int argCount = 0;
 		string variablesCorrect = "bool variablesCorrect = ";
+		// bool variablesCorrect = compareArrs<float,2>(x,x_etalon) && (vasya == vasya_etalon);
 		for(FunctionArgument arg : functionData.args){
 			if ( !arg.isArray )
 			{
@@ -1377,9 +1387,12 @@ string generateFooter(FunctionData functionData){
 						arg.etalonValue[i] + string(";\n"); //etalon value for argument
 				argumentDefinition += currentArgDef;
 				argumentEtalonDefinition += currentArgEtalonDef;
-				variablesCorrect += "("+currentArgDef+"=="+currentArgEtalonDef+")";
-				if (argCount!=functionData.args.size()-1)variablesCorrect+=" && ";
-				else variablesCorrect+=";";
+				variablesCorrect += "(" + arg.name + " == " + arg.name + string(ETALON_ENDING) + ")";
+				//variablesCorrect += "(" + currentArgDef + "==" + currentArgEtalonDef + ")";
+				if (argCount != functionData.args.size() - 1 )
+					variablesCorrect += " && ";
+				else
+					variablesCorrect+=";\n";
 			}
 			else
 			{
@@ -1418,12 +1431,14 @@ string generateFooter(FunctionData functionData){
 					}
 				}
 				variablesCorrect+= "compareArrs<"+arg.getType()+","+
-						std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_ENDING+")";
-				if (argCount!=functionData.args.size()-1)variablesCorrect+=" && ";
+						std::to_string(arg.size) + ">(" + arg.name + "," + arg.name + ETALON_ENDING + ")";
+				if ( argCount != functionData.args.size() - 1 )
+					variablesCorrect+=" && ";
 				//	else variablesCorrect+=");";
 
 
-				if (indiv_value.size() != 0){
+				if (indiv_value.size() != 0)
+				{
 					argumentDefinition += arg.name +"[" + to_string(arg_size) + "] = " + indiv_value + ";\n";
 				}
 				if (etal_value.size() != 0){
@@ -1447,43 +1462,43 @@ string generateFooter(FunctionData functionData){
 			string etalonArrName = arrName+ETALON_ENDING;
 			switch(arg.type){
 			case FunctionData::RET_VAL_BOOL:
-				if (arg.isArray){
-					arrType="bool";//add array type
-					argsString += arrName;
-					//etalongArgsString += etalonArrName;
-				}
+				//if (arg.isArray){
+				arrType="bool";//add array type
+				argsString += arrName;
+				//etalongArgsString += etalonArrName;
+				/*}
 				else
-					argsString += to_bool(argStringValue);
+					argsString += to_bool(argStringValue);*/
 				break;
 			case FunctionData::RET_VAL_FLOAT:
-				if (arg.isArray){
-					arrType="float";//add array type
-					argsString += arrName;
-					//etalongArgsString += etalonArrName;
-				}
+				//if (arg.isArray){
+				arrType="float";//add array type
+				argsString += arrName;
+				//etalongArgsString += etalonArrName;
+				/*}
 				else
-					argsString += std::atof(argStringValue.c_str());
+					argsString += std::atof(argStringValue.c_str());*/
 				break;
 			case FunctionData::RET_VAL_INT:
-				if (arg.isArray){
-					arrType="int";//add array type
-					argsString += arrName;
-					//etalongArgsString += etalonArrName;
-				}
+				//if (arg.isArray){
+				arrType="int";//add array type
+				argsString += arrName;
+				//etalongArgsString += etalonArrName;
+				/*}
 				else
-					argsString += argStringValue.c_str();
+					argsString += argStringValue.c_str();*/
 				break;
 			case FunctionData::RET_VAL_STRING:
-				if (arg.isArray){
-					arrType="string";//add array type
-					argsString += arrName;
-					//etalongArgsString += etalonArrName;
-				}
+				//if (arg.isArray){
+				arrType="string";//add array type
+				argsString += arrName;
+				//etalongArgsString += etalonArrName;
+				/*}
 				else
 				{
 					argsString += arrName;//argStringValue;
 					//etalongArgsString += etalonArrName;
-				}
+				}*/
 				break;
 
 				/*case FunctionData::RET_VAL_RANGE
@@ -1503,8 +1518,9 @@ string generateFooter(FunctionData functionData){
 		}
 		footerBody += argumentDefinition;
 		footerBody += argumentEtalonDefinition;
-		argsString.insert(0,variablesCorrect+";");
-		argsString+=")";
+		///666
+		argsString.insert(0, variablesCorrect );
+		argsString += ")";
 
 		if (functionData.isArray){
 			argsString+=")&& variablesCorrect";
