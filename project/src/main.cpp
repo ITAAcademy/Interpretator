@@ -290,51 +290,58 @@ void *receiveTask(void *a)
 					if(!addNewtask(stream, jSON))
 						succsesful = false;
 				}
-				if (operation == "start")
-				{
-					if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp)))
-						succsesful = false;
-				}
-				if (operation == "addtestsig")
-				{
-					if(!addTestSignature(stream, jSON))
-						succsesful = false;
-				}
-				if (operation == "addtestval")
-				{
-					if (!addTestValues(stream,jSON))
-						succsesful = false;
-				}
-				if (operation == "add_tests")
-				{
-					if (!addTests(stream,jSON))
-						succsesful = false;
-				}
-				if (operation == "retreive_tests")
-				{
-					if (!retreiveTests(stream,jSON))
-						succsesful = false;
-				}
-				if (operation == "result" || operation == "status")
-				{
-					if(!result_status(stream, jSON, operation))
-						succsesful = false;
-				}
-
-				if (operation == "getToken")
-				{
-					if(!generationToken(stream, jSON, TokenList))
-						succsesful = false;
-				}
-				if (operation == "getFromToken")
-				{
-					if(!getFromToken(stream, jSON, TokenList))
-						succsesful = false;
-				}
+				else
+					if (operation == "start")
+					{
+						if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp)))
+							succsesful = false;
+					}
+					else
+						if (operation == "addtestsig")
+						{
+							if(!addTestSignature(stream, jSON))
+								succsesful = false;
+						}
+						else
+							if (operation == "addtestval")
+							{
+								if (!addTestValues(stream,jSON))
+									succsesful = false;
+							}
+							else
+								if (operation == "add_tests")
+								{
+									if (!addTests(stream,jSON))
+										succsesful = false;
+								}
+								else
+									if (operation == "retreive_tests")
+									{
+										if (!retreiveTests(stream,jSON))
+											succsesful = false;
+									}
+									else
+										if (operation == "result" || operation == "status")
+										{
+											if(!result_status(stream, jSON, operation))
+												succsesful = false;
+										}
+										else
+											if (operation == "getToken")
+											{
+												if(!generationToken(stream, jSON, TokenList))
+													succsesful = false;
+											}
+											else
+												if (operation == "getFromToken")
+												{
+													if(!getFromToken(stream, jSON, TokenList))
+														succsesful = false;
+												}
 
 				if(!succsesful)
 				{
-					errorResponder.showError(505, "DataBaseERR");
+					errorResponder.showError(505, jSON.getLastError());
 					stream.close();
 					continue;
 				}
@@ -343,7 +350,7 @@ void *receiveTask(void *a)
 			else
 			{
 				logfile::addLog(id,	"Json format is not correct!!! \n::::::::::::::::::::::::\n" + stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
-				errorResponder.showError(400, jSON.getLastError());
+				errorResponder.showError(400, "Json format is not correct!!!");
 				stream.close();
 				continue;
 			}
@@ -365,8 +372,9 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 {
 	if ( !jSON.isValidFields() )
 	{
-		stream << jSON.getLastError();
-		stream.close();
+		//string error = jSON.getLastError();
+		//stream << error;
+		//stream.close();
 		return false;
 	}
 	string lang = jSON.getObject("lang", false).asString();
@@ -1182,14 +1190,14 @@ void deleteToken(string tok)
 string generateFunctionProtorype(FunctionData functionData, LangCompiler::compilerFlag = LangCompiler::Flag_CPP, string name = "function", char divider = ',', char space = ' ')
 {
 	string functionStr = generationType(functionData.returnValueType, 0);
-		if (functionData.isArray)
-			functionStr += "* ";
-		functionStr	+= name + "(";
+	if (functionData.isArray)
+		functionStr += "* ";
+	functionStr	+= name + "(";
 
-		int argCount = 0;
+	int argCount = 0;
 
-		int array_cnt = 0;
-		/*for(int i = 0; i < functionData.result.size(); i++)
+	int array_cnt = 0;
+	/*for(int i = 0; i < functionData.result.size(); i++)
 		{
 			string arrType = functionData.getReturnType();
 			string arrName="array"+std::to_string(array_cnt);
@@ -1211,36 +1219,36 @@ string generateFunctionProtorype(FunctionData functionData, LangCompiler::compil
 		}*/
 
 
-		/*headerStr += functionData.getReturnType() + " result";
+	/*headerStr += functionData.getReturnType() + " result";
 		if (functionData.isArray )
 		{
 			headerStr  += "[" + to_string(functionData.size) + "]";
 		}
 		headerStr += ";\n";*/
 
-		for(FunctionArgument arg : functionData.args){
-			if (argCount>0)
-				functionStr += divider;
-			string type = generationType(arg.type, 0);// 0 == C++
-			functionStr += type + space;
+	for(FunctionArgument arg : functionData.args){
+		if (argCount>0)
+			functionStr += divider;
+		string type = generationType(arg.type, 0);// 0 == C++
+		functionStr += type + space;
 
 
-			//headerStr += type + space +  arg.name;
-			if ( arg.isArray )
-			{
-				functionStr += "*" + arg.name;
-				//headerStr  += "[" + to_string(arg.size) + "]";
-			}
-			else
-			{
-				functionStr += "&" + arg.name;
-			}
-			//headerStr += ";\n";
-			argCount++;
+		//headerStr += type + space +  arg.name;
+		if ( arg.isArray )
+		{
+			functionStr += "*" + arg.name;
+			//headerStr  += "[" + to_string(arg.size) + "]";
 		}
-		//close prototype and open body of function
-		functionStr += ")\n";
-		return functionStr;
+		else
+		{
+			functionStr += "&" + arg.name;
+		}
+		//headerStr += ";\n";
+		argCount++;
+	}
+	//close prototype and open body of function
+	functionStr += ")\n";
+	return functionStr;
 }
 string generateHeader(FunctionData functionData){
 
@@ -1256,20 +1264,30 @@ bool to_bool(std::string const& s) {
 	return s != "0";
 }
 string generateFooter(FunctionData functionData){
-	string footerBody = "return 0;}\n";//Close function body
+	string footerBody = "return 0;\n}\n";//Close function body
 	string space=" ";
 	char divider=',';
 	string modifiedArgComparsion;
 	//C++
 	string arrCompFuncStr="template<typename T,int size>\n\
-	bool compareArrs(T arr1[size],T arr2[size]){\n\
-		for (int i=0;i<size;i++){if (strcmp(typeid(T).name(), \"f\") == 0)\
-		{	float diff = arr1[i] - arr2[i];	if (abs(arr1[i] - arr2[i] ) > 0.009) return false;\
-		} else	if (arr1[i]!=arr2[i])return false;}\
+	bool compareArrs(T arr1[size],T arr2[size])\n\
+		{\n\
+		for (int i=0;i<size;i++)\n\
+		{\n\
+		if (strcmp(typeid(T).name(), \"f\") == 0)\n\
+		{\n	\
+		if (abs(arr1[i] - arr2[i] ) > 0.009) \n\
+			return false;\n\
+		}\n \
+		else	\n\
+			if (arr1[i] != arr2[i])\n\
+				return false;\n\
+			}\n\
 			return true;\n\
-	}";
+	}\n";
 	footerBody+=arrCompFuncStr;
-	footerBody+="int main(){\n";
+	footerBody+="int main()\n\
+			{\n";
 
 	footerBody += functionData.getReturnType() + " result_etalon";
 	if (functionData.isArray )
@@ -1331,6 +1349,7 @@ string generateFooter(FunctionData functionData){
 	string argsString;
 	string etalongArgsString;
 
+	bool is_float = (functionData.returnValueType == FunctionArgument::VAL_FLOAT);
 	for(int i = 0; i < functionData.result.size(); i++)
 	{
 
@@ -1353,14 +1372,21 @@ string generateFooter(FunctionData functionData){
 					indiv_value += values_u[h];
 				else
 				{
-					footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result_etalon[" + to_string(rez_size) + "] = " + indiv_value + ";\n";
+					footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result[" + to_string(rez_size) + "] = ";
+					if (is_float)
+						footerBody += " (float) ";
+					footerBody += indiv_value + ";\n";
 					indiv_value = "";
 					rez_size++;
 				}
 			}
 			if (indiv_value.size() != 0)
-				footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " + */"result_etalon[" + to_string(rez_size) + "] = " + indiv_value + ";\n";
-
+			{
+				footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " + */ "result[" + to_string(rez_size) + "] = ";
+				if (is_float)
+					footerBody += " (float) ";
+				footerBody += indiv_value + ";\n";
+			}
 			//for (int u=0; u < arg.value[i].size(); u++)		footerBody += arg.name +"[" + to_string(u) + "] = " + arg.value[i] + ";\n";
 		}
 		/*if (functionData.isRange )
@@ -1369,7 +1395,6 @@ string generateFooter(FunctionData functionData){
 		}
 		else*/
 
-
 		string argumentDefinition;
 		string argumentEtalonDefinition;
 		string argForMainFunction;
@@ -1377,6 +1402,7 @@ string generateFooter(FunctionData functionData){
 
 		int argCount = 0;
 		string variablesCorrect = "bool variablesCorrect = ";
+		// bool variablesCorrect = compareArrs<float,2>(x,x_etalon) && (vasya == vasya_etalon);
 		for(FunctionArgument arg : functionData.args){
 			if ( !arg.isArray )
 			{
@@ -1385,9 +1411,12 @@ string generateFooter(FunctionData functionData){
 						arg.etalonValue[i] + string(";\n"); //etalon value for argument
 				argumentDefinition += currentArgDef;
 				argumentEtalonDefinition += currentArgEtalonDef;
-				variablesCorrect += "("+currentArgDef+"=="+currentArgEtalonDef+")";
-				if (argCount!=functionData.args.size()-1)variablesCorrect+=" && ";
-				else variablesCorrect+=";";
+				variablesCorrect += "(" + arg.name + " == " + arg.name + string(ETALON_ENDING) + ")";
+				//variablesCorrect += "(" + currentArgDef + "==" + currentArgEtalonDef + ")";
+				if (argCount != functionData.args.size() - 1 )
+					variablesCorrect += " && ";
+				else
+					variablesCorrect+=";\n";
 			}
 			else
 			{
@@ -1425,12 +1454,13 @@ string generateFooter(FunctionData functionData){
 					}
 				}
 				variablesCorrect+= "compareArrs<"+arg.getType()+","+
-						std::to_string(arg.size)+">("+arg.name+"," + arg.name + ETALON_ENDING+")";
-				if (argCount!=functionData.args.size()-1)variablesCorrect+=" && ";
-			//	else variablesCorrect+=");";
+						std::to_string(arg.size) + ">(" + arg.name + "," + arg.name + ETALON_ENDING + ")";
+				if ( argCount != functionData.args.size() - 1 )
+					variablesCorrect+=" && ";
+				//	else variablesCorrect+=");";
 
-
-				if (indiv_value.size() != 0){
+				if (indiv_value.size() != 0)
+				{
 					argumentDefinition += arg.name +"[" + to_string(arg_size) + "] = " + indiv_value + ";\n";
 				}
 				if (etal_value.size() != 0){
@@ -1454,43 +1484,23 @@ string generateFooter(FunctionData functionData){
 			string etalonArrName = arrName + ETALON_FOR_FUNCTION_ENDING;
 			switch(arg.type){
 			case FunctionData::RET_VAL_BOOL:
-				if (arg.isArray){
-					arrType="bool";//add array type
-					argForMainFunction += arrName;
-					argForEtalonFunction += etalonArrName;
-				}
-				else
-					argForMainFunction += to_bool(argStringValue);
+				arrType="bool";//add array type
+				argForMainFunction += arrName;
+				argForEtalonFunction += etalonArrName;
+
 				break;
 			case FunctionData::RET_VAL_FLOAT:
-				if (arg.isArray){
-					arrType="float";//add array type
-					argForMainFunction += arrName;
-					argForEtalonFunction += etalonArrName;
-				}
-				else
-					argForMainFunction += std::atof(argStringValue.c_str());
+				arrType="float";//add array type
+				argForMainFunction += arrName;
+				argForEtalonFunction += etalonArrName;
 				break;
 			case FunctionData::RET_VAL_INT:
-				if (arg.isArray){
-					arrType="int";//add array type
-					argForMainFunction += arrName;
-					argForEtalonFunction += etalonArrName;
-				}
-				else
-					argForMainFunction += argStringValue.c_str();
+				argForMainFunction += arrName;
+				argForEtalonFunction += etalonArrName;
 				break;
 			case FunctionData::RET_VAL_STRING:
-				if (arg.isArray){
-					arrType="string";//add array type
-					argForMainFunction += arrName;
-					argForEtalonFunction += etalonArrName;
-				}
-				else
-				{
-					argForMainFunction += arrName;//argStringValue;
-					argForEtalonFunction += etalonArrName;
-				}
+				argForMainFunction += arrName;
+				argForEtalonFunction += etalonArrName;
 				break;
 
 				/*case FunctionData::RET_VAL_RANGE
@@ -1533,7 +1543,7 @@ string generateFooter(FunctionData functionData){
 		//if (functionData.isArray)
 		{
 			argsString+=" && variablesCorrect)\n";
-//TODO
+			//TODO
 		}
 
 		argsString += "std::cout << \" @" + to_string(i) + "@\";\n";

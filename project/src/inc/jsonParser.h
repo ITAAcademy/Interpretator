@@ -32,11 +32,16 @@ using namespace Json;
 #define FIELD_IS_ARRAY "is_array"
 #define FIELD_SIZE "size"
 #define FIELD_TYPE "type"
+#define FIELD_CMP_RESULT "compare_result"
+#define FIELD_CMP_ARG "compare_argument"
 #define FIELD_ARG_NAME "arg_name"
 #define FIELD_VALUE "value"
 #define FIELD_RESULTS "results"
 #define FUNCTION "function"
 #define ARGS "args"
+#define FIELD_ETALON_VALUE "etalon_value"
+
+
 /*
 
 
@@ -96,6 +101,16 @@ public:
 	bool isJson();
 	bool isValidFields();
 	virtual ~jsonParser();
+
+
+	bool mustBeNotArray(Json::Value object, string name , string ps = "");
+	bool mustBeArray(Json::Value object, string name , string ps = "");
+	bool mustHaveSizeMoreZero(Json::Value object, string name , string ps = "");
+	bool mustBeInt(Json::Value object, string name , string ps = "");
+	bool mustBeBool(Json::Value object, string name , string ps = "");
+	bool mustBeFloat(Json::Value object, string name , string ps = "");
+	bool mustBeString(Json::Value object, string name , string ps = "");
+	bool mustExist(Json::Value object, string name , string ps = "");
 private:
 	/*
 	 *  no check is array? problem with find elemet // crash // not use

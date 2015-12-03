@@ -225,6 +225,26 @@ FCGI_Stream FCGI_Stream::operator << ( string str)
 	return this[0];
 }
 
+string FCGI_Stream::toString ( )
+{
+	char * to_char = new char[200];
+//		atoi("12");
+	/*;
+	FCGX_GetChar(request->out)
+	FCGX_PutS(str.c_str(), request->out);*/
+	//return (string) request->out
+	 //FCGX_FPrintF(request->out,"%s",ss.c_str());
+//string ss(((char*)request->out->data));
+
+//std::string &ss = *reinterpret_cast<std::string*>(request->out->data);
+
+FCGX_FPrintF(request->out,"%s",to_char);
+std::string str(to_char);
+str += "123";
+delete to_char;
+	 return str;
+}
+
 
 void FCGI_Stream::operator >> ( char *res)
 {
