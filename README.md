@@ -229,3 +229,28 @@ ii.intita.com
 }
 }
 
+{
+"operation": "addtask",
+"etalon": " ",
+"lang": "c++",
+"task": 302,
+"function": {
+"type": 1,
+"results": [[10.0, 12.0]],
+"args": [
+{
+"type": 1,
+"arg_name": "x",
+"value": [[10.0, 12.0]],
+"etalon_value": [[10.0, 12.0]]
+
+},
+{
+"type": 3,
+"arg_name": "vasya",
+"value": [["20", "5"]],
+"etalon_value": [["20", "5"]]
+}
+]
+}
+}

@@ -89,6 +89,7 @@ struct FunctionData{
 	string functionName;
 	vector<string> result;
 	vector<FunctionArgument> args;
+	string etalon;
 	int getResultArraySize()
 	{
 		return result_array_size;
