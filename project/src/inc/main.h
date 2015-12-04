@@ -102,10 +102,11 @@ void deleteToken(string tok);
 bool to_bool(std::string const& s);
 string generateHeader(FunctionData functionData);
 string generateFooter(FunctionData functionData);
-string generationType(int type, int lang);
-string generationVar(int type, string name, int lang, string value = string());
+string generateType(int type, int lang);
+string generateVar(int type, string name, int lang, string value = string());
 
 string convertStringToType(string argStringValue, int type, int lang);
 string convertTypeToString(int type, int lang);
 
 string getStandartInclude(int lang);
+

@@ -413,7 +413,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 
 		functionData.etalon = etalon;
 		functionData.returnValueType = functionValue["type"].asInt();
-		functionData.functionName = "function";//@BAG@
+		functionData.functionName = "function_main";//@BAG@
 
 		functionData.isArray = functionValue["results"][0].isArray();
 		functionData.size = functionValue["results"][0].size();
@@ -476,6 +476,12 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 				}
 		}
 
+		for(JsonValue value:functionValue["tests_code"])
+		{
+			functionData.tests_code.push_back(value.asString());
+		}
+
+
 		Value functionArgs = functionValue["args"];
 		for (int i=0; i<functionArgs.size(); i++)
 		{
@@ -523,6 +529,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 					functionArgument.etalonValue.push_back(arrString); //_opo
 				}
 			}
+
 
 
 			functionData.args.push_back(functionArgument);
@@ -1189,7 +1196,7 @@ void deleteToken(string tok)
 
 string generateFunctionProtorype(FunctionData functionData, LangCompiler::compilerFlag = LangCompiler::Flag_CPP, string name = "function", char divider = ',', char space = ' ')
 {
-	string functionStr = generationType(functionData.returnValueType, 0);
+	string functionStr = generateType(functionData.returnValueType, 0);
 	if (functionData.isArray)
 		functionStr += "* ";
 	functionStr	+= name + "(";
@@ -1229,7 +1236,7 @@ string generateFunctionProtorype(FunctionData functionData, LangCompiler::compil
 	for(FunctionArgument arg : functionData.args){
 		if (argCount>0)
 			functionStr += divider;
-		string type = generationType(arg.type, 0);// 0 == C++
+		string type = generateType(arg.type, 0);// 0 == C++
 		functionStr += type + space;
 
 
@@ -1276,7 +1283,7 @@ string generateFooter(FunctionData functionData){
 		{\n\
 		if (strcmp(typeid(T).name(), \"f\") == 0)\n\
 		{\n	\
-		if (abs(arr1[i] - arr2[i] ) > 0.009) \n\
+		if (fabs(arr1[i]) - arr2[i] ) > 0.009) \n\
 			return false;\n\
 		}\n \
 		else	\n\
@@ -1322,9 +1329,9 @@ string generateFooter(FunctionData functionData){
 	for(FunctionArgument arg : functionData.args)
 	{
 		string argumentDeclaration="",argumentEtalonDeclaration="",argumentForEtalonFunctionDeclaration="";
-		argumentDeclaration = generationType(arg.type, 0) + " " +  arg.name;
-		argumentEtalonDeclaration =  generationType(arg.type,0) + " " + arg.name + ETALON_ENDING;
-		argumentForEtalonFunctionDeclaration =  generationType(arg.type,0) + " " + arg.name + string(ETALON_FOR_FUNCTION_ENDING);
+		argumentDeclaration = generateType(arg.type, 0) + " " +  arg.name;
+		argumentEtalonDeclaration =  generateType(arg.type,0) + " " + arg.name + ETALON_ENDING;
+		argumentForEtalonFunctionDeclaration =  generateType(arg.type,0) + " " + arg.name + string(ETALON_FOR_FUNCTION_ENDING);
 		//footerBody +=
 		if ( arg.isArray )
 		{
@@ -1522,7 +1529,9 @@ string generateFooter(FunctionData functionData){
 		footerBody += argumentEtalonDefinition;
 		argsString += variablesCorrect+";\n";
 		argsString += "result" + string(ETALON_FOR_FUNCTION_ENDING) +  " = function_etalon(" + argForEtalonFunction +  ");\n";
-		argsString += "result = function(" + argForMainFunction +  ");\n";
+		argsString += "result = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+		argsString += "bool isTrue = false;\n";
+		argsString += functionData.tests_code[i] + "\n";
 
 		if (functionData.isArray )
 		{
@@ -1542,7 +1551,7 @@ string generateFooter(FunctionData functionData){
 
 		//if (functionData.isArray)
 		{
-			argsString+=" && variablesCorrect)\n";
+			argsString+=" && variablesCorrect && isTrue)\n";
 			//TODO
 		}
 
@@ -1561,7 +1570,7 @@ string generateFooter(FunctionData functionData){
 	return footerBody;
 }
 
-string generationType(int type, int lang)
+string generateType(int type, int lang)
 {
 	string result;
 	switch(type){
@@ -1581,10 +1590,10 @@ string generationType(int type, int lang)
 	result += " ";
 	return result;
 }
-string generationVar(int type, string name, int lang, string value)
+string generateVar(int type, string name, int lang, string value)
 {
 	string result;
-	result = generationType(type, lang) + name + " ";
+	result = generateType(type, lang) + name + " ";
 
 	/*if(value.length() > 0)
 	switch(type){

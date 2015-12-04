@@ -233,10 +233,13 @@ ii.intita.com
 "operation": "addtask",
 "etalon": " ",
 "lang": "c++",
-"task": 302,
+"task": 308,
 "function": {
 "type": 1,
 "results": [[10.0, 12.0]],
+"tests_code":[
+	"isTrue = true;"
+],
 "args": [
 {
 "type": 1,
