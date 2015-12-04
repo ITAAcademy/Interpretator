@@ -233,12 +233,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		{\n\
 		for (int i=0;i<size;i++)\n\
 		{\n\
-		if (strcmp(typeid(T).name(), \"f\") == 0)\n\
-		{\n	\
-		if (fabs(arr1[i]) - arr2[i] ) > 0.009) \n\
-			return false;\n\
-		}\n \
-		else	\n\
+		//if (strcmp(typeid(T).name(), \"f\") == 0)\n\
+		//{\n	\
+		//if (fabs(arr1[i]) - arr2[i] ) > 0.009) \n\
+		//	return false;\n\
+		//}\n \
+		//else	\n\
 			if (arr1[i] != arr2[i])\n\
 				return false;\n\
 			}\n\
@@ -307,6 +307,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 
 	}
+	footerBody += "bool isTrue;\n";//moved out from cicle to fix variable duplicates
 	string conditionsVariableDeclaration = "bool " +argumentsEqualToEtalonConditionName+","
 			+correctArgumentsConditionName+";\n";
 	footerBody+= conditionsVariableDeclaration;
@@ -382,7 +383,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				if (std::find(checkableArgsIndexes.begin(),checkableArgsIndexes.end(),i)!=checkableArgsIndexes.end())
 				{
 					if (checkableArgsCount>0)variablesCorrectByEtalonEnding+=" && ";
-					variablesCorrectByEtalonEnding+=arg.name += "=="+arg.name+ETALON_FOR_FUNCTION_ENDING;
+					variablesCorrectByEtalonEnding+=arg.name + "=="+arg.name+ETALON_FOR_FUNCTION_ENDING;
 					checkableArgsCount++;
 				}
 				string currentArgDef = arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " + arg.name + " = " + arg.value[i] + ";\n";
@@ -392,13 +393,13 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				argumentEtalonDefinition += currentArgEtalonDef;
 
 				variablesCorrect += "(" + arg.name + " == " + arg.name + string(ETALON_ENDING) + ")";
-				variablesCorrect += "("+currentArgDef+"=="+currentArgEtalonDef+")";
-				variablesCorrectByEtalonEnding += 1;
+				//variablesCorrect += "("+arg.name+"=="+arg.name + string(ETALON_FOR_FUNCTION_ENDING)+")";
+				//variablesCorrectByEtalonEnding += 1;
 
 				if (argCount != functionData.args.size() - 1 )
 					variablesCorrect += " && ";
-				else
-					variablesCorrect+=";\n";
+				//else
+					//variablesCorrect+=";\n";
 			}
 			else
 			{
@@ -519,7 +520,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		argsString += " result" + string(ETALON_FOR_FUNCTION_ENDING) +  " = function_etalon(" + argForEtalonFunction +  ");\n";
 		argsString += " result = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
 
-		argsString += "bool isTrue = false;\n";
+		argsString += "isTrue = false;\n";
 		argsString += variablesCorrectByEtalonPrefix+variablesCorrectByEtalonEnding;
 		argsString += functionData.tests_code[i] + "\n";
 
@@ -537,7 +538,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		}
 		else
-			argsString += "if ( result_etalon == result)";//open function call body;
+			argsString += "if ( result_etalon == result";//open function call body;
 
 		//if (functionData.isArray)
 		{
