@@ -317,7 +317,8 @@ void *receiveTask(void *a)
 
 				if(!succsesful)
 				{
-					errorResponder.showError(505, jSON.getLastError());
+					string error = jSON.getLastError();
+					errorResponder.showError(505, error);
 					stream.close();
 					continue;
 				}
