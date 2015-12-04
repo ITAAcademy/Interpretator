@@ -9,12 +9,13 @@
 
 namespace code {
 
-TaskCodeGenerator::TaskCodeGenerator(jsonParser &jSON) {
-
-
+TaskCodeGenerator::TaskCodeGenerator(jsonParser &jSON)
+{
+	updateData(jSON);
 }
 
-TaskCodeGenerator::~TaskCodeGenerator() {
+TaskCodeGenerator::~TaskCodeGenerator()
+{
 	// TODO Auto-generated destructor stub
 }
 bool TaskCodeGenerator::updateData(jsonParser &jSON)
@@ -172,6 +173,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 		functionData.args.push_back(functionArgument);
 	}
+	return functionData;
 }
 
 string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, LangCompiler::compilerFlag, string name , char divider, char space)

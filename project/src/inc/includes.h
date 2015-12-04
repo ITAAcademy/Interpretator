@@ -49,6 +49,7 @@ struct Job {
 struct Token{
 	string session;
 	long jobId;
+	bool isValid = true;
 };
 struct FunctionArgument{
 	enum ValueTypes {VAL_INT = 0,VAL_FLOAT  = 1,VAL_BOOL = 2,VAL_STRING = 3,VAL_RANGE = 4, VAL_Last = 5};
