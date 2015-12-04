@@ -12,6 +12,18 @@ jsonParser::jsonParser(string json)
 	bJsonValid = setJson(json);
 }
 
+bool jsonParser::sizeEqualSizeOfUnitTests(Json::Value object, string name)
+{
+	int object_size = object.size();
+	if ( results_array_size != object_size )
+	{
+		last_error = "error: json format is not correct. " + name + " array size = " +
+				to_string(object_size) + " , but results array size = " + to_string(results_array_size);
+		return false;
+	}
+	return true;
+}
+
 bool jsonParser::mustHaveSizeMoreZeroAndBeNotTwoDimensionalArray(Json::Value object, string name , string ps, string ps2)
 {
 	if (!mustHaveSizeMoreZero(object ,name , ps))
@@ -62,8 +74,9 @@ bool jsonParser::mustBeArrayFloat(Json::Value object, string name , string ps, s
 {
 	if (!mustBeArray(object,name,ps))
 		return false;
-	if (!mustBeFloat(object,name,ps2))
-		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeFloat(object[i], name + stringInScobcah(i), ps2))
+			return false;
 	return true;
 }
 
@@ -71,8 +84,9 @@ bool jsonParser::mustBeArrayInt(Json::Value object, string name , string ps, str
 {
 	if (!mustBeArray(object,name,ps))
 		return false;
-	if (!mustBeInt(object,name,ps2))
-		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeInt(object[i], name + stringInScobcah(i), ps2))
+			return false;
 	return true;
 }
 
@@ -80,8 +94,9 @@ bool jsonParser::mustBeArrayString(Json::Value object, string name , string ps, 
 {
 	if (!mustBeArray(object,name,ps))
 		return false;
-	if (!mustBeString(object,name,ps2))
-		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeString(object[i], name + stringInScobcah(i), ps2))
+			return false;
 	return true;
 }
 
@@ -89,8 +104,9 @@ bool jsonParser::jsonParser::mustBeArrayBool(Json::Value object, string name , s
 {
 	if (!mustBeArray(object,name,ps))
 		return false;
-	if (!mustBeBool(object,name,ps2))
-		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeBool(object[i], name + stringInScobcah(i), ps2))
+			return false;
 	return true;
 }
 
@@ -242,6 +258,26 @@ bool jsonParser::mustExistBeArray(Json::Value object, string name  , string ps ,
 	if (!mustBeArray(object, name, ps2))
 		return false;
 	return true;
+}
+
+bool jsonParser::mustExistBeArrayString(Json::Value object, string name , string ps, string ps2 )
+{
+	if (!mustExistBeArray(object, name, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeString(object[i], name + stringInScobcah(i)))
+			return false;
+	return true;
+}
+
+string jsonParser::stringInScobcah(string inp)
+{
+	return string("[" + inp + "]");
+}
+
+string jsonParser::stringInScobcah(int inp)
+{
+	return stringInScobcah( to_string(inp));
 }
 
 
@@ -446,22 +482,16 @@ bool jsonParser::isValidFields()
 	if(!bJsonValid || parsedFromString[FIELD_OPERATION].isNull())
 		return false;
 	l12("after FIELD_OPERATION check");*/
-	if( !mustExist(parsedFromString[FIELD_TASK_ID], "task"))
-		return false;
-	if (!mustBeInt(parsedFromString[FIELD_TASK_ID], "task"))
+	if( !mustExistBeInt(parsedFromString[FIELD_TASK_ID], "task"))
 		return false;
 
-	if( !mustExist(parsedFromString[FIELD_OPERATION], "operation"))
-		return false;
-	if (!mustBeString(parsedFromString[FIELD_OPERATION], "operation"))
+	if( !mustExistBeString(parsedFromString[FIELD_OPERATION], "operation"))
 		return false;
 
 
 	if (parsedFromString[FIELD_OPERATION]=="addtask" || parsedFromString[FIELD_OPERATION]=="edittask")
 	{
-		if( !mustExist(parsedFromString[FIELD_ETALON], "etalon"))
-			return false;
-		if (!mustBeString(parsedFromString[FIELD_ETALON], "etalon"))
+		if( !mustExistBeString(parsedFromString[FIELD_ETALON], "etalon"))
 			return false;
 
 		/*if(parsedFromString[FIELD_CODE_LANGUAGE].isNull())
@@ -475,7 +505,6 @@ bool jsonParser::isValidFields()
 			last_error = "error: json format is not correct. Field \"code\" not string";
 			return false;
 		}*/
-		l12("__4");
 
 		/*	if ( parsedFromString[FIELD_NAME].isNull())
 		{
@@ -488,13 +517,21 @@ bool jsonParser::isValidFields()
 			return false;
 		}
 		 */
+		Json::Value field_tests_code = parsedFromString[FUNCTION][FIELD_TESTS_CODE];
+		Json::Value field_args = parsedFromString[FUNCTION][FIELD_ARGS];
+		Json::Value field_results = parsedFromString[FUNCTION][FIELD_RESULTS];
+		Json::Value field_type = parsedFromString[FUNCTION][FIELD_TYPE];
+
 		if( !mustExist(parsedFromString[FUNCTION], "function"))
 			return false;
 
-		if( !mustExist(parsedFromString[FUNCTION][FIELD_RESULTS], "results"))
+		if( !mustExistBeArray(field_results, "results"))
 			return false;
 
-		if( !mustExist(parsedFromString[FUNCTION][FIELD_ARGS], "args"))
+		if( !mustExistBeArrayString(field_tests_code, "tests_code"))
+			return false;
+
+		if( !mustExistBeArray(field_args, "args"))
 			return false;
 
 		/*if(parsedFromString[FUNCTION][FIELD_FUNCTION_NAME].isNull())
@@ -534,27 +571,25 @@ bool jsonParser::isValidFields()
 		}
 		l12("___109");*/
 
-		if( !mustExist(parsedFromString[FUNCTION][FIELD_TYPE], "type"))
-			return false;
-		if( !mustBeInt(parsedFromString[FUNCTION][FIELD_TYPE], "type"))
+		if( !mustExistBeInt(field_type, "type"))
 			return false;
 
-		int type_rezult = parsedFromString[FUNCTION][FIELD_TYPE].asInt();
+		int type_rezult = field_type.asInt();
 		/*
 		vector<string> rezults_array = parsedFromString[FUNCTION][FIELD_RESULTS].
 		l12("1___111");
 		vector<string> args_array = parsedFromString[FUNCTION][FIELD_ARGS].getMemberNames();
 		 */
-		if( !mustBeArray(parsedFromString[FUNCTION][FIELD_RESULTS], "results"))
+
+		results_array_size = field_results.size();
+
+		int field_tests_code_size = field_tests_code.size();
+
+		if ( !sizeEqualSizeOfUnitTests(field_tests_code, "tests_code"))
 			return false;
 
-		if( !mustBeArray(parsedFromString[FUNCTION][FIELD_ARGS], "args"))
-			return false;
 
-		int results_size = parsedFromString[FUNCTION][FIELD_RESULTS].size();
-
-
-		int args_size = parsedFromString[FUNCTION][FIELD_ARGS].size();
+		int args_size =  field_args.size();
 
 		/*if ( results_size != args_size)
 		{
@@ -564,33 +599,13 @@ bool jsonParser::isValidFields()
 			return false;
 		}*/
 
-		is_results_array = parsedFromString[FUNCTION][FIELD_RESULTS][0].isArray();
-		unit_test_num = parsedFromString[FUNCTION][FIELD_RESULTS].size();
+		is_results_array = field_results[0].isArray();
+		unit_test_num = field_results.size();
 
-		Json::Value field_cmp_result = parsedFromString[FUNCTION][FIELD_CMP_RESULT];
-		Json::Value field_results = parsedFromString[FUNCTION][FIELD_RESULTS];
+
 
 		if ( !is_results_array )
 		{
-			if(!field_cmp_result.isNull())
-			{
-				if( !mustBeArray(field_cmp_result, "compare_result"))
-					return false;
-
-				int cmp_array_size = field_cmp_result.size() ;
-				if ( cmp_array_size != unit_test_num )
-				{
-					last_error = "error: json format is not correct. compare_result array size = " +
-							to_string(cmp_array_size) + " , but results array size = " + to_string(unit_test_num);
-					return false;
-				}
-				for (int g = 0; g < cmp_array_size; g++)
-					if( !mustBeNotArray(field_cmp_result[g],string("compare_result[" + to_string(g) + "]")))
-						return false;
-			}
-
-
-
 			switch(type_rezult)
 			{
 			case FunctionData::RET_VAL_RANGE:
@@ -598,7 +613,7 @@ bool jsonParser::isValidFields()
 				int range_size;
 				bool range_size_inited;
 				range_size_inited = false;
-				for (int i=0; i < results_size; i++)
+				for (int i=0; i < results_array_size; i++)
 				{
 					if( !mustBeNotArrayString(field_results[i],
 							string("results[" + to_string(i) + "]"), " of ranges", ", thats why can`t be range"))
@@ -609,28 +624,28 @@ bool jsonParser::isValidFields()
 				}
 				break;
 			case FunctionData::RET_VAL_BOOL:
-				for (int i=0; i < results_size; i++)
+				for (int i=0; i < results_array_size; i++)
 				{
 					if( !mustBeNotArrayBool(field_results[i],string("results[" + to_string(i) + "]"), ", cuz results[0] isn`t"))
 						return false;
 				}
 				break;
 			case FunctionData::RET_VAL_FLOAT	:
-				for (int i=0; i < results_size; i++)
+				for (int i=0; i < results_array_size; i++)
 				{
 					if( !mustBeNotArrayFloat(field_results[i], string("results[" + to_string(i) + "]"), ", cuz results[0] isn`t"))
 						return false;
 				}
 				break;
 			case FunctionData::RET_VAL_INT	:
-				for (int i=0; i < results_size; i++)
+				for (int i=0; i < results_array_size; i++)
 				{
 					if( !mustBeNotArrayInt(field_results[i], string("results[" + to_string(i) + "]"), ", cuz results[0] isn`t"))
 						return false;
 				}
 				break;
 			case FunctionData::RET_VAL_STRING:
-				for (int i=0; i < results_size ; i++)
+				for (int i=0; i < results_array_size ; i++)
 				{
 					if( !mustBeNotArrayString(field_results[i],	string("results[" + to_string(i) + "]"), ", cuz results[0] isn`t"))
 						return false;
@@ -646,7 +661,7 @@ bool jsonParser::isValidFields()
 		else
 		{
 			int results_0_array_size  = field_results[0].size();
-			results_array_size = results_0_array_size;
+			//results_array_size = results_0_array_size;
 
 			if(!mustHaveSizeMoreZero(field_results[0],"results[0]","Where results[0] values?"))
 				return false;
@@ -658,7 +673,7 @@ bool jsonParser::isValidFields()
 			}
 
 
-			for (int k=0; k < results_size; k++)
+			for (int k=0; k < results_array_size; k++)
 			{
 				Json::Value result_k = field_results[k];
 

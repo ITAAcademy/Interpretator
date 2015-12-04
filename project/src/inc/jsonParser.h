@@ -32,7 +32,6 @@ using namespace Json;
 #define FIELD_IS_ARRAY "is_array"
 #define FIELD_SIZE "size"
 #define FIELD_TYPE "type"
-#define FIELD_CMP_RESULT "compare_result"
 #define FIELD_CMP_ARG "compare_argument"
 #define FIELD_ARG_NAME "arg_name"
 #define FIELD_VALUE "value"
@@ -40,6 +39,8 @@ using namespace Json;
 #define FUNCTION "function"
 #define ARGS "args"
 #define FIELD_ETALON_VALUE "etalon_value"
+#define FIELD_TESTS_CODE "tests_code"
+
 
 
 /*
@@ -128,8 +129,14 @@ public:
 	bool mustExistBeString(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeBool(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArray(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArrayString(Json::Value object, string name , string ps = "", string ps2 = "");
 
 	bool mustHaveSizeMoreZeroAndBeNotTwoDimensionalArray(Json::Value object, string name , string ps = "", string ps2 = "");
+
+	bool sizeEqualSizeOfUnitTests(Json::Value object, string name);
+
+	string stringInScobcah(string inp);
+	string stringInScobcah(int inp);
 
 private:
 	/*

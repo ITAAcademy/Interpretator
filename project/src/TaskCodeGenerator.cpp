@@ -222,8 +222,10 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 
 string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string footerBody = "return 0;\n}\n";//Close function body
+
 	string space=" ";
 	char divider=',';
+	string results_arguments_comparing_after_main_func = "bool results_arguments_comparing_after_main_func = true";
 	string modifiedArgComparsion;
 	//C++
 	string arrCompFuncStr="template<typename T,int size>\n\
@@ -261,14 +263,14 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	{
 		footerBody  += " *";
 	}
-	footerBody += "result;\n";
+	footerBody += " result;\n";
 
 	footerBody += functionData.getReturnType();
 	if (functionData.isArray )
 	{
 		footerBody  += " *";
 	}
-	footerBody += "result" + string(ETALON_FOR_FUNCTION_ENDING) + ";\n";
+	footerBody += " result" + string(ETALON_FOR_FUNCTION_ENDING) + ";\n";
 
 	/*
 	 *
@@ -370,7 +372,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		string variablesCorrectByEtalon = ""+argumentsEqualToEtalonConditionName+" = ";
 		vector<int> checkableArgsIndexes = functionData.checkableArgsIndexes;
 		int checkableArgsCount = 0;
-		for(FunctionArgument arg : functionData.args){
+		for(FunctionArgument arg : functionData.args) //8787
+		{
+			vector<string> args_results;
+				vector<string> args_results_must_be_after_main_func;
 			if ( !arg.isArray )
 			{
 				if (std::find(checkableArgsIndexes.begin(),checkableArgsIndexes.end(),i)!=checkableArgsIndexes.end())
@@ -506,8 +511,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		footerBody += argumentEtalonDefinition;
 
 		argsString += variablesCorrect+";\n";
-		argsString += "result" + string(ETALON_FOR_FUNCTION_ENDING) +  " = function_etalon(" + argForEtalonFunction +  ");\n";
-		argsString += "result = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+		argsString += " result" + string(ETALON_FOR_FUNCTION_ENDING) +  " = function_etalon(" + argForEtalonFunction +  ");\n";
+		argsString += " result = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+
 		argsString += "bool isTrue = false;\n";
 		argsString += variablesCorrectByEtalon;
 		argsString += functionData.tests_code[i] + "\n";
