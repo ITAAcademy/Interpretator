@@ -310,6 +310,10 @@ void *receiveTask(void *a)
 													if(!TokenSystem::getObject()->getFromToken(stream, jSON))
 														succsesful = false;
 												}
+												else
+												{
+													errorResponder.showError(505, "operation is invalid");
+												}
 
 				if(!succsesful)
 				{
@@ -390,6 +394,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		temp.insert( { valuesCount++, str_with_spec_character(generator.getEtalon())});
 		l12("qwe33");
 		temp.insert( { valuesCount++, str_with_spec_character(generator.getFooter())});
+
 
 		l12("temp.insert");
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";

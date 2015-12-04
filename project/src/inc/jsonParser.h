@@ -103,6 +103,17 @@ public:
 	virtual ~jsonParser();
 
 
+	bool rangeValidation(bool &range_size_inited, int &range_size, string range, string field_name);
+	bool mustBeArrayFloat(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustBeArrayInt(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustBeArrayString(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustBeArrayBool(Json::Value object, string name , string ps = "", string ps2 = "");
+
+	bool mustBeNotArrayFloat(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustBeNotArrayInt(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustBeNotArrayString(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustBeNotArrayBool(Json::Value object, string name , string ps = "", string ps2 = "");
+
 	bool mustBeNotArray(Json::Value object, string name , string ps = "");
 	bool mustBeArray(Json::Value object, string name , string ps = "");
 	bool mustHaveSizeMoreZero(Json::Value object, string name , string ps = "");
@@ -111,6 +122,15 @@ public:
 	bool mustBeFloat(Json::Value object, string name , string ps = "");
 	bool mustBeString(Json::Value object, string name , string ps = "");
 	bool mustExist(Json::Value object, string name , string ps = "");
+
+	bool mustExistBeInt(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeFloat(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeString(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeBool(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArray(Json::Value object, string name , string ps = "", string ps2 = "");
+
+	bool mustHaveSizeMoreZeroAndBeNotTwoDimensionalArray(Json::Value object, string name , string ps = "", string ps2 = "");
+
 private:
 	/*
 	 *  no check is array? problem with find elemet // crash // not use
