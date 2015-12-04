@@ -5,6 +5,8 @@
 // Copyright   : Your copyright notice
 // Description : Hello World in C++, Ansi-style
 //============================================================================
+#ifndef SQLSYSTEM_H_
+#define SQLSYSTEM_H_
 
 #include "includes.h"
 #include "mysql_connection.h"
@@ -69,3 +71,4 @@ bool connect_table;
 };
 
 int testamana (void);
+#endif

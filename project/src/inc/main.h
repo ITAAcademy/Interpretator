@@ -44,21 +44,25 @@ int main(void)
 #include <algorithm>
 
 #include <ctime>
-using namespace std;
 //#include <pstream.h>
 
 #include <cassert>
 #include <exception>
 #include "FCGI_Stream.h"
 
-
 //TIMER
 #include <functional>
 #include <chrono>
 #include <future>
 #include <cstdio>
+#include <ctime>
+#include "ctpl_stl.h"
+#include "SQLConnectionPool.h"
+#include "TaskCodeGenerator.h"
+#include "TokenSystem.h"
 
-
+using namespace std;
+using namespace code;
 
 //static void *doit(void *a);
 int Apache(void);
@@ -97,17 +101,3 @@ bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON);
 bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON);
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON);
 bool editTask( FCGI_Stream &stream, jsonParser &jSON);
-bool generationToken(FCGI_Stream &stream, jsonParser &jSON, map<string, Token> &token);
-bool getFromToken(FCGI_Stream &stream, jsonParser &jSON, map<string, Token> &tokenList);
-void deleteToken(string tok);
-bool to_bool(std::string const& s);
-string generateHeader(FunctionData functionData);
-string generateFooter(FunctionData functionData);
-string generateType(int type, int lang);
-string generateVar(int type, string name, int lang, string value = string());
-
-string convertStringToType(string argStringValue, int type, int lang);
-string convertTypeToString(int type, int lang);
-
-string getStandartInclude(int lang);
-

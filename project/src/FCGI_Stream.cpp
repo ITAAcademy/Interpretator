@@ -44,9 +44,9 @@ void FCGI_Stream::initFCGI_Stream()
 		cout_fcgi_streambuf = new fcgi_streambuf(request->out);
 		cerr_fcgi_streambuf = new fcgi_streambuf(request->err);
 
-		cin.rdbuf(cin_fcgi_streambuf);
+		/*cin.rdbuf(cin_fcgi_streambuf);//@NICO@
 		cout.rdbuf(cout_fcgi_streambuf);
-		cerr.rdbuf(cerr_fcgi_streambuf);
+		cerr.rdbuf(cerr_fcgi_streambuf);*/
 	///}
 }
 void FCGI_Stream::initSTD_Stream()

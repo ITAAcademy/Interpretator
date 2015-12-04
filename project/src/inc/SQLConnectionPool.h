@@ -21,7 +21,6 @@
 using namespace std;
 
 
-
 class SqlConnectionPool : public mysqlpp::ConnectionPool
 {
 
