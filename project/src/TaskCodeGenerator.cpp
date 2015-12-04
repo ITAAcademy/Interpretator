@@ -367,7 +367,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		int argCount = 0;
 		string variablesCorrect = ""+correctArgumentsConditionName+" = ";
-		string variablesCorrectByEtalon = ""+argumentsEqualToEtalonConditionName+" = ";
+		string variablesCorrectByEtalonPrefix = ""+argumentsEqualToEtalonConditionName+" = ";
+		string variablesCorrectByEtalonEnding = "";
 		vector<int> checkableArgsIndexes = functionData.checkableArgsIndexes;
 		int checkableArgsCount = 0;
 		for(FunctionArgument arg : functionData.args){
@@ -375,8 +376,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			{
 				if (std::find(checkableArgsIndexes.begin(),checkableArgsIndexes.end(),i)!=checkableArgsIndexes.end())
 				{
-					if (checkableArgsCount>0)variablesCorrectByEtalon+=" && ";
-					variablesCorrectByEtalon+=arg.name += "=="+arg.name+ETALON_FOR_FUNCTION_ENDING;
+					if (checkableArgsCount>0)variablesCorrectByEtalonEnding+=" && ";
+					variablesCorrectByEtalonEnding+=arg.name += "=="+arg.name+ETALON_FOR_FUNCTION_ENDING;
 					checkableArgsCount++;
 				}
 				string currentArgDef = arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " + arg.name + " = " + arg.value[i] + ";\n";
@@ -387,7 +388,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 				variablesCorrect += "(" + arg.name + " == " + arg.name + string(ETALON_ENDING) + ")";
 				variablesCorrect += "("+currentArgDef+"=="+currentArgEtalonDef+")";
-				variablesCorrectByEtalon += 1;
+				variablesCorrectByEtalonEnding += 1;
 
 				if (argCount != functionData.args.size() - 1 )
 					variablesCorrect += " && ";
@@ -398,8 +399,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			{
 				if (std::find(checkableArgsIndexes.begin(),checkableArgsIndexes.end(),i)!=checkableArgsIndexes.end())
 				{
-					if (checkableArgsCount>0)variablesCorrectByEtalon+=" && ";
-					variablesCorrectByEtalon+="compareArrs<"+arg.getType()+","+
+					if (checkableArgsCount>0)variablesCorrectByEtalonEnding+=" && ";
+					variablesCorrectByEtalonEnding+="compareArrs<"+arg.getType()+","+
 							std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_FOR_FUNCTION_ENDING+")";
 					checkableArgsCount++;
 
@@ -501,7 +502,11 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			//footerBody+=arg.value[0];//@BAD@
 			argCount++;
 		}
-		variablesCorrectByEtalon += ";";
+		if (variablesCorrectByEtalonEnding.length()>1)//if comparsion conditions excists (our_func arg[i] == etalon_func arg[i])
+			variablesCorrectByEtalonEnding += ";";
+		else
+			variablesCorrectByEtalonEnding+="true;";//condition try if comparsion need no.
+
 		footerBody += argumentDefinition;
 		footerBody += argumentEtalonDefinition;
 
@@ -509,7 +514,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		argsString += "result" + string(ETALON_FOR_FUNCTION_ENDING) +  " = function_etalon(" + argForEtalonFunction +  ");\n";
 		argsString += "result = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
 		argsString += "bool isTrue = false;\n";
-		argsString += variablesCorrectByEtalon;
+		argsString += variablesCorrectByEtalonPrefix+variablesCorrectByEtalonEnding;
 		argsString += functionData.tests_code[i] + "\n";
 
 		if (functionData.isArray )
