@@ -338,6 +338,10 @@ void *receiveTask(void *a)
 													if(!getFromToken(stream, jSON, TokenList))
 														succsesful = false;
 												}
+												else
+												{
+													errorResponder.showError(505, "operation is invalid");
+												}
 
 				if(!succsesful)
 				{
@@ -547,7 +551,9 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		temp.insert( { valuesCount++, str_with_spec_character(generateHeader(functionData))});
 		temp.insert( { valuesCount++, str_with_spec_character(etalon)});
 		l12("qwe33");
-		temp.insert( { valuesCount++, str_with_spec_character(generateFooter(functionData) )});
+		string footer = generateFooter(functionData) ;
+		string footer_with_spec_character = str_with_spec_character(footer);
+		temp.insert( { valuesCount++, footer_with_spec_character});
 
 		l12("temp.insert");
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
@@ -1361,7 +1367,7 @@ string generateFooter(FunctionData functionData){
 
 	}
 	string conditionsVariableDeclaration = "bool " +argumentsEqualToEtalonConditionName+","
-					+correctArgumentsConditionName+";\n";
+			+correctArgumentsConditionName+";\n";
 	footerBody+= conditionsVariableDeclaration;
 
 
@@ -1443,7 +1449,7 @@ string generateFooter(FunctionData functionData){
 				variablesCorrect += "(" + arg.name + " == " + arg.name + string(ETALON_ENDING) + ")";
 				variablesCorrect += "("+currentArgDef+"=="+currentArgEtalonDef+")";
 				variablesCorrectByEtalon += 1;
-				
+
 				if (argCount != functionData.args.size() - 1 )
 					variablesCorrect += " && ";
 				else
@@ -1452,14 +1458,14 @@ string generateFooter(FunctionData functionData){
 			else
 			{
 				if (std::find(checkableArgsIndexes.begin(),checkableArgsIndexes.end(),i)!=checkableArgsIndexes.end())
-								{
-									if (checkableArgsCount>0)variablesCorrectByEtalon+=" && ";
-									variablesCorrectByEtalon+="compareArrs<"+arg.getType()+","+
-											std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_FOR_FUNCTION_ENDING+")";
-									checkableArgsCount++;
+				{
+					if (checkableArgsCount>0)variablesCorrectByEtalon+=" && ";
+					variablesCorrectByEtalon+="compareArrs<"+arg.getType()+","+
+							std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_FOR_FUNCTION_ENDING+")";
+					checkableArgsCount++;
 
 
-								}
+				}
 				//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
 				string values_u = arg.value[i].substr(1, arg.value[i].size() - 2 );
 				string etalons_values_u = arg.etalonValue[i].substr(1, arg.etalonValue[i].size() - 2 );
@@ -1568,7 +1574,8 @@ string generateFooter(FunctionData functionData){
 		argsString += "result = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
 		argsString += "bool isTrue = false;\n";
 		argsString += variablesCorrectByEtalon;
-		argsString += functionData.tests_code[i] + "\n";
+		if (functionData.tests_code.size() > i)
+			argsString += functionData.tests_code[i] + "\n";
 
 		if (functionData.isArray )
 		{
