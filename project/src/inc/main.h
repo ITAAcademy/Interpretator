@@ -41,6 +41,7 @@ int main(void)
 #include <iostream>
 #include <string>
 #include <regex>
+#include <algorithm>
 
 #include <ctime>
 using namespace std;
