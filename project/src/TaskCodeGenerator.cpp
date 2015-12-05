@@ -8,6 +8,33 @@
 #include "inc/TaskCodeGenerator.h"
 
 namespace code {
+string FunctionArgument::generateDeclaration(bool isArgumentEtalonDeclaration, bool isForEtalonFunctionDeclaration){
+		string argumentDeclaration="",argumentEtalonDeclaration="",argumentForEtalonFunctionDeclaration="";
+				argumentDeclaration = TaskCodeGenerator::generateType(type, 0) + " " +  name;
+				argumentEtalonDeclaration =  TaskCodeGenerator::generateType(type,0) + " " + name + ETALON_ENDING;
+				argumentForEtalonFunctionDeclaration = TaskCodeGenerator::generateType(type,0) + " "
+						+ name + string(ETALON_FOR_FUNCTION_ENDING);
+				//footerBody +=
+				if ( isArray )
+				{
+					argumentDeclaration  += "[" + to_string(size) + "]";
+					argumentEtalonDeclaration += "[" + to_string(size) + "]";
+					argumentForEtalonFunctionDeclaration += "[" + to_string(size) + "]";
+					/*
+					 * @NEED REFACTOR@
+					 *
+					 */
+				}
+				argumentDeclaration += ";\n";
+				argumentEtalonDeclaration += ";\n";
+				argumentForEtalonFunctionDeclaration+= ";\n";
+
+				//add etalon variables
+				string resultStr =  argumentDeclaration;
+				if (isArgumentEtalonDeclaration)resultStr+=argumentEtalonDeclaration;
+				if (isForEtalonFunctionDeclaration)resultStr+= argumentForEtalonFunctionDeclaration;
+				return resultStr;
+	}
 
 TaskCodeGenerator::TaskCodeGenerator(jsonParser &jSON)
 {
@@ -283,27 +310,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	for(FunctionArgument arg : functionData.args)
 	{
-		string argumentDeclaration="",argumentEtalonDeclaration="",argumentForEtalonFunctionDeclaration="";
-		argumentDeclaration = generateType(arg.type, 0) + " " +  arg.name;
-		argumentEtalonDeclaration =  generateType(arg.type,0) + " " + arg.name + ETALON_ENDING;
-		argumentForEtalonFunctionDeclaration =  generateType(arg.type,0) + " " + arg.name + string(ETALON_FOR_FUNCTION_ENDING);
-		//footerBody +=
-		if ( arg.isArray )
-		{
-			argumentDeclaration  += "[" + to_string(arg.size) + "]";
-			argumentEtalonDeclaration += "[" + to_string(arg.size) + "]";
-			argumentForEtalonFunctionDeclaration += "[" + to_string(arg.size) + "]";
-			/*
-			 * @NEED REFACTOR@
-			 *
-			 */
-		}
-		argumentDeclaration += ";\n";
-		argumentEtalonDeclaration += ";\n";
-		argumentForEtalonFunctionDeclaration+= ";\n";
-
 		//add etalon variables
-		footerBody += argumentDeclaration + argumentEtalonDeclaration + argumentForEtalonFunctionDeclaration;
+		footerBody += arg.generateDeclaration();
 
 
 	}
@@ -542,7 +550,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		//if (functionData.isArray)
 		{
-			argsString+=" && variablesCorrect && isTrue)\n";
+			argsString+=" && variablesCorrect && isTrue && "+argumentsEqualToEtalonConditionName+")\n";
 			//TODO
 		}
 
