@@ -29,8 +29,8 @@ bool TokenSystem::generationToken(FCGI_Stream &stream, jsonParser &jSON)
 	stream << res.toStyledString();
 
 	//Later later_delete(Config::getInstance().getTokenTimeOut(), true, &this->deleteToken, value);
-	auto f1 = std::thread(&TokenSystem::deleteToken, this,  value, Config::getInstance().getTokenTimeOut());
-	f1.detach();
+	auto f1 = std::thread(&TokenSystem::deleteToken, this,  value, Config::getInstance().getTokenTimeOut());//run new thread
+	f1.detach();//detach from main thread
 	return true;
 
 }
@@ -117,10 +117,7 @@ bool TokenSystem::getFromToken(FCGI_Stream &stream, jsonParser &jSON)
 
 void TokenSystem::deleteToken(string tok, int timeOut)
 {
-	cout << "start thread sleep	" + to_string(timeOut);
-
-	std::this_thread::sleep_for(std::chrono::milliseconds(timeOut));
-	cout << "start thread after";
+	std::this_thread::sleep_for(std::chrono::milliseconds(timeOut));//wait timeOut
 	tokenList.erase(tok);
 }
 
@@ -132,12 +129,14 @@ TokenSystem *TokenSystem::getObject()
 	return obj;
 }
 
-TokenSystem::TokenSystem() {
+TokenSystem::TokenSystem()
+{
 	// TODO Auto-generated constructor stub
 
 }
 
-TokenSystem::~TokenSystem() {
+TokenSystem::~TokenSystem()
+{
 	// TODO Auto-generated destructor stub
 }
 } /* namespace code */

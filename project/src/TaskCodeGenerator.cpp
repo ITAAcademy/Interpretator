@@ -119,10 +119,10 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, L
 	string functionStr = generateType(functionData.returnValueType, 0);
 	if (functionData.isArray)
 		functionStr += "* ";
+
 	functionStr	+= name + "(";
 
 	int argCount = 0;
-
 	int array_cnt = 0;
 
 	for(FunctionArgument arg : functionData.args){
@@ -165,7 +165,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	char divider=',';
 	string results_arguments_comparing_after_main_func = "bool results_arguments_comparing_after_main_func = true";
 	string modifiedArgComparsion;
-	//C++
+	//C++//need out this code
 	string arrCompFuncStr="template<typename T,int size>\n\
 	bool compareArrs(T arr1[size],T arr2[size])\n\
 		{\n\
@@ -279,8 +279,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 						footerBody += " (float) ";
 					footerBody += values_u[h].toStyledString() + ";\n";
 			}
+
+
 		}
-		/*if (functionData.isRange )
+		/*if (functionData.isRange )//@WHAT@
 		{
 
 		}
@@ -352,12 +354,6 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 						std::to_string(arg.size) + ">(" + arg.name + "," + arg.name + ETALON_ENDING + ")";
 				if ( argCount != functionData.args.size() - 1 )
 					variablesCorrect+=" && ";
-
-				//	else variablesCorrect+=");";
-
-
-
-				//for (int u=0; u < arg.value[i].size(); u++)		footerBody += arg.name +"[" + to_string(u) + "] = " + arg.value[i] + ";\n";
 			}
 
 
@@ -371,38 +367,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			string etalonStringValue = arg.etalonValue[i];
 			string arrName = arg.name;//    "array"+std::to_string(arraysCount);
 			string etalonArrName = arrName + ETALON_FOR_FUNCTION_ENDING;
-			switch(arg.type){
-			case FunctionData::RET_VAL_BOOL:
-				argForMainFunction += arrName;
-				argForEtalonFunction += etalonArrName;
+			argForMainFunction += arrName;
+			argForEtalonFunction += etalonArrName;
 
-				break;
-			case FunctionData::RET_VAL_FLOAT:
-				argForMainFunction += arrName;
-				argForEtalonFunction += etalonArrName;
-				break;
-			case FunctionData::RET_VAL_INT:
-				argForMainFunction += arrName;
-				argForEtalonFunction += etalonArrName;
-				break;
-			case FunctionData::RET_VAL_STRING:
-				argForMainFunction += arrName;
-				argForEtalonFunction += etalonArrName;
-				break;
-
-				/*case FunctionData::RET_VAL_RANGE
-						if (arg.isArray){
-							arrType="string";//add array type
-							argsString += arrName;
-						}
-						else
-							argsString += '"'+argStringValue+'"';
-
-						break;*/
-			}
-
-
-			//footerBody+=arg.value[0];//@BAD@
 			argCount++;
 		}
 		if (variablesCorrectByEtalonEnding.length()>1)//if comparsion conditions excists (our_func arg[i] == etalon_func arg[i])
@@ -424,11 +391,6 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		if (functionData.isArray )
 		{
 			string arrType = functionData.getReturnType();
-			/*string arrayDeclaration=arrType+" "+arrName+"[]="+functionData.result[i];
-			footerBody+=arrayDeclaration+";\n";*/
-
-			//if (std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)))
-
 
 			argsString += "if (compareArrs<"+arrType+","+
 					std::to_string(functionData.size)+">(result_etalon, result)";
@@ -437,7 +399,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		else
 			argsString += "if ( result_etalon == result";//open function call body;
 
-		//if (functionData.isArray)
+		//if (functionData.isArray)//@WHAT@
 		{
 			argsString+=" && variablesCorrect && isTrue)\n";
 			//TODO
@@ -481,26 +443,7 @@ string TaskCodeGenerator::generateType(int type, int lang)
 
 string TaskCodeGenerator::generateVar(int type, string name, int lang, string value)
 {
-	string result;
-	result = generateType(type, lang) + name + " ";
-
-	/*if(value.length() > 0)
-	switch(type){
-		case FunctionData::RET_VAL_BOOL:
-			result += to_bool(argStringValue);
-					break;
-				case FunctionData::RET_VAL_FLOAT:
-					result += std::atof(argStringValue.c_str());
-					break;
-				case FunctionData::RET_VAL_INT:
-					result += argStringValue.c_str();
-					break;
-				case FunctionData::RET_VAL_STRING:
-					result += '"'+argStringValue+'"';
-					break;
-		}*/
-	return result;
-
+	return generateType(type, lang) + name + " ";
 }
 
 string TaskCodeGenerator::getStandartInclude(int lang)

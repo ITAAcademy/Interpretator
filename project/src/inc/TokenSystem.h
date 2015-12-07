@@ -48,15 +48,16 @@ class TokenSystem {
 	static TokenSystem *obj;
 public:
 	static TokenSystem *getObject();
-	bool generationToken(FCGI_Stream &stream, jsonParser &jSON);
-	bool getFromToken(FCGI_Stream &stream, jsonParser &jSON);
-	void deleteToken(string tok, int timeOut);
+	bool generationToken(FCGI_Stream &stream, jsonParser &jSON);// generate new token => add to list + run deleteToken in new thread //return #200
+	bool getFromToken(FCGI_Stream &stream, jsonParser &jSON);// return result if token good //return #200
+	void deleteToken(string tok, int timeOut);//delete token after timeOut
 
 private:
 	TokenSystem();
 	virtual ~TokenSystem();
 };
 
+//test class for new thread
 class Later
 {
 public:
