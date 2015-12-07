@@ -14,7 +14,7 @@ string getCompareString(string name1,  ValueTypes type1,string name2,  ValueType
 	switch (type1)
 	{
 	case ValueTypes::VAL_FLOAT:
-		result += " ( flour(" + name1 + " * 100 ) - flour(" + name2 + " * 100 ) ) ";
+		result += " ( floor(" + name1 + " * 100 ) - floor(" + name2 + " * 100 ) ) ";
 		switch (mark)
 		{
 		case CompareMark::LessEquial:
