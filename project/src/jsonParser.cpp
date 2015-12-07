@@ -68,6 +68,7 @@ bool jsonParser::rangeValidation(bool &range_size_inited, int &range_size, strin
 					to_string(range_size) + ")";
 			return false;
 		}
+	return true;
 }
 
 bool jsonParser::mustBeArrayFloat(Json::Value object, string name , string ps, string ps2 )
@@ -267,6 +268,34 @@ bool jsonParser::mustExistBeArrayString(Json::Value object, string name , string
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeString(object[i], name + stringInScobcah(i)))
 			return false;
+	return true;
+}
+bool jsonParser::mustExistBeArrayInt(Json::Value object, string name , string ps, string ps2 )
+{
+	if (!mustExistBeArray(object, name, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeInt(object[i], name + stringInScobcah(i)))
+			return false;
+	return true;
+}
+
+bool jsonParser::mustExistBeArrayInt(Json::Value object, string name , string ps, string ps2 , int min_val, int max_val)
+{
+	if (!mustExistBeArray(object, name, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+	{
+		if (!mustBeInt(object[i], name + stringInScobcah(i)))
+			return false;
+		int int_obj = object[i].asInt();
+		if (int_obj < min_val || int_obj > max_val)
+		{
+			last_error = "error: json format is not correct. " +  name + stringInScobcah(i) +" value(" + to_string(int_obj) +
+					") out of range(" + to_string(min_val) + ", " + to_string(max_val) + ")";
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -521,6 +550,7 @@ bool jsonParser::isValidFields()
 		Json::Value field_args = parsedFromString[FUNCTION][FIELD_ARGS];
 		Json::Value field_results = parsedFromString[FUNCTION][FIELD_RESULTS];
 		Json::Value field_type = parsedFromString[FUNCTION][FIELD_TYPE];
+		Json::Value field_compare_mark = parsedFromString[FUNCTION][FIELD_COMPARE_MARK];
 
 		if( !mustExist(parsedFromString[FUNCTION], "function"))
 			return false;
@@ -529,6 +559,9 @@ bool jsonParser::isValidFields()
 			return false;
 
 		if( !mustExistBeArrayString(field_tests_code, "tests_code"))
+			return false;
+
+		if( !mustExistBeArrayInt(field_compare_mark, "compare_mark","", "",0, CompareMark::Last - 1))
 			return false;
 
 		if( !mustExistBeArray(field_args, "args"))
@@ -783,8 +816,12 @@ bool jsonParser::isValidFields()
 
 			//////////1
 			Json::Value args_i_etalon_value = args_i[FIELD_ETALON_VALUE];
+			Json::Value args_i_compare_mark = args_i[FIELD_COMPARE_MARK];
 
 			if(!mustExistBeArray(args_i_etalon_value, string("etalon_value of args[" + to_string(i) + "]" )))
+				return false;
+
+			if(!mustExistBeArrayInt(args_i_compare_mark, string("compare_mark of args[" + to_string(i) + "]" ),"","",0, CompareMark::Last - 1))
 				return false;
 
 			int etalon_values_size = args_i_etalon_value.size();

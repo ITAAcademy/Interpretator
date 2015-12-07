@@ -40,6 +40,7 @@ using namespace Json;
 #define ARGS "args"
 #define FIELD_ETALON_VALUE "etalon_value"
 #define FIELD_TESTS_CODE "tests_code"
+#define FIELD_COMPARE_MARK "compare_mark"
 
 
 
@@ -130,6 +131,8 @@ public:
 	bool mustExistBeBool(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArray(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArrayString(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArrayInt(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArrayInt(Json::Value object, string name , string ps, string ps2, int min_val, int max_val);
 
 	bool mustHaveSizeMoreZeroAndBeNotTwoDimensionalArray(Json::Value object, string name , string ps = "", string ps2 = "");
 

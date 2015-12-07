@@ -34,8 +34,13 @@ void ReplaceAll(std::string &str, const std::string& from, const std::string& to
 void l12(string ll);
 void l12(int ll);
 
+// <= < == > >=
+enum CompareMark {LessEquial = 0, Less = 1,  Equial = 2, More = 3, MoreEquial = 4, NotEquial = 5, Last = 6};
+enum ValueTypes {VAL_INT = 0,VAL_FLOAT  = 1,VAL_BOOL = 2,VAL_STRING = 3,VAL_RANGE = 4, VAL_Last = 5};
 
-
+// if arr isn`t array, then qrr_size = 0
+string getArrayCompareString(string name1, int arr1_size, ValueTypes type1,string name2, int arr2_size, ValueTypes type2, CompareMark mark);
+string getCompareString(string name1,  ValueTypes type1,string name2, ValueTypes type2, CompareMark mark);
 
 //Config *config;
 struct Job {
@@ -51,13 +56,16 @@ struct Token{
 	long jobId;
 	bool isValid = true;
 };
+
+
+
 struct FunctionArgument{
-	enum ValueTypes {VAL_INT = 0,VAL_FLOAT  = 1,VAL_BOOL = 2,VAL_STRING = 3,VAL_RANGE = 4, VAL_Last = 5};
 	int type=0;
 	bool isArray = false;
 	int size=0;
 	vector<string> etalonValue;
 	vector<string> value;
+	vector<CompareMark> compare_marks;
 	string name;
 	string getType(){
 			switch(type){
@@ -91,6 +99,7 @@ struct FunctionData{
 	string functionName;
 	vector<string> result;
 	vector<string> tests_code;
+	vector<CompareMark> compare_marks;
 	vector<FunctionArgument> args;
 	string etalon;
 	int getResultArraySize()
@@ -119,8 +128,6 @@ struct FunctionData{
 	}
 
 };
-
-
 
 
 
