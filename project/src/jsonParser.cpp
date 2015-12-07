@@ -174,7 +174,7 @@ bool jsonParser::mustHaveSizeMoreZero(Json::Value object, string name , string p
 {
 	if ( object.size() < 1)
 	{
-		last_error = "error: json format is not correct. " + name + " size < 1 " + ps;
+		last_error = "error: json formatu = reader.parse is not correct. " + name + " size < 1 " + ps;
 		return false;
 	}
 	return true;

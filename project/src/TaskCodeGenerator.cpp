@@ -79,40 +79,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 			functionData.isArray = true;
 		}
 		else
-			if(functionData.isArray == false)///////////////@BAG@
-			{
-				functionData.result.push_back(value.toStyledString());
-
-				/*switch(type_rezult)
-				{
-					case FunctionData::RET_VAL_BOOL:
-						functionData.result.push_back(value.asBool());
-											break;
-					case FunctionData::RET_VAL_FLOAT:
-						functionData.result.push_back(value.asFloat());
-											break;
-					case FunctionData::RET_VAL_INT:
-						functionData.result.push_back(value.asInt());
-											break;
-					case FunctionData::RET_VAL_STRING:
-					functionData.result.push_back(value.asString());
-					break;
-
-					l12("qwe");*/
-			}
-			else
-			{
-				string arrString="{";
-				int elmCount =0;
-				for (int j = 0; j < value.size(); j++){
-					if (elmCount>0)arrString+=",";
-					arrString+=value[j].toStyledString();
-
-					elmCount++;
-				}
-				arrString+="}";
-				functionData.result.push_back(arrString);  //___opo
-			}
+			functionData.result.push_back(value.toStyledString());  //___opo
 	}
 
 	for(JsonValue value:functionValue["tests_code"])
@@ -133,40 +100,11 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 		for(JsonValue value:argumentValue["value"])
 		{
-			if(functionArgument.isArray == false)
-			{
-				functionArgument.value.push_back(value.toStyledString());
-				l12("qwe2");
-			}
-			else{
-				string arrString="{";
-				int elmCount =0;
-				for (int j = 0; j < value.size(); j++){
-					if (elmCount>0)arrString+=",";
-					arrString+=value[j].toStyledString();
-
-					elmCount++;
-				}
-				arrString+="}";
-				functionArgument.value.push_back(arrString); //_opo
-			}
+			functionArgument.value.push_back(value.toStyledString()); //_opo
 		}
 		for(JsonValue modvalue:argumentValue["etalon_value"])
 		{
-			if(functionArgument.isArray == false)
-				functionArgument.etalonValue.push_back(modvalue.toStyledString());
-			else{
-				string arrString="{";
-				int elmCount =0;
-				for (int j = 0; j < modvalue.size(); j++){
-					if (elmCount>0)arrString+=",";
-					arrString+=modvalue[j].toStyledString();
-
-					elmCount++;
-				}
-				arrString+="}";
-				functionArgument.etalonValue.push_back(arrString); //_opo
-			}
+			functionArgument.etalonValue.push_back(modvalue.toStyledString()); //_opo
 		}
 
 
@@ -328,34 +266,19 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		else
 		{
 			//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
-			string values_u = functionData.result[i].substr(1, functionData.result[i].size() - 2 );
-			string indiv_value = "";
-			//values_u[0] = " ";
-			int v_size = values_u.size();
-			//values_u[v_size - 1] = " ";
-			int rez_size = 0;
-			for (int h = 0; h < v_size; h++)
+			Reader reader;
+			JsonValue values_u;
+			JsonValue etalons_values_u;
+			reader.parse(functionData.result[i], values_u);
+
+
+			for (int h = 0; h < values_u.size(); h++)
 			{
-				if (values_u[h] != ',')
-					indiv_value += values_u[h];
-				else
-				{
-					footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result[" + to_string(rez_size) + "] = ";
+					footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result[" + to_string(h) + "] = ";
 					if (is_float)
 						footerBody += " (float) ";
-					footerBody += indiv_value + ";\n";
-					indiv_value = "";
-					rez_size++;
-				}
+					footerBody += values_u[h].toStyledString() + ";\n";
 			}
-			if (indiv_value.size() != 0)
-			{
-				footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " + */ "result[" + to_string(rez_size) + "] = ";
-				if (is_float)
-					footerBody += " (float) ";
-				footerBody += indiv_value + ";\n";
-			}
-			//for (int u=0; u < arg.value[i].size(); u++)		footerBody += arg.name +"[" + to_string(u) + "] = " + arg.value[i] + ";\n";
 		}
 		/*if (functionData.isRange )
 		{
@@ -377,7 +300,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		for(FunctionArgument arg : functionData.args) //8787
 		{
 			vector<string> args_results;
-				vector<string> args_results_must_be_after_main_func;
+			vector<string> args_results_must_be_after_main_func;
 			if ( !arg.isArray )
 			{
 				if (std::find(checkableArgsIndexes.begin(),checkableArgsIndexes.end(),i)!=checkableArgsIndexes.end())
@@ -399,7 +322,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				if (argCount != functionData.args.size() - 1 )
 					variablesCorrect += " && ";
 				//else
-					//variablesCorrect+=";\n";
+				//variablesCorrect+=";\n";
 			}
 			else
 			{
@@ -413,38 +336,18 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 				}
 				//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
-				string values_u = arg.value[i].substr(1, arg.value[i].size() - 2 );
-				string etalons_values_u = arg.etalonValue[i].substr(1, arg.etalonValue[i].size() - 2 );
-				string indiv_value = "";
-				string etal_value = "";
-				//values_u[0] = " ";
-				int v_size = values_u.size();
-				int v_etalons_size = etalons_values_u.size();
-				//values_u[v_size - 1] = " ";
-				int arg_size = 0;
-				int etalon_arg_size = 0;
-				for (int h = 0; h < v_size; h++)
+				Reader reader;
+				JsonValue values_u;
+				JsonValue etalons_values_u;
+				reader.parse(arg.value[i], values_u);
+				reader.parse(arg.etalonValue[i], etalons_values_u);
+
+				for(int i = 0; i < values_u.size(); i++)
 				{
-					if (values_u[h] != ',')
-						indiv_value += values_u[h];
-					else
-					{
-						argumentDefinition += arg.name + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(arg_size) + "] = " + arg.name +"[" + to_string(arg_size) + "] = " + indiv_value + ";\n";
-						indiv_value = "";
-						arg_size++;
-					}
+					argumentDefinition += arg.name + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(i) + "] = " + arg.name +"[" + to_string(i) + "] = " + values_u[i].toStyledString() + ";\n";
+					argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(i) + "] = " + etalons_values_u[i].toStyledString() + ";\n";
 				}
-				for (int h = 0; h < v_etalons_size; h++)
-				{
-					if (etalons_values_u[h] != ',')
-						etal_value += values_u[h];
-					else
-					{
-						argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(etalon_arg_size) + "] = " + etal_value + ";\n";
-						etal_value = "";
-						etalon_arg_size++;
-					}
-				}
+
 				variablesCorrect+= "compareArrs<"+arg.getType()+","+
 						std::to_string(arg.size) + ">(" + arg.name + "," + arg.name + ETALON_ENDING + ")";
 				if ( argCount != functionData.args.size() - 1 )
@@ -452,13 +355,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 				//	else variablesCorrect+=");";
 
-				if (indiv_value.size() != 0)
-				{
-					argumentDefinition += arg.name +"[" + to_string(arg_size) + "] = " + indiv_value + ";\n";
-				}
-				if (etal_value.size() != 0){
-					argumentEtalonDefinition  += arg.name + ETALON_ENDING +"[" + to_string(etalon_arg_size) + "] = " + etal_value + ";\n";
-				}
+
 
 				//for (int u=0; u < arg.value[i].size(); u++)		footerBody += arg.name +"[" + to_string(u) + "] = " + arg.value[i] + ";\n";
 			}
@@ -513,14 +410,14 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		else
 			variablesCorrectByEtalonEnding+="true;";//condition try if comparsion need no.
 
-		footerBody += argumentDefinition;
-		footerBody += argumentEtalonDefinition;
+		argsString += argumentDefinition;
+		argsString += argumentEtalonDefinition;
 
 		argsString += variablesCorrect+";\n";
 		argsString += " result" + string(ETALON_FOR_FUNCTION_ENDING) +  " = function_etalon(" + argForEtalonFunction +  ");\n";
 		argsString += " result = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
 
-		argsString += "isTrue = false;\n";
+		argsString += "isTrue = true;\n";
 		argsString += variablesCorrectByEtalonPrefix+variablesCorrectByEtalonEnding;
 		argsString += functionData.tests_code[i] + "\n";
 

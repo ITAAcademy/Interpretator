@@ -252,8 +252,8 @@ string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_progr
 			if (beforeFooter.size() > 0)
 				footer.insert(footer.size() - 2, beforeFooter);// new 11.2015 for end main!!!
 			ReplaceAll(header,"#NUM#",std::to_string(thrdId));
-			rezult = beforeHeader + header + "\n" +
-					text_of_program + "\n" +
+			rezult = beforeHeader + header + "\n " +
+					text_of_program + " \n" +
 					/*beforeFooter+*/ footer;
 			logfile::addLog(rezult);
 		}
