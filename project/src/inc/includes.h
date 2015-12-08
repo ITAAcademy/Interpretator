@@ -85,8 +85,7 @@ struct FunctionData{
 	int returnValueType = RET_VAL_INT;
 	bool isArray = false;
 	bool isRange = false;
-	bool isCompareEachArgWithEtalonSeparate = false;
-	vector<vector<int>> checkableArgsIndexes;
+	vector<vector<pair<int,int>>> checkableArgsIndexes;
 	int result_array_size;
 	int size=0;
 	string functionName;

@@ -52,33 +52,22 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 	functionData.isArray = functionValue["results"][0].isArray();
 	functionData.size = functionValue["results"][0].size();
 	functionData.isRange = jSON.isResultsRange();
-//if (functionValue["checkable_args_indexes"].isArray())
+	//if (functionValue["checkable_args_indexes"].isArray())
 	bool compareEachArgWithEtalonSeparate=functionValue["checkable_args_indexes"][0].isArray();
-	vector<int> indexes;
 
-	for (Value arg_indexes : functionValue["checkable_args_indexes"])
+	for (Value arg_indexes_pares_arr : functionValue["checkable_args_indexes"])
 	{
-		if (compareEachArgWithEtalonSeparate)
-		{
-			vector<int> indexes;
-			//compareEachArgWithEtalonSeparate=true;
-			for (Value index : arg_indexes)
-			indexes.push_back(index.asInt());
-			functionData.checkableArgsIndexes.push_back(indexes);
-
+		vector<pair<int,int>> testConditionPares;
+		for (Value arg_indexes_pair : arg_indexes_pares_arr ){
+			pair<int,int> indexPare=std::make_pair(arg_indexes_pair["first"].asInt(),
+					arg_indexes_pair["second"].asInt());
+			testConditionPares.push_back(indexPare);
 		}
-		else
-			indexes.push_back(arg_indexes.asInt());
+		functionData.checkableArgsIndexes.push_back(testConditionPares);
+
 	}
-	if (compareEachArgWithEtalonSeparate)
-	{
-		functionData.isCompareEachArgWithEtalonSeparate=true;
-	}
-	else
-	{
-		functionData.checkableArgsIndexes.push_back(indexes);
-	}
-//functionData.checkableArgsIndexes.push_back(arg_indexes.asInt());
+
+	//functionData.checkableArgsIndexes.push_back(arg_indexes.asInt());
 	for(JsonValue value:functionValue["results"])
 	{
 		if (jSON.isResultsRange())
@@ -242,6 +231,8 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 }
 
 string TaskCodeGenerator::generateFooter(FunctionData functionData){
+
+	vector<FunctionArgument> variables;
 	string footerBody = "return 0;\n}\n";//Close function body
 
 	string space=" ";
@@ -284,6 +275,18 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	{
 		footerBody  += " *";
 	}
+	FunctionArgument resultVar;
+	resultVar.name="result";
+	resultVar.isArray=functionData.isArray;
+	resultVar.size=functionData.size;
+	resultVar.type=functionData.isArray;
+
+	variables.push_back(resultVar);
+	resultVar.name+=ETALON_ENDING;
+	variables.push_back(resultVar);
+	resultVar.name="result"+ string(ETALON_FOR_FUNCTION_ENDING);
+	variables.push_back(resultVar);
+
 	footerBody += " result;\n";
 
 	footerBody += functionData.getReturnType();
@@ -305,6 +308,17 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	for(FunctionArgument arg : functionData.args)
 	{
 		string argumentDeclaration="",argumentEtalonDeclaration="",argumentForEtalonFunctionDeclaration="";
+
+		FunctionArgument etalonArg = arg;
+		etalonArg.name+=ETALON_ENDING;
+
+		FunctionArgument etalonForFunctionArg = arg;
+		etalonForFunctionArg.name +=string(ETALON_FOR_FUNCTION_ENDING);
+		variables.push_back(arg);
+		variables.push_back(etalonArg);
+		variables.push_back(etalonForFunctionArg);
+
+
 		argumentDeclaration = generateType(arg.type, 0) + " " +  arg.name;
 		argumentEtalonDeclaration =  generateType(arg.type,0) + " " + arg.name + ETALON_ENDING;
 		argumentForEtalonFunctionDeclaration =  generateType(arg.type,0) + " " + arg.name + string(ETALON_FOR_FUNCTION_ENDING);
@@ -393,17 +407,18 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		string variablesCorrect = ""+correctArgumentsConditionName+" = ";
 		string variablesCorrectByEtalonPrefix = ""+argumentsEqualToEtalonConditionName+" = ";
 		string variablesCorrectByEtalonEnding = "";
-		vector<vector<int>> checkableArgsIndexes = functionData.checkableArgsIndexes;
+		vector<vector<pair<int,int>>> checkableArgsIndexes = functionData.checkableArgsIndexes;
 		int checkableArgsCount = 0;
 		int currentArgumentIndex=-1;
 		for(FunctionArgument arg : functionData.args) //8787
 		{
 			currentArgumentIndex++;
 			vector<string> args_results;
-				vector<string> args_results_must_be_after_main_func;
+			vector<string> args_results_must_be_after_main_func;
 			if ( !arg.isArray )
 			{
-				int indexOfTest;
+				/*
+				 int indexOfTest;
 				if (functionData.isCompareEachArgWithEtalonSeparate)indexOfTest=i;
 				else indexOfTest=0;
 				if (std::find(checkableArgsIndexes[indexOfTest].begin(),checkableArgsIndexes[indexOfTest].end(),currentArgumentIndex)!=checkableArgsIndexes[indexOfTest].end())
@@ -412,6 +427,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 					variablesCorrectByEtalonEnding+=arg.name + "=="+arg.name+ETALON_FOR_FUNCTION_ENDING;
 					checkableArgsCount++;
 				}
+				 */
 				string currentArgDef = arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " + arg.name + " = " + arg.value[i] + ";\n";
 				string currentArgEtalonDef = arg.name + string(ETALON_ENDING) + string(" = ") +
 						arg.etalonValue[i] + string(";\n"); //etalon value for argument
@@ -425,15 +441,15 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				if (argCount != functionData.args.size() - 1 )
 					variablesCorrect += " && ";
 				//else
-					//variablesCorrect+=";\n";
+				//variablesCorrect+=";\n";
 			}
 			else
 			{
-					int indexOfTest;
+				/*int indexOfTest;
 					if (functionData.isCompareEachArgWithEtalonSeparate)indexOfTest=i;
-					else indexOfTest=0;
+					else indexOfTest=0;*/
 
-				if (std::find(checkableArgsIndexes[indexOfTest].begin(),checkableArgsIndexes[indexOfTest].end(),currentArgumentIndex)!=
+				/*if (std::find(checkableArgsIndexes[indexOfTest].begin(),checkableArgsIndexes[indexOfTest].end(),currentArgumentIndex)!=
 						checkableArgsIndexes[indexOfTest].end())
 				{
 					if (checkableArgsCount>0)variablesCorrectByEtalonEnding+=" && ";
@@ -442,7 +458,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 					checkableArgsCount++;
 
 
-				}
+				}*/
 				//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
 				string values_u = arg.value[i].substr(1, arg.value[i].size() - 2 );
 				string etalons_values_u = arg.etalonValue[i].substr(1, arg.etalonValue[i].size() - 2 );
@@ -504,7 +520,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			string argStringValue = arg.value[i];
 			string etalonStringValue = arg.etalonValue[i];
 			string arrName = arg.name;//    "array"+std::to_string(arraysCount);
-			string etalonArrName = arrName + ETALON_FOR_FUNCTION_ENDING;
+			string etalonArrName = arrName + string(ETALON_FOR_FUNCTION_ENDING);
 			switch(arg.type){
 			case FunctionData::RET_VAL_BOOL:
 				argForMainFunction += arrName;
@@ -538,7 +554,44 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 			//footerBody+=arg.value[0];//@BAD@
 			argCount++;
+			//for (int k=0;k<variables.size();k++)
+
 		}
+		if (i<checkableArgsIndexes.size())
+		{
+			for (int l = 0; l < checkableArgsIndexes[i].size();l++)
+			{
+				//if (std::find(checkableArgsIndexes[indexOfTest].begin(),checkableArgsIndexes[indexOfTest].end(),
+				int firstCheckableVariableIndex=checkableArgsIndexes[i][l].first;
+				int secondCheckableVariableIndex=checkableArgsIndexes[i][l].second;
+				FunctionArgument *firstGlobalVariable = &variables[firstCheckableVariableIndex];
+				FunctionArgument *secondGlobalVariable = &variables[secondCheckableVariableIndex];
+
+				if (checkableArgsCount>0)variablesCorrectByEtalonEnding+=" && ";
+				if (firstGlobalVariable->isArray)
+				{
+					//false result of comparsion because of inconsistency of types or different sizes
+					if (!secondGlobalVariable->isArray || secondGlobalVariable->size !=firstGlobalVariable->size
+							|| secondGlobalVariable->type!=firstGlobalVariable->type)
+						variablesCorrectByEtalonEnding += "false";
+					//
+					else
+						variablesCorrectByEtalonEnding+="compareArrs<"+firstGlobalVariable->getType()+","+
+						std::to_string(firstGlobalVariable->size)+">("+firstGlobalVariable->name+
+						","+secondGlobalVariable->name+")";
+				}
+				else
+				{
+					if (secondGlobalVariable->type!=firstGlobalVariable->type)
+						variablesCorrectByEtalonEnding += "false";
+					else
+						variablesCorrectByEtalonEnding+=firstGlobalVariable->name + "=="+secondGlobalVariable->name;
+				}
+				checkableArgsCount++;
+
+			}
+		}
+
 		if (variablesCorrectByEtalonEnding.length()>1)//if comparsion conditions excists (our_func arg[i] == etalon_func arg[i])
 			variablesCorrectByEtalonEnding += ";";
 		else
