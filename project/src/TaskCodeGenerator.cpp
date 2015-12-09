@@ -397,8 +397,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 						checkableArgsIndexes[indexOfTest].end())
 				{
 					if (checkableArgsCount>0)variablesCorrectByEtalonEnding += " && ";
-					/*variablesCorrectByEtalonEnding+="compareArrs<"+arg.getType()+","+
-							std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_FOR_FUNCTION_ENDING+")";*/
+					variablesCorrectByEtalonEnding+="compareArrs<"+arg.getType()+","+
+							std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_FOR_FUNCTION_ENDING+")";
 					variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_FOR_FUNCTION_ENDING),
 							arg.size, (ValueTypes) arg.type, CompareMark::Equial);
 
