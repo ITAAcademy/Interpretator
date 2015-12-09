@@ -565,8 +565,7 @@ bool jsonParser::isValidFields()
 	if( !mustExistBeInt(parsedFromString[FIELD_TASK_ID], "task"))
 		return false;
 
-	if( !mustExistBeUnsignedInt(parsedFromString[FIELD_JOBID], "jobid"))
-		return false;
+
 
 
 	if( !mustExistBeString(parsedFromString[FIELD_OPERATION], "operation"))
@@ -577,6 +576,7 @@ bool jsonParser::isValidFields()
 	{
 		if( !mustExistBeString(parsedFromString[FIELD_ETALON], "etalon"))
 			return false;
+
 
 		/*if(parsedFromString[FIELD_CODE_LANGUAGE].isNull())
 		{
@@ -1133,6 +1133,9 @@ bool jsonParser::isValidFields()
 	if (parsedFromString[FIELD_OPERATION]=="start")
 	{
 
+		if( !mustExistBeUnsignedInt(parsedFromString[FIELD_JOBID], "jobid"))
+			return false;
+
 		if( !mustExistBeString(parsedFromString[FIELD_CODE_TEXT], "code"))
 			return false;
 		/*if(parsedFromString[FIELD_CODE_LANGUAGE].isNull() )
@@ -1151,6 +1154,9 @@ bool jsonParser::isValidFields()
 
 	}
 	else if (parsedFromString[FIELD_OPERATION]=="result"){
+
+		if( !mustExistBeUnsignedInt(parsedFromString[FIELD_JOBID], "jobid"))
+			return false;
 
 	}
 	else if (parsedFromString[FIELD_OPERATION]=="getToken"){

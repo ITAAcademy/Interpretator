@@ -305,7 +305,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 			for (int h = 0; h < values_u.size(); h++)
 			{
-				footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result[" + to_string(h) + "] = ";
+				footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result_etalon[" + to_string(h) + "] = ";
 				if (is_float)
 					footerBody += " (float) ";
 				footerBody += values_u[h].toStyledString() + ";\n";
@@ -470,7 +470,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	}
 	footerBody+=argsString;
-	footerBody += "\n}";
+	footerBody += "\nreturn 0;\n}";
 	//C++
 
 	l12("Yura:: 00001");

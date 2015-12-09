@@ -723,7 +723,7 @@ bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON)
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 {
 	string session = jSON.getObject("session", false).asString();
-	int jobid = jSON.getObject("jobid", false).asInt();
+	unsigned int jobid = jSON.getObject("jobid", false).asUInt();
 	//TO BE CONTINUED ...
 	vector<string> labl;
 
