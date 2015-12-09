@@ -88,9 +88,7 @@ string getArrayCompareString(string name1, int arr1_size, ValueTypes type1,strin
 
 	if (type1 != type2) //equial type
 	{
-		name1 = "to_string( " + name1 + " )";
-		name2 = "to_string( " + name2 + " )";
-		type1 = (ValueTypes)::VAL_STRING;
+		return "false";
 	}
 
 	if ( arr1_size == 0  )

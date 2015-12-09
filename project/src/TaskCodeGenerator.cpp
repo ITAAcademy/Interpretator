@@ -229,7 +229,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	resultVar.name="result";
 	resultVar.isArray=functionData.isArray;
 	resultVar.size=functionData.size;
-	resultVar.type=functionData.isArray;
+	resultVar.type=functionData.returnValueType;
 
 	variables.push_back(resultVar);
 	resultVar.name+=ETALON_ENDING;
@@ -457,8 +457,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				FunctionArgument *firstGlobalVariable = &variables[firstCheckableVariableIndex];
 				FunctionArgument *secondGlobalVariable = &variables[secondCheckableVariableIndex];
 
-				if (checkableArgsCount>0)variablesCorrectByEtalonEnding+=" && ";
-				if (firstGlobalVariable->isArray)
+				if ( checkableArgsCount>0 )
+					variablesCorrectByEtalonEnding+=" && ";
+				/*if (firstGlobalVariable->isArray)
 				{
 					//false result of comparsion because of inconsistency of types or different sizes
 					if (!secondGlobalVariable->isArray || secondGlobalVariable->size !=firstGlobalVariable->size
@@ -469,6 +470,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 						variablesCorrectByEtalonEnding+="compareArrs<"+firstGlobalVariable->getType()+","+
 						std::to_string(firstGlobalVariable->size)+">("+firstGlobalVariable->name+
 						","+secondGlobalVariable->name+")";
+					//996
 				}
 				else
 				{
@@ -476,7 +478,15 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 						variablesCorrectByEtalonEnding += "false";
 					else
 						variablesCorrectByEtalonEnding+=firstGlobalVariable->name + "=="+secondGlobalVariable->name;
-				}
+				}*/
+
+				ValueTypes type1 = (ValueTypes) firstGlobalVariable->type;
+				ValueTypes type2 = (ValueTypes) secondGlobalVariable->type;
+
+				variablesCorrectByEtalonEnding += getArrayCompareString(firstGlobalVariable->name, firstGlobalVariable->size , type1,
+						secondGlobalVariable->name , secondGlobalVariable->size, type2,
+						CompareMark::Equial);
+
 				checkableArgsCount++;
 
 			}
