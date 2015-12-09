@@ -292,7 +292,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		if ( !functionData.isArray)
 		{
-			footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + " = " + */"result_etalon = " + functionData.result[i] + ";\n";
+			argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + " = " + */"result_etalon = " + functionData.result[i] + ";\n";
 		}
 		else
 		{
@@ -305,10 +305,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 			for (int h = 0; h < values_u.size(); h++)
 			{
-				footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result_etalon[" + to_string(h) + "] = ";
+				argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result_etalon[" + to_string(h) + "] = ";
 				if (is_float)
-					footerBody += " (float) ";
-				footerBody += values_u[h].toStyledString() + ";\n";
+					argsString += " (float) ";
+				argsString += values_u[h].toStyledString() + ";\n";
 			}
 
 
