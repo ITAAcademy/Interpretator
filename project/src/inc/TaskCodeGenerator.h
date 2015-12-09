@@ -27,10 +27,14 @@
 
 namespace code {
 
+enum ERR{
+	COMPARE_VALUE_FROM_TH = 1114
+};
 class TaskCodeGenerator {
 	FunctionData data;
 	string header;
 	string footer;
+	static int status;
 
 public:
 	TaskCodeGenerator(jsonParser &jSON);
@@ -52,6 +56,13 @@ public:
 	string getFooter();
 
 	const string& getEtalon() const ;
+
+	/*
+	 * return 0 if all ok, else return ERR code
+	 */
+	static int getStatus() {
+		return status;
+	}
 };
 
 } /* namespace code */

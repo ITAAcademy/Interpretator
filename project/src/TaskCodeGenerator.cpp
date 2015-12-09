@@ -8,6 +8,7 @@
 #include "inc/TaskCodeGenerator.h"
 
 namespace code {
+int TaskCodeGenerator::status = 0;
 
 TaskCodeGenerator::TaskCodeGenerator(jsonParser &jSON)
 {
@@ -20,6 +21,7 @@ TaskCodeGenerator::~TaskCodeGenerator()
 }
 bool TaskCodeGenerator::updateData(jsonParser &jSON)
 {
+	status = 0;
 	data = parseTask(jSON);
 	header = generateHeader(data);
 	footer = generateFooter(data);
@@ -454,6 +456,11 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				//if (std::find(checkableArgsIndexes[indexOfTest].begin(),checkableArgsIndexes[indexOfTest].end(),
 				int firstCheckableVariableIndex=checkableArgsIndexes[i][l].first;
 				int secondCheckableVariableIndex=checkableArgsIndexes[i][l].second;
+				if(variables.size() < firstCheckableVariableIndex || variables.size() < secondCheckableVariableIndex)
+				{
+					status = (int)COMPARE_VALUE_FROM_TH;
+					break;
+				}
 				FunctionArgument *firstGlobalVariable = &variables[firstCheckableVariableIndex];
 				FunctionArgument *secondGlobalVariable = &variables[secondCheckableVariableIndex];
 

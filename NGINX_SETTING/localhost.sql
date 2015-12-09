@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Dec 09, 2015 at 09:40 PM
+-- Generation Time: Dec 09, 2015 at 09:37 PM
 -- Server version: 5.5.43-0ubuntu0.14.04.1
 -- PHP Version: 5.5.9-1ubuntu4.14
 
@@ -347,6 +347,9 @@ INSERT INTO `results` (`id`, `session`, `jobid`, `status`, `date`, `result`, `wa
 (9, '221', 11114, 'done', '2015-12-09', 'Segmentation fault\n', './src/code2.cpp:37:34: warning: unused parameter ''x'' [-Wunused-parameter]\nstring * function_etalon(float  &x,string  &vasya)\n                                 ^\n./src/code2.cpp:37:45: warning: unused parameter ''vasya'' [-Wunused-parameter]\nstring * function_etalon(float  &x,string  &vasya)\n                                            ^\n./src/code2.cpp:41:32: warning: unused parameter ''x'' [-Wunused-parameter]\nstring * function_main(float  &x,string  &vasya)\n                               ^\n./src/code2.cpp:41:43: warning: unused parameter ''vasya'' [-Wunused-parameter]\nstring * function_main(float  &x,string  &vasya)\n                                          ^\n4 warnings generated.\n'),
 (10, '2211', 11114, 'done', '2015-12-09', ' @0!@ @1@', './src/code1.cpp:37:34: warning: unused parameter ''x'' [-Wunused-parameter]\nstring * function_etalon(float  &x,string  &vasya)\n                                 ^\n./src/code1.cpp:37:45: warning: unused parameter ''vasya'' [-Wunused-parameter]\nstring * function_etalon(float  &x,string  &vasya)\n                                            ^\n./src/code1.cpp:41:32: warning: unused parameter ''x'' [-Wunused-parameter]\nstring * function_main(float  &x,string  &vasya)\n                               ^\n./src/code1.cpp:41:43: warning: unused parameter ''vasya'' [-Wunused-parameter]\nstring * function_main(float  &x,string  &vasya)\n                                          ^\n4 warnings generated.\n'),
 (11, '22111', 11114, 'done', '2015-12-09', ' @0@ @1@', './src/code0.cpp:37:34: warning: unused parameter ''x'' [-Wunused-parameter]\nstring * function_etalon(float  &x,string  &vasya)\n                                 ^\n./src/code0.cpp:37:45: warning: unused parameter ''vasya'' [-Wunused-parameter]\nstring * function_etalon(float  &x,string  &vasya)\n                                            ^\n./src/code0.cpp:41:32: warning: unused parameter ''x'' [-Wunused-parameter]\nstring * function_main(float  &x,string  &vasya)\n                               ^\n./src/code0.cpp:41:43: warning: unused parameter ''vasya'' [-Wunused-parameter]\nstring * function_main(float  &x,string  &vasya)\n                                          ^\n4 warnings generated.\n');
+--
+-- Database: `codeForce`
+--
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

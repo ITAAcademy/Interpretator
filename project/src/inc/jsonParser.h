@@ -147,6 +147,10 @@ public:
 	string stringInScobcah(string inp);
 	string stringInScobcah(int inp);
 
+	const string& getJson() const {
+		return json;
+	}
+
 private:
 	/*
 	 *  no check is array? problem with find elemet // crash // not use
