@@ -99,7 +99,10 @@ string getArrayCompareString(string name1, int arr1_size, ValueTypes type1,strin
 	}
 	else
 	{
-		return string( " compareArrs<" + std::to_string(type1) + "," +
+		FunctionArgument ar;
+		ar.type = type1;
+
+		return string( " compareArrs<" + ar.getType() + "," +
 				std::to_string(arr1_size) + " > ( " + name1 + ", "+ name2 + " )");
 	}
 

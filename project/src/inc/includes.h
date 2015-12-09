@@ -45,7 +45,7 @@ string getCompareString(string name1,  ValueTypes type1,string name2, ValueTypes
 //Config *config;
 struct Job {
 	string session;
-	int jobid;
+	unsigned int jobid;
 	string code;
 	int task;
 	string lang;
@@ -65,7 +65,7 @@ struct FunctionArgument{
 	int size=0;
 	vector<string> etalonValue;
 	vector<string> value;
-	vector<CompareMark> compare_marks;
+	//vector<CompareMark> compare_marks;
 	string name;
 	string getType(){
 			switch(type){

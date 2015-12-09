@@ -236,7 +236,7 @@ void *receiveTask(void *a)
 			jsonParser jSON(stream.getRequestBuffer());
 
 			logfile::addLog("Before parsing successful check");
-			bool parsingSuccessful = jSON.isJson();
+			bool parsingSuccessful = jSON.isJson() && jSON.isValidFields();
 			logfile::addLog("Before jSON.isJson()");
 			if (parsingSuccessful)
 				logfile::addLog("Before jSON.isValidFields()");
@@ -327,7 +327,7 @@ void *receiveTask(void *a)
 			else
 			{
 				logfile::addLog(id,	"Json format is not correct!!! \n::::::::::::::::::::::::\n" + stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
-				errorResponder.showError(400, "Json format is not correct!!!");
+				errorResponder.showError(400, jSON.getLastError());
 				stream.close();
 				continue;
 			}
@@ -424,7 +424,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 {
 	string session = jSON.getObject("session", false).asString();
-	int jobid = jSON.getObject("jobid", false).asInt();
+	unsigned int jobid = jSON.getObject("jobid", false).asUInt();
 	string code = jSON.getObject("code", false).asString();
 	int task = jSON.getObject("task", false).asInt();
 	string lang = jSON.getObject("lang", false).asString();
@@ -723,7 +723,7 @@ bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON)
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 {
 	string session = jSON.getObject("session", false).asString();
-	int jobid = jSON.getObject("jobid", false).asInt();
+	unsigned int jobid = jSON.getObject("jobid", false).asUInt();
 	//TO BE CONTINUED ...
 	vector<string> labl;
 
