@@ -393,11 +393,6 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 					if (functionData.isCompareEachArgWithEtalonSeparate)indexOfTest=i;
 					else indexOfTest=0;*/
 
-				int indexOfTest;
-				if (functionData.isCompareEachArgWithEtalonSeparate)indexOfTest=i;
-				else indexOfTest=0;
-
-
 				/*if (std::find(checkableArgsIndexes[indexOfTest].begin(),checkableArgsIndexes[indexOfTest].end(),currentArgumentIndex)!=
 						checkableArgsIndexes[indexOfTest].end())
 				{
