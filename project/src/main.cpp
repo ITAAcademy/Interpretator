@@ -374,6 +374,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 	labl.push_back("header");
 	labl.push_back("etalon");
 	labl.push_back("footer");
+	labl.push_back("json");
+
 	l12("before connectToTable");
 	if (SqlConnectionPool::getInstance().connectToTable(table, labl))
 	{
@@ -396,14 +398,12 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		temp.insert( { valuesCount++, str_with_spec_character(generator.getEtalon())});
 		l12("qwe33");
 		temp.insert( { valuesCount++, str_with_spec_character(generator.getFooter())});
-
-
+		temp.insert({valuesCount++, str_with_spec_character(jSON.getJson())});
 		l12("temp.insert");
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 		JsonValue res;
-		if (SqlConnectionPool::getInstance().addRecordsInToTable(temp))
+		if (generator.getStatus() == 0 && SqlConnectionPool::getInstance().addRecordsInToTable(temp))
 		{
-
 			res["status"] = "success";
 			res["table"] = table;
 			res["id"] = to_string(id);
