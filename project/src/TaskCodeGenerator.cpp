@@ -65,7 +65,6 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 			for (Value index : arg_indexes)
 			indexes.push_back(index.asInt());
 			functionData.checkableArgsIndexes.push_back(indexes);
-
 		}
 		else
 			indexes.push_back(arg_indexes.asInt());
@@ -79,6 +78,12 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 		functionData.checkableArgsIndexes.push_back(indexes);
 	}
 //functionData.checkableArgsIndexes.push_back(arg_indexes.asInt());
+
+	for (Value arg_compare_mark: functionValue["compare_mark"])
+	{
+		functionData.compare_marks.push_back((CompareMark)arg_compare_mark.asInt());
+	}
+
 	for(JsonValue value:functionValue["results"])
 	{
 		if (jSON.isResultsRange())
@@ -118,6 +123,11 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 		functionArgument.size = argumentValue["value"][0].size();
 		functionArgument.type = argumentValue["type"].asInt();
 		functionArgument.name = argumentValue["arg_name"].asString();
+
+		for (Value arg_compare_mark: argumentValue["compare_mark"])
+		{
+			functionArgument.compare_marks.push_back( (CompareMark) arg_compare_mark.asInt());
+		}
 
 		for(JsonValue value:argumentValue["value"])
 		{
@@ -276,7 +286,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string argsString;
 	string etalongArgsString;
 
-	bool is_float = (functionData.returnValueType == FunctionArgument::VAL_FLOAT);
+	bool is_float = (functionData.returnValueType == ValueTypes::VAL_FLOAT);
 	for(int i = 0; i < functionData.result.size(); i++)
 	{
 
@@ -295,10 +305,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 			for (int h = 0; h < values_u.size(); h++)
 			{
-					footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result[" + to_string(h) + "] = ";
-					if (is_float)
-						footerBody += " (float) ";
-					footerBody += values_u[h].toStyledString() + ";\n";
+				footerBody += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result[" + to_string(h) + "] = ";
+				if (is_float)
+					footerBody += " (float) ";
+				footerBody += values_u[h].toStyledString() + ";\n";
 			}
 
 
@@ -318,7 +328,11 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		string variablesCorrect = ""+correctArgumentsConditionName+" = ";
 		string variablesCorrectByEtalonPrefix = ""+argumentsEqualToEtalonConditionName+" = ";
 		string variablesCorrectByEtalonEnding = "";
+
 		vector<vector<int>> checkableArgsIndexes = functionData.checkableArgsIndexes;
+		vector<CompareMark> compare_marks = functionData.compare_marks;
+
+
 		int checkableArgsCount = 0;
 		int currentArgumentIndex=-1;
 		for(FunctionArgument arg : functionData.args) //8787
@@ -334,7 +348,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				if (std::find(checkableArgsIndexes[indexOfTest].begin(),checkableArgsIndexes[indexOfTest].end(),currentArgumentIndex)!=checkableArgsIndexes[indexOfTest].end())
 				{
 					if (checkableArgsCount>0)variablesCorrectByEtalonEnding+=" && ";
-					variablesCorrectByEtalonEnding+=arg.name + "=="+arg.name+ETALON_FOR_FUNCTION_ENDING;
+					//variablesCorrectByEtalonEnding += arg.name +  "=="	+ arg.name + ETALON_FOR_FUNCTION_ENDING;
+					variablesCorrectByEtalonEnding += getCompareString(arg.name,(ValueTypes) arg.type, arg.name + string(ETALON_FOR_FUNCTION_ENDING),(ValueTypes) arg.type, CompareMark::Equial);
 					checkableArgsCount++;
 				}
 				string currentArgDef = arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " + arg.name + " = " + arg.value[i] + ";\n";
@@ -343,7 +358,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				argumentDefinition += currentArgDef;
 				argumentEtalonDefinition += currentArgEtalonDef;
 
-				variablesCorrect += "(" + arg.name + " == " + arg.name + string(ETALON_ENDING) + ")";
+				//variablesCorrect += "(" + arg.name + " == "	+ arg.name + string(ETALON_ENDING) + ")";
+				variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name + string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial);
+
 				//variablesCorrect += "("+arg.name+"=="+arg.name + string(ETALON_FOR_FUNCTION_ENDING)+")";
 				//variablesCorrectByEtalonEnding += 1;
 
@@ -361,9 +378,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				if (std::find(checkableArgsIndexes[indexOfTest].begin(),checkableArgsIndexes[indexOfTest].end(),currentArgumentIndex)!=
 						checkableArgsIndexes[indexOfTest].end())
 				{
-					if (checkableArgsCount>0)variablesCorrectByEtalonEnding+=" && ";
-					variablesCorrectByEtalonEnding+="compareArrs<"+arg.getType()+","+
-							std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_FOR_FUNCTION_ENDING+")";
+					if (checkableArgsCount>0)variablesCorrectByEtalonEnding += " && ";
+					/*variablesCorrectByEtalonEnding+="compareArrs<"+arg.getType()+","+
+							std::to_string(arg.size)+">("+arg.name+","+arg.name+ETALON_FOR_FUNCTION_ENDING+")";*/
+					variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_FOR_FUNCTION_ENDING),
+							arg.size, (ValueTypes) arg.type, CompareMark::Equial);
+
 					checkableArgsCount++;
 
 
@@ -381,8 +401,11 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 					argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(i) + "] = " + etalons_values_u[i].toStyledString() + ";\n";
 				}
 
-				variablesCorrect+= "compareArrs<"+arg.getType()+","+
-						std::to_string(arg.size) + ">(" + arg.name + "," + arg.name + ETALON_ENDING + ")";
+				/*variablesCorrect+= "compareArrs<"+arg.getType()+","+
+						std::to_string(arg.size) + ">(" + arg.name + "," + arg.name + ETALON_ENDING + ")";*/
+				variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_ENDING),
+						 arg.size, (ValueTypes) arg.type, CompareMark::Equial);
+
 				if ( argCount != functionData.args.size() - 1 )
 					variablesCorrect+=" && ";
 			}
@@ -421,14 +444,18 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		if (functionData.isArray )
 		{
-			string arrType = functionData.getReturnType();
+			//string arrType = functionData.getReturnType();
+			int arrType = functionData.returnValueType;
+			/*argsString += "if (compareArrs<"+arrType+","+
+					std::to_string(functionData.size)+">(result_etalon, result)";*/
+			argsString += "if ("  + getArrayCompareString(string("result_etalon") ,functionData.size, (ValueTypes) arrType, string("result") ,
+					functionData.size, (ValueTypes) arrType, CompareMark::Equial);
 
-			argsString += "if (compareArrs<"+arrType+","+
-					std::to_string(functionData.size)+">(result_etalon, result)";
 
 		}
 		else
 			argsString += "if ( result_etalon == result";//open function call body;
+
 
 		//if (functionData.isArray)//@WHAT@
 		{

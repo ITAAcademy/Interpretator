@@ -218,43 +218,33 @@ ii.intita.com
 }
 
 {
-"operation": "add_tests",
-"task":438,
-"lang":"c++",
-"etalon":"...",
-"return_val":[1,2],
-"args":[[1],2],
-"signature":{
-"types":[0,0,0,1,1,2,3],
-"return type": 1
-}
-}
-
-{
 "operation": "addtask",
-"etalon": " ",
-"lang": "c++",
-"task": 308,
-"function": {
-"type": 1,
-"results": [[10.0, 12.0]],
-"tests_code":[
-	"isTrue = true;"
-],
-"args": [
-{
-"type": 1,
-"arg_name": "x",
-"value": [[10.0, 12.0]],
-"etalon_value": [[10.0, 12.0]]
-
-},
-{
-"type": 3,
-"arg_name": "vasya",
-"value": [["20", "5"]],
-"etalon_value": [["20", "5"]]
-}
-]
-}
+  "etalon": "",
+  "name": "test example",
+  "lang": "c++",
+  "task": 80,
+  "function": {
+    "function_name": "function",
+    "type": 1,
+    "checkable_args_indexes":[0,1],
+    "results": [10.0,11.0 ],
+    "compare_mark": [0, 1],
+"tests_code":[	"isTrue = true;", "isTrue = true;"],
+    "args": 	[
+	{
+      "type": 1,
+      "arg_name": "x",
+      "value": [10.0, 12.0],
+       "compare_mark": [2, 3],
+"etalon_value": [10.0, 12.0]
+    	},
+	{
+      "type": 3,
+      "arg_name": "vasya",
+      "value": ["safdasdf", "safdasdf"],
+       "compare_mark": [4, 0],
+"etalon_value": ["safdasdf","safdasdf"]
+    	}
+		]
+  }
 }
