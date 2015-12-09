@@ -871,13 +871,13 @@ bool jsonParser::isValidFields()
 
 			//////////1
 			Json::Value args_i_etalon_value = args_i[FIELD_ETALON_VALUE];
-			Json::Value args_i_compare_mark = args_i[FIELD_COMPARE_MARK];
+			//Json::Value args_i_compare_mark = args_i[FIELD_COMPARE_MARK];
 
 			if(!mustExistBeArray(args_i_etalon_value, string("etalon_value of args[" + to_string(i) + "]" )))
 				return false;
 
-			if(!mustExistBeArrayInt(args_i_compare_mark, string("compare_mark of args[" + to_string(i) + "]" ),"","",0, CompareMark::Last - 1))
-				return false;
+			/*if(!mustExistBeArrayInt(args_i_compare_mark, string("compare_mark of args[" + to_string(i) + "]" ),"","",0, CompareMark::Last - 1))
+				return false;*/
 
 			int etalon_values_size = args_i_etalon_value.size();
 

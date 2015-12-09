@@ -65,7 +65,7 @@ struct FunctionArgument{
 	int size=0;
 	vector<string> etalonValue;
 	vector<string> value;
-	vector<CompareMark> compare_marks;
+	//vector<CompareMark> compare_marks;
 	string name;
 	string getType(){
 			switch(type){
