@@ -10,6 +10,7 @@
 jsonParser::jsonParser(string json)
 {
 	bJsonValid = setJson(json);
+	max_uint_value = to_string (std::numeric_limits<unsigned int>::max());
 }
 
 bool jsonParser::sizeEqualSizeOfUnitTests(Json::Value object, string name)
@@ -191,6 +192,43 @@ bool jsonParser::mustBeInt(Json::Value object, string name , string ps )
 	return true;
 }
 
+bool jsonParser::mustBeUnsignedInt(Json::Value object, string name , string ps )
+{
+	if ( !object.isInt() && !object.isUInt())
+	{
+		last_error = "error: json format is not correct. " + name +" isn`t unsigned integer " + ps;
+		return false;
+	}
+	string obg_string = object.toStyledString();
+	obg_string = obg_string.substr(0, obg_string.size() - 1 );
+
+	unsigned int obj_str_size = obg_string.size();
+
+	if (obj_str_size < max_uint_value.size())
+		return true;
+
+	if (obg_string.size() > max_uint_value.size())
+	{
+		last_error = "error: json format is not correct. " + name +" out of range of unsigned integer (max value = " + max_uint_value + ")" + ps;
+		return false;
+	}
+
+	for(int i = 0; i < obj_str_size; i++)
+	{
+		char num = obg_string[i];
+		char m_num = max_uint_value[i];
+		if (num < m_num)
+			return true;
+		if ( num > m_num )
+		{
+			last_error = "error: json format is not correct. " + name +" out of range of unsigned integer (max value = " + max_uint_value + ")" + ps;
+			return false;
+		}
+	}
+
+	return true;
+}
+
 bool jsonParser::mustExist(Json::Value object, string name  , string ps)
 {
 	if ( object.isNull())
@@ -209,6 +247,18 @@ bool jsonParser::mustExistBeInt(Json::Value object, string name  , string ps , s
 		return false;
 	}
 	if (!mustBeInt(object, name, ps2))
+		return false;
+	return true;
+}
+
+bool jsonParser::mustExistBeUnsignedInt(Json::Value object, string name  , string ps , string ps2)
+{
+	if ( object.isNull())
+	{
+		last_error = "error: json format is not correct. " + name +" don`t exist " + ps;
+		return false;
+	}
+	if (!mustBeUnsignedInt(object, name, ps2))
 		return false;
 	return true;
 }
@@ -358,6 +408,7 @@ bool jsonParser::isResultsRange()
 jsonParser::jsonParser()
 {
 	json.clear();
+	max_uint_value = to_string (std::numeric_limits<unsigned int>::max());
 }
 
 jsonParser::~jsonParser() {
@@ -513,6 +564,10 @@ bool jsonParser::isValidFields()
 	l12("after FIELD_OPERATION check");*/
 	if( !mustExistBeInt(parsedFromString[FIELD_TASK_ID], "task"))
 		return false;
+
+	if( !mustExistBeUnsignedInt(parsedFromString[FIELD_JOBID], "jobid"))
+		return false;
+
 
 	if( !mustExistBeString(parsedFromString[FIELD_OPERATION], "operation"))
 		return false;

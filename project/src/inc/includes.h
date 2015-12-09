@@ -45,7 +45,7 @@ string getCompareString(string name1,  ValueTypes type1,string name2, ValueTypes
 //Config *config;
 struct Job {
 	string session;
-	int jobid;
+	unsigned int jobid;
 	string code;
 	int task;
 	string lang;

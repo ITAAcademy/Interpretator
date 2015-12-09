@@ -67,6 +67,8 @@ using namespace Json;
 
 class jsonParser {
 
+	string max_uint_value ; //for parsing uint in json
+
 	Json::Value parsedFromString;
 	Reader reader;
 	string json;
@@ -120,12 +122,16 @@ public:
 	bool mustBeArray(Json::Value object, string name , string ps = "");
 	bool mustHaveSizeMoreZero(Json::Value object, string name , string ps = "");
 	bool mustBeInt(Json::Value object, string name , string ps = "");
+	bool mustBeUnsignedInt(Json::Value object, string name , string ps = "");
+
 	bool mustBeBool(Json::Value object, string name , string ps = "");
 	bool mustBeFloat(Json::Value object, string name , string ps = "");
 	bool mustBeString(Json::Value object, string name , string ps = "");
 	bool mustExist(Json::Value object, string name , string ps = "");
 
 	bool mustExistBeInt(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeUnsignedInt(Json::Value object, string name , string ps = "", string ps2 = "");
+
 	bool mustExistBeFloat(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeString(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeBool(Json::Value object, string name , string ps = "", string ps2 = "");
