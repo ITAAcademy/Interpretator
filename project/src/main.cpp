@@ -214,6 +214,7 @@ void *receiveTask(void *a)
 	{
 		if (stream.multiIsRequest()) { /////////////!!!!!!!!!!!!!!!!!!!
 			//	break;
+
 			logfile::addLog(request);
 			if (strcmp(stream.getRequestMethod(), "GET") == 0)
 			{
@@ -722,6 +723,7 @@ bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON)
  */
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 {
+	logfile::addLog("in result_status");
 	string session = jSON.getObject("session", false).asString();
 	unsigned int jobid = jSON.getObject("jobid", false).asUInt();
 	//TO BE CONTINUED ...
@@ -736,6 +738,7 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 	labl.push_back("warning");
 	if (SqlConnectionPool::getInstance().connectToTable("results", labl)	== true)
 	{
+		logfile::addLog("connectToTable results success");
 		string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 		map<int, string> temp;
 		temp.insert( { 1, session });
@@ -745,6 +748,7 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 		//4
 		vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
 				"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
+		logfile::addLog("All records retreived from table");
 		//	logfile::addLog(std::to_string(records.size()));
 		//for (int i=0; i< records.size(); i++)
 
@@ -766,12 +770,15 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 		/*
 		 * RESULT
 		 */
-
+		//logfile::addLog("before write to stream");
+		cerr<<"zigzag_before___________test";
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-
+		cerr<<"zigzag_test";
+		//logfile::addLog("200 status writed to stream");
 		JsonValue res;
 		if(records.size() > 0)
 		{
+			logfile::addLog("records size > 0");
 			res["status"] = records[0][3];
 			if (operation == "result")
 			{
@@ -810,6 +817,8 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 				}
 				else
 				{
+
+					logfile::addLog("records size <= 0");
 					res["result"] = part.substr(0, start);
 					int count = 0;
 					bool done = true;
@@ -851,7 +860,7 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 		 stream << "warning:"+records[i][6] << "\n";
 		 */
 		logfile::addLog("Table 'results' outputed");
-		cout.flush();
+		//cout.flush();
 	}
 	else
 		return false;
