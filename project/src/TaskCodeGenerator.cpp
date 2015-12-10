@@ -187,31 +187,32 @@ bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionD
 	resultVar.isArray=functionData.isArray;
 	resultVar.size=functionData.size;
 	resultVar.type=functionData.returnValueType;
-	output += resultVar.generateDefinition(true); //if true, it will be "type * result;", else "type result[size];"
+
+	output += resultVar.generateDefinition(true, functionData.lang); //if true, it will be "type * result;", else "type result[size];"
 	variables.push_back(resultVar);
 
 	resultVar.name += ETALON_ENDING;
-	output += resultVar.generateDefinition(false);
+	output += resultVar.generateDefinition(false, functionData.lang);
 	variables.push_back(resultVar);
 
 	resultVar.name = "result" + string(ETALON_FOR_FUNCTION_ENDING);
-	output += resultVar.generateDefinition(true);
+	output += resultVar.generateDefinition(true, functionData.lang);
 	variables.push_back(resultVar);
 
 
 	for(FunctionArgument arg : functionData.args)
 	{
-		output += arg.generateDefinition(false);
+		output += arg.generateDefinition(false, functionData.lang);
 		variables.push_back(arg);
 
 		FunctionArgument etalonArg = arg;
 		etalonArg.name+=ETALON_ENDING;
-		output += etalonArg.generateDefinition(false);
+		output += etalonArg.generateDefinition(false, functionData.lang);
 		variables.push_back(etalonArg);
 
 		FunctionArgument etalonForFunctionArg = arg;
 		etalonForFunctionArg.name +=string(ETALON_FOR_FUNCTION_ENDING);
-		output += etalonForFunctionArg.generateDefinition(false);
+		output += etalonForFunctionArg.generateDefinition(false, functionData.lang);
 		variables.push_back(etalonForFunctionArg);
 	}
 
@@ -344,7 +345,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				argumentEtalonDefinition += currentArgEtalonDef;
 
 				//variablesCorrect += "(" + arg.name + " == "	+ arg.name + string(ETALON_ENDING) + ")";
-				variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name + string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial);
+				variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name + string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial, functionData.lang);
 
 				//variablesCorrect += "("+arg.name+"=="+arg.name + string(ETALON_FOR_FUNCTION_ENDING)+")";
 				//variablesCorrectByEtalonEnding += 1;
@@ -389,7 +390,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				/*variablesCorrect+= "compareArrs<"+arg.getType()+","+
 						std::to_string(arg.size) + ">(" + arg.name + "," + arg.name + ETALON_ENDING + ")";*/
 				variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_ENDING),
-						arg.size, (ValueTypes) arg.type, CompareMark::Equial);
+						arg.size, (ValueTypes) arg.type, CompareMark::Equial, functionData.lang);
 
 				if ( argCount != functionData.args.size() - 1 )
 					variablesCorrect+=" && ";
@@ -457,7 +458,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 				variablesCorrectByEtalonEnding += getArrayCompareString(firstGlobalVariable->name, firstGlobalVariable->size , type1,
 						secondGlobalVariable->name , secondGlobalVariable->size, type2,
-						CompareMark::Equial);
+						CompareMark::Equial, functionData.lang);
 
 				checkableArgsCount++;
 
@@ -489,7 +490,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			/*argsString += "if (compareArrs<"+arrType+","+
 					std::to_string(functionData.size)+">(result_etalon, result)";*/
 			argsString += "if ("  + getArrayCompareString(string("result_etalon") ,functionData.size, (ValueTypes) arrType, string("result") ,
-					functionData.size, (ValueTypes) arrType, cmp);
+					functionData.size, (ValueTypes) arrType, cmp, functionData.lang);
 
 			// CompareMark::Equial);
 
@@ -498,7 +499,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		else
 			//argsString += "if ( result_etalon == result";//open function call body;
 			argsString += "if ("  + getCompareString(string("result_etalon") , arrType, string("result") ,
-					arrType, cmp);
+					arrType, cmp, functionData.lang);
 
 
 		//if (functionData.isArray)//@WHAT@

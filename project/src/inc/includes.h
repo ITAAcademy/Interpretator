@@ -39,8 +39,8 @@ enum CompareMark {LessEquial = 0, Less = 1,  Equial = 2, More = 3, MoreEquial = 
 enum ValueTypes {VAL_INT = 0,VAL_FLOAT  = 1,VAL_BOOL = 2,VAL_STRING = 3,VAL_RANGE = 4, VAL_Last = 5};
 
 // if arr isn`t array, then qrr_size = 0
-string getArrayCompareString(string name1, int arr1_size, ValueTypes type1,string name2, int arr2_size, ValueTypes type2, CompareMark mark);
-string getCompareString(string name1,  ValueTypes type1,string name2, ValueTypes type2, CompareMark mark);
+string getArrayCompareString(string name1, int arr1_size, ValueTypes type1,string name2, int arr2_size, ValueTypes type2, CompareMark mark, int lang);
+string getCompareString(string name1,  ValueTypes type1,string name2, ValueTypes type2, CompareMark mark, int lang);
 
 //Config *config;
 struct Job {
@@ -67,41 +67,12 @@ struct FunctionArgument{
 	vector<string> value;
 	//vector<CompareMark> compare_marks;
 	string name;
-	string getType(){
-		switch(type){
-		case VAL_INT:
-			return "int";
-			break;
-		case VAL_FLOAT:
-			return "float";
-			break;
-		case VAL_BOOL:
-			return "bool";
-			break;
-		case VAL_STRING:
-			return "string";
-			break;
-		case VAL_RANGE:
-			return "range";
-			break;
-		}
-		return "";
-	}
-	string generateDefinition(bool is_result)
-	{
-		string result = getType();
-		if (isArray)
-		{
-			if (is_result)
-				result += " * " + name;
-			else
-				result += " " + name + " [" + std::to_string(size) + "]";
-		}
-		else
-			result += " " +  name;
-		result += ";\n";
-		return result;
-	}
+	string getTypeInt(int lang );
+	string getTypeFloat(int lang );
+	string getTypeString(int lang );
+	string getTypeBool(int lang );
+	string getType(int lang );
+	string generateDefinition(bool is_result, int lang );
 };
 struct FunctionData{
 	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3,RET_VAL_RANGE = 4, Last = 5};
