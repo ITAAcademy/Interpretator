@@ -89,7 +89,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 			int elmCount =0;
 			for (int j = val1; j <= val2; j++){
 				if (elmCount>0)arrString+=",";
-				arrString += to_string(j);
+				arrString += std::to_string(j);
 
 				elmCount++;
 			}
@@ -180,6 +180,44 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	return headerStr;
 }
 
+bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionData, vector<FunctionArgument> &variables)
+{
+	FunctionArgument resultVar;
+	resultVar.name="result";
+	resultVar.isArray=functionData.isArray;
+	resultVar.size=functionData.size;
+	resultVar.type=functionData.returnValueType;
+	output += resultVar.generateDefinition(true); //if true, it will be "type * result;", else "type result[size];"
+	variables.push_back(resultVar);
+
+	resultVar.name += ETALON_ENDING;
+	output += resultVar.generateDefinition(false);
+	variables.push_back(resultVar);
+
+	resultVar.name = "result" + string(ETALON_FOR_FUNCTION_ENDING);
+	output += resultVar.generateDefinition(true);
+	variables.push_back(resultVar);
+
+
+	for(FunctionArgument arg : functionData.args)
+	{
+		output += arg.generateDefinition(false);
+		variables.push_back(arg);
+
+		FunctionArgument etalonArg = arg;
+		etalonArg.name+=ETALON_ENDING;
+		output += etalonArg.generateDefinition(false);
+		variables.push_back(etalonArg);
+
+		FunctionArgument etalonForFunctionArg = arg;
+		etalonForFunctionArg.name +=string(ETALON_FOR_FUNCTION_ENDING);
+		output += etalonForFunctionArg.generateDefinition(false);
+		variables.push_back(etalonForFunctionArg);
+	}
+
+	return true;
+}
+
 string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	vector<FunctionArgument> variables;
@@ -210,37 +248,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	footerBody+="int main()\n\
 			{\n";
 
-	footerBody += functionData.getReturnType() + " result_etalon";
-	if (functionData.isArray )
-	{
-		footerBody  += "[" + to_string(functionData.size) + "]";
-	}
-	footerBody += ";\n";
-	/*
-	 *
-	 *
-	 */
-	footerBody += generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
-	FunctionArgument resultVar;
-	resultVar.name="result";
-	resultVar.isArray=functionData.isArray;
-	resultVar.size=functionData.size;
-	resultVar.type=functionData.returnValueType;
 
-	variables.push_back(resultVar);
-	resultVar.name+=ETALON_ENDING;
-	variables.push_back(resultVar);
-	resultVar.name="result"+ string(ETALON_FOR_FUNCTION_ENDING);
-	variables.push_back(resultVar);
-
-	footerBody += " result;\n";
-
-	footerBody +=  generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
-
-	footerBody += " result" + string(ETALON_FOR_FUNCTION_ENDING) + ";\n";
+	generateVariables(footerBody, functionData, variables);
 
 	/*
-	 *
 	 *
 	 *
 	 */
@@ -248,43 +259,6 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string correctArgumentsConditionName = "variablesCorrect";
 	string argumentsEqualToEtalonConditionName = "variablesCorrectByEtalon";
 
-	for(FunctionArgument arg : functionData.args)
-	{
-		string argumentDeclaration="",argumentEtalonDeclaration="",argumentForEtalonFunctionDeclaration="";
-
-		FunctionArgument etalonArg = arg;
-		etalonArg.name+=ETALON_ENDING;
-
-		FunctionArgument etalonForFunctionArg = arg;
-		etalonForFunctionArg.name +=string(ETALON_FOR_FUNCTION_ENDING);
-		variables.push_back(arg);
-		variables.push_back(etalonArg);
-		variables.push_back(etalonForFunctionArg);
-
-
-		argumentDeclaration = generateType(arg.type, arg.isArray, 0) + " " +  arg.name;
-		argumentEtalonDeclaration =  generateType(arg.type, arg.isArray,0) + " " + arg.name + ETALON_ENDING;
-		argumentForEtalonFunctionDeclaration =  generateType(arg.type, arg.isArray,0) + " " + arg.name + string(ETALON_FOR_FUNCTION_ENDING);
-		//footerBody +=
-		if ( arg.isArray )
-		{
-			argumentDeclaration  += "[" + to_string(arg.size) + "]";
-			argumentEtalonDeclaration += "[" + to_string(arg.size) + "]";
-			argumentForEtalonFunctionDeclaration += "[" + to_string(arg.size) + "]";
-			/*
-			 * @NEED REFACTOR@
-			 *
-			 */
-		}
-		argumentDeclaration += ";\n";
-		argumentEtalonDeclaration += ";\n";
-		argumentForEtalonFunctionDeclaration+= ";\n";
-
-		//add etalon variables
-		footerBody += argumentDeclaration + argumentEtalonDeclaration + argumentForEtalonFunctionDeclaration;
-
-
-	}
 	footerBody += "bool isTrue;\n";//moved out from cicle to fix variable duplicates
 	string conditionsVariableDeclaration = "bool " +argumentsEqualToEtalonConditionName+","
 			+correctArgumentsConditionName+";\n";
