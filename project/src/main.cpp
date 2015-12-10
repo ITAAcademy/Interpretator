@@ -249,7 +249,7 @@ void *receiveTask(void *a)
 				 */
 				if (operation == "addtask")
 				{
-					if(!addNewtask(stream, jSON))
+					if(!addNewtask(stream, jSON, id))
 						succsesful = false;
 				}
 				else
@@ -335,7 +335,7 @@ void *receiveTask(void *a)
  *  				NEW TASK
  *
  */
-bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
+bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 {
 	if ( !jSON.isValidFields() )
 	{
@@ -359,7 +359,6 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 
 	vector<string> labl;
 	labl.push_back("ID");
-	labl.push_back("name");
 	labl.push_back("header");
 	labl.push_back("etalon");
 	labl.push_back("footer");
@@ -372,17 +371,14 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON)
 		map<int, string> temp;
 
 		//new code for testcases part
-		string name = jSON.getObject("name", false).asString();
-		l12("name");
 		int id = jSON.getObject("task",false).asInt();
 		l12("task");
 		l12(std::to_string(id));
 
-		TaskCodeGenerator generator(jSON);
+		TaskCodeGenerator generator(jSON, thread_id);
 
 		int valuesCount = 0;
 		temp.insert( { valuesCount++, std::to_string(id) });
-		temp.insert( { valuesCount++, name }); //str_with_spec_character(
 		temp.insert( { valuesCount++, str_with_spec_character(generator.getHeader())});
 		temp.insert( { valuesCount++, str_with_spec_character(generator.getEtalon())});
 		l12("qwe33");

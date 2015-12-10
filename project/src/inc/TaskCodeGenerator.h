@@ -37,7 +37,7 @@ class TaskCodeGenerator {
 	static int status;
 
 public:
-	TaskCodeGenerator(jsonParser &jSON);
+	TaskCodeGenerator(jsonParser &jSON, int thread_id);
 	virtual ~TaskCodeGenerator();
 	static bool generateVariables(string &output, FunctionData functionData, vector<FunctionArgument> &variables);
 	static string generateHeader(FunctionData functionData);
@@ -49,10 +49,10 @@ public:
 	static string convertTypeToString(int type, int lang);
 	static bool to_bool(std::string const& s);
 	static string getStandartInclude(int lang);
-	static string generateFunctionProtorype(FunctionData functionData, int = (int)LangCompiler::Flag_CPP, string name = "function", char divider = ',', char space = ' ',  string modifiers = "");
+	static string generateFunctionProtorype(FunctionData functionData,  string name = "function", char divider = ',', char space = ' ',  string modifiers = "");
 	static FunctionData parseTask(jsonParser &jSON);
 
-	bool updateData(jsonParser &jSON);
+	bool updateData(jsonParser &jSON, int thread_id);
 	string getHeader();
 	string getFooter();
 

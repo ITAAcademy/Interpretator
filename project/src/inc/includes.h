@@ -119,6 +119,7 @@ struct FunctionData{
 	vector<FunctionArgument> args;
 	string etalon;
 	int lang;
+	int thread_id;
 	int getResultArraySize()
 	{
 		return result_array_size;
