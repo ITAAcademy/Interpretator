@@ -199,45 +199,6 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	return headerStr;
 }
 
-bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionData, vector<FunctionArgument> &variables)
-{
-	FunctionArgument resultVar;
-	resultVar.name="result";
-	resultVar.isArray=functionData.isArray;
-	resultVar.size=functionData.size;
-	resultVar.type=functionData.returnValueType;
-
-	output += resultVar.generateDefinition(true, functionData.lang); //if true, it will be "type * result;", else "type result[size];"
-	variables.push_back(resultVar);
-
-	resultVar.name += ETALON_ENDING;
-	output += resultVar.generateDefinition(false, functionData.lang);
-	variables.push_back(resultVar);
-
-	resultVar.name = "result" + string(ETALON_FOR_FUNCTION_ENDING);
-	output += resultVar.generateDefinition(true, functionData.lang);
-	variables.push_back(resultVar);
-
-
-	for(FunctionArgument arg : functionData.args)
-	{
-		output += arg.generateDefinition(false, functionData.lang);
-		variables.push_back(arg);
-
-		FunctionArgument etalonArg = arg;
-		etalonArg.name+=ETALON_ENDING;
-		output += etalonArg.generateDefinition(false, functionData.lang);
-		variables.push_back(etalonArg);
-
-		FunctionArgument etalonForFunctionArg = arg;
-		etalonForFunctionArg.name +=string(ETALON_FOR_FUNCTION_ENDING);
-		output += etalonForFunctionArg.generateDefinition(false, functionData.lang);
-		variables.push_back(etalonForFunctionArg);
-	}
-
-	return true;
-}
-
 string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	vector<FunctionArgument> variables;
@@ -520,31 +481,31 @@ bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionD
 	resultVar.isArray=functionData.isArray;
 	resultVar.size=functionData.size;
 	resultVar.type=functionData.returnValueType;
-	output += resultVar.generateDefinition(true); //if true, it will be "type * result;", else "type result[size];"
+	output += resultVar.generateDefinition(true, functionData.lang); //if true, it will be "type * result;", else "type result[size];"
 	variables.push_back(resultVar);
 
 	resultVar.name += ETALON_ENDING;
-	output += resultVar.generateDefinition(false);
+	output += resultVar.generateDefinition(false, functionData.lang);
 	variables.push_back(resultVar);
 
 	resultVar.name = "result" + string(ETALON_FOR_FUNCTION_ENDING);
-	output += resultVar.generateDefinition(true);
+	output += resultVar.generateDefinition(true, functionData.lang);
 	variables.push_back(resultVar);
 
 
 	for(FunctionArgument arg : functionData.args)
 	{
-		output += arg.generateDefinition(false);
+		output += arg.generateDefinition(false, functionData.lang);
 		variables.push_back(arg);
 
 		FunctionArgument etalonArg = arg;
 		etalonArg.name+=ETALON_ENDING;
-		output += etalonArg.generateDefinition(false);
+		output += etalonArg.generateDefinition(false, functionData.lang);
 		variables.push_back(etalonArg);
 
 		FunctionArgument etalonForFunctionArg = arg;
 		etalonForFunctionArg.name +=string(ETALON_FOR_FUNCTION_ENDING);
-		output += etalonForFunctionArg.generateDefinition(false);
+		output += etalonForFunctionArg.generateDefinition(false, functionData.lang);
 		variables.push_back(etalonForFunctionArg);
 	}
 
