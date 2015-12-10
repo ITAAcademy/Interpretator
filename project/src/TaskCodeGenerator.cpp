@@ -199,6 +199,45 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	return headerStr;
 }
 
+bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionData, vector<FunctionArgument> &variables)
+{
+	FunctionArgument resultVar;
+	resultVar.name="result";
+	resultVar.isArray=functionData.isArray;
+	resultVar.size=functionData.size;
+	resultVar.type=functionData.returnValueType;
+
+	output += resultVar.generateDefinition(true, functionData.lang); //if true, it will be "type * result;", else "type result[size];"
+	variables.push_back(resultVar);
+
+	resultVar.name += ETALON_ENDING;
+	output += resultVar.generateDefinition(false, functionData.lang);
+	variables.push_back(resultVar);
+
+	resultVar.name = "result" + string(ETALON_FOR_FUNCTION_ENDING);
+	output += resultVar.generateDefinition(true, functionData.lang);
+	variables.push_back(resultVar);
+
+
+	for(FunctionArgument arg : functionData.args)
+	{
+		output += arg.generateDefinition(false, functionData.lang);
+		variables.push_back(arg);
+
+		FunctionArgument etalonArg = arg;
+		etalonArg.name+=ETALON_ENDING;
+		output += etalonArg.generateDefinition(false, functionData.lang);
+		variables.push_back(etalonArg);
+
+		FunctionArgument etalonForFunctionArg = arg;
+		etalonForFunctionArg.name +=string(ETALON_FOR_FUNCTION_ENDING);
+		output += etalonForFunctionArg.generateDefinition(false, functionData.lang);
+		variables.push_back(etalonForFunctionArg);
+	}
+
+	return true;
+}
+
 string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	vector<FunctionArgument> variables;
@@ -316,7 +355,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				string currentArgEtalonDef = arg.name + string(ETALON_ENDING) + string(" = ") +	arg.etalonValue[i] + string(";\n"); //etalon value for argument
 				argumentDefinition += currentArgDef;
 				argumentEtalonDefinition += currentArgEtalonDef;
-				variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name + string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial);
+
+				variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name + string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial, functionData.lang);
 
 				if (argCount != functionData.args.size() - 1 )
 					variablesCorrect += " && ";
@@ -337,7 +377,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				}
 
 				variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_ENDING),
-						arg.size, (ValueTypes) arg.type, CompareMark::Equial);
+						arg.size, (ValueTypes) arg.type, CompareMark::Equial, functionData.lang);
 
 				if ( argCount != functionData.args.size() - 1 )
 					variablesCorrect+=" && ";
@@ -385,7 +425,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 				variablesCorrectByEtalonEnding += getArrayCompareString(firstGlobalVariable->name, firstGlobalVariable->size , type1,
 						secondGlobalVariable->name , secondGlobalVariable->size, type2,
-						CompareMark::Equial);
+						CompareMark::Equial, functionData.lang);
 
 				checkableArgsCount++;
 
@@ -417,7 +457,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			/*argsString += "if (compareArrs<"+arrType+","+
 					std::to_string(functionData.size)+">(result_etalon, result)";*/
 			argsString += "if ("  + getArrayCompareString(string("result_etalon") ,functionData.size, (ValueTypes) arrType, string("result") ,
-					functionData.size, (ValueTypes) arrType, cmp);
+					functionData.size, (ValueTypes) arrType, cmp, functionData.lang);
 
 			// CompareMark::Equial);
 
@@ -426,7 +466,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		else
 			//argsString += "if ( result_etalon == result";//open function call body;
 			argsString += "if ("  + getCompareString(string("result_etalon") , arrType, string("result") ,
-					arrType, cmp);
+					arrType, cmp, functionData.lang);
 
 
 		//if (functionData.isArray)//@WHAT@
