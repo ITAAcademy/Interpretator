@@ -70,7 +70,6 @@ bool FCGI_Stream::IsRequest() {
 		status = true;
 		return true;
 	}
-	else status = false;
 	return false;
 }
 
@@ -196,17 +195,13 @@ void FCGI_Stream::close()
 }
 
 
-FCGI_Stream& FCGI_Stream::operator << ( const char* const str)
+FCGI_Stream FCGI_Stream::operator << ( char * str)
 {
-	cerr << "operator << ( char *str)";
-	int status = FCGX_PutS(str, request->out);
-	logfile::addLog("str:"+string(str));
-	logfile::addLog("status of <<:"+to_string(status));
-	return *this;
+	FCGX_PutS(str, request->out);
+	return this[0];
 }
-FCGI_Stream& FCGI_Stream::operator << ( const int  num)
+FCGI_Stream FCGI_Stream::operator << ( int num)
 {
-	cerr << "operator << ( int num)";
 //		atoi("12");
 	char str[10];
 	sprintf(str, "%d", num);
@@ -214,9 +209,8 @@ FCGI_Stream& FCGI_Stream::operator << ( const int  num)
 	return this[0];
 }
 
-FCGI_Stream& FCGI_Stream::operator << (const double  num)
+FCGI_Stream FCGI_Stream::operator << ( double num)
 {
-	cerr << "operator << ( double num)";
 //		atoi("12");
 	char str[10];
 	sprintf(str, "%lf", num);
@@ -224,9 +218,8 @@ FCGI_Stream& FCGI_Stream::operator << (const double  num)
 	return this[0];
 }
 
-FCGI_Stream& FCGI_Stream::operator << ( const string str)
+FCGI_Stream FCGI_Stream::operator << ( string str)
 {
-	cerr << "operator << ( string str)";
 //		atoi("12");
 	FCGX_PutS(str.c_str(), request->out);
 	return this[0];

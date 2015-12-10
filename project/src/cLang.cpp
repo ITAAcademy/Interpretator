@@ -331,3 +331,19 @@ int LangCompiler::getThId() const {
 const string& LangCompiler::getWarningErr() const {
 	return warning_err;
 }
+LangCompiler::compilerFlag LangCompiler::convertFromName(string lang)
+{
+	if (lang == "c++" || lang == "C++")
+			return LangCompiler::Flag_CPP;
+			else if (lang == "Java" || lang == "java")
+				return LangCompiler::Flag_Java;
+			else if (lang == "JS" || lang == "js")
+				return LangCompiler::Flag_JS;
+			else if (lang == "PHP" || lang == "php")
+				return LangCompiler::Flag_PHP;
+			else if (lang == "C#" || lang == "c#" )
+				return LangCompiler::Flag_CS;
+			else
+				return LangCompiler::Flag_CPP;
+}
+

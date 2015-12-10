@@ -61,7 +61,7 @@ struct Token{
 
 struct FunctionArgument{
 	int type=0;
-	bool isArray = false;
+	int isArray = false;
 	int size=0;
 	vector<string> etalonValue;
 	vector<string> value;
@@ -90,8 +90,9 @@ struct FunctionArgument{
 };
 struct FunctionData{
 	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3,RET_VAL_RANGE = 4, Last = 5};
+	enum ArrType { ARRAY = 1};
 	int returnValueType = RET_VAL_INT;
-	bool isArray = false;
+	int isArray = false;
 	bool isRange = false;
 	vector<vector<pair<int,int>>> checkableArgsIndexes;
 	int result_array_size;
@@ -102,6 +103,7 @@ struct FunctionData{
 	vector<CompareMark> compare_marks;
 	vector<FunctionArgument> args;
 	string etalon;
+	int lang;
 	int getResultArraySize()
 	{
 		return result_array_size;

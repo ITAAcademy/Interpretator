@@ -75,10 +75,10 @@ public:
 	/*
 	 * IO functions
 	 */
-	FCGI_Stream& operator << ( const char* const str);
-	FCGI_Stream& operator << (const string str);
-	FCGI_Stream& operator << (const int num);
-	FCGI_Stream& operator << ( const double num);
+	FCGI_Stream operator << ( char * str);
+	FCGI_Stream operator << ( string str);
+	FCGI_Stream operator << ( int num);
+	FCGI_Stream operator << ( double num);
 	void operator >> (char *res);
 	string toString();
 

@@ -48,6 +48,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 	Value functionValue = jSON.getObject("function",false);
 
 	functionData.etalon = etalon;
+	functionData.lang = LangCompiler::convertFromName(jSON.getObject("lang", false).asString());
 	functionData.returnValueType = functionValue["type"].asInt();
 	functionData.functionName = "function_main";//@BAG@
 
@@ -138,11 +139,10 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 	return functionData;
 }
 
-string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, LangCompiler::compilerFlag, string name , char divider, char space)
+string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, int lang, string name , char divider, char space, string modifiers)
 {
-	string functionStr = generateType(functionData.returnValueType, 0);
-	if (functionData.isArray)
-		functionStr += "* ";
+	string functionStr = modifiers + " " + generateType(functionData.returnValueType, functionData.isArray, lang);
+
 
 	functionStr	+= name + "(";
 
@@ -152,17 +152,15 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, L
 	for(FunctionArgument arg : functionData.args){
 		if (argCount>0)
 			functionStr += divider;
-		string type = generateType(arg.type, 0);// 0 == C++
+		string type = generateType(arg.type, arg.isArray, lang);// 0 == C++
 		functionStr += type + space;
 
-
-		if ( arg.isArray )
+		if(lang == LangCompiler::Flag_CPP)
 		{
-			functionStr += "*" + arg.name;
-		}
-		else
-		{
-			functionStr += "&" + arg.name;
+			if ( arg.isArray != FunctionData::ARRAY)
+			{
+				functionStr += "&" + arg.name;
+			}
 		}
 		argCount++;
 	}
@@ -173,10 +171,10 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, L
 
 string TaskCodeGenerator::generateHeader(FunctionData functionData){
 
-	string headerStr = getStandartInclude(LangCompiler::Flag_CPP) + "\n";
-	headerStr += generateFunctionProtorype(functionData, LangCompiler::Flag_CPP, "function_etalon"); //create prototype for etalon function
+	string headerStr = getStandartInclude(functionData.lang) + "\n";
+	headerStr += generateFunctionProtorype(functionData, functionData.lang, "function_etalon"); //create prototype for etalon function
 	headerStr += "{\n" + functionData.etalon + "return NULL;\n}\n"; // add etalon function
-	headerStr += generateFunctionProtorype(functionData, LangCompiler::Flag_CPP, functionData.functionName) + "{\n";
+	headerStr += generateFunctionProtorype(functionData, functionData.lang, functionData.functionName) + "{\n";
 	/*l12("Yura: 2202:");
 	l12(headerStr);*/
 	return headerStr;
@@ -222,11 +220,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	 *
 	 *
 	 */
-	footerBody += functionData.getReturnType();
-	if (functionData.isArray )
-	{
-		footerBody  += " *";
-	}
+	footerBody += generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
 	FunctionArgument resultVar;
 	resultVar.name="result";
 	resultVar.isArray=functionData.isArray;
@@ -241,11 +235,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	footerBody += " result;\n";
 
-	footerBody += functionData.getReturnType();
-	if (functionData.isArray )
-	{
-		footerBody  += " *";
-	}
+	footerBody +=  generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
+
 	footerBody += " result" + string(ETALON_FOR_FUNCTION_ENDING) + ";\n";
 
 	/*
@@ -271,9 +262,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		variables.push_back(etalonForFunctionArg);
 
 
-		argumentDeclaration = generateType(arg.type, 0) + " " +  arg.name;
-		argumentEtalonDeclaration =  generateType(arg.type,0) + " " + arg.name + ETALON_ENDING;
-		argumentForEtalonFunctionDeclaration =  generateType(arg.type,0) + " " + arg.name + string(ETALON_FOR_FUNCTION_ENDING);
+		argumentDeclaration = generateType(arg.type, arg.isArray, 0) + " " +  arg.name;
+		argumentEtalonDeclaration =  generateType(arg.type, arg.isArray,0) + " " + arg.name + ETALON_ENDING;
+		argumentForEtalonFunctionDeclaration =  generateType(arg.type, arg.isArray,0) + " " + arg.name + string(ETALON_FOR_FUNCTION_ENDING);
 		//footerBody +=
 		if ( arg.isArray )
 		{
@@ -517,7 +508,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		ValueTypes arrType = (ValueTypes) functionData.returnValueType;
 		CompareMark cmp = functionData.compare_marks[i];
-		if (functionData.isArray )
+		if (functionData.isArray == FunctionData::ARRAY)
 		{
 			//string arrType = functionData.getReturnType();
 
@@ -557,7 +548,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	return footerBody;
 }
 
-string TaskCodeGenerator::generateType(int type, int lang)
+string TaskCodeGenerator::generateType(int type, int arrayType, int lang)
 {
 	string result;
 	switch(type){
@@ -575,12 +566,14 @@ string TaskCodeGenerator::generateType(int type, int lang)
 		break;
 	}
 	result += " ";
+	if (arrayType == FunctionData::ARRAY)
+		result += "* ";
 	return result;
 }
 
 string TaskCodeGenerator::generateVar(int type, string name, int lang, string value)
 {
-	return generateType(type, lang) + name + " ";
+	return generateType(type, 0, lang) + name + " ";
 }
 
 string TaskCodeGenerator::getStandartInclude(int lang)

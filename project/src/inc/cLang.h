@@ -49,6 +49,7 @@ public:
 	int getThId() const ;
 
 	const string& getWarningErr() const;
+	static compilerFlag convertFromName(string name);
 
 private:
 	/*

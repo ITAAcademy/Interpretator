@@ -41,14 +41,14 @@ public:
 	virtual ~TaskCodeGenerator();
 	static string generateHeader(FunctionData functionData);
 	static string generateFooter(FunctionData functionData);
-	static string generateType(int type, int lang);
+	static string generateType(int type, int arrayType, int lang);
 	static string generateVar(int type, string name, int lang, string value = string());
 
 	static 	string convertStringToType(string argStringValue, int type, int lang);
 	static string convertTypeToString(int type, int lang);
 	static bool to_bool(std::string const& s);
 	static string getStandartInclude(int lang);
-	static string generateFunctionProtorype(FunctionData functionData, LangCompiler::compilerFlag = LangCompiler::Flag_CPP, string name = "function", char divider = ',', char space = ' ');
+	static string generateFunctionProtorype(FunctionData functionData, int = (int)LangCompiler::Flag_CPP, string name = "function", char divider = ',', char space = ' ',  string modifiers = "");
 	static FunctionData parseTask(jsonParser &jSON);
 
 	bool updateData(jsonParser &jSON);
