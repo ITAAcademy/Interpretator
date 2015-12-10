@@ -68,25 +68,40 @@ struct FunctionArgument{
 	//vector<CompareMark> compare_marks;
 	string name;
 	string getType(){
-			switch(type){
-			case VAL_INT:
-				return "int";
-				break;
-			case VAL_FLOAT:
-				return "float";
-				break;
-			case VAL_BOOL:
-				return "bool";
-				break;
-			case VAL_STRING:
-				return "string";
-				break;
-			case VAL_RANGE:
-				return "range";
-				break;
-			}
-			return "";
+		switch(type){
+		case VAL_INT:
+			return "int";
+			break;
+		case VAL_FLOAT:
+			return "float";
+			break;
+		case VAL_BOOL:
+			return "bool";
+			break;
+		case VAL_STRING:
+			return "string";
+			break;
+		case VAL_RANGE:
+			return "range";
+			break;
 		}
+		return "";
+	}
+	string generateDefinition(bool is_result)
+	{
+		string result = getType();
+		if (isArray)
+		{
+			if (is_result)
+				result += " * " + name;
+			else
+				result += " " + name + " [" + std::to_string(size) + "]";
+		}
+		else
+			result += " " +  name;
+		result += ";\n";
+		return result;
+	}
 };
 struct FunctionData{
 	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3,RET_VAL_RANGE = 4, Last = 5};

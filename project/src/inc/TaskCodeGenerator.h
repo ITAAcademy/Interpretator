@@ -35,6 +35,7 @@ class TaskCodeGenerator {
 public:
 	TaskCodeGenerator(jsonParser &jSON);
 	virtual ~TaskCodeGenerator();
+	static bool generateVariables(string &output, FunctionData functionData, vector<FunctionArgument> &variables);
 	static string generateHeader(FunctionData functionData);
 	static string generateFooter(FunctionData functionData);
 	static string generateType(int type, int lang);
