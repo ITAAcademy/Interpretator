@@ -249,9 +249,17 @@ string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_progr
 						"System.out.println(\"memory usage\" + usedMB);";
 
 			//string memoryUsageC++ =
+			int secondBracketFromEndPosition = 0;
+					if (lang=="java")secondBracketFromEndPosition=footer.length()-3;//footer.substr(0,footer.find_last_of('{')-1).find_last_of('{');//second from end
+					else if (lang=="c++") secondBracketFromEndPosition=footer.length()-2;
+			//secondBracketFromEndPosition--;
+			//if (secondBracketFromEndPosition<0)secondBracketFromEndPosition=0;
+
+
 			if (beforeFooter.size() > 0)
-				footer.insert(footer.size() - 2, beforeFooter);// new 11.2015 for end main!!!
-			ReplaceAll(header,"#NUM#",std::to_string(thrdId));
+				//footer.append(beforeFooter);
+				footer.insert(secondBracketFromEndPosition, beforeFooter);// new 11.2015 for end main!!!
+			//ReplaceAll(header,"#NUM#",std::to_string(thrdId));
 			rezult = beforeHeader + header + "\n " +
 					text_of_program + " \n " +
 					/*beforeFooter+*/ footer;

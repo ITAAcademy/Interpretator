@@ -142,7 +142,10 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, string name , char divider, char space, string modifiers)
 {
-	string functionStr = modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
+	string functionStr ="";
+	if (functionData.lang==LangCompiler::Flag_Java)
+		functionStr += "static ";
+	functionStr += modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
 
 
 	functionStr	+= name + "(";
@@ -184,15 +187,19 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 
 	string headerStr = getStandartInclude(functionData.lang) + "\n";
 
+	string defaultReturnValue = "0";
+
 	switch(functionData.lang)
 	{
 	case LangCompiler::Flag_Java://@BAD@
 		headerStr+="public class Main{{thId}}{\n";
+		defaultReturnValue="null";
 		break;
 	}
 
+
 	headerStr += generateFunctionProtorype(functionData, "function_etalon"); //create prototype for etalon function
-	headerStr += "{\n" + functionData.etalon + "return 0;\n}\n"; // add etalon function
+	headerStr += "{\n" + functionData.etalon + "return "+defaultReturnValue+";\n}\n"; // add etalon function
 	headerStr += generateFunctionProtorype(functionData, functionData.functionName) + "{\n";
 	/*l12("Yura: 2202:");
 	l12(headerStr);*/
@@ -202,7 +209,10 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	vector<FunctionArgument> variables;
-	string footerBody = "return 0;\n}\n";//Close function body
+	string defaultReturnValue = "0";
+	if (functionData.lang==LangCompiler::Flag_Java)
+		defaultReturnValue="null";
+	string footerBody = "return "+defaultReturnValue+";\n}\n";//Close function body
 
 	string space=" ";
 	char divider=',';
@@ -318,11 +328,23 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			vector<string> args_results_must_be_after_main_func;
 			if ( !arg.isArray )
 			{
-				string currentArgDef = arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " + arg.name + " = " + arg.value[i] + ";\n";
-				string currentArgEtalonDef = arg.name + string(ETALON_ENDING) + string(" = ") +	arg.etalonValue[i] + string(";\n"); //etalon value for argument
+				string castToFloat="(float)" ;
+				string currentArgDef;
+				string currentArgEtalonDef;
+
+				currentArgDef += arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " +arg.name + " = " ;
+				currentArgEtalonDef += arg.name + string(ETALON_ENDING) + string(" = ") ; //etalon value for argument
+				if (functionData.lang==LangCompiler::Flag_Java && arg.type==ValueTypes::VAL_FLOAT)
+								{
+									currentArgDef+=castToFloat;
+									currentArgEtalonDef+=castToFloat;
+								}
+
+				currentArgDef +=  arg.value[i]+";\n";
+				currentArgEtalonDef += arg.etalonValue[i] + string(";\n"); //etalon value for argu
+
 				argumentDefinition += currentArgDef;
 				argumentEtalonDefinition += currentArgEtalonDef;
-
 				variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name + string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial, functionData.lang);
 
 				if (argCount != functionData.args.size() - 1 )
@@ -407,7 +429,11 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		argsString += argumentDefinition;
 		argsString += argumentEtalonDefinition;
 
-		argsString += variablesCorrect+";\n";
+
+		argsString += variablesCorrect;
+				if (functionData.lang == LangCompiler::Flag_Java)
+												argsString+=")";
+				argsString += ";\n";//NEED BRACKET
 		argsString += " result" + string(ETALON_FOR_FUNCTION_ENDING) +  " = function_etalon(" + argForEtalonFunction +  ");\n";
 		argsString += " result = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
 
@@ -469,7 +495,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		footerBody += "\nreturn 0;\n}";
 		break;
 	case LangCompiler::Flag_Java://@BAD@
-		footerBody += "\nreturn 0;\n\t}\n}";
+		footerBody += "}}";//"\nreturn 0;\n\t}\n}";
 		break;
 	}
 
@@ -489,11 +515,17 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 		name2 = "to_string( " + name2 + " )";
 		type1 = ValueTypes::VAL_STRING;
 	}
-
+	string floorFuncName;
 	switch (type1)
 	{
+
+	if (lang==LangCompiler::Flag_CPP)
+		floorFuncName = "floor";
+	else if (lang==LangCompiler::Flag_Java)
+		floorFuncName = "Math.floor";
+	else floorFuncName = "Math.floor";
 	case ValueTypes::VAL_FLOAT:
-		result += " ( floor(" + name1 + " * 100 ) - floor(" + name2 + " * 100 ) ) ";
+		result += " (" +floorFuncName+"(" + name1 + " * 100 ) - "+floorFuncName+"(" + name2 + " * 100 ) ) ";
 		switch (mark)
 		{
 		case CompareMark::LessEquial:
@@ -695,11 +727,12 @@ string TaskCodeGenerator::getStandartInclude(int lang)
 		#include <cmath>\n\
 		#include <stdio.h>\n\
 		#include <string.h>";
-
+		break;
 	}
 	case LangCompiler::Flag_Java:{
-		//include = "";
+		include = "import java.util.Arrays;";
 		//...
+		break;
 	}
 	}
 	return include + "\n";
@@ -809,6 +842,7 @@ string FunctionArgument::getType(int lang )
 string FunctionArgument::generateType(int type, int arrayType, int lang)
 {
 	string result;
+
 	switch(type)
 	{
 	case FunctionData::RET_VAL_BOOL:
