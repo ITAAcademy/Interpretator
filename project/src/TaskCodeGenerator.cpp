@@ -187,7 +187,7 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	switch(functionData.lang)
 	{
 	case LangCompiler::Flag_Java://@BAD@
-		headerStr+="public class Main" + to_string(functionData.thread_id) + "{\n";
+		headerStr+="public class Main{{thId}}{\n";
 		break;
 	}
 

@@ -146,43 +146,34 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
-		cout.flush();
-		file << code;
-		file.close();
-		cout.flush();
+
 		break;
 	case Flag_Java:
+		replaceAll(code,"{{thId}}",to_string(thID));
 		sprintf(str, "src/Main%d.java\0", thID);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
-		cout.flush();
-		file << code;
-		file.close();
-		cout.flush();
 		break;
 	case Flag_PHP:
 		sprintf(str, "src/Main%d.php\0", thID);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
-		cout.flush();
-		file << code;
-		file.close();
-		cout.flush();
 		break;
 	case Flag_CS:
 		sprintf(str, "src/Main%d.cs\0", thID);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
-		cout.flush();
-		file << code;
-		file.close();
-		cout.flush();
 		break;
 
 	}
+			cout.flush();
+			file << code;
+			file.close();
+			cout.flush();
+
 
 	return true;
 }

@@ -700,6 +700,38 @@ bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON)
 	// string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
 
 }
+void replaceAll( string &s, const string &search, const string &replace ) {
+    for( size_t pos = 0; ; pos += replace.length() ) {
+        // Locate the substring to replace
+        pos = s.find( search, pos );
+        if( pos == string::npos ) break;
+        // Replace by erasing and inserting
+        s.erase( pos, search.length() );
+        s.insert( pos, replace );
+    }
+}
+void show404()
+{
+	cout << "Status: 404\r\n"
+		 << "Content-type: text/html\r\n"
+		 << "\r\n"
+		 << " <html><head>"
+		 << "<title>404 Not Found</title>"
+		 << "</head><body>"
+		 << "<h1>Not Found</h1>";
+		 cout << "<p>The requested URL /localhost was not found on this server.</p>"
+		 << "<hr>"
+		 << "</body></html>";
+	/*
+	         * ERR
+	         */
+	        /*cout << "Status: 404\r\n"
+	                 << "Content-type: text/html\r\n"
+	                 << "\r\n"
+	                 << "<html><body><h1>404	Not Found	:(</h1></body></html>\n";
+
+	*/
+}
 
 /*
  *

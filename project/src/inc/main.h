@@ -24,6 +24,9 @@ int main(void)
             ++count, getenv("SERVER_HOSTNAME"));
   }
 }*/
+#ifndef MAIN_H_
+#define MAIN_H_
+
 #define ETALON_ENDING "_etalon"
 #define ETALON_FOR_FUNCTION_ENDING "_for_etalon"
 
@@ -69,30 +72,9 @@ int Apache(void);
 
 
 
-void show404()
-{
-	cout << "Status: 404\r\n"
-		 << "Content-type: text/html\r\n"
-		 << "\r\n"
-		 << " <html><head>"
-		 << "<title>404 Not Found</title>"
-		 << "</head><body>"
-		 << "<h1>Not Found</h1>";
-		 cout << "<p>The requested URL /localhost was not found on this server.</p>"
-		 << "<hr>"
-		 << "</body></html>";
-	/*
-	         * ERR
-	         */
-	        /*cout << "Status: 404\r\n"
-	                 << "Content-type: text/html\r\n"
-	                 << "\r\n"
-	                 << "<html><body><h1>404	Not Found	:(</h1></body></html>\n";
+void show404();
 
-	*/
-}
-
-
+void replaceAll( string &s, const string &search, const string &replace );
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation);
 bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user);
 bool addTestValues(FCGI_Stream &stream, jsonParser &jSON);
@@ -101,3 +83,4 @@ bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON);
 bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON);
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id);
 bool editTask( FCGI_Stream &stream, jsonParser &jSON);
+#endif
