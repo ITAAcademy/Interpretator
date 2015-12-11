@@ -209,22 +209,28 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string results_arguments_comparing_after_main_func = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) + " results_arguments_comparing_after_main_func = true";
 	string modifiedArgComparsion;
 	//C++//need out this code
-	string arrCompFuncStr="template<typename T,int size>\n\
-	bool compareArrs(T arr1[size],T arr2[size])\n\
-		{\n\
-		for (int i=0;i<size;i++)\n\
-		{\n\
-		//if (strcmp(typeid(T).name(), \"f\") == 0)\n\
-		//{\n	\
-		//if (fabs(arr1[i]) - arr2[i] ) > 0.009) \n\
-		//	return false;\n\
-		//}\n \
-		//else	\n\
-			if (arr1[i] != arr2[i])\n\
-				return false;\n\
-			}\n\
-			return true;\n\
-	}\n";
+	string arrCompFuncStr;
+
+	switch(functionData.lang)
+	{
+	case LangCompiler::Flag_CPP:
+		arrCompFuncStr="template<typename T,int size>\n\
+			bool compareArrs(T arr1[size],T arr2[size])\n\
+				{\n\
+				for (int i=0;i<size;i++)\n\
+				{\n\
+				//if (strcmp(typeid(T).name(), \"f\") == 0)\n\
+				//{\n	\
+				//if (fabs(arr1[i]) - arr2[i] ) > 0.009) \n\
+				//	return false;\n\
+				//}\n \
+				//else	\n\
+					if (arr1[i] != arr2[i])\n\
+						return false;\n\
+					}\n\
+					return true;\n\
+			}\n";
+	}
 	footerBody+=arrCompFuncStr;
 	/*
 	 * MAIN FUNCTION START
@@ -621,7 +627,7 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 	}
 	else
 	{
-		if ( lang != LangCompiler::Flag_Java)
+		if ( lang == LangCompiler::Flag_Java)
 		{
 			return string( "Arrays.equals(" + name1 + ", " +  name2 + ")");
 		}
