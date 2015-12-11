@@ -1,6 +1,7 @@
 #ifndef CLangCompiler_H_
 #define CLangCompiler_H_
 
+#include "main.h"
 #include "includes.h"
 #include <sys/types.h>
 #include <unistd.h>
