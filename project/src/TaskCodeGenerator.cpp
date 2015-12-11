@@ -142,7 +142,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, string name , char divider, char space, string modifiers)
 {
-	string functionStr = modifiers + " " + generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
+	string functionStr = modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
 
 
 	functionStr	+= name + "(";
@@ -153,7 +153,7 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 	for(FunctionArgument arg : functionData.args){
 		if (argCount>0)
 			functionStr += divider;
-		string type = generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
+		string type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
 		functionStr += type + space;
 
 		switch(functionData.lang)
@@ -185,11 +185,11 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	string headerStr = getStandartInclude(functionData.lang) + "\n";
 
 	switch(functionData.lang)
-		{
-		case LangCompiler::Flag_Java://@BAD@
-			headerStr+="public class Main" + to_string(functionData.thread_id) + "{\n";
-			break;
-		}
+	{
+	case LangCompiler::Flag_Java://@BAD@
+		headerStr+="public class Main" + to_string(functionData.thread_id) + "{\n";
+		break;
+	}
 
 	headerStr += generateFunctionProtorype(functionData, "function_etalon"); //create prototype for etalon function
 	headerStr += "{\n" + functionData.etalon + "return 0;\n}\n"; // add etalon function
@@ -206,7 +206,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	string space=" ";
 	char divider=',';
-	string results_arguments_comparing_after_main_func = generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) + " results_arguments_comparing_after_main_func = true";
+	string results_arguments_comparing_after_main_func = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) + " results_arguments_comparing_after_main_func = true";
 	string modifiedArgComparsion;
 	//C++//need out this code
 	string arrCompFuncStr="template<typename T,int size>\n\
@@ -246,8 +246,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string correctArgumentsConditionName = "variablesCorrect";
 	string argumentsEqualToEtalonConditionName = "variablesCorrectByEtalon";
 
-	footerBody +=  generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) +  " isTrue;\n";//moved out from cicle to fix variable duplicates
-	string conditionsVariableDeclaration = generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) + argumentsEqualToEtalonConditionName+","
+	footerBody +=  FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) +  " isTrue;\n";//moved out from cicle to fix variable duplicates
+	string conditionsVariableDeclaration = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) + argumentsEqualToEtalonConditionName+","
 			+correctArgumentsConditionName+";\n";
 	footerBody+= conditionsVariableDeclaration;
 
@@ -277,7 +277,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			{
 				argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result_etalon[" + to_string(h) + "] = ";
 				if (is_float)
-					argsString += " (" + generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
+					argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
 				argsString += values_u[h].toStyledString() + ";\n";
 			}
 
@@ -474,6 +474,165 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	return footerBody;
 }
 
+string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,string name2,  ValueTypes type2, CompareMark mark, int lang)
+{
+	string result = "( ";
+	if ((int)type1 != (int) type2) //equial type
+	{
+		name1 = "to_string( " + name1 + " )";
+		name2 = "to_string( " + name2 + " )";
+		type1 = ValueTypes::VAL_STRING;
+	}
+
+	switch (type1)
+	{
+	case ValueTypes::VAL_FLOAT:
+		result += " ( floor(" + name1 + " * 100 ) - floor(" + name2 + " * 100 ) ) ";
+		switch (mark)
+		{
+		case CompareMark::LessEquial:
+			result += "<= 0 )";
+			break;
+		case CompareMark::Less:
+			result += " < 0 )";
+			break;
+		case CompareMark::Equial: default:
+			result += " == 0 )";
+			break;
+		case CompareMark::NotEquial:
+			result += " != 0 )";
+			break;
+		case CompareMark::More:
+			result += " > 0 )";
+			break;
+		case CompareMark::MoreEquial:
+			result += " >= 0 )";
+			break;
+		}
+		break;
+
+		case VAL_INT:
+		{
+			switch (mark)
+			{
+			case CompareMark::LessEquial:
+				result +=  name1 + " <= " + name2 + " )";
+				break;
+			case CompareMark::Less:
+				result +=  name1 + " < " + name2 + " )";
+				break;
+			case CompareMark::Equial: default:
+				result +=  name1 + " == " + name2 + " )";
+				break;
+			case CompareMark::NotEquial:
+				result +=  name1 + " != " + name2 + " )";
+				break;
+			case CompareMark::More:
+				result +=  name1 + " > " + name2 + " )";
+				break;
+			case CompareMark::MoreEquial:
+				result +=  name1 + " >= " + name2 + " )";
+				break;
+			}
+		}
+		break;
+
+		case VAL_STRING:
+		{
+			if ( lang != (int) LangCompiler::Flag_Java)
+				switch (mark)
+				{
+				case CompareMark::LessEquial:
+					result +=  name1 + " <= " + name2 + " )";
+					break;
+				case CompareMark::Less:
+					result +=  name1 + " < " + name2 + " )";
+					break;
+				case CompareMark::Equial: default:
+					result +=  name1 + " == " + name2 + " )";
+					break;
+				case CompareMark::NotEquial:
+					result +=  name1 + " != " + name2 + " )";
+					break;
+				case CompareMark::More:
+					result +=  name1 + " > " + name2 + " )";
+					break;
+				case CompareMark::MoreEquial:
+					result +=  name1 + " >= " + name2 + " )";
+					break;
+				}
+			else
+			{
+				switch (mark)
+				{
+				case CompareMark::LessEquial:
+					result += "(new String(" + name1 + ").compareTo(" + name2 +")) <= 0";
+					break;
+				case CompareMark::Less:
+					result += "(new String(" + name1 + ").compareTo(" + name2 +")) < 0";
+					break;
+				case CompareMark::Equial: default:
+					result += "new String(" + name1 + ").equals(" + name2 +")";
+					break;
+				case CompareMark::NotEquial:
+					result += "!(new String(" + name1 + ").equals(" + name2 +"))";
+					break;
+				case CompareMark::More:
+					result += "(new String(" + name1 + ").compareTo(" + name2 +")) > 0";
+					break;
+				case CompareMark::MoreEquial:
+					result += "(new String(" + name1 + ").compareTo(" + name2 +")) >= 0";
+					break;
+				}
+			}
+		}
+		break;
+
+		case ValueTypes::VAL_BOOL:
+			switch (mark)
+			{
+			case CompareMark::Equial: default:
+				result +=  name1 + " == " + name2 + " )";
+				break;
+			case CompareMark::NotEquial:
+				result +=  name1 + " != " + name2 + " )";
+				break;
+			}
+			break;
+	}
+	return result;
+}
+
+string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, ValueTypes type1,string name2, int arr2_size, ValueTypes type2, CompareMark mark, int lang)
+{
+	if (arr1_size != arr2_size)
+		return "false";
+	if ( arr1_size < 0  )
+		return "false";
+
+	if (type1 != type2) //equial type
+	{
+		return "false";
+	}
+
+	if ( arr1_size == 0  )
+	{
+		return getCompareString(name1, type1, name2, type2, mark, lang);
+	}
+	else
+	{
+		if ( lang != LangCompiler::Flag_Java)
+		{
+			return string( "Arrays.equals(" + name1 + ", " +  name2 + ")");
+		}
+		else
+		{
+			return string( " compareArrs<" + FunctionArgument::generateType(type1, false, lang) + 	"," +
+					std::to_string(arr1_size) + " > ( " + name1 + ", "+ name2 + " )");
+		}
+	}
+}
+
 bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionData, vector<FunctionArgument> &variables)
 {
 	FunctionArgument resultVar;
@@ -512,45 +671,9 @@ bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionD
 	return true;
 }
 
-string TaskCodeGenerator::generateType(int type, int arrayType, int lang)
-{
-	string result;
-	switch(type){
-	case FunctionData::RET_VAL_BOOL:
-		result += "bool";
-		break;
-	case FunctionData::RET_VAL_FLOAT:
-		result += "float";
-		break;
-	case FunctionData::RET_VAL_INT:
-		result += "int";
-		break;
-	case FunctionData::RET_VAL_STRING:
-		result += "string";
-		break;
-	}
-
-	result += " ";
-
-	if (arrayType == FunctionData::ARRAY)
-		switch(lang)
-		{
-		case LangCompiler::Flag_CPP:{
-			result += "* ";
-			break;
-		}
-		case LangCompiler::Flag_Java:{
-			result += "[]";
-			break;
-		}
-		}
-
-	return result;
-}
-
 string TaskCodeGenerator::generateVar(int type, string name, int lang, string value)
 {
-	return generateType(type, 0, lang) + name + " ";
+	return FunctionArgument::generateType(type, 0, lang) + name + " ";
 }
 
 string TaskCodeGenerator::getStandartInclude(int lang)
@@ -604,4 +727,151 @@ string TaskCodeGenerator::convertTypeToString(int type, int lang)
 bool TaskCodeGenerator::to_bool(std::string const& s) {
 	return s != "0";
 }
+
+/*
+string FunctionArgument::getTypeInt(int lang )
+{
+	switch( lang)
+	{
+	case LangCompiler::Flag_CPP: case LangCompiler::Flag_Java:
+		return "int";
+		break;
+	}
+}
+
+string FunctionArgument::getTypeFloat(int lang )
+{
+	switch( lang)
+	{
+	case LangCompiler::Flag_CPP: case LangCompiler::Flag_Java:
+		return "float";
+		break;
+	}
+}
+
+string FunctionArgument::getTypeString(int lang )
+{
+	switch( lang)
+	{
+	case LangCompiler::Flag_CPP:
+		return "string";
+		break;
+
+	case LangCompiler::Flag_Java:
+		return "String";
+		break;
+	}
+}
+
+string FunctionArgument::getTypeBool(int lang )
+{
+	switch( lang)
+	{
+	case LangCompiler::Flag_CPP:
+		return "bool";
+		break;
+
+	case LangCompiler::Flag_Java:
+		return "boolean";
+		break;
+	}
+}
+
+string FunctionArgument::getType(int lang )
+{
+	switch( lang)
+	{
+	case VAL_INT:
+		return getTypeInt(lang);
+		break;
+	case VAL_FLOAT:
+		return getTypeFloat(lang);
+		break;
+	case VAL_BOOL:
+		return getTypeBool(lang);
+		break;
+	case VAL_STRING:
+		return getTypeString(lang);
+		break;
+	case VAL_RANGE:
+		return "range";
+		break;
+	}
+	return "";
+}*/
+
+string FunctionArgument::generateType(int type, int arrayType, int lang)
+{
+	string result;
+	switch(type)
+	{
+	case FunctionData::RET_VAL_BOOL:
+		if (lang == (int) LangCompiler::Flag_Java)
+			result +=  "boolean";
+		else
+			result += "bool";
+		break;
+	case FunctionData::RET_VAL_FLOAT:
+		result += "float";
+		break;
+	case FunctionData::RET_VAL_INT:
+		result += "int";
+		break;
+	case FunctionData::RET_VAL_STRING:
+		if (lang == (int) LangCompiler::Flag_Java)
+			result +=  "String";
+		else
+			result += "string";
+		break;
+	}
+
+	result += " ";
+
+	if (arrayType == FunctionData::ARRAY)
+		switch(lang)
+		{
+		case LangCompiler::Flag_CPP:
+			result += "* ";
+			break;
+		case LangCompiler::Flag_Java:
+			result += "[]";
+			break;
+		}
+
+	return result;
+}
+
+string FunctionArgument::generateDefinition(bool is_result, int lang)
+{
+	string stype = generateType(type, false, lang);
+	string result = stype;
+	switch( lang)
+	{
+	case LangCompiler::Flag_CPP:
+		if (isArray)
+		{
+			if (is_result)
+				result += " *" + name;
+			else
+				result += " " + name + " [" + std::to_string(size) + "]";
+		}
+		else
+			result += " " +  name;
+		break;
+
+	case LangCompiler::Flag_Java:
+		if (isArray)
+		{
+			result += " [] " + name;
+			if ( !is_result )
+				result += " = new " + stype + " [" + std::to_string(size) + "]";
+		}
+		else
+			result += " " +  name;
+		break;
+	}
+	result += ";\n";
+	return result;
+}
+
 } /* namespace code */

@@ -27,6 +27,69 @@
 
 namespace code {
 
+
+
+struct FunctionArgument{
+	int type=0;
+	int isArray = false;
+	int size=0;
+	vector<string> etalonValue;
+	vector<string> value;
+	//vector<CompareMark> compare_marks;
+	string name;
+	/*string getTypeInt(int lang );
+	string getTypeFloat(int lang );
+	string getTypeString(int lang );
+	string getTypeBool(int lang );
+	string getType(int lang );*/
+	string generateDefinition(bool is_result, int lang );
+	static string generateType(int type, int arrayType, int lang);
+};
+struct FunctionData{
+	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3,RET_VAL_RANGE = 4, Last = 5};
+	enum ArrType { ARRAY = 1};
+	int returnValueType = RET_VAL_INT;
+	int isArray = false;
+	bool isRange = false;
+	vector<vector<pair<int,int>>> checkableArgsIndexes;
+	int result_array_size;
+	int size=0;
+	string functionName;
+	vector<string> result;
+	vector<string> tests_code;
+	vector<CompareMark> compare_marks;
+	vector<FunctionArgument> args;
+	string etalon;
+	int lang;
+	int thread_id;
+	int getResultArraySize()
+	{
+		return result_array_size;
+	}
+	string getReturnType()
+	{
+		switch(returnValueType){
+		case RET_VAL_INT:
+			return "int";
+			break;
+		case RET_VAL_FLOAT:
+			return "float";
+			break;
+		case RET_VAL_BOOL:
+			return "bool";
+			break;
+		case RET_VAL_STRING:
+			return "string";
+			break;
+		case RET_VAL_RANGE:
+			return "range";
+			break;
+		}
+		return "";
+	}
+
+};
+
 enum ERR{
 	COMPARE_VALUE_FROM_TH = 1114
 };
@@ -35,14 +98,14 @@ class TaskCodeGenerator {
 	string header;
 	string footer;
 	static int status;
-
 public:
+	static string getArrayCompareString(string name1, int arr1_size, ValueTypes type1,string name2, int arr2_size, ValueTypes type2, CompareMark mark, int lang);
+	static string getCompareString(string name1,  ValueTypes type1,string name2, ValueTypes type2, CompareMark mark, int lang);
 	TaskCodeGenerator(jsonParser &jSON, int thread_id);
 	virtual ~TaskCodeGenerator();
 	static bool generateVariables(string &output, FunctionData functionData, vector<FunctionArgument> &variables);
 	static string generateHeader(FunctionData functionData);
 	static string generateFooter(FunctionData functionData);
-	static string generateType(int type, int arrayType, int lang);
 	static string generateVar(int type, string name, int lang, string value = string());
 
 	static 	string convertStringToType(string argStringValue, int type, int lang);
