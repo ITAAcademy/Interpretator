@@ -442,6 +442,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 				"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
 		if ((int)records.size()==0)
 			tasksPool.push(processTask,requestedTask);
+			//processTask(0, requestedTask);
 		else
 			taskComp = true;
 		//stream << "this job is already excist";

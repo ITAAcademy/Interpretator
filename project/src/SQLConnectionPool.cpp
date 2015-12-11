@@ -196,8 +196,8 @@ string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_progr
 		if (res.capacity())
 		{
 			mysqlpp::Row row = *res.begin();
-			string header = string(row[2]);
-			string footer = string(row[4]);
+			string header = string(row[1]);
+			string footer = string(row[3]);
 			string beforeHeader = "";
 			string beforeFooter = "";
 			if (lang=="c++"){
