@@ -195,12 +195,12 @@ void FCGI_Stream::close()
 }
 
 
-FCGI_Stream FCGI_Stream::operator << ( char * str)
+FCGI_Stream& FCGI_Stream::operator << ( const char * const str)
 {
 	FCGX_PutS(str, request->out);
 	return this[0];
 }
-FCGI_Stream FCGI_Stream::operator << ( int num)
+FCGI_Stream& FCGI_Stream::operator << (const int num)
 {
 //		atoi("12");
 	char str[10];
@@ -209,7 +209,7 @@ FCGI_Stream FCGI_Stream::operator << ( int num)
 	return this[0];
 }
 
-FCGI_Stream FCGI_Stream::operator << ( double num)
+FCGI_Stream& FCGI_Stream::operator << (const double num)
 {
 //		atoi("12");
 	char str[10];
@@ -218,7 +218,7 @@ FCGI_Stream FCGI_Stream::operator << ( double num)
 	return this[0];
 }
 
-FCGI_Stream FCGI_Stream::operator << ( string str)
+FCGI_Stream& FCGI_Stream::operator << ( const string str)
 {
 //		atoi("12");
 	FCGX_PutS(str.c_str(), request->out);

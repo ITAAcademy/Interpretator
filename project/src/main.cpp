@@ -785,8 +785,11 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 		/*
 		 * RESULT
 		 */
+ cerr << "before write to stream";
 
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+
+		 cerr << "after write to stream";
 
 		JsonValue res;
 		if(records.size() > 0)
