@@ -45,9 +45,9 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		prog_name = "Main"+to_string(thID)+".class";
 		break;
 	case Flag_JS:
-		code_file_name = "Main" + to_string(thID) + ".class";
+		code_file_name = "Main" + to_string(thID) + ".js";
 		build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../";
-		run_str = " java Main" + to_string(thID) + " 2>&1 ;  rm Main" + to_string(thID)+".class";
+		run_str = " java Main" + to_string(thID) + " 2>&1 ;  rm Main" + to_string(thID)+".js";
 		prog_name = "Main"+to_string(thID)+".js";
 		break;
 	case Flag_PHP:
@@ -167,6 +167,12 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 		if(!file.is_open())
 			return false;
 		break;
+	case Flag_JS:
+			sprintf(str, "src/Main%d.js\0", thID);
+			file.open(str, fstream::out);
+			if(!file.is_open())
+				return false;
+			break;
 
 	}
 			cout.flush();
