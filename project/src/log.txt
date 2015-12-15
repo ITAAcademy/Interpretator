@@ -1,0 +1,178 @@
+Wed Jul 15 20:09:53 2015      
+
+
+
+Start server ==== Lib is inited
+Wed Jul 15 20:09:53 2015      Socket is opened 127.0.0.1:8000...  create 4 threads
+Wed Jul 15 20:09:53 2015      Try to accept new request
+
+Wed Jul 15 20:09:53 2015      Try to accept new request
+
+Wed Jul 15 20:09:53 2015      Try to accept new request
+
+Wed Jul 15 20:09:53 2015      Try to accept new request
+
+Wed Jul 15 20:10:18 2015      request is accepted
+
+Wed Jul 15 20:10:18 2015      buffer is accepted
+
+Wed Jul 15 20:10:18 2015      127.0.0.1 request length: 153 
+Wed Jul 15 20:10:18 2015      Connection to host and database successful
+Wed Jul 15 20:10:18 2015      getInstance
+Wed Jul 15 20:10:18 2015      isConnected( )
+Wed Jul 15 20:10:18 2015      Server connected to DB
+Wed Jul 15 20:10:18 2015      111111111111111111111111111111111111111111111111111111
+Wed Jul 15 20:10:18 2015      Before parsing
+Wed Jul 15 20:10:18 2015           3 Json format is not correct!!! 
+::::::::::::::::::::::::
+{
+"operation": "send",
+"session" : "1241q223f4f2341",
+"jobid" : 11212,
+"code" : "std::cout << \"Hello World!\" << std::endl;",
+"task": 1,
+"lang": "c++"
+}
+::::::::::::::::::::::::
+Wed Jul 15 20:10:18 2015      Try to accept new request
+
+Wed Jul 15 20:10:43 2015      request is accepted
+
+Wed Jul 15 20:10:43 2015      buffer is accepted
+
+Wed Jul 15 20:10:43 2015      127.0.0.1 request length: 154 
+Wed Jul 15 20:10:43 2015      getInstance
+Wed Jul 15 20:10:43 2015      isConnected( )
+Wed Jul 15 20:10:43 2015      Server connected to DB
+Wed Jul 15 20:10:43 2015      111111111111111111111111111111111111111111111111111111
+Wed Jul 15 20:10:43 2015      Before parsing
+Wed Jul 15 20:10:43 2015      Parsing successful
+Wed Jul 15 20:10:43 2015      no threa22
+Wed Jul 15 20:10:43 2015      getInstance
+Wed Jul 15 20:10:43 2015      Connection  to table results successfull
+Wed Jul 15 20:10:43 2015      no threa2
+Wed Jul 15 20:10:43 2015      getInstance
+Wed Jul 15 20:10:43 2015      SELECT * FROM `results` WHERE `session`='1241q223f4f2341' AND `jobid`='11212'
+Wed Jul 15 20:10:43 2015      Getting all records from table results failed or table is empty
+Wed Jul 15 20:10:43 2015      getInstance
+Wed Jul 15 20:10:43 2015      before code empty check
+Wed Jul 15 20:10:43 2015      Before connect to results
+Wed Jul 15 20:10:43 2015      getInstance
+Wed Jul 15 20:10:43 2015      Connection  to table history successfull
+Wed Jul 15 20:10:43 2015      getInstance
+Wed Jul 15 20:10:43 2015      INSERT INTO `history` (`ID`,`ip`,`code`,`date_time`) Values (DEFAULT, "127.0.0.1" , "std::cout << \"Hello World!\" << std::endl;" , "2015-7-15 20:10:43" );
+Wed Jul 15 20:10:43 2015      Adding records in to table history successfull
+Wed Jul 15 20:10:43 2015      Try to accept new request
+
+Wed Jul 15 20:10:43 2015      Connection  to table results successfull
+Wed Jul 15 20:10:43 2015      getInstance
+Wed Jul 15 20:10:43 2015      INSERT INTO `results` (`id`,`session`,`jobid`,`status`,`date`,`result`,`warning`) Values (DEFAULT, "1241q223f4f2341" , "11212" , "in proccess" , "2015-7-15 20:10:43" , "" , "" );
+Wed Jul 15 20:10:43 2015      Adding records in to table results successfull
+Wed Jul 15 20:10:43 2015      getInstance
+Wed Jul 15 20:10:43 2015      Connection  to table assignment_cpp successfull
+Wed Jul 15 20:10:43 2015      getInstance
+Wed Jul 15 20:10:43 2015      SELECT * FROM  `assignment_cpp` where `ID` = 1;
+Wed Jul 15 20:10:43 2015      #include <unistd.h>
+#include <ios>
+#include <iostream>
+#include <fstream>
+#include <string>
+void process_mem_usage(double& vm_usage, double& resident_set)
+{using std::ios_base;
+using std::ifstream;
+using std::string;
+vm_usage     = 0.0;
+resident_set = 0.0;
+ifstream stat_stream("/proc/self/stat",ios_base::in);
+string pid, comm, state, ppid, pgrp, session, tty_nr;
+string tpgid, flags, minflt, cminflt, majflt, cmajflt;
+string utime, stime, cutime, cstime, priority, nice;
+string O, itrealvalue, starttime;
+unsigned long vsize;
+long rss;
+stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr
+>> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
+>> utime >> stime >> cutime >> cstime >> priority >> nice
+>> O >> itrealvalue >> starttime >> vsize >> rss;
+stat_stream.close();
+long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024;
+vm_usage     = vsize / 1024.0;
+resident_set = rss * page_size_kb;
+}
+#include <iostream> 
+ int main()
+ {
+std::cout << "Hello World!" << std::endl;
+using std::cout;using std::endl;double vm, rss;process_mem_usage(vm, rss);cout << "VM: " << vm << "; RSS: " << rss << endl;return 0;}
+Wed Jul 15 20:10:43 2015      failed, not connected to database
+Wed Jul 15 20:10:43 2015      #include <unistd.h>
+#include <ios>
+#include <iostream>
+#include <fstream>
+#include <string>
+void process_mem_usage(double& vm_usage, double& resident_set)
+{using std::ios_base;
+using std::ifstream;
+using std::string;
+vm_usage     = 0.0;
+resident_set = 0.0;
+ifstream stat_stream("/proc/self/stat",ios_base::in);
+string pid, comm, state, ppid, pgrp, session, tty_nr;
+string tpgid, flags, minflt, cminflt, majflt, cmajflt;
+string utime, stime, cutime, cstime, priority, nice;
+string O, itrealvalue, starttime;
+unsigned long vsize;
+long rss;
+stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr
+>> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
+>> utime >> stime >> cutime >> cstime >> priority >> nice
+>> O >> itrealvalue >> starttime >> vsize >> rss;
+stat_stream.close();
+long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024;
+vm_usage     = vsize / 1024.0;
+resident_set = rss * page_size_kb;
+}
+#include <iostream> 
+ int main()
+ {
+std::cout << "Hello World!" << std::endl;
+using std::cout;using std::endl;double vm, rss;process_mem_usage(vm, rss);cout << "VM: " << vm << "; RSS: " << rss << endl;return 0;}
+Wed Jul 15 20:10:43 2015      3 Start compiler
+Wed Jul 15 20:10:43 2015      src/code3.cpp
+Wed Jul 15 20:10:46 2015      1436980246
+Wed Jul 15 20:10:46 2015      build time: 0.252000
+Wed Jul 15 20:10:46 2015      1436980246
+Wed Jul 15 20:10:46 2015      compute time: 0.311000
+Wed Jul 15 20:10:46 2015      {
+   "date" : "Wed Jul 15 20:10:46 2015",
+   "result" : "Hello World!\nVM: 12664; RSS: 1552\n",
+   "warnings" : ""
+}
+
+Wed Jul 15 20:10:46 2015      getInstance
+Wed Jul 15 20:10:46 2015      Connection  to table results successfull
+Wed Jul 15 20:10:46 2015      getInstance
+Wed Jul 15 20:10:46 2015      UPDATE `results` SET `session`='1241q223f4f2341', `jobid`='11212', `status`='done', `date`='2015-7-15 20:10:46', `result`='Hello World!
+VM: 12664; RSS: 1552
+', `warning`='' WHERE `results`.`session`='1241q223f4f2341' AND `results`.`jobid`='11212' 
+Wed Jul 15 20:10:46 2015      Updating records in table results successfull
+Wed Jul 15 20:10:46 2015      3 Stop compiler
+Wed Jul 15 20:11:23 2015      request is accepted
+
+Wed Jul 15 20:11:23 2015      buffer is accepted
+
+Wed Jul 15 20:11:23 2015      127.0.0.1 request length: 155 
+Wed Jul 15 20:11:23 2015      getInstance
+Wed Jul 15 20:11:23 2015      isConnected( )
+Wed Jul 15 20:11:23 2015      Server connected to DB
+Wed Jul 15 20:11:23 2015      111111111111111111111111111111111111111111111111111111
+Wed Jul 15 20:11:23 2015      Before parsing
+Wed Jul 15 20:11:23 2015      Parsing successful
+Wed Jul 15 20:11:23 2015      getInstance
+Wed Jul 15 20:11:23 2015      Connection  to table results successfull
+Wed Jul 15 20:11:23 2015      getInstance
+Wed Jul 15 20:11:23 2015      SELECT * FROM `results` WHERE `session`='1241q223f4f2341' AND `jobid`='11212'
+Wed Jul 15 20:11:23 2015      Getting all records from table results successfull
+Wed Jul 15 20:11:23 2015      Table 'results' outputed
+Wed Jul 15 20:11:23 2015      Try to accept new request
+

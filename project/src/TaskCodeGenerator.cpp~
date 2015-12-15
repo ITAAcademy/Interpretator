@@ -781,7 +781,7 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 	}
 	else
 	{
-
+<<<<<<< HEAD
 		switch(lang)
 		{
 		case LangCompiler::Flag_Java:
@@ -804,6 +804,24 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 
 		}
 
+
+=======
+
+		if ( lang == LangCompiler::Flag_CS)
+		{
+			return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
+		}
+		else
+			if ( lang == LangCompiler::Flag_Java)
+			{
+				return string( "Arrays.equals(" + name1 + ", " +  name2 + ")");
+			}
+			else
+			{
+				return string( " compareArrs<" + FunctionArgument::generateType(type1, false, lang) + 	"," +
+						std::to_string(arr1_size) + " > ( " + name1 + ", "+ name2 + " )");
+			}
+>>>>>>> origin/SQL-fix
 	}
 }
 
