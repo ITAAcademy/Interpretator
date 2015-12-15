@@ -348,8 +348,6 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 	string table;
 	if (lang == "c++" || lang == "C++")
 		table = "assignment_cpp"; //Config::getInstance().getTaskJavaTableName();
-	else if (lang == "cs" || lang == "CS" || lang == "C#" || lang == "c#")
-			table = "assignment_cs";
 	else if (lang == "Java" || lang == "java")
 		table = "assignment_java";
 	else if (lang == "PHP" || lang == "php")

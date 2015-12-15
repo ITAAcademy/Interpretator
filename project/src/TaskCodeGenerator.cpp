@@ -146,7 +146,6 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 	string functionStr ="";
 	switch(functionData.lang){
 	case LangCompiler::Flag_Java:
-	case LangCompiler::Flag_CS:
 		functionStr += "static ";
 		break;
 	case LangCompiler::Flag_JS:
@@ -157,8 +156,6 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 	else
 	functionStr += modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
 
-	if (functionData.lang == LangCompiler::Flag_CS && functionData.isArray == FunctionData::ARRAY)
-		functionStr += " [] ";
 
 	functionStr	+= name + "(";
 
@@ -173,29 +170,19 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 		type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
 		functionStr += type + space;
 
-
 		switch(functionData.lang)
 		{
 		case LangCompiler::Flag_CPP:
 		{
-			functionStr += type + space;
 			if ( arg.isArray != FunctionData::ARRAY)
+			{
 				functionStr += "&" + arg.name;
-			else
-				functionStr += arg.name;
+			}
 			break;
 		}
-		case LangCompiler::Flag_CS:
-			functionStr += "ref " + type + " " ;
-			if ( arg.isArray == FunctionData::ARRAY)
-				functionStr += "[]" + arg.name;
-			else
-				functionStr += arg.name;
-			break;
 		case LangCompiler::Flag_Java:
 		case LangCompiler::Flag_JS:
 		{
-			functionStr += type + space;
 			// maybe out add?
 			functionStr += arg.name;
 			break;
@@ -216,17 +203,9 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 
 	switch(functionData.lang)
 	{
-	case LangCompiler::Flag_Java: //@BAD@
+	case LangCompiler::Flag_Java://@BAD@
 		headerStr+="public class Main{{thId}}{\n";
 		defaultReturnValue="null";
-		break;
-	case LangCompiler::Flag_CS:
-		headerStr+="public class MainClass {\n";
-		int type = functionData.returnValueType;
-		defaultReturnValue = "default(" + FunctionArgument::generateType(type, false, functionData.lang);
-		if (functionData.isArray == FunctionData::ARRAY)
-			defaultReturnValue += " [] ";
-		defaultReturnValue += ")";
 		break;
 	}
 
@@ -245,15 +224,6 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string defaultReturnValue = "0";
 	if (functionData.lang==LangCompiler::Flag_Java)
 		defaultReturnValue="null";
-	else
-		if (functionData.lang==LangCompiler::Flag_CS)
-		{
-			defaultReturnValue = "default(" + FunctionArgument::generateType(functionData.returnValueType, false, functionData.lang);
-			if (functionData.isArray == FunctionData::ARRAY)
-				defaultReturnValue += " [] ";
-			defaultReturnValue += ")";
-		}
-	//999
 	string footerBody = "return "+defaultReturnValue+";\n}\n";//Close function body
 
 	string space=" ";
@@ -282,25 +252,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 					}\n\
 					return true;\n\
 			}\n";
-		break;
-
-	case LangCompiler::Flag_CS:
-		arrCompFuncStr = "static bool ArraysEqual<T>(T[] a1, T[] a2)\n\
-		{\n\
-		    if (a1 == a2)\n\
-		        return true;\n\
-		    if (a1 == null || a2 == null)\n\
-		        return false;\n\
-		    if (a1.Length != a2.Length)\n\
-		        return false;\n\
-			EqualityComparer<T> comparer = EqualityComparer<T>.Default;\n\
-		    for (int i = 0; i < a1.Length; i++)\n\
-		        if (!comparer.Equals(a1[i], a2[i]))\n\
-		            return false;\n\
-		    return true;\n}\n";
-		break;
 	}
-	footerBody += arrCompFuncStr;
+	footerBody+=arrCompFuncStr;
 	/*
 	 * MAIN FUNCTION START
 	 */
@@ -311,15 +264,11 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		footerBody+="int main()\n\
 					{\n";
 		break;
-	case LangCompiler::Flag_Java: //@BAD@
+	case LangCompiler::Flag_Java://@BAD@
 		footerBody+="public static void main(String[] args)\n\
 {\n";
 		break;
 
-	case LangCompiler::Flag_CS:
-		footerBody+="public static void Main(String[] args)\n\
-		{\n";
-		break;
 	}
 
 	generateVariables(footerBody, functionData, variables);
@@ -346,10 +295,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		if ( functionData.isArray != FunctionData::ARRAY)
 		{
 			argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + " = " + */
-					"result_etalon = ";
-			if (functionData.lang == LangCompiler::Flag_CS && functionData.returnValueType == FunctionData::RET_VAL_FLOAT)
-				argsString += "(float) ";
-			argsString += functionData.result[i] + ";\n";
+					"result_etalon = " + functionData.result[i] + ";\n";
 		}
 		else
 		{
@@ -392,7 +338,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		int checkableArgsCount = 0;
 		int currentArgumentIndex=-1;
-		for(FunctionArgument arg : functionData.args)
+		for(FunctionArgument arg : functionData.args) //8787
 		{
 			currentArgumentIndex++;
 			vector<string> args_results;
@@ -405,7 +351,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 				currentArgDef += arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " +arg.name + " = " ;
 				currentArgEtalonDef += arg.name + string(ETALON_ENDING) + string(" = ") ; //etalon value for argument
-				if ( (functionData.lang == LangCompiler::Flag_Java || functionData.lang == LangCompiler::Flag_CS) && arg.type == ValueTypes::VAL_FLOAT)
+				if (functionData.lang==LangCompiler::Flag_Java && arg.type==ValueTypes::VAL_FLOAT)
 				{
 					currentArgDef+=castToFloat;
 					currentArgEtalonDef+=castToFloat;
@@ -438,8 +384,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 							"[" + to_string(i) + "] = " + arg.name +"[" + to_string(i) + "] = "
 							+ values_u[i].toStyledString() + ";\n";
 					argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(i) +
-							"] = " + etalons_values_u[i].toStyledString() + ";\n";
-					//"]getAllRecordsFromTable = " + etalons_values_u[i].toStyledString() + ";\n";
+							"]getAllRecordsFromTable = " + etalons_values_u[i].toStyledString() + ";\n";
 				}
 
 				variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_ENDING),
@@ -461,11 +406,6 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			string arrName = arg.name;//    "array"+std::to_string(arraysCount);
 
 			string etalonArrName = arrName + ETALON_FOR_FUNCTION_ENDING;
-			if (functionData.lang == LangCompiler::Flag_CS)
-			{
-				argForMainFunction += "ref ";
-				argForEtalonFunction += "ref ";
-			}
 			argForMainFunction += arrName;
 			argForEtalonFunction += etalonArrName;
 
@@ -561,18 +501,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			argsString += "else\n";
 			argsString += "System.out.println(\" @" + to_string(i) + "!@\");\n";
 			break;
-
 		case LangCompiler::Flag_JS:
 			argsString += "console.log(\" @" + to_string(i) + "@\");\n";
 			argsString += "else\n";
 			argsString += "console.log(\" @" + to_string(i) + "!@\");\n";
-			break;
-
-
-		case LangCompiler::Flag_CS:
-			argsString += "System.Console.WriteLine(\" @" + to_string(i) + "@\");\n";
-			argsString += "else\n";
-			argsString += "System.Console.WriteLine(\" @" + to_string(i) + "!@\");\n";
 			break;
 
 		}
@@ -590,7 +522,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	case LangCompiler::Flag_CPP:
 		footerBody += "\nreturn 0;\n}";
 		break;
-	case LangCompiler::Flag_Java: 	case LangCompiler::Flag_CS://@BAD@
+	case LangCompiler::Flag_Java://@BAD@
 		footerBody += "}}";//"\nreturn 0;\n\t}\n}";
 		break;
 	}
@@ -620,7 +552,6 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 	else if (lang==LangCompiler::Flag_Java)
 		floorFuncName = "Math.floor";
 	else floorFuncName = "Math.floor";
-
 	case ValueTypes::VAL_FLOAT:
 		result += " (" +floorFuncName+"(" + name1 + " * 100 ) - "+floorFuncName+"(" + name2 + " * 100 ) ) ";
 		switch (mark)
@@ -674,77 +605,52 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 
 		case VAL_STRING:
 		{
-			if ( lang == (int) LangCompiler::Flag_CS)
+			if ( lang != (int) LangCompiler::Flag_Java)
+				switch (mark)
+				{
+				case CompareMark::LessEquial:
+					result +=  name1 + " <= " + name2 + " )";
+					break;
+				case CompareMark::Less:
+					result +=  name1 + " < " + name2 + " )";
+					break;
+				case CompareMark::Equial: default:
+					result +=  name1 + " == " + name2 + " )";
+					break;
+				case CompareMark::NotEquial:
+					result +=  name1 + " != " + name2 + " )";
+					break;
+				case CompareMark::More:
+					result +=  name1 + " > " + name2 + " )";
+					break;
+				case CompareMark::MoreEquial:
+					result +=  name1 + " >= " + name2 + " )";
+					break;
+				}
+			else
 			{
 				switch (mark)
 				{
 				case CompareMark::LessEquial:
-					result += name1 + ".Compare(" + name2 +") <= 0";
+					result += "(new String(" + name1 + ").compareTo(" + name2 +")) <= 0";
 					break;
 				case CompareMark::Less:
-					result += name1 + ".Compare(" + name2 +") < 0";
+					result += "(new String(" + name1 + ").compareTo(" + name2 +")) < 0";
 					break;
 				case CompareMark::Equial: default:
-					result += "String.Equals (" + name1 + ", " + name2 +"))";
+					result += "new String(" + name1 + ").equals(" + name2 +")";
 					break;
 				case CompareMark::NotEquial:
-					result += "!String.Equals (" + name1 + ", " + name2 +",  StringComparison.Ordinal)";
+					result += "!(new String(" + name1 + ").equals(" + name2 +"))";
 					break;
 				case CompareMark::More:
-					result += name1 + ".Compare(" + name2 +") > 0";
+					result += "(new String(" + name1 + ").compareTo(" + name2 +")) > 0";
 					break;
 				case CompareMark::MoreEquial:
-					result += name1 + ".Compare(" + name2 +") >= 0";
+					result += "(new String(" + name1 + ").compareTo(" + name2 +")) >= 0";
 					break;
 				}
 			}
-			else
-				if ( lang != (int) LangCompiler::Flag_Java)
-					switch (mark)
-					{
-					case CompareMark::LessEquial:
-						result +=  name1 + " <= " + name2 + " )";
-						break;
-					case CompareMark::Less:
-						result +=  name1 + " < " + name2 + " )";
-						break;
-					case CompareMark::Equial: default:
-						result +=  name1 + " == " + name2 + " )";
-						break;
-					case CompareMark::NotEquial:
-						result +=  name1 + " != " + name2 + " )";
-						break;
-					case CompareMark::More:
-						result +=  name1 + " > " + name2 + " )";
-						break;
-					case CompareMark::MoreEquial:
-						result +=  name1 + " >= " + name2 + " )";
-						break;
-					}
-				else
-				{
-					switch (mark)
-					{
-					case CompareMark::LessEquial:
-						result += "(new String(" + name1 + ").compareTo(" + name2 +")) <= 0";
-						break;
-					case CompareMark::Less:
-						result += "(new String(" + name1 + ").compareTo(" + name2 +")) < 0";
-						break;
-					case CompareMark::Equial: default:
-						result += "new String(" + name1 + ").equals(" + name2 +")";
-						break;
-					case CompareMark::NotEquial:
-						result += "!(new String(" + name1 + ").equals(" + name2 +"))";
-						break;
-					case CompareMark::More:
-						result += "(new String(" + name1 + ").compareTo(" + name2 +")) > 0";
-						break;
-					case CompareMark::MoreEquial:
-						result += "(new String(" + name1 + ").compareTo(" + name2 +")) >= 0";
-						break;
-					}
-				}
 		}
 		break;
 
@@ -781,7 +687,6 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 	}
 	else
 	{
-
 		switch(lang)
 		{
 		case LangCompiler::Flag_Java:
@@ -796,13 +701,9 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 		case LangCompiler::Flag_CPP:
 			return string( " compareArrs<" + FunctionArgument::generateType(type1, false, lang) + 	"," +
 					std::to_string(arr1_size) + " > ( " + name1 + ", "+ name2 + " )");
-			break;
-
-		case LangCompiler::Flag_CS:
-		return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
-			break;
 
 		}
+
 
 	}
 }
@@ -870,11 +771,6 @@ string TaskCodeGenerator::getStandartInclude(int lang)
 		//...
 		break;
 	}
-	case LangCompiler::Flag_CS:
-		include = "using System;\n\
-				using System.Collections.Generic;\n\
-				using System.Collections;";
-		break;
 	}
 	return include + "\n";
 
@@ -1041,7 +937,7 @@ string FunctionArgument::generateDefinition(bool is_result, int lang)
 			result += " " +  name;
 		break;
 
-	case LangCompiler::Flag_Java: case LangCompiler::Flag_CS:
+	case LangCompiler::Flag_Java:
 		if (isArray)
 		{
 			result += " [] " + name;
