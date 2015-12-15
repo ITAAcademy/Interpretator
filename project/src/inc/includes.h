@@ -16,7 +16,7 @@
 #include <jsoncpp/json/json.h>
 #include "logfile.h"
 #include <regex>
-
+#include <stdio.h>
 //#include <chrono>
 
 #include "fcgi_config.h"
