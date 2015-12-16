@@ -58,7 +58,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		break;
 	case Flag_CS:
 		code_file_name = "./src/Main" + to_string(thID) + ".exe";
-		build_str = "gmcs ./src/Main" + to_string(thID) + ".cs";
+		build_str = "gmcs ./src/Main" + to_string(thID) + ".cs 2>&1";
 		run_str = " mono ./src/Main" + to_string(thID) + ".exe 2>&1 " + "; rm ./src/Main" + to_string(thID) + ".exe";
 		prog_name = code_file_name;
 		break;
@@ -240,7 +240,7 @@ char* LangCompiler::getSystemOutput(char* cmd){
 
 string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double *executionTime)
 {
-	string data;
+	string data="";
 	FILE * stream;
 	std::clock_t    start;
 	start = std::clock();
@@ -254,6 +254,8 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
 	//printf("%lf", sysTime);
 	//  const long double sysTimeMS = sysTime*1000;
 	stream = popen(cmd.c_str(), "r");
+
+
 	if (stream) {
 		while (!feof(stream))
 		{
