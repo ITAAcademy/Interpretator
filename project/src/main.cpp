@@ -117,7 +117,7 @@ void processTask(int id,Job job) {
 				table = "assignment_js";
 			else if (job.lang == "PHP" || job.lang == "php")
 				table = "assignment_php";
-			else if (job.lang == "C#" || job.lang == "c#" )
+			else if (job.lang == "C#" || job.lang == "c#" || job.lang == "CS" || job.lang == "cs" )
 				table = "assignment_cs";
 			else
 				table = "assignment_cpp";

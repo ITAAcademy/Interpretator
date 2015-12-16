@@ -335,11 +335,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string correctArgumentsConditionName = FunctionArgument::getName("variablesCorrect", functionData.lang);
 	string argumentsEqualToEtalonConditionName = FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
 
-	footerBody +=  FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang)
+	string type_n = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang);
+
+	footerBody +=  type_n
 	+  FunctionArgument::getName("isTrue", functionData.lang) + ";\n";//moved out from cicle to fix variable duplicates
-	string conditionsVariableDeclaration = FunctionArgument::generateType(
-			FunctionData::RET_VAL_BOOL, false,functionData.lang) +" "+
-					argumentsEqualToEtalonConditionName+";"+correctArgumentsConditionName+";\n";
+	string conditionsVariableDeclaration = type_n +" "+
+					argumentsEqualToEtalonConditionName+";\n" + type_n + " " + correctArgumentsConditionName+";\n";
 	footerBody+= conditionsVariableDeclaration;
 
 
@@ -700,7 +701,7 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 					result += name1 + ".Compare(" + name2 +") < 0";
 					break;
 				case CompareMark::Equial: default:
-					result += "String.Equals (" + name1 + ", " + name2 +"))";
+					result += "String.Equals (" + name1 + ", " + name2 +")))";
 					break;
 				case CompareMark::NotEquial:
 					result += "!String.Equals (" + name1 + ", " + name2 +",  StringComparison.Ordinal)";
@@ -836,7 +837,7 @@ bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionD
 	output += resultVar.generateDefinition(false, functionData.lang);
 	variables.push_back(resultVar);
 
-	resultVar.name += string(ETALON_FOR_FUNCTION_ENDING);
+	resultVar.name = FunctionArgument::getName("result", functionData.lang) +  string(ETALON_FOR_FUNCTION_ENDING);
 	output += resultVar.generateDefinition(true, functionData.lang);
 	variables.push_back(resultVar);
 
