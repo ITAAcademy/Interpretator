@@ -2,10 +2,10 @@
 -- version 4.0.10deb1
 -- http://www.phpmyadmin.net
 --
--- Хост: localhost
--- Время создания: Дек 14 2015 г., 16:29
--- Версия сервера: 5.5.46-0ubuntu0.14.04.2
--- Версия PHP: 5.5.9-1ubuntu4.14
+-- Host: localhost
+-- Generation Time: Dec 16, 2015 at 08:26 PM
+-- Server version: 5.5.43-0ubuntu0.14.04.1
+-- PHP Version: 5.5.9-1ubuntu4.14
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,15 +17,16 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- База данных: `ITA-codeforce`
+-- Database: `ITA-codeforce`
 --
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `assignment_cpp`
+-- Table structure for table `assignment_cpp`
 --
 
+DROP TABLE IF EXISTS `assignment_cpp`;
 CREATE TABLE IF NOT EXISTS `assignment_cpp` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `header` text,
@@ -35,12 +36,25 @@ CREATE TABLE IF NOT EXISTS `assignment_cpp` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=551 ;
 
+--
+-- Truncate table before insert `assignment_cpp`
+--
+
+TRUNCATE TABLE `assignment_cpp`;
+--
+-- Dumping data for table `assignment_cpp`
+--
+
+INSERT INTO `assignment_cpp` (`ID`, `header`, `etalon`, `footer`, `json`) VALUES
+(80, '#include <iostream>\n		#include <cstdlib>\n		#include <algorithm>\n using namespace std;\n		#include <cxxabi.h>\n		#include <cmath>\n		#include <stdio.h>\n		#include <string.h>\n\n float function_etalon( &x, &vasya)\n{\nreturn 0;\n}\n float function_main( &x, &vasya)\n{\n', '', 'return 0;\n}\ntemplate<typename T,int size>\n			bool compareArrs(T arr1[size],T arr2[size])\n				{\n				for (int i=0;i<size;i++)\n				{\n				//if (strcmp(typeid(T).name(), "f") == 0)\n				//{\n					//if (fabs(arr1[i]) - arr2[i] ) > 0.009) \n				//	return false;\n				//}\n 				//else	\n					if (arr1[i] != arr2[i])\n						return false;\n					}\n					return true;\n			}\nint main()\n					{\nfloat  result;\nfloat  result_etalon;\nfloat  result_for_etalon;\nfloat  x;\nfloat  x_etalon;\nfloat  x_for_etalon;\nstring  vasya;\nstring  vasya_etalon;\nstring  vasya_for_etalon;\nbool  isTrue;\nbool  variablesCorrectByEtalon,variablesCorrect;\nresult_etalon = 10.0\n;\nx_for_etalon = x = 10.0\n;\nvasya_for_etalon = vasya = "safdasdf"\n;\nx_etalon = 10.0\n;\nvasya_etalon = "safdasdf"\n;\nvariablesCorrect = (  ((x * 100 ) - (x_etalon * 100 ) )  == 0 ) && ( vasya == vasya_etalon );\n result_for_etalon = function_etalon(x_for_etalon,vasya_for_etalon);\n result = function_main(x,vasya);\nisTrue = true;\nvariablesCorrectByEtalon = true;isTrue = true;\nif ((  ((result_etalon * 100 ) - (result * 100 ) ) <= 0 ) && variablesCorrect && isTrue)\nstd::cout << " @0@";\nelse\nstd::cout << " @0!@";\nresult_etalon = 11.0\n;\nx_for_etalon = x = 12.0\n;\nvasya_for_etalon = vasya = "safdasdf"\n;\nx_etalon = 12.0\n;\nvasya_etalon = "safdasdf"\n;\nvariablesCorrect = (  ((x * 100 ) - (x_etalon * 100 ) )  == 0 ) && ( vasya == vasya_etalon );\n result_for_etalon = function_etalon(x_for_etalon,vasya_for_etalon);\n result = function_main(x,vasya);\nisTrue = true;\nvariablesCorrectByEtalon = true;isTrue = true;\nif ((  ((result_etalon * 100 ) - (result * 100 ) )  < 0 ) && variablesCorrect && isTrue)\nstd::cout << " @1@";\nelse\nstd::cout << " @1!@";\n\nreturn 0;\n}', '{\n"operation": "addtask",\n  "etalon": "",\n  "name": "test example",\n  "lang": "c++",\n  "task": 80,\n  "function": {\n    "type": 1,\n    "checkable_args_indexes":[0,1],\n    "results": [10.0,11.0 ],\n    "compare_mark": [0, 1],\n"tests_code":[	"isTrue = true;", "isTrue = true;"],\n    "args": 	[\n	{\n      "type": 1,\n      "arg_name": "x",\n      "value": [10.0, 12.0],\n       "compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n    	},\n	{\n      "type": 3,\n      "arg_name": "vasya",\n      "value": ["safdasdf", "safdasdf"],\n       "compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n    	}\n		]\n  }\n}');
+
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `assignment_cs`
+-- Table structure for table `assignment_cs`
 --
 
+DROP TABLE IF EXISTS `assignment_cs`;
 CREATE TABLE IF NOT EXISTS `assignment_cs` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `header` text,
@@ -50,12 +64,18 @@ CREATE TABLE IF NOT EXISTS `assignment_cs` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+--
+-- Truncate table before insert `assignment_cs`
+--
+
+TRUNCATE TABLE `assignment_cs`;
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `assignment_java`
+-- Table structure for table `assignment_java`
 --
 
+DROP TABLE IF EXISTS `assignment_java`;
 CREATE TABLE IF NOT EXISTS `assignment_java` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `header` text,
@@ -66,39 +86,84 @@ CREATE TABLE IF NOT EXISTS `assignment_java` (
   UNIQUE KEY `ID` (`ID`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=56 ;
 
+--
+-- Truncate table before insert `assignment_java`
+--
+
+TRUNCATE TABLE `assignment_java`;
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `assignment_js`
+-- Table structure for table `assignment_js`
 --
 
+DROP TABLE IF EXISTS `assignment_js`;
 CREATE TABLE IF NOT EXISTS `assignment_js` (
-  `ID` int(11) NOT NULL DEFAULT '0',
-  `header` varchar(512) CHARACTER SET latin1 DEFAULT NULL,
-  `etalon` varchar(512) CHARACTER SET latin1 DEFAULT NULL,
-  `footer` varchar(512) CHARACTER SET latin1 DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=ascii;
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `header` text CHARACTER SET latin1,
+  `etalon` text CHARACTER SET latin1,
+  `footer` text CHARACTER SET latin1,
+  `json` text CHARACTER SET latin1 NOT NULL,
+  UNIQUE KEY `ID` (`ID`)
+) ENGINE=InnoDB  DEFAULT CHARSET=ascii AUTO_INCREMENT=82 ;
+
+--
+-- Truncate table before insert `assignment_js`
+--
+
+TRUNCATE TABLE `assignment_js`;
+--
+-- Dumping data for table `assignment_js`
+--
+
+INSERT INTO `assignment_js` (`ID`, `header`, `etalon`, `footer`, `json`) VALUES
+(80, '#include <iostream>\n		#include <cstdlib>\n		#include <algorithm>\n using namespace std;\n		#include <cxxabi.h>\n		#include <cmath>\n		#include <stdio.h>\n		#include <string.h>\n\n float function_etalon( &x, &vasya)\n{\nreturn 0;\n}\n float function_main( &x, &vasya)\n{\n', '', 'return 0;\n}\ntemplate<typename T,int size>\n			bool compareArrs(T arr1[size],T arr2[size])\n				{\n				for (int i=0;i<size;i++)\n				{\n				//if (strcmp(typeid(T).name(), "f") == 0)\n				//{\n					//if (fabs(arr1[i]) - arr2[i] ) > 0.009) \n				//	return false;\n				//}\n 				//else	\n					if (arr1[i] != arr2[i])\n						return false;\n					}\n					return true;\n			}\nint main()\n					{\nfloat  result;\nfloat  result_etalon;\nfloat  result_for_etalon;\nfloat  x;\nfloat  x_etalon;\nfloat  x_for_etalon;\nstring  vasya;\nstring  vasya_etalon;\nstring  vasya_for_etalon;\nbool  isTrue;\nbool  variablesCorrectByEtalon,variablesCorrect;\nresult_etalon = 10.0\n;\nx_for_etalon = x = 10.0\n;\nvasya_for_etalon = vasya = "safdasdf"\n;\nx_etalon = 10.0\n;\nvasya_etalon = "safdasdf"\n;\nvariablesCorrect = (  ((x * 100 ) - (x_etalon * 100 ) )  == 0 ) && ( vasya == vasya_etalon );\n result_for_etalon = function_etalon(x_for_etalon,vasya_for_etalon);\n result = function_main(x,vasya);\nisTrue = true;\nvariablesCorrectByEtalon = true;isTrue = true;\nif ((  ((result_etalon * 100 ) - (result * 100 ) ) <= 0 ) && variablesCorrect && isTrue)\nstd::cout << " @0@";\nelse\nstd::cout << " @0!@";\nresult_etalon = 11.0\n;\nx_for_etalon = x = 12.0\n;\nvasya_for_etalon = vasya = "safdasdf"\n;\nx_etalon = 12.0\n;\nvasya_etalon = "safdasdf"\n;\nvariablesCorrect = (  ((x * 100 ) - (x_etalon * 100 ) )  == 0 ) && ( vasya == vasya_etalon );\n result_for_etalon = function_etalon(x_for_etalon,vasya_for_etalon);\n result = function_main(x,vasya);\nisTrue = true;\nvariablesCorrectByEtalon = true;isTrue = true;\nif ((  ((result_etalon * 100 ) - (result * 100 ) )  < 0 ) && variablesCorrect && isTrue)\nstd::cout << " @1@";\nelse\nstd::cout << " @1!@";\n\nreturn 0;\n}', '{\n"operation": "addtask",\n  "etalon": "",\n  "name": "test example",\n  "lang": "Js",\n  "task": 80,\n  "function": {\n    "type": 1,\n    "checkable_args_indexes":[0,1],\n    "results": [10.0,11.0 ],\n    "compare_mark": [0, 1],\n"tests_code":[	"isTrue = true;", "isTrue = true;"],\n    "args": 	[\n	{\n      "type": 1,\n      "arg_name": "x",\n      "value": [10.0, 12.0],\n       "compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n    	},\n	{\n      "type": 3,\n      "arg_name": "vasya",\n      "value": ["safdasdf", "safdasdf"],\n       "compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n    	}\n		]\n  }\n}  request isu'),
+(81, '\n\nfunction  function_etalon( x, vasya)\n{\nreturn 0;\n}\nfunction  function_main( x, vasya)\n{\n', '', 'return 0;\n}\nvar result;\nvar result_etalon;\nvar result_for_etalon;\nvar x;\nvar x_etalon;\nvar x_for_etalon;\nvar vasya;\nvar vasya_etalon;\nvar vasya_for_etalon;\nvar isTrue;\nvar variablesCorrectByEtalon,variablesCorrect;\nresult_etalon = 10.0\n;\nx_for_etalon = x = 10.0\n;\nvasya_for_etalon = vasya = "safdasdf"\n;\nx_etalon = 10.0\n;\nvasya_etalon = "safdasdf"\n;\nvariablesCorrect = (  ((x * 100 ) - (x_etalon * 100 ) )  == 0 ) && ( vasya == vasya_etalon );\n result_for_etalon = function_etalon(x_for_etalon,vasya_for_etalon);\n result = function_main(x,vasya);\nisTrue = true;\nvariablesCorrectByEtalon = true;isTrue = true;\nif ((  ((result_etalon * 100 ) - (result * 100 ) ) <= 0 ) && variablesCorrect && isTrue)\nconsole.log(" @0@");\nelse\nconsole.log(" @0!@");\nresult_etalon = 11.0\n;\nx_for_etalon = x = 12.0\n;\nvasya_for_etalon = vasya = "safdasdf"\n;\nx_etalon = 12.0\n;\nvasya_etalon = "safdasdf"\n;\nvariablesCorrect = (  ((x * 100 ) - (x_etalon * 100 ) )  == 0 ) && ( vasya == vasya_etalon );\n result_for_etalon = function_etalon(x_for_etalon,vasya_for_etalon);\n result = function_main(x,vasya);\nisTrue = true;\nvariablesCorrectByEtalon = true;isTrue = true;\nif ((  ((result_etalon * 100 ) - (result * 100 ) )  < 0 ) && variablesCorrect && isTrue)\nconsole.log(" @1@");\nelse\nconsole.log(" @1!@");\n', '{\n"operation": "addtask",\n  "etalon": "",\n  "name": "test example",\n  "lang": "js",\n  "task": 81,\n  "function": {\n    "type": 1,\n    "checkable_args_indexes":[0,1],\n    "results": [10.0,11.0 ],\n    "compare_mark": [0, 1],\n"tests_code":[	"isTrue = true;", "isTrue = true;"],\n    "args": 	[\n	{\n      "type": 1,\n      "arg_name": "x",\n      "value": [10.0, 12.0],\n       "compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n    	},\n	{\n      "type": 3,\n      "arg_name": "vasya",\n      "value": ["safdasdf", "safdasdf"],\n       "compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n    	}\n		]\n  }\n}ñ');
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `assignment_php`
+-- Table structure for table `assignment_php`
 --
 
+DROP TABLE IF EXISTS `assignment_php`;
 CREATE TABLE IF NOT EXISTS `assignment_php` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `header` text,
-  `etalon` text,
-  `footer` text,
-  PRIMARY KEY (`ID`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=549 ;
+  `header` text CHARACTER SET latin1,
+  `etalon` text CHARACTER SET latin1,
+  `footer` text CHARACTER SET latin1,
+  `json` text CHARACTER SET latin1 NOT NULL,
+  UNIQUE KEY `ID` (`ID`)
+) ENGINE=InnoDB  DEFAULT CHARSET=ascii AUTO_INCREMENT=91 ;
+
+--
+-- Truncate table before insert `assignment_php`
+--
+
+TRUNCATE TABLE `assignment_php`;
+--
+-- Dumping data for table `assignment_php`
+--
+
+INSERT INTO `assignment_php` (`ID`, `header`, `etalon`, `footer`, `json`) VALUES
+(30, '\n\n<?php \nfunction   function_etalon(  $x,  $vasya)\n{\nreturn 0;\n}\nfunction   function_main(  $x,  $vasya)\n{\n', '', 'return 0;\n}\n  $result;\n  $result_etalon;\n  $result_etalon_for_etalon;\n  $x;\n  $x_etalon;\n  $x_for_etalon;\n  $vasya;\n  $vasya_etalon;\n  $vasya_for_etalon;\n $isTrue;\n  $variablesCorrectByEtalon;$variablesCorrect;\n$result_etalon[0] = "adin"\n;\n$result_etalon[1] = "two"\n;\n$x_for_etalon = $x = 10.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 10.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon =  !array_diff($result,$result) &&  !array_diff($result,$result_etalon);isTrue = true;\nif ( !array_diff($result_etalon,$result) && $variablesCorrect && $isTrue)\necho " @0@";\nelse\necho " @0!@";\n$result_etalon[0] = "adin"\n;\n$result_etalon[1] = "two"\n;\n$x_for_etalon = $x = 12.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 12.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = false && (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 );isTrue = true;\nif ( !array_diff($result_etalon,$result) && $variablesCorrect && $isTrue)\necho " @1@";\nelse\necho " @1!@";\n?>\n', '{\n"operation": "addtask",\n"etalon": "",\n"name": "test example",\n"lang": "php",\n"task": 30,\n"function": {\n"function_name": "function",\n"type": 3,\n"checkable_args_indexes":[ [ {"first":0,"second":0},{"first":0,"second":1} ],[ {"first":2,"second":3},{"first":3,"second":4} ] ],\n"results": [["adin", "two" ],["adin", "two" ] ],\n"compare_mark": [0, 1],\n"tests_code":[ "isTrue = true;", "isTrue = true;"],\n"args": [\n{\n"type": 1,\n"arg_name": "x",\n"value": [10.0, 12.0],\n"compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n},\n{\n"type": 3,\n"arg_name": "vasya",\n"value": ["safdasdf", "safdasdf"],\n"compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n}\n]\n}\n}'),
+(31, '\n\n<?php \npublic class MainClass {\nfunction   function_etalon(  $x,  $vasya)\n{\nreturn default(  [] );\n}\nfunction   function_main(  $x,  $vasya)\n{\n', '', 'return 0;\n}\n  $result;\n  $result_etalon;\n  $result_etalon_for_etalon;\n  $x;\n  $x_etalon;\n  $x_for_etalon;\n  $vasya;\n  $vasya_etalon;\n  $vasya_for_etalon;\n $isTrue;\n  $variablesCorrectByEtalon;$variablesCorrect;\n$result_etalon[0] = "adin"\n;\n$result_etalon[1] = "two"\n;\n$x_for_etalon = $x = 10.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 10.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon =  !array_diff($result,$result) &&  !array_diff($result,$result_etalon);isTrue = true;\nif ( !array_diff($result_etalon,$result) && $variablesCorrect && $isTrue)\necho " @0@";\nelse\necho " @0!@";\n$result_etalon[0] = "adin"\n;\n$result_etalon[1] = "two"\n;\n$x_for_etalon = $x = 12.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 12.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = false && (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 );isTrue = true;\nif ( !array_diff($result_etalon,$result) && $variablesCorrect && $isTrue)\necho " @1@";\nelse\necho " @1!@";\n?>\n', '{\n"operation": "addtask",\n"etalon": "",\n"name": "test example",\n"lang": "php",\n"task": 31,\n"function": {\n"function_name": "function",\n"type": 3,\n"checkable_args_indexes":[ [ {"first":0,"second":0},{"first":0,"second":1} ],[ {"first":2,"second":3},{"first":3,"second":4} ] ],\n"results": [["adin", "two" ],["adin", "two" ] ],\n"compare_mark": [0, 1],\n"tests_code":[ "isTrue = true;", "isTrue = true;"],\n"args": [\n{\n"type": 1,\n"arg_name": "x",\n"value": [10.0, 12.0],\n"compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n},\n{\n"type": 3,\n"arg_name": "vasya",\n"value": ["safdasdf", "safdasdf"],\n"compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n}\n]\n}\n}'),
+(32, '\n\n<?php \nfunction   function_etalon( $x, $vasya)\n{\nreturn 0;\n}\nfunction   function_main( $x, $vasya)\n{\n', '', 'return 0;\n}\n  $result;\n  $result_etalon;\n  $result_etalon_for_etalon;\n  $x;\n  $x_etalon;\n  $x_for_etalon;\n  $vasya;\n  $vasya_etalon;\n  $vasya_for_etalon;\n $isTrue;\n  $variablesCorrectByEtalon;$variablesCorrect;\n$result_etalon[0] = "adin"\n;\n$result_etalon[1] = "two"\n;\n$x_for_etalon = $x = 10.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 10.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon =  array_diff($result,$result) &&  array_diff($result,$result_etalon);isTrue = true;\nif ( array_diff($result_etalon,$result) && $variablesCorrect && $isTrue)\necho " @0@";\nelse\necho " @0!@";\n$result_etalon[0] = "adin"\n;\n$result_etalon[1] = "two"\n;\n$x_for_etalon = $x = 12.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 12.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = false && (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 );isTrue = true;\nif ( array_diff($result_etalon,$result) && $variablesCorrect && $isTrue)\necho " @1@";\nelse\necho " @1!@";\n?>\n', '{\n"operation": "addtask",\n"etalon": "",\n"name": "test example",\n"lang": "php",\n"task": 32,\n"function": {\n"function_name": "function",\n"type": 3,\n"checkable_args_indexes":[ [ {"first":0,"second":0},{"first":0,"second":1} ],[ {"first":2,"second":3},{"first":3,"second":4} ] ],\n"results": [["adin", "two" ],["adin", "two" ] ],\n"compare_mark": [0, 1],\n"tests_code":[ "isTrue = true;", "isTrue = true;"],\n"args": [\n{\n"type": 1,\n"arg_name": "x",\n"value": [10.0, 12.0],\n"compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n},\n{\n"type": 3,\n"arg_name": "vasya",\n"value": ["safdasdf", "safdasdf"],\n"compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n}\n]\n}\n}'),
+(33, '\n\n<?php \nfunction   function_etalon( $x, $vasya)\n{\nreturn 0;\n}\nfunction   function_main( $x, $vasya)\n{\n', '', 'return 0;\n}\n  $result;\n  $result_etalon;\n  $result_etalon_for_etalon;\n  $x;\n  $x_etalon;\n  $x_for_etalon;\n  $vasya;\n  $vasya_etalon;\n  $vasya_for_etalon;\n $isTrue;\n  $variablesCorrectByEtalon;$variablesCorrect;\n$result_etalon[0] = "adin"\n;\n$result_etalon[1] = "two"\n;\n$x_for_etalon = $x = 10.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 10.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon =  compareArrs< ,2 > ( $result, $result ) &&  compareArrs< ,2 > ( $result, $result_etalon );isTrue = true;\nif ( compareArrs< ,2 > ( $result_etalon, result ) && $variablesCorrect && $isTrue)\necho " @0@";\nelse\necho " @0!@";\n$result_etalon[0] = "adin"\n;\n$result_etalon[1] = "two"\n;\n$x_for_etalon = $x = 12.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 12.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = false && (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 );isTrue = true;\nif ( compareArrs< ,2 > ( $result_etalon, result ) && $variablesCorrect && $isTrue)\necho " @1@";\nelse\necho " @1!@";\n?>\n', '{\n"operation": "addtask",\n"etalon": "",\n"name": "test example",\n"lang": "php",\n"task": 33,\n"function": {\n"function_name": "function",\n"type": 3,\n"checkable_args_indexes":[ [ {"first":0,"second":0},{"first":0,"second":1} ],[ {"first":2,"second":3},{"first":3,"second":4} ] ],\n"results": [["adin", "two" ],["adin", "two" ] ],\n"compare_mark": [0, 1],\n"tests_code":[ "isTrue = true;", "isTrue = true;"],\n"args": [\n{\n"type": 1,\n"arg_name": "x",\n"value": [10.0, 12.0],\n"compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n},\n{\n"type": 3,\n"arg_name": "vasya",\n"value": ["safdasdf", "safdasdf"],\n"compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n}\n]\n}\n}'),
+(34, '\n\n<?php \nfunction   function_etalon( $x, $vasya)\n{\nreturn 0;\n}\nfunction   function_main( $x, $vasya)\n{\n', '', 'return 0;\n}\n  $result;\n  $result_etalon;\n  $result_etalon_for_etalon;\n  $x;\n  $x_etalon;\n  $x_for_etalon;\n  $vasya;\n  $vasya_etalon;\n  $vasya_for_etalon;\n $isTrue;\n  $variablesCorrectByEtalon;$variablesCorrect;\n$result_etalon[0] = "adin"\n;\n$result_etalon[1] = "two"\n;\n$x_for_etalon = $x = 10.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 10.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon =  array_diff($result,$result) &&  array_diff($result,$result_etalon);isTrue = true;\nif ( array_diff($result_etalon,result) && $variablesCorrect && $isTrue)\necho " @0@";\nelse\necho " @0!@";\n$result_etalon[0] = "adin"\n;\n$result_etalon[1] = "two"\n;\n$x_for_etalon = $x = 12.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 12.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = false && (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 );isTrue = true;\nif ( array_diff($result_etalon,result) && $variablesCorrect && $isTrue)\necho " @1@";\nelse\necho " @1!@";\n?>\n', '{\n"operation": "addtask",\n"etalon": "",\n"name": "test example",\n"lang": "php",\n"task": 34,\n"function": {\n"function_name": "function",\n"type": 3,\n"checkable_args_indexes":[ [ {"first":0,"second":0},{"first":0,"second":1} ],[ {"first":2,"second":3},{"first":3,"second":4} ] ],\n"results": [["adin", "two" ],["adin", "two" ] ],\n"compare_mark": [0, 1],\n"tests_code":[ "isTrue = true;", "isTrue = true;"],\n"args": [\n{\n"type": 1,\n"arg_name": "x",\n"value": [10.0, 12.0],\n"compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n},\n{\n"type": 3,\n"arg_name": "vasya",\n"value": ["safdasdf", "safdasdf"],\n"compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n}\n]\n}\n}'),
+(83, '\n\n<?php \nfunction   function_etalon( $x, $vasya)\n{\nreturn 0;\n}\nfunction   function_main( $x, $vasya)\n{\n', '', 'return 0;\n}\n  $result;\n  $result_etalon;\n  $result_etalon_for_etalon;\n  $x;\n  $x_etalon;\n  $x_for_etalon;\n  $vasya;\n  $vasya_etalon;\n  $vasya_for_etalon;\n $isTrue;\n  $variablesCorrectByEtalon,$variablesCorrect;\n$result_etalon = 10.0\n;\n$x_for_etalon = $x = 10.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 10.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = true;isTrue = true;\nif ((  (($result_etalon * 100 ) - (result * 100 ) ) <= 0 ) && $variablesCorrect && $isTruenconsole.log(" @0@");\nelse\nconsole.log(" @0!@");\n$result_etalon = 11.0\n;\n$x_for_etalon = $x = 12.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 12.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = true;isTrue = true;\nif ((  (($result_etalon * 100 ) - (result * 100 ) )  < 0 ) && $variablesCorrect && $isTruenconsole.log(" @1@");\nelse\nconsole.log(" @1!@");\n?>\n', '{\n"operation": "addtask",\n  "etalon": "",\n  "name": "test example",\n  "lang": "php",\n  "task": 83,\n  "function": {\n    "type": 1,\n    "checkable_args_indexes":[0,1],\n    "results": [10.0,11.0 ],\n    "compare_mark": [0, 1],\n"tests_code":[	"isTrue = true;", "isTrue = true;"],\n    "args": 	[\n	{\n      "type": 1,\n      "arg_name": "x",\n      "value": [10.0, 12.0],\n       "compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n    	},\n	{\n      "type": 3,\n      "arg_name": "vasya",\n      "value": ["safdasdf", "safdasdf"],\n       "compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n    	}\n		]\n  }\n}'),
+(84, '\n\n<?php \nfunction   function_etalon( $x, $vasya)\n{\nreturn 0;\n}\nfunction   function_main( $x, $vasya)\n{\n', '', 'return 0;\n}\n  $result;\n  $result_etalon;\n  $result_etalon_for_etalon;\n  $x;\n  $x_etalon;\n  $x_for_etalon;\n  $vasya;\n  $vasya_etalon;\n  $vasya_for_etalon;\n $isTrue;\n  $variablesCorrectByEtalon;$variablesCorrect;\n$result_etalon = 10.0\n;\n$x_for_etalon = $x = 10.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 10.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = true;isTrue = true;\nif ((  (($result_etalon * 100 ) - (result * 100 ) ) <= 0 ) && $variablesCorrect && $isTruenconsole.log(" @0@");\nelse\nconsole.log(" @0!@");\n$result_etalon = 11.0\n;\n$x_for_etalon = $x = 12.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 12.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = true;isTrue = true;\nif ((  (($result_etalon * 100 ) - (result * 100 ) )  < 0 ) && $variablesCorrect && $isTruenconsole.log(" @1@");\nelse\nconsole.log(" @1!@");\n?>\n', '{\n"operation": "addtask",\n  "etalon": "",\n  "name": "test example",\n  "lang": "php",\n  "task": 84,\n  "function": {\n    "type": 1,\n    "checkable_args_indexes":[0,1],\n    "results": [10.0,11.0 ],\n    "compare_mark": [0, 1],\n"tests_code":[	"isTrue = true;", "isTrue = true;"],\n    "args": 	[\n	{\n      "type": 1,\n      "arg_name": "x",\n      "value": [10.0, 12.0],\n       "compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n    	},\n	{\n      "type": 3,\n      "arg_name": "vasya",\n      "value": ["safdasdf", "safdasdf"],\n       "compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n    	}\n		]\n  }\n}'),
+(85, '\n\n<?php \nfunction   function_etalon( $x, $vasya)\n{\nreturn 0;\n}\nfunction   function_main( $x, $vasya)\n{\n', '', 'return 0;\n}\n  $result;\n  $result_etalon;\n  $result_etalon_for_etalon;\n  $x;\n  $x_etalon;\n  $x_for_etalon;\n  $vasya;\n  $vasya_etalon;\n  $vasya_for_etalon;\n $isTrue;\n  $variablesCorrectByEtalon;$variablesCorrect;\n$result_etalon = 10.0\n;\n$x_for_etalon = $x = 10.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 10.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = true;$isTrue = true;\nif ((  (($result_etalon * 100 ) - (result * 100 ) ) <= 0 ) && $variablesCorrect && $isTruenconsole.log(" @0@");\nelse\nconsole.log(" @0!@");\n$result_etalon = 11.0\n;\n$x_for_etalon = $x = 12.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 12.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = true;$isTrue = true;\nif ((  (($result_etalon * 100 ) - (result * 100 ) )  < 0 ) && $variablesCorrect && $isTruenconsole.log(" @1@");\nelse\nconsole.log(" @1!@");\n?>\n', '{\n"operation": "addtask",\n  "etalon": "",\n  "name": "test example",\n  "lang": "php",\n  "task": 85,\n  "function": {\n    "type": 1,\n    "checkable_args_indexes":[0,1],\n    "results": [10.0,11.0 ],\n    "compare_mark": [0, 1],\n"tests_code":[	"$isTrue = true;", "$isTrue = true;"],\n    "args": 	[\n	{\n      "type": 1,\n      "arg_name": "x",\n      "value": [10.0, 12.0],\n       "compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n    	},\n	{\n      "type": 3,\n      "arg_name": "vasya",\n      "value": ["safdasdf", "safdasdf"],\n       "compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n    	}\n		]\n  }\n}'),
+(86, '\n\n<?php \nfunction   function_etalon( $x, $vasya)\n{\nreturn 0;\n}\nfunction   function_main( $x, $vasya)\n{\n', '', 'return 0;\n}\n  $result;\n  $result_etalon;\n  $result_etalon_for_etalon;\n  $x;\n  $x_etalon;\n  $x_for_etalon;\n  $vasya;\n  $vasya_etalon;\n  $vasya_for_etalon;\n $isTrue;\n  $variablesCorrectByEtalon;$variablesCorrect;\n$result_etalon = 10.0\n;\n$x_for_etalon = $x = 10.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 10.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = true;$isTrue = true;\nif ((  (($result_etalon * 100 ) - ($result * 100 ) ) <= 0 ) && $variablesCorrect && $isTruenconsole.log(" @0@");\nelse\nconsole.log(" @0!@");\n$result_etalon = 11.0\n;\n$x_for_etalon = $x = 12.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 12.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = true;$isTrue = true;\nif ((  (($result_etalon * 100 ) - ($result * 100 ) )  < 0 ) && $variablesCorrect && $isTruenconsole.log(" @1@");\nelse\nconsole.log(" @1!@");\n?>\n', '{\n"operation": "addtask",\n  "etalon": "",\n  "name": "test example",\n  "lang": "php",\n  "task": 86,\n  "function": {\n    "type": 1,\n    "checkable_args_indexes":[0,1],\n    "results": [10.0,11.0 ],\n    "compare_mark": [0, 1],\n"tests_code":[	"$isTrue = true;", "$isTrue = true;"],\n    "args": 	[\n	{\n      "type": 1,\n      "arg_name": "x",\n      "value": [10.0, 12.0],\n       "compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n    	},\n	{\n      "type": 3,\n      "arg_name": "vasya",\n      "value": ["safdasdf", "safdasdf"],\n       "compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n    	}\n		]\n  }\n}'),
+(90, '\n\n<?php \nfunction   function_etalon( $x, $vasya)\n{\nreturn 0;\n}\nfunction   function_main( $x, $vasya)\n{\n', '', 'return 0;\n}\n  $result;\n  $result_etalon;\n  $result_etalon_for_etalon;\n  $x;\n  $x_etalon;\n  $x_for_etalon;\n  $vasya;\n  $vasya_etalon;\n  $vasya_for_etalon;\n $isTrue;\n  $variablesCorrectByEtalon;$variablesCorrect;\n$result_etalon = 10.0\n;\n$x_for_etalon = $x = 10.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 10.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = true;$isTrue = true;\nif ((  (($result_etalon * 100 ) - ($result  * 100 ) ) <= 0 ) && $variablesCorrect && $isTrue)\necho " @0@";\nelse\necho " @0!@";\n$result_etalon = 11.0\n;\n$x_for_etalon = $x = 12.0\n;\n$vasya_for_etalon = $vasya = "safdasdf"\n;\n$x_etalon = 12.0\n;\n$vasya_etalon = "safdasdf"\n;\n$variablesCorrect = (  (($x * 100 ) - ($x_etalon * 100 ) )  == 0 ) && ( $vasya == $vasya_etalon );\n$result_for_etalon = function_etalon($x_for_etalon,$vasya_for_etalon);\n$result = function_main($x,$vasya);\n$isTrue = true;\n$variablesCorrectByEtalon = true;$isTrue = true;\nif ((  (($result_etalon * 100 ) - ($result  * 100 ) )  < 0 ) && $variablesCorrect && $isTrue)\necho " @1@";\nelse\necho " @1!@";\n?>\n', '{\n"operation": "addtask",\n  "etalon": "",\n  "name": "test example",\n  "lang": "php",\n  "task": 90,\n  "function": {\n    "type": 1,\n    "checkable_args_indexes":[0,1],\n    "results": [10.0,11.0 ],\n    "compare_mark": [0, 1],\n"tests_code":[	"$isTrue = true;", "$isTrue = true;"],\n    "args": 	[\n	{\n      "type": 1,\n      "arg_name": "x",\n      "value": [10.0, 12.0],\n       "compare_mark": [2, 3],\n"etalon_value": [10.0, 12.0]\n    	},\n	{\n      "type": 3,\n      "arg_name": "vasya",\n      "value": ["safdasdf", "safdasdf"],\n       "compare_mark": [4, 0],\n"etalon_value": ["safdasdf","safdasdf"]\n    	}\n		]\n  }\n}');
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `history`
+-- Table structure for table `history`
 --
 
+DROP TABLE IF EXISTS `history`;
 CREATE TABLE IF NOT EXISTS `history` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `ip` varchar(20) DEFAULT NULL,
@@ -107,12 +172,18 @@ CREATE TABLE IF NOT EXISTS `history` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=499 ;
 
+--
+-- Truncate table before insert `history`
+--
+
+TRUNCATE TABLE `history`;
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `results`
+-- Table structure for table `results`
 --
 
+DROP TABLE IF EXISTS `results`;
 CREATE TABLE IF NOT EXISTS `results` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `session` varchar(255) CHARACTER SET ascii NOT NULL,
@@ -126,7 +197,12 @@ CREATE TABLE IF NOT EXISTS `results` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=16 ;
 
 --
--- Дамп данных таблицы `results`
+-- Truncate table before insert `results`
+--
+
+TRUNCATE TABLE `results`;
+--
+-- Dumping data for table `results`
 --
 
 INSERT INTO `results` (`id`, `session`, `jobid`, `status`, `date`, `result`, `warning`) VALUES
