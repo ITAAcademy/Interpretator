@@ -142,9 +142,19 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, string name , char divider, char space, string modifiers)
 {
+	//if (functionData.lang==LangCompiler::Flag_JS) return string("");//prototypes don't needed in js
 	string functionStr ="";
-	if (functionData.lang==LangCompiler::Flag_Java || functionData.lang == LangCompiler::Flag_CS)
+	switch(functionData.lang){
+	case LangCompiler::Flag_Java:
+	case LangCompiler::Flag_CS:
 		functionStr += "static ";
+		break;
+	case LangCompiler::Flag_JS:
+		functionStr += "function ";
+	}
+	if (functionData.lang==LangCompiler::Flag_JS)
+		functionStr += modifiers + " ";
+	else
 	functionStr += modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
 
 	if (functionData.lang == LangCompiler::Flag_CS && functionData.isArray == FunctionData::ARRAY)
@@ -158,7 +168,10 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 	for(FunctionArgument arg : functionData.args){
 		if (argCount>0)
 			functionStr += divider;
-		string type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
+		string type="";
+		if (!functionData.lang==LangCompiler::Flag_JS)
+		type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
+		functionStr += type + space;
 
 
 		switch(functionData.lang)
@@ -180,6 +193,7 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 				functionStr += arg.name;
 			break;
 		case LangCompiler::Flag_Java:
+		case LangCompiler::Flag_JS:
 		{
 			functionStr += type + space;
 			// maybe out add?
@@ -292,6 +306,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	 */
 	switch(functionData.lang)
 	{
+	//in JS main function is absense, so we don't append it when our lang is js
 	case LangCompiler::Flag_CPP:
 		footerBody+="int main()\n\
 					{\n";
@@ -300,6 +315,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		footerBody+="public static void main(String[] args)\n\
 {\n";
 		break;
+
 	case LangCompiler::Flag_CS:
 		footerBody+="public static void Main(String[] args)\n\
 		{\n";
@@ -314,7 +330,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	footerBody +=  FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang)
 	+  " isTrue;\n";//moved out from cicle to fix variable duplicates
 	string conditionsVariableDeclaration = FunctionArgument::generateType(
-			FunctionData::RET_VAL_BOOL, false,functionData.lang) +
+			FunctionData::RET_VAL_BOOL, false,functionData.lang) +" "+
 					argumentsEqualToEtalonConditionName+","+correctArgumentsConditionName+";\n";
 	footerBody+= conditionsVariableDeclaration;
 
@@ -347,7 +363,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			for (int h = 0; h < values_u.size(); h++)
 			{
 				argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result_etalon[" + to_string(h) + "] = ";
-				if (is_float)
+				if (functionData.lang!=LangCompiler::Flag_JS && is_float)
 					argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
 				argsString += values_u[h].toStyledString() + ";\n";
 			}
@@ -545,11 +561,20 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			argsString += "else\n";
 			argsString += "System.out.println(\" @" + to_string(i) + "!@\");\n";
 			break;
+
+		case LangCompiler::Flag_JS:
+			argsString += "console.log(\" @" + to_string(i) + "@\");\n";
+			argsString += "else\n";
+			argsString += "console.log(\" @" + to_string(i) + "!@\");\n";
+			break;
+
+
 		case LangCompiler::Flag_CS:
 			argsString += "System.Console.WriteLine(\" @" + to_string(i) + "@\");\n";
 			argsString += "else\n";
 			argsString += "System.Console.WriteLine(\" @" + to_string(i) + "!@\");\n";
 			break;
+
 		}
 
 
@@ -757,20 +782,28 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 	else
 	{
 
-		if ( lang == LangCompiler::Flag_CS)
+		switch(lang)
 		{
-			return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
+		case LangCompiler::Flag_Java:
+
+			return string( "Arrays.equals(" + name1 + ", " +  name2 + ")");
+			break;
+
+		case LangCompiler::Flag_JS:
+			return ""+name1+".toString()=="+name2+".toString()";
+			break;
+
+		case LangCompiler::Flag_CPP:
+			return string( " compareArrs<" + FunctionArgument::generateType(type1, false, lang) + 	"," +
+					std::to_string(arr1_size) + " > ( " + name1 + ", "+ name2 + " )");
+			break;
+
+		case LangCompiler::Flag_CS:
+		return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
+			break;
+
 		}
-		else
-			if ( lang == LangCompiler::Flag_Java)
-			{
-				return string( "Arrays.equals(" + name1 + ", " +  name2 + ")");
-			}
-			else
-			{
-				return string( " compareArrs<" + FunctionArgument::generateType(type1, false, lang) + 	"," +
-						std::to_string(arr1_size) + " > ( " + name1 + ", "+ name2 + " )");
-			}
+
 	}
 }
 
@@ -949,6 +982,7 @@ string FunctionArgument::getType(int lang )
 
 string FunctionArgument::generateType(int type, int arrayType, int lang)
 {
+	if (lang==LangCompiler::Flag_JS) return "var";//arg types specify not in js
 	string result;
 
 	switch(type)
@@ -1017,9 +1051,17 @@ string FunctionArgument::generateDefinition(bool is_result, int lang)
 		else
 			result += " " +  name;
 		break;
+
+	case LangCompiler::Flag_JS:
+		result += " " + name;
+		if (isArray)result += "=[]";
+		break;
+
+
 	}
 	result += ";\n";
 	return result;
 }
 
 } /* namespace code */
+
