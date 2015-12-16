@@ -152,10 +152,11 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 	case LangCompiler::Flag_JS:
 		functionStr += "function ";
 	}
+
 	if (functionData.lang==LangCompiler::Flag_JS)
 		functionStr += modifiers + " ";
 	else
-	functionStr += modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
+		functionStr += modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
 
 	if (functionData.lang == LangCompiler::Flag_CS && functionData.isArray == FunctionData::ARRAY)
 		functionStr += " [] ";
@@ -169,9 +170,9 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 		if (argCount>0)
 			functionStr += divider;
 		string type="";
-		if (!functionData.lang==LangCompiler::Flag_JS)
-		type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
-		functionStr += type + space;
+		if ( functionData.lang != LangCompiler::Flag_JS)
+			type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
+		//functionStr += type + space;
 
 
 		switch(functionData.lang)
@@ -193,13 +194,15 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 				functionStr += arg.name;
 			break;
 		case LangCompiler::Flag_Java:
-		case LangCompiler::Flag_JS:
 		{
 			functionStr += type + space;
 			// maybe out add?
 			functionStr += arg.name;
 			break;
 		}
+		case LangCompiler::Flag_JS:
+			functionStr += arg.name;
+			break;
 		}
 		argCount++;
 	}
@@ -622,7 +625,7 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 	else floorFuncName = "Math.floor";
 
 	case ValueTypes::VAL_FLOAT:
-		result += " (" +floorFuncName+"(" + name1 + " * 100 ) - "+floorFuncName+"(" + name2 + " * 100 ) ) ";
+		result += " (" +floorFuncName+"(" + name1 + " * 100 ) - "+floorFuncName+"(" + name2 + " * 100 )  ";
 		switch (mark)
 		{
 		case CompareMark::LessEquial:
@@ -799,7 +802,7 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 			break;
 
 		case LangCompiler::Flag_CS:
-		return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
+			return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
 			break;
 
 		}
@@ -983,7 +986,7 @@ string FunctionArgument::getType(int lang )
 string FunctionArgument::generateType(int type, int arrayType, int lang)
 {
 	if (lang==LangCompiler::Flag_JS) return "var";//arg types specify not in js
-	string result;
+	string result = "";
 
 	switch(type)
 	{
