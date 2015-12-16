@@ -153,10 +153,11 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 	case LangCompiler::Flag_PHP:
 		functionStr += "function ";
 	}
+
 	if (functionData.lang==LangCompiler::Flag_JS)
 		functionStr += modifiers + " ";
 	else
-	functionStr += modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
+		functionStr += modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
 
 	if (functionData.lang == LangCompiler::Flag_CS && functionData.isArray == FunctionData::ARRAY)
 		functionStr += " [] ";
@@ -170,9 +171,9 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 		if (argCount>0)
 			functionStr += divider;
 		string type="";
-		if (!functionData.lang==LangCompiler::Flag_JS)
-		type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
-		functionStr += type + space;
+		if ( functionData.lang != LangCompiler::Flag_JS)
+			type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
+		//functionStr += type + space;
 
 
 		switch(functionData.lang)
@@ -194,14 +195,16 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 				functionStr += arg.name;
 			break;
 		case LangCompiler::Flag_Java:
-		case LangCompiler::Flag_JS:
-		case LangCompiler::Flag_PHP:
 		{
 			functionStr += type + space;
 			// maybe out add?
 			functionStr += arg.name;
 			break;
 		}
+		case LangCompiler::Flag_JS:
+		case LangCompiler::Flag_PHP:
+			functionStr += arg.name;
+			break;
 		}
 		argCount++;
 	}
@@ -332,11 +335,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string correctArgumentsConditionName = FunctionArgument::getName("variablesCorrect", functionData.lang);
 	string argumentsEqualToEtalonConditionName = FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
 
-	footerBody +=  FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang)
+	string type_n = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang);
+
+	footerBody +=  type_n
 	+  FunctionArgument::getName("isTrue", functionData.lang) + ";\n";//moved out from cicle to fix variable duplicates
-	string conditionsVariableDeclaration = FunctionArgument::generateType(
-			FunctionData::RET_VAL_BOOL, false,functionData.lang) +" "+
-					argumentsEqualToEtalonConditionName+";"+correctArgumentsConditionName+";\n";
+	string conditionsVariableDeclaration = type_n +" "+
+					argumentsEqualToEtalonConditionName+";\n" + type_n + " " + correctArgumentsConditionName+";\n";
 	footerBody+= conditionsVariableDeclaration;
 
 
@@ -634,7 +638,7 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 	else floorFuncName = "Math.floor";
 
 	case ValueTypes::VAL_FLOAT:
-		result += " (" +floorFuncName+"(" + name1 + " * 100 ) - "+floorFuncName+"(" + name2 + " * 100 ) ) ";
+		result += " (" +floorFuncName+"(" + name1 + " * 100 ) - "+floorFuncName+"(" + name2 + " * 100 )  ";
 		switch (mark)
 		{
 		case CompareMark::LessEquial:
@@ -697,7 +701,7 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 					result += name1 + ".Compare(" + name2 +") < 0";
 					break;
 				case CompareMark::Equial: default:
-					result += "String.Equals (" + name1 + ", " + name2 +"))";
+					result += "String.Equals (" + name1 + ", " + name2 +")))";
 					break;
 				case CompareMark::NotEquial:
 					result += "!String.Equals (" + name1 + ", " + name2 +",  StringComparison.Ordinal)";
@@ -811,7 +815,7 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 		case LangCompiler::Flag_PHP:
 			return " !array_diff(" + name1 + "," + name2 + ")";
 		case LangCompiler::Flag_CS:
-		return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
+			return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
 			break;
 
 		}
@@ -833,7 +837,7 @@ bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionD
 	output += resultVar.generateDefinition(false, functionData.lang);
 	variables.push_back(resultVar);
 
-	resultVar.name += string(ETALON_FOR_FUNCTION_ENDING);
+	resultVar.name = FunctionArgument::getName("result", functionData.lang) +  string(ETALON_FOR_FUNCTION_ENDING);
 	output += resultVar.generateDefinition(true, functionData.lang);
 	variables.push_back(resultVar);
 
@@ -1011,7 +1015,7 @@ string FunctionArgument::generateType(int type, int arrayType, int lang)
 {
 	if (lang==LangCompiler::Flag_PHP) return " ";//arg types specify not in PHP
 	if (lang==LangCompiler::Flag_JS) return "var";//arg types specify not in js
-	string result;
+	string result = "";
 
 	switch(type)
 	{

@@ -331,7 +331,6 @@ bool SqlConnectionPool::addRecordsInToTable(vector<map<int,string> > records) {
 
 }
 
-
 //work12
 bool SqlConnectionPool::addRecordsInToTable(map<int,string> records) {
 	pthread_mutex_lock(&accept_mutex);

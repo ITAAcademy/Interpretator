@@ -117,7 +117,7 @@ void processTask(int id,Job job) {
 				table = "assignment_js";
 			else if (job.lang == "PHP" || job.lang == "php")
 				table = "assignment_php";
-			else if (job.lang == "C#" || job.lang == "c#" )
+			else if (job.lang == "C#" || job.lang == "c#" || job.lang == "CS" || job.lang == "cs" )
 				table = "assignment_cs";
 			else
 				table = "assignment_cpp";
@@ -349,7 +349,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 	if (lang == "c++" || lang == "C++")
 		table = "assignment_cpp"; //Config::getInstance().getTaskJavaTableName();
 	else if (lang == "cs" || lang == "CS" || lang == "C#" || lang == "c#")
-			table = "assignment_cs";
+		table = "assignment_cs";
 	else if (lang == "Java" || lang == "java")
 		table = "assignment_java";
 	else if (lang == "PHP" || lang == "php")
@@ -389,13 +389,25 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 		l12("temp.insert");
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 		JsonValue res;
+
+
+		map<int,string> where;
+		where.insert({0,temp[0]});
+
 		if (generator.getStatus() == 0 && SqlConnectionPool::getInstance().addRecordsInToTable(temp))
 		{
 			res["status"] = "success";
 			res["table"] = table;
 			res["id"] = to_string(id);
 		}
-		else res["status"] = "failed";
+		else
+			if (generator.getStatus() == 0 && SqlConnectionPool::getInstance().updateRecordsInToTable(temp, where))
+			{
+				res["status"] = "updated";
+				res["table"] = table;
+				res["id"] = to_string(id);
+			}
+			else res["status"] = "failed";
 		stream << res.toStyledString();
 		stream.close();
 		return true;
@@ -444,7 +456,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 				"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
 		if ((int)records.size()==0)
 			tasksPool.push(processTask,requestedTask);
-			//processTask(0, requestedTask);
+		//processTask(0, requestedTask);
 		else
 			taskComp = true;
 		//stream << "this job is already excist";
@@ -704,36 +716,36 @@ bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON)
 
 }
 void replaceAll( string &s, const string &search, const string &replace ) {
-    for( size_t pos = 0; ; pos += replace.length() ) {
-        // Locate the substring to replace
-        pos = s.find( search, pos );
-        if( pos == string::npos ) break;
-        // Replace by erasing and inserting
-        s.erase( pos, search.length() );
-        s.insert( pos, replace );
-    }
+	for( size_t pos = 0; ; pos += replace.length() ) {
+		// Locate the substring to replace
+		pos = s.find( search, pos );
+		if( pos == string::npos ) break;
+		// Replace by erasing and inserting
+		s.erase( pos, search.length() );
+		s.insert( pos, replace );
+	}
 }
 void show404()
 {
 	cout << "Status: 404\r\n"
-		 << "Content-type: text/html\r\n"
-		 << "\r\n"
-		 << " <html><head>"
-		 << "<title>404 Not Found</title>"
-		 << "</head><body>"
-		 << "<h1>Not Found</h1>";
-		 cout << "<p>The requested URL /localhost was not found on this server.</p>"
-		 << "<hr>"
-		 << "</body></html>";
+			<< "Content-type: text/html\r\n"
+			<< "\r\n"
+			<< " <html><head>"
+			<< "<title>404 Not Found</title>"
+			<< "</head><body>"
+			<< "<h1>Not Found</h1>";
+	cout << "<p>The requested URL /localhost was not found on this server.</p>"
+			<< "<hr>"
+			<< "</body></html>";
 	/*
-	         * ERR
-	         */
-	        /*cout << "Status: 404\r\n"
+	 * ERR
+	 */
+	/*cout << "Status: 404\r\n"
 	                 << "Content-type: text/html\r\n"
 	                 << "\r\n"
 	                 << "<html><body><h1>404	Not Found	:(</h1></body></html>\n";
 
-	*/
+	 */
 }
 
 /*
@@ -787,11 +799,11 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 		/*
 		 * RESULT
 		 */
- cerr << "before write to stream";
+		cerr << "before write to stream";
 
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 
-		 cerr << "after write to stream";
+		cerr << "after write to stream";
 
 		JsonValue res;
 		if(records.size() > 0)
