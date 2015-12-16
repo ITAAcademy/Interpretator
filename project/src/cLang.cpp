@@ -34,7 +34,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
 		build_str = "clang++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
 				".out 2>&1; rm ./src/code" + to_string(thID) + ".cpp";
-				//".out 2>&1	";
+		//".out 2>&1	";
 		run_str = " ./prog" + to_string(thID) + ".out 2>&1;  rm prog" + to_string(thID) + ".out";
 		prog_name = code_file_name;
 		break;
@@ -58,7 +58,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		break;
 	case Flag_CS:
 		code_file_name = "./src/Main" + to_string(thID) + ".exe";
-		build_str = "gmcs ./src/Main" + to_string(thID) + ".cs";
+		build_str = "gmcs ./src/Main" + to_string(thID) + ".cs 2>&1";
 		run_str = " mono ./src/Main" + to_string(thID) + ".exe 2>&1 " + "; rm ./src/Main" + to_string(thID) + ".exe";
 		prog_name = code_file_name;
 		break;
@@ -75,6 +75,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	in.append("fi;");*/
 	long double  comp_time;
 	warning_err.append(getStdoutFromCommand(build_str, 0, &comp_time));
+
 	logfile::addLog("build time: " + to_string(comp_time) + warning_err);
 	cout.flush();
 	if(fileExist(prog_name))
@@ -175,10 +176,10 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 			break;
 
 	}
-			cout.flush();
-			file << code;
-			file.close();
-			cout.flush();
+	cout.flush();
+	file << code;
+	file.close();
+	cout.flush();
 
 
 	return true;
@@ -245,7 +246,7 @@ char* LangCompiler::getSystemOutput(char* cmd){
 
 string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double *executionTime)
 {
-	string data;
+	string data="";
 	FILE * stream;
 	std::clock_t    start;
 	start = std::clock();
@@ -259,6 +260,8 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
 	//printf("%lf", sysTime);
 	//  const long double sysTimeMS = sysTime*1000;
 	stream = popen(cmd.c_str(), "r");
+
+
 	if (stream) {
 		while (!feof(stream))
 		{
@@ -331,16 +334,16 @@ const string& LangCompiler::getWarningErr() const {
 LangCompiler::compilerFlag LangCompiler::convertFromName(string lang)
 {
 	if (lang == "c++" || lang == "C++")
-			return LangCompiler::Flag_CPP;
-			else if (lang == "Java" || lang == "java")
-				return LangCompiler::Flag_Java;
-			else if (lang == "JS" || lang == "js")
-				return LangCompiler::Flag_JS;
-			else if (lang == "PHP" || lang == "php")
-				return LangCompiler::Flag_PHP;
-			else if (lang == "C#" || lang == "c#" )
-				return LangCompiler::Flag_CS;
-			else
-				return LangCompiler::Flag_CPP;
+		return LangCompiler::Flag_CPP;
+	else if (lang == "Java" || lang == "java")
+		return LangCompiler::Flag_Java;
+	else if (lang == "JS" || lang == "js")
+		return LangCompiler::Flag_JS;
+	else if (lang == "PHP" || lang == "php")
+		return LangCompiler::Flag_PHP;
+	else if (lang == "C#" || lang == "c#" )
+		return LangCompiler::Flag_CS;
+	else
+		return LangCompiler::Flag_CPP;
 }
 
