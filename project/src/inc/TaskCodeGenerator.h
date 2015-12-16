@@ -44,6 +44,8 @@ struct FunctionArgument{
 	string getType(int lang );*/
 	string generateDefinition(bool is_result, int lang );
 	static string generateType(int type, int arrayType, int lang);
+	static string getName(string name, int lang);
+	string getName(int lang);
 };
 struct FunctionData{
 	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3,RET_VAL_RANGE = 4, Last = 5};

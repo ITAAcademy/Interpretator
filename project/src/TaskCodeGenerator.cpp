@@ -117,7 +117,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 		functionArgument.isArray = argumentValue["value"][0].isArray();
 		functionArgument.size = argumentValue["value"][0].size();
 		functionArgument.type = argumentValue["type"].asInt();
-		functionArgument.name = argumentValue["arg_name"].asString();
+		functionArgument.name = FunctionArgument::getName(argumentValue["arg_name"].asString(), functionData.lang);
 
 		/*for (Value arg_compare_mark: argumentValue["compare_mark"])
 		{
@@ -149,6 +149,7 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 		functionStr += "static ";
 		break;
 	case LangCompiler::Flag_JS:
+	case LangCompiler::Flag_PHP:
 		functionStr += "function ";
 	}
 	if (functionData.lang==LangCompiler::Flag_JS)
@@ -182,6 +183,7 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 		}
 		case LangCompiler::Flag_Java:
 		case LangCompiler::Flag_JS:
+		case LangCompiler::Flag_PHP:
 		{
 			// maybe out add?
 			functionStr += arg.name;
@@ -207,6 +209,8 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 		headerStr+="public class Main{{thId}}{\n";
 		defaultReturnValue="null";
 		break;
+	case LangCompiler::Flag_PHP:
+		headerStr += "<?php \n";// php ID
 	}
 
 
@@ -222,7 +226,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	vector<FunctionArgument> variables;
 	string defaultReturnValue = "0";
-	if (functionData.lang==LangCompiler::Flag_Java)
+	if (functionData.lang==LangCompiler::Flag_Java)//What
 		defaultReturnValue="null";
 	string footerBody = "return "+defaultReturnValue+";\n}\n";//Close function body
 
@@ -273,14 +277,14 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	generateVariables(footerBody, functionData, variables);
 
-	string correctArgumentsConditionName = "variablesCorrect";
-	string argumentsEqualToEtalonConditionName = "variablesCorrectByEtalon";
+	string correctArgumentsConditionName = FunctionArgument::getName("variablesCorrect", functionData.lang);
+	string argumentsEqualToEtalonConditionName = FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
 
 	footerBody +=  FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang)
-	+  " isTrue;\n";//moved out from cicle to fix variable duplicates
+	+  FunctionArgument::getName("isTrue", functionData.lang) + ";\n";//moved out from cicle to fix variable duplicates
 	string conditionsVariableDeclaration = FunctionArgument::generateType(
 			FunctionData::RET_VAL_BOOL, false,functionData.lang) +" "+
-					argumentsEqualToEtalonConditionName+","+correctArgumentsConditionName+";\n";
+					argumentsEqualToEtalonConditionName+";"+correctArgumentsConditionName+";\n";
 	footerBody+= conditionsVariableDeclaration;
 
 
@@ -295,7 +299,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		if ( functionData.isArray != FunctionData::ARRAY)
 		{
 			argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + " = " + */
-					"result_etalon = " + functionData.result[i] + ";\n";
+					FunctionArgument::getName("result_etalon", functionData.lang) + " = " + functionData.result[i] + ";\n";
 		}
 		else
 		{
@@ -308,7 +312,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 			for (int h = 0; h < values_u.size(); h++)
 			{
-				argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ "result_etalon[" + to_string(h) + "] = ";
+				argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ FunctionArgument::getName("result_etalon", functionData.lang) + "[" + to_string(h) + "] = ";
 				if (functionData.lang!=LangCompiler::Flag_JS && is_float)
 					argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
 				argsString += values_u[h].toStyledString() + ";\n";
@@ -456,10 +460,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		if (functionData.lang == LangCompiler::Flag_Java)
 			argsString+=")";
 		argsString += ";\n";//NEED BRACKET
-		argsString += " result" + string(ETALON_FOR_FUNCTION_ENDING) +  " = function_etalon(" + argForEtalonFunction +  ");\n";
-		argsString += " result = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+		argsString +=  FunctionArgument::getName("result", functionData.lang) + string(ETALON_FOR_FUNCTION_ENDING) +  " = function_etalon(" + argForEtalonFunction +  ");\n";
+		argsString += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
 
-		argsString += "isTrue = true;\n";
+		argsString += FunctionArgument::getName("isTrue", functionData.lang) + " = true;\n";
 		argsString += variablesCorrectByEtalonPrefix+variablesCorrectByEtalonEnding;
 		argsString += functionData.tests_code[i] + "\n";
 
@@ -471,7 +475,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 			/*argsString += "if (compareArrs<"+arrType+","+
 					std::to_string(functionData.size)+">(result_etalon, result)";*/
-			argsString += "if ("  + getArrayCompareString(string("result_etalon") ,functionData.size, (ValueTypes) arrType, string("result") ,
+			argsString += "if ("  + getArrayCompareString(FunctionArgument::getName("result_etalon", functionData.lang), functionData.size, (ValueTypes) arrType, FunctionArgument::getName("result", functionData.lang) ,
 					functionData.size, (ValueTypes) arrType, cmp, functionData.lang);
 
 			// CompareMark::Equial);
@@ -480,13 +484,13 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		}
 		else
 			//argsString += "if ( result_etalon == result";//open function call body;
-			argsString += "if ("  + getCompareString(string("result_etalon") , arrType, string("result") ,
+			argsString += "if ("  + getCompareString(FunctionArgument::getName("result_etalon", functionData.lang) , arrType, FunctionArgument::getName("result ", functionData.lang)  ,
 					arrType, cmp, functionData.lang);
 
 
 		//if (functionData.isArray)//@WHAT@
 		{
-			argsString+=" && variablesCorrect && isTrue)\n";
+			argsString += " && " + FunctionArgument::getName("variablesCorrect", functionData.lang) + " && " + FunctionArgument::getName("isTrue", functionData.lang) + ")\n";
 			//TODO
 		}
 		switch(functionData.lang)
@@ -506,6 +510,11 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			argsString += "else\n";
 			argsString += "console.log(\" @" + to_string(i) + "!@\");\n";
 			break;
+		case LangCompiler::Flag_PHP:
+			argsString += "echo \" @" + to_string(i) + "@\";\n";
+			argsString += "else\n";
+			argsString += "echo \" @" + to_string(i) + "!@\";\n";
+			break;
 
 		}
 
@@ -524,6 +533,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		break;
 	case LangCompiler::Flag_Java://@BAD@
 		footerBody += "}}";//"\nreturn 0;\n\t}\n}";
+		break;
+	case LangCompiler::Flag_PHP://@BAD@
+		footerBody += "?>\n";
 		break;
 	}
 
@@ -701,6 +713,8 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 		case LangCompiler::Flag_CPP:
 			return string( " compareArrs<" + FunctionArgument::generateType(type1, false, lang) + 	"," +
 					std::to_string(arr1_size) + " > ( " + name1 + ", "+ name2 + " )");
+		case LangCompiler::Flag_PHP:
+			return " !array_diff(" + name1 + "," + name2 + ")";
 
 		}
 
@@ -711,7 +725,7 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionData, vector<FunctionArgument> &variables)
 {
 	FunctionArgument resultVar;
-	resultVar.name="result";
+	resultVar.name=FunctionArgument::getName("result", functionData.lang);
 	resultVar.isArray=functionData.isArray;
 	resultVar.size=functionData.size;
 	resultVar.type=functionData.returnValueType;
@@ -722,7 +736,7 @@ bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionD
 	output += resultVar.generateDefinition(false, functionData.lang);
 	variables.push_back(resultVar);
 
-	resultVar.name = "result" + string(ETALON_FOR_FUNCTION_ENDING);
+	resultVar.name += string(ETALON_FOR_FUNCTION_ENDING);
 	output += resultVar.generateDefinition(true, functionData.lang);
 	variables.push_back(resultVar);
 
@@ -875,9 +889,25 @@ string FunctionArgument::getType(int lang )
 	}
 	return "";
 }*/
+string FunctionArgument::getName(string name, int lang)
+{
+	switch(lang)
+	{
+	case LangCompiler::Flag_PHP:
+		return "$" + name;
+	default:
+		return name;
+	}
+}
+
+string FunctionArgument::getName(int lang)
+{
+	return FunctionArgument::getName(name, lang);
+}
 
 string FunctionArgument::generateType(int type, int arrayType, int lang)
 {
+	if (lang==LangCompiler::Flag_PHP) return " ";//arg types specify not in PHP
 	if (lang==LangCompiler::Flag_JS) return "var";//arg types specify not in js
 	string result;
 
@@ -951,6 +981,10 @@ string FunctionArgument::generateDefinition(bool is_result, int lang)
 	case LangCompiler::Flag_JS:
 		result += " " + name;
 		if (isArray)result += "=[]";
+		break;
+	case LangCompiler::Flag_PHP:
+		result += " " + name;
+		//if (isArray)result += "=[]";
 		break;
 
 
