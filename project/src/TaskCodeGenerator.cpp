@@ -153,10 +153,11 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 	case LangCompiler::Flag_PHP:
 		functionStr += "function ";
 	}
+
 	if (functionData.lang==LangCompiler::Flag_JS)
 		functionStr += modifiers + " ";
 	else
-	functionStr += modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
+		functionStr += modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
 
 	if (functionData.lang == LangCompiler::Flag_CS && functionData.isArray == FunctionData::ARRAY)
 		functionStr += " [] ";
@@ -170,9 +171,9 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 		if (argCount>0)
 			functionStr += divider;
 		string type="";
-		if (!functionData.lang==LangCompiler::Flag_JS)
-		type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
-		functionStr += type + space;
+		if ( functionData.lang != LangCompiler::Flag_JS)
+			type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
+		//functionStr += type + space;
 
 
 		switch(functionData.lang)
@@ -194,14 +195,16 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 				functionStr += arg.name;
 			break;
 		case LangCompiler::Flag_Java:
-		case LangCompiler::Flag_JS:
-		case LangCompiler::Flag_PHP:
 		{
 			functionStr += type + space;
 			// maybe out add?
 			functionStr += arg.name;
 			break;
 		}
+		case LangCompiler::Flag_JS:
+		case LangCompiler::Flag_PHP:
+			functionStr += arg.name;
+			break;
 		}
 		argCount++;
 	}
@@ -811,7 +814,7 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 		case LangCompiler::Flag_PHP:
 			return " !array_diff(" + name1 + "," + name2 + ")";
 		case LangCompiler::Flag_CS:
-		return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
+			return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
 			break;
 
 		}
@@ -1011,7 +1014,7 @@ string FunctionArgument::generateType(int type, int arrayType, int lang)
 {
 	if (lang==LangCompiler::Flag_PHP) return " ";//arg types specify not in PHP
 	if (lang==LangCompiler::Flag_JS) return "var";//arg types specify not in js
-	string result;
+	string result = "";
 
 	switch(type)
 	{
