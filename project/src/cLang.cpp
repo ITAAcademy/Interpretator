@@ -46,8 +46,8 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		break;
 	case Flag_JS:
 		code_file_name = "Main" + to_string(thID) + ".js";
-		build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../";
-		run_str = " java Main" + to_string(thID) + " 2>&1 ;  rm Main" + to_string(thID)+".js";
+		build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../ 2>&1";
+		run_str = " node Main" + to_string(thID) + " 2>&1 ;  rm Main" + to_string(thID)+".js";
 		prog_name = "Main"+to_string(thID)+".js";
 		break;
 	case Flag_PHP:

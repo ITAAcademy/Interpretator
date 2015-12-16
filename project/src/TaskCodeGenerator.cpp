@@ -634,7 +634,7 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 	else floorFuncName = "Math.floor";
 
 	case ValueTypes::VAL_FLOAT:
-		result += " (" +floorFuncName+"(" + name1 + " * 100 ) - "+floorFuncName+"(" + name2 + " * 100 ) ) ";
+		result += " (" +floorFuncName+"(" + name1 + " * 100 ) - "+floorFuncName+"(" + name2 + " * 100 )  ";
 		switch (mark)
 		{
 		case CompareMark::LessEquial:
