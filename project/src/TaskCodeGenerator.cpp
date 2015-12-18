@@ -53,8 +53,8 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 	functionData.returnValueType = functionValue["type"].asInt();
 	functionData.functionName = "function_main";//@BAG@
 
-	functionData.isArray = functionValue["results"][0].isArray();
-	functionData.size = functionValue["results"][0].size();
+	functionData.isArray = functionValue["array_type"].asInt();//functionValue["results"][0].isArray();
+	functionData.size = functionValue["unit_test_num"].asInt();//functionValue["results"][0].size();
 	functionData.isRange = jSON.isResultsRange();
 	//if (functionValue["checkable_args_indexes"].isArray())
 	bool compareEachArgWithEtalonSeparate=functionValue["checkable_args_indexes"][0].isArray();
@@ -349,35 +349,39 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string etalongArgsString;
 
 	bool is_float = (functionData.returnValueType == ValueTypes::VAL_FLOAT);
-	for(int i = 0; i < functionData.result.size(); i++)
+	for(int i = 0; i < functionData.size; i++)
 	{
 
-		if ( functionData.isArray != FunctionData::ARRAY)
+		if(functionData.result.size() > 0)
 		{
-			argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + " = " + */	FunctionArgument::getName("result_etalon", functionData.lang) + " = ";
-			if (functionData.lang == LangCompiler::Flag_CS && functionData.returnValueType == FunctionData::RET_VAL_FLOAT)
-				argsString += "(float) ";
-			argsString += functionData.result[i] + ";\n";
-		}
-		else
-		{
-			//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
-			Reader reader;
-			JsonValue values_u;
-			JsonValue etalons_values_u;
-			reader.parse(functionData.result[i], values_u);
-
-
-			for (int h = 0; h < values_u.size(); h++)
+			if ( functionData.isArray != FunctionData::ARRAY)
 			{
-				argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ FunctionArgument::getName("result_etalon", functionData.lang) + "[" + to_string(h) + "] = ";
-				if (functionData.lang!=LangCompiler::Flag_JS && is_float)
-					argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
-				argsString += values_u[h].toStyledString() + ";\n";
+				argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + " = " + */	FunctionArgument::getName("result_etalon", functionData.lang) + " = ";
+				if (functionData.lang == LangCompiler::Flag_CS && functionData.returnValueType == FunctionData::RET_VAL_FLOAT)
+					argsString += "(float) ";
+				argsString += functionData.result[i] + ";\n";
 			}
+			else
+			{
+				//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
+				Reader reader;
+				JsonValue values_u;
+				JsonValue etalons_values_u;
+				reader.parse(functionData.result[i], values_u);
 
 
+				for (int h = 0; h < values_u.size(); h++)
+				{
+					argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ FunctionArgument::getName("result_etalon", functionData.lang) + "[" + to_string(h) + "] = ";
+					if (functionData.lang!=LangCompiler::Flag_JS && is_float)
+						argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
+					argsString += values_u[h].toStyledString() + ";\n";
+				}
+
+
+			}
 		}
+
 		/*if (functionData.isRange )//@WHAT@
 		{
 
@@ -533,13 +537,19 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		ValueTypes arrType = (ValueTypes) functionData.returnValueType;
 		CompareMark cmp = functionData.compare_marks[i];
+
+		/*
+		 *  HAVE RESULT?
+		 */
+		string true_result_name = "result_etalon";
+		if(functionData.result.empty())
+			true_result_name = "result_for_etalon";
+
 		if (functionData.isArray == FunctionData::ARRAY)
 		{
 			//string arrType = functionData.getReturnType();
 
-			/*argsString += "if (compareArrs<"+arrType+","+
-					std::to_string(functionData.size)+">(result_etalon, result)";*/
-			argsString += "if ("  + getArrayCompareString(FunctionArgument::getName("result_etalon", functionData.lang), functionData.size, (ValueTypes) arrType, FunctionArgument::getName("result", functionData.lang) ,
+			argsString += "if ("  + getArrayCompareString(FunctionArgument::getName(true_result_name, functionData.lang), functionData.size, (ValueTypes) arrType, FunctionArgument::getName("result", functionData.lang) ,
 					functionData.size, (ValueTypes) arrType, cmp, functionData.lang);
 
 			// CompareMark::Equial);
@@ -548,13 +558,13 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		}
 		else
 			//argsString += "if ( result_etalon == result";//open function call body;
-			argsString += "if ("  + getCompareString(FunctionArgument::getName("result_etalon", functionData.lang) , arrType, FunctionArgument::getName("result ", functionData.lang)  ,
+			argsString += "if ("  + getCompareString(FunctionArgument::getName(true_result_name, functionData.lang) , arrType, FunctionArgument::getName("result ", functionData.lang)  ,
 					arrType, cmp, functionData.lang);
 
 
 		//if (functionData.isArray)//@WHAT@
 		{
-			argsString += " && " + FunctionArgument::getName("variablesCorrect", functionData.lang) + " && " + FunctionArgument::getName("isTrue", functionData.lang) + ")\n";
+			argsString += " && " + FunctionArgument::getName("variablesCorrect", functionData.lang) + " && " + FunctionArgument::getName("isTrue", functionData.lang) + ")\n";// IF END
 			//TODO
 		}
 		switch(functionData.lang)
@@ -580,8 +590,6 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			argsString += "else\n";
 			argsString += "echo \" @" + to_string(i) + "!@\";\n";
 			break;
-
-
 		case LangCompiler::Flag_CS:
 			argsString += "System.Console.WriteLine(\" @" + to_string(i) + "@\");\n";
 			argsString += "else\n";
