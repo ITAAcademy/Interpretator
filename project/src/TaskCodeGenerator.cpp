@@ -373,7 +373,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				for (int h = 0; h < values_u.size(); h++)
 				{
 					argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ FunctionArgument::getName("result_etalon", functionData.lang) + "[" + to_string(h) + "] = ";
-					if (functionData.lang!=LangCompiler::Flag_JS && is_float)
+					if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
 						argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
 					argsString += values_u[h].toStyledString() + ";\n";
 				}
