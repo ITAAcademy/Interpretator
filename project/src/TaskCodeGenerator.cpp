@@ -404,8 +404,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		int checkableArgsCount = 0;
 		int currentArgumentIndex=-1;
+
 		for(FunctionArgument arg : functionData.args)
 		{
+			bool isEtalonValueComparsion = arg.etalonValue.size()>i;//etalon value excist for
 			currentArgumentIndex++;
 			vector<string> args_results;
 			vector<string> args_results_must_be_after_main_func;
@@ -427,7 +429,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				currentArgEtalonDef += arg.etalonValue[i] + string(";\n"); //etalon value for argu
 
 				argumentDefinition += currentArgDef;
+				if (isEtalonValueComparsion){
 				argumentEtalonDefinition += currentArgEtalonDef;
+				}
 				variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name +
 						string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial,
 						functionData.lang);
@@ -449,8 +453,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 					argumentDefinition += arg.name + string(ETALON_FOR_FUNCTION_ENDING) +
 							"[" + to_string(i) + "] = " + arg.name +"[" + to_string(i) + "] = "
 							+ values_u[i].toStyledString() + ";\n";
+					if (isEtalonValueComparsion){
 					argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(i) +
 							"] = " + etalons_values_u[i].toStyledString() + ";\n";
+					}
 					//"]getAllRecordsFromTable = " + etalons_values_u[i].toStyledString() + ";\n";
 				}
 
@@ -462,10 +468,11 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			}
 
 
-			if(argCount > 0)
+			if(argCount>0 && isEtalonValueComparsion)
 			{
 				argForMainFunction += divider;
 				argForEtalonFunction += divider;
+
 			}
 
 			string argStringValue = arg.value[i];
@@ -479,9 +486,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				argForEtalonFunction += "ref ";
 			}
 			argForMainFunction += arrName;
-			argForEtalonFunction += etalonArrName;
-
-			argCount++;
+			if (isEtalonValueComparsion){
+				argForEtalonFunction += etalonArrName;
+				argCount++;
+			}
 			//for (int k=0;k<variables.size();k++)
 
 		}
