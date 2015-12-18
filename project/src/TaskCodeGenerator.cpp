@@ -821,7 +821,8 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 			return string( " compareArrs<" + FunctionArgument::generateType(type1, false, lang) + 	"," +
 					std::to_string(arr1_size) + " > ( " + name1 + ", "+ name2 + " )");
 		case LangCompiler::Flag_PHP:
-			return " ( is_array(" + name1 + ") && is_array (" + name2 + ") && count(array_diff(" + name1 + "," + name2 + ")) == 0)";
+			//return " ( is_array(" + name1 + ") && is_array (" + name2 + ") && count(array_diff(" + name1 + "," + name2 + ")) == 0)";
+			return " " + name1 + " === " + name2 + " ";
 		case LangCompiler::Flag_CS:
 			return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
 			break;
