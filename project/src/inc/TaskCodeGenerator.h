@@ -33,7 +33,7 @@ struct FunctionArgument{
 	int type=0;
 	int isArray = false;
 	int size=0;
-	vector<string> etalonValue;
+	map<int,string> etalonValue;
 	vector<string> value;
 	//vector<CompareMark> compare_marks;
 	string name;
