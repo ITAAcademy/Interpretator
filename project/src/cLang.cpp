@@ -53,7 +53,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	case Flag_PHP:
 		code_file_name = "./src/Main" + to_string(thID) + ".php";
 		build_str = "";
-		run_str = "cd src; php Main" + to_string(thID) + ".php 2>&1 ;  ";
+		run_str = "php ./src/Main" + to_string(thID) + ".php 2>&1 ;  ";
 		prog_name = code_file_name;
 		break;
 	case Flag_CS:

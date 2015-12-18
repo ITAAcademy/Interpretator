@@ -391,7 +391,7 @@ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,s
 		for (	pair<int,string> me  : records)
 			keys.push_back(me.first);
 		for(int a : keys){
-			quer += "`"+ labels_vec[a] + "`='" + records.find(a)->second + "'" ;//SpecSymbol
+			quer += "`"+ labels_vec[a] + "`='" + str_with_spec_character(records.find(a)->second) + "'" ;//SpecSymbol
 			quer += ", ";
 		}
 		quer.erase(quer.size()-2);
