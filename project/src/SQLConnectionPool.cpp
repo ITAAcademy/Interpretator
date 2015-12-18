@@ -423,6 +423,7 @@ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,s
 			logfile::addLog("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
 		}
 		mysqlpp::Connection::thread_end();
+		l12(quer);
 		if (result.rows()) {
 			logfile::addLog ("Updating records in table " + tableName +" successfull");
 			delete query;
@@ -430,9 +431,11 @@ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,s
 			return true;
 		}
 		logfile::addLog ("Updating records in table " + tableName +" failed");
+
 	}
-	return false;
 	pthread_mutex_unlock(&accept_mutex);
+	return false;
+
 }
 
 

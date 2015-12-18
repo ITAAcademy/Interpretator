@@ -84,6 +84,7 @@ class jsonParser {
 	bool is_results_range;
 
 	int unit_test_num;
+	bool is_unit_test_array;
 public:
 	bool isResultsArray();
 	int getResultsArraySize();
@@ -120,6 +121,7 @@ public:
 
 	bool mustBeNotArray(Json::Value object, string name , string ps = "");
 	bool mustBeArray(Json::Value object, string name , string ps = "");
+	bool mustBeArrayAbleZero(Json::Value object, string name , string ps = "");
 	bool mustHaveSizeMoreZero(Json::Value object, string name , string ps = "");
 	bool mustBeInt(Json::Value object, string name , string ps = "");
 	bool mustBeUnsignedInt(Json::Value object, string name , string ps = "");
@@ -136,6 +138,7 @@ public:
 	bool mustExistBeString(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeBool(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArray(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArrayAbleZero(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArrayString(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArrayInt(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArrayInt(Json::Value object, string name , string ps, string ps2, int min_val, int max_val);

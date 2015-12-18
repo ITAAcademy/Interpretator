@@ -53,9 +53,19 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 	functionData.returnValueType = functionValue["type"].asInt();
 	functionData.functionName = "function_main";//@BAG@
 
+	if (etalon.size() == 0)
+	{
 	functionData.isArray = functionValue["results"][0].isArray();
 	functionData.size = functionValue["results"][0].size();
 	functionData.isRange = jSON.isResultsRange();
+	}
+	else
+	{
+		functionData.isArray = jSON.getObject("array", false).asInt();
+		functionData.size = 0;
+		functionData.isRange = false;
+	}
+
 	//if (functionValue["checkable_args_indexes"].isArray())
 	bool compareEachArgWithEtalonSeparate=functionValue["checkable_args_indexes"][0].isArray();
 
@@ -79,6 +89,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 	}
 
 
+	if (etalon.size() != 0)
 	for(JsonValue value:functionValue["results"])
 	{
 		if (jSON.isResultsRange())
@@ -349,7 +360,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string etalongArgsString;
 
 	bool is_float = (functionData.returnValueType == ValueTypes::VAL_FLOAT);
-	for(int i = 0; i < functionData.result.size(); i++)
+	for(int i = 0; i < functionData.unit_tests_num; i++)
 	{
 
 		if ( functionData.isArray != FunctionData::ARRAY)
