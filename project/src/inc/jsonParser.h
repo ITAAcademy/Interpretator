@@ -29,6 +29,9 @@ using namespace Json;
 #define FIELD_NAME "name"
 #define FIELD_FUNCTION_NAME "function_name"
 #define FIELD_ARGS "args"
+#define FIELD_ARRAY_TYPE "array_type"
+#define FIELD_UNIT_TESTS_NUM "unit_test_num"
+
 #define FIELD_IS_ARRAY "is_array"
 #define FIELD_SIZE "size"
 #define FIELD_TYPE "type"

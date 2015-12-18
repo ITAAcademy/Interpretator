@@ -607,6 +607,8 @@ bool jsonParser::isValidFields()
 		Json::Value field_results = parsedFromString[FUNCTION][FIELD_RESULTS];
 		Json::Value field_type = parsedFromString[FUNCTION][FIELD_TYPE];
 		Json::Value field_compare_mark = parsedFromString[FUNCTION][FIELD_COMPARE_MARK];
+		Json::Value field_array_type = parsedFromString[FUNCTION][FIELD_ARRAY_TYPE];
+		Json::Value field_unit_test_num = parsedFromString[FUNCTION][FIELD_UNIT_TESTS_NUM];
 
 		if( !mustExist(parsedFromString[FUNCTION], "function"))
 			return false;
@@ -619,6 +621,15 @@ bool jsonParser::isValidFields()
 
 		if( !mustExistBeArrayInt(field_compare_mark, "compare_mark","", "",0, CompareMark::Last - 1))
 			return false;
+
+		if( !mustExistBeInt(field_unit_test_num, "unit_test_num"))
+					return false;
+
+		if( !mustExistBeInt(field_array_type, "array_type"))
+							return false;
+
+		unit_test_num = field_unit_test_num.asInt();
+		is_results_array = field_array_type.asInt();
 
 		if( !mustExistBeArray(field_args, "args"))
 			return false;
@@ -943,7 +954,7 @@ bool jsonParser::isValidFields()
 								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
 							return false;
 
-						if(!mustBeNotArrayInt(args_i_etalon_value[j],
+						if(!mustBeNotArray(args_i_etalon_value[j],
 								string("args[" + to_string(i) +	"] etalon_values[" + to_string(j)+ "]" ),
 								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
 							return false;
@@ -957,7 +968,7 @@ bool jsonParser::isValidFields()
 								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
 							return false;
 
-						if(!mustBeNotArrayFloat(args_i_etalon_value[j],
+						if(!mustBeNotArray(args_i_etalon_value[j],
 								string("args[" + to_string(i) +	"] etalon_values[" + to_string(j)+ "]" ),
 								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
 							return false;
@@ -972,7 +983,7 @@ bool jsonParser::isValidFields()
 								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
 							return false;
 
-						if(!mustBeNotArrayBool(args_i_etalon_value[j],
+						if(!mustBeNotArray(args_i_etalon_value[j],
 								string("args[" + to_string(i) +	"] etalon_values[" + to_string(j)+ "]" ),
 								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
 							return false;
@@ -986,7 +997,7 @@ bool jsonParser::isValidFields()
 								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
 							return false;
 
-						if(!mustBeNotArrayString(args_i_etalon_value[j],
+						if(!mustBeNotArray(args_i_etalon_value[j],
 								string("args[" + to_string(i) +	"] etalon_values[" + to_string(j)+ "]" ),
 								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
 							return false;
@@ -1076,7 +1087,7 @@ bool jsonParser::isValidFields()
 								if ( !mustBeNotArrayInt(field_value_k[j], s_value_k_j ) )
 									return false;
 
-								if ( !mustBeNotArrayInt(field_etalon_value_k[j], s_etalon_value_k_j ) )
+								if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
 									return false;
 							}
 							break;
@@ -1089,7 +1100,7 @@ bool jsonParser::isValidFields()
 								if ( !mustBeNotArrayFloat(field_value_k[j], s_value_k_j ) )
 									return false;
 
-								if ( !mustBeNotArrayFloat(field_etalon_value_k[j], s_etalon_value_k_j ) )
+								if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
 									return false;
 							}
 							break;
@@ -1102,7 +1113,7 @@ bool jsonParser::isValidFields()
 								if ( !mustBeNotArrayBool(field_value_k[j], s_value_k_j ) )
 									return false;
 
-								if ( !mustBeNotArrayBool(field_etalon_value_k[j], s_etalon_value_k_j ) )
+								if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
 									return false;
 							}
 							break;
@@ -1115,7 +1126,7 @@ bool jsonParser::isValidFields()
 								if ( !mustBeNotArrayString(field_value_k[j], s_value_k_j ) )
 									return false;
 
-								if ( !mustBeNotArrayString(field_etalon_value_k[j], s_etalon_value_k_j ) )
+								if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
 									return false;
 							}
 							break;
