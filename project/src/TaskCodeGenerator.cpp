@@ -132,7 +132,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 		for(JsonValue modvalue:argumentValue["etalon_value"])
 		{
 			if (!modvalue.isNull()){
-			functionArgument.etalonValue[etalonValueArgsCount]=modvalue.toStyledString(); //_opo
+				functionArgument.etalonValue[etalonValueArgsCount]=modvalue.toStyledString(); //_opo
 			}
 			etalonValueArgsCount++;
 		}
@@ -346,9 +346,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string type_n = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) + " ";
 
 	footerBody +=  type_n
-	+  FunctionArgument::getName("isTrue", functionData.lang) + ";\n";//moved out from cicle to fix variable duplicates
+			+  FunctionArgument::getName("isTrue", functionData.lang) + ";\n";//moved out from cicle to fix variable duplicates
 	string conditionsVariableDeclaration = type_n +" "+
-					argumentsEqualToEtalonConditionName+";\n" + type_n + " " + correctArgumentsConditionName+";\n";
+			argumentsEqualToEtalonConditionName+";\n" + type_n + " " + correctArgumentsConditionName+";\n";
 	footerBody+= conditionsVariableDeclaration;
 
 
@@ -365,7 +365,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			if ( functionData.isArray != FunctionData::ARRAY)
 			{
 				argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + " = " + */	FunctionArgument::getName("result_etalon", functionData.lang) + " = ";
-				if (functionData.lang == LangCompiler::Flag_CS && functionData.returnValueType == FunctionData::RET_VAL_FLOAT)
+				if ((functionData.lang == LangCompiler::Flag_CS) && (functionData.returnValueType == FunctionData::RET_VAL_FLOAT))
 					argsString += "(float) ";
 				argsString += functionData.result[i] + ";\n";
 			}
@@ -417,6 +417,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		for(FunctionArgument arg : functionData.args)
 		{
 			bool isEtalonValueComparsion = arg.etalonValue.count(i);//etalon value excist for
+			//cerr <<"argCount:"<<+argCount<< "isEtalonValueComparsion:"<<isEtalonValueComparsion<<endl;
 			currentArgumentIndex++;
 			vector<string> args_results;
 			vector<string> args_results_must_be_after_main_func;
@@ -429,32 +430,36 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				currentArgDef += arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " +arg.name + " = " ;
 				if (isEtalonValueComparsion)
 				{
-				currentArgEtalonDef += arg.name + string(ETALON_ENDING) + string(" = ") ; //etalon value for argument
+					currentArgEtalonDef += arg.name + string(ETALON_ENDING) + string(" = ") ; //etalon value for argument
 				}
 				if ( (functionData.lang == LangCompiler::Flag_Java || functionData.lang == LangCompiler::Flag_CS) && arg.type == ValueTypes::VAL_FLOAT)
 				{
 					currentArgDef+=castToFloat;
+					if (isEtalonValueComparsion){
 					currentArgEtalonDef+=castToFloat;
+					}
 				}
 
 				currentArgDef +=  arg.value[i]+";\n";
 				argumentDefinition += currentArgDef;
+
 				if (isEtalonValueComparsion){
-				currentArgEtalonDef += arg.etalonValue[i] + string(";\n"); //etalon value for argu
-				argumentEtalonDefinition += currentArgEtalonDef;
-				}
-
-
-				variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name +
-						string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial,
-						functionData.lang);
-
-				if (argCount != functionData.args.size() - 1 )
+					currentArgEtalonDef += arg.etalonValue[i] + string(";\n"); //etalon value for argu
+														argumentEtalonDefinition += currentArgEtalonDef;
+					if (etalongArgCountChecks > 0 ){//If checking of etalon already performed
 					variablesCorrect += " && ";
+					}
+					variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name +
+							string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial,
+							functionData.lang);
+
+
+				}
 
 			}
 			else
 			{
+				cerr<< "etalon_value is array\n";
 				Reader reader;
 				JsonValue values_u;
 				JsonValue etalons_values_u;
@@ -467,33 +472,32 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 							"[" + to_string(i) + "] = " + arg.name +"[" + to_string(i) + "] = "
 							+ values_u[i].toStyledString() + ";\n";
 					if (isEtalonValueComparsion){
-					argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(i) +
-							"] = " + etalons_values_u[i].toStyledString() + ";\n";
+						argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(i) +
+								"] = " + etalons_values_u[i].toStyledString() + ";\n";
 					}
 					//"]getAllRecordsFromTable = " + etalons_values_u[i].toStyledString() + ";\n";
 				}
 
+				if (isEtalonValueComparsion){
+					if (etalongArgCountChecks > 0 ){//If checking of etalon already performed
+										variablesCorrect += " && ";
+										}
 				variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_ENDING),
 						arg.size, (ValueTypes) arg.type, CompareMark::Equial, functionData.lang);
 
-				if ( argCount != functionData.args.size() - 1 )
-					variablesCorrect+=" && ";
+			}
 			}
 
 
 			if(argCount>0)
 			{
 				argForMainFunction += divider;
-			}
-			if(etalongArgCountChecks>0 && isEtalonValueComparsion)
-			{
 				argForEtalonFunction += divider;
 
 			}
 
+
 			string argStringValue = arg.value[i];
-			string etalonStringValue = "";
-			if (isEtalonValueComparsion)etalonStringValue=arg.etalonValue[i];
 			string arrName = arg.name;//    "array"+std::to_string(arraysCount);
 
 			string etalonArrName = arrName + ETALON_FOR_FUNCTION_ENDING;
@@ -503,8 +507,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				argForEtalonFunction += "ref ";
 			}
 			argForMainFunction += arrName;
+			argForEtalonFunction += etalonArrName;
+
 			if (isEtalonValueComparsion){
-				argForEtalonFunction += etalonArrName;
 				etalongArgCountChecks++;
 			}
 			argCount++;
@@ -548,12 +553,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		argsString += argumentDefinition;
 		if (etalongArgCountChecks>0)
-		argsString += argumentEtalonDefinition;
+			argsString += argumentEtalonDefinition;
 
 
 		argsString += variablesCorrect;
-		if (functionData.lang == LangCompiler::Flag_Java)
-			argsString+=")";
+		/*if (functionData.lang == LangCompiler::Flag_Java)
+			argsString+=")";*/
 		argsString += ";\n";//NEED BRACKET
 		argsString +=  FunctionArgument::getName("result", functionData.lang) + string(ETALON_FOR_FUNCTION_ENDING) +  " = function_etalon(" + argForEtalonFunction +  ");\n";
 		argsString += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
@@ -783,7 +788,7 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 						result += "(new String(" + name1 + ").compareTo(" + name2 +")) < 0";
 						break;
 					case CompareMark::Equial: default:
-						result += "new String(" + name1 + ").equals(" + name2 +")";
+						result += "new String(" + name1 + ").equals(" + name2 +"))";
 						break;
 					case CompareMark::NotEquial:
 						result += "!(new String(" + name1 + ").equals(" + name2 +"))";
