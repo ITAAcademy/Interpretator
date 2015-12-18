@@ -717,7 +717,7 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 					result += name1 + ".Compare(" + name2 +") < 0";
 					break;
 				case CompareMark::Equial: default:
-					result += "String.Equals (" + name1 + ", " + name2 +")))";
+					result += "String.Equals (" + name1 + ", " + name2 +"))";
 					break;
 				case CompareMark::NotEquial:
 					result += "!String.Equals (" + name1 + ", " + name2 +",  StringComparison.Ordinal)";

@@ -348,7 +348,7 @@ bool SqlConnectionPool::addRecordsInToTable(map<int,string> records) {
 			int r=0;
 			for (int y=0; y< num_of_labels; y++) {
 				if (keys[r] == y) {
-					quer += " '" + records.find(keys[r])->second + "' " ;
+					quer += " '" + str_with_spec_character(records.find(keys[r])->second) + "' " ;
 					r++;
 				}
 				else quer += "DEFAULT";

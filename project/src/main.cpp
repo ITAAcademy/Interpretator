@@ -382,11 +382,11 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 
 		int valuesCount = 0;
 		temp.insert( { valuesCount++, std::to_string(id) });
-		temp.insert( { valuesCount++, str_with_spec_character(generator.getHeader())});
-		temp.insert( { valuesCount++, str_with_spec_character(generator.getEtalon())});
+		temp.insert( { valuesCount++, (generator.getHeader())});
+		temp.insert( { valuesCount++, (generator.getEtalon())});
 		l12("qwe33");
-		temp.insert( { valuesCount++, str_with_spec_character(generator.getFooter())});
-		temp.insert({valuesCount++, str_with_spec_character(jSON.getJson())});
+		temp.insert( { valuesCount++, (generator.getFooter())});
+		temp.insert({valuesCount++, (jSON.getJson())});
 		l12("temp.insert");
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 		JsonValue res;
