@@ -262,7 +262,11 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			defaultReturnValue += ")";
 		}
 	//999
-	string footerBody = "return "+defaultReturnValue+";\n}\n";//Close function body
+	string footerBody = "";
+	if (functionData.lang != (int) LangCompiler::Flag_Java)
+		footerBody += "return "+defaultReturnValue+";\n}\n";//Close function body
+	else
+		footerBody += "\n}\n";
 
 	string space=" ";
 	char divider=',';
