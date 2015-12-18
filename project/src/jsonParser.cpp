@@ -152,6 +152,8 @@ bool jsonParser::mustBeNotArrayBool(Json::Value object, string name , string ps 
 
 bool jsonParser::mustBeNotArray(Json::Value object, string name , string ps)
 {
+	if (object.isNull())
+		return true;
 	if ( object.isArray())
 	{
 		last_error = "error: json format is not correct. " + name + " can`t be array " + ps;
@@ -969,7 +971,7 @@ bool jsonParser::isValidFields()
 
 						if(!mustBeNotArray(args_i_etalon_value[j],
 								string("args[" + to_string(i) +	"] etalon_values[" + to_string(j)+ "]" ),
-								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
+								string(", cuz args[" + to_string(i) + "] etalon_values[0] isn`t")))
 							return false;
 					}
 					break;
@@ -983,7 +985,7 @@ bool jsonParser::isValidFields()
 
 						if(!mustBeNotArray(args_i_etalon_value[j],
 								string("args[" + to_string(i) +	"] etalon_values[" + to_string(j)+ "]" ),
-								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
+								string(", cuz args[" + to_string(i) + "] etalon_values[0] isn`t")))
 							return false;
 
 					}
@@ -998,7 +1000,7 @@ bool jsonParser::isValidFields()
 
 						if(!mustBeNotArray(args_i_etalon_value[j],
 								string("args[" + to_string(i) +	"] etalon_values[" + to_string(j)+ "]" ),
-								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
+								string(", cuz args[" + to_string(i) + "] etalon_values[0] isn`t")))
 							return false;
 					}
 					break;
@@ -1012,7 +1014,7 @@ bool jsonParser::isValidFields()
 
 						if(!mustBeNotArray(args_i_etalon_value[j],
 								string("args[" + to_string(i) +	"] etalon_values[" + to_string(j)+ "]" ),
-								string(", cuz args[" + to_string(i) + "] values[0] isn`t")))
+								string(", cuz args[" + to_string(i) + "] etalon_values[0] isn`t")))
 							return false;
 					}
 					break;
