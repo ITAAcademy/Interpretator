@@ -226,7 +226,8 @@ void *receiveTask(void *a)
 			jsonParser jSON(stream.getRequestBuffer());
 
 			logfile::addLog("Before parsing successful check");
-			bool parsingSuccessful = jSON.isJson() && jSON.isValidFields();
+			bool isValidFields = jSON.isValidFields();
+			bool parsingSuccessful = jSON.isJson() && isValidFields;
 			logfile::addLog("Before jSON.isJson()");
 			if (parsingSuccessful)
 				logfile::addLog("Before jSON.isValidFields()");
