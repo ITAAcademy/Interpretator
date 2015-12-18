@@ -348,7 +348,7 @@ bool SqlConnectionPool::addRecordsInToTable(map<int,string> records) {
 			int r=0;
 			for (int y=0; y< num_of_labels; y++) {
 				if (keys[r] == y) {
-					quer += " \"" + records.find(keys[r])->second + "\" " ;
+					quer += " '" + records.find(keys[r])->second + "' " ;
 					r++;
 				}
 				else quer += "DEFAULT";
@@ -391,7 +391,7 @@ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,s
 		for (	pair<int,string> me  : records)
 			keys.push_back(me.first);
 		for(int a : keys){
-			quer += "`"+ labels_vec[a] + "`='" + str_with_spec_character(records.find(a)->second) + "'" ;
+			quer += "`"+ labels_vec[a] + "`='" + records.find(a)->second + "'" ;//SpecSymbol
 			quer += ", ";
 		}
 		quer.erase(quer.size()-2);
@@ -431,8 +431,9 @@ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,s
 		}
 		logfile::addLog ("Updating records in table " + tableName +" failed");
 	}
-	return false;
 	pthread_mutex_unlock(&accept_mutex);
+	return false;
+
 }
 
 

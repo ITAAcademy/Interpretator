@@ -335,7 +335,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string correctArgumentsConditionName = FunctionArgument::getName("variablesCorrect", functionData.lang);
 	string argumentsEqualToEtalonConditionName = FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
 
-	string type_n = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang);
+	string type_n = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) + " ";
 
 	footerBody +=  type_n
 	+  FunctionArgument::getName("isTrue", functionData.lang) + ";\n";//moved out from cicle to fix variable duplicates
@@ -638,7 +638,7 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 	else floorFuncName = "Math.floor";
 
 	case ValueTypes::VAL_FLOAT:
-		result += " (" +floorFuncName+"(" + name1 + " * 100 ) - "+floorFuncName+"(" + name2 + " * 100 )  ";
+		result += floorFuncName+"(" + name1 + " * 100 ) - "+floorFuncName+"(" + name2 + " * 100 )  ";
 		switch (mark)
 		{
 		case CompareMark::LessEquial:
@@ -813,7 +813,7 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 			return string( " compareArrs<" + FunctionArgument::generateType(type1, false, lang) + 	"," +
 					std::to_string(arr1_size) + " > ( " + name1 + ", "+ name2 + " )");
 		case LangCompiler::Flag_PHP:
-			return " !array_diff(" + name1 + "," + name2 + ")";
+			return " ( is_array(" + name1 + ") && is_array (" + name2 + ") && count(array_diff(" + name1 + "," + name2 + ")) == 0)";
 		case LangCompiler::Flag_CS:
 			return string( "ArraysEqual(" + name1 + ", " +  name2 + ")");
 			break;
