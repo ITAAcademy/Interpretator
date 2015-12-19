@@ -341,7 +341,7 @@ LangCompiler::compilerFlag LangCompiler::convertFromName(string lang)
 		return LangCompiler::Flag_JS;
 	else if (lang == "PHP" || lang == "php")
 		return LangCompiler::Flag_PHP;
-	else if (lang == "C#" || lang == "c#" )
+	else if (lang == "C#" || lang == "c#" || lang == "CS" || lang == "cs" )
 		return LangCompiler::Flag_CS;
 	else
 		return LangCompiler::Flag_CPP;
