@@ -103,7 +103,6 @@ void processTask(int id,Job job) {
 			////////////////
 			labl.clear();
 			labl.push_back("ID");
-			labl.push_back("name");
 			labl.push_back("header");
 			labl.push_back("etalon");
 			labl.push_back("footer");
@@ -132,7 +131,7 @@ void processTask(int id,Job job) {
 			logfile::addLog(to_string(id)+ " Start compiler");
 			JsonValue res;
 
-			compiler.compile(job.code, true, LangCompiler::convertFromName(job.lang));
+			//compiler.compile(job.code, true, LangCompiler::convertFromName(job.lang));
 
 
 			string date = logfile::getDateStamp();

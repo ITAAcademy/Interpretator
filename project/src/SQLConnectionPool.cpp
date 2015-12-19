@@ -439,10 +439,9 @@ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,s
 
 unsigned int SqlConnectionPool::max_idle_time()
 {
-	pthread_mutex_lock(&accept_mutex);
 	//3 seconds
 	return 3;
-	pthread_mutex_unlock(&accept_mutex);
+
 }
 
 bool SqlConnectionPool::isConnected()
