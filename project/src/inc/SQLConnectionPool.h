@@ -41,6 +41,8 @@ protected:
    mysqlpp::Connection* create() ;
    void destroy(mysqlpp::Connection*) ;
 
+   string getLabelVecByInd(int ind);
+
 private:
    bool iscon ;
    int max_time;
@@ -48,9 +50,9 @@ private:
    int start_time,end_time;
    SqlConnectionPool(const char *db_name,const char * host,const char *user,const char *pass);
    bool connected_db;
-	pthread_mutex_t accept_mutex = PTHREAD_MUTEX_INITIALIZER;
+   pthread_mutex_t accept_mutex = PTHREAD_MUTEX_INITIALIZER;
   mysqlpp::Connection* conn;
-  vector<string> labels_vec;
+   vector<string> labels_vec;
   string labels;
   string tableName;
   const char *db_name,* host,*user,*pass;

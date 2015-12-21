@@ -98,6 +98,14 @@ bool SqlConnectionPool::connectToTable(string table, vector<string> labels) {
 	return false;
 }
 
+string SqlConnectionPool::getLabelVecByInd(int ind)
+{
+	if (ind >= 0 && ind < labels_vec.size())
+		return labels_vec[ind];
+	else
+		return string("");
+}
+
 //work11
 vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string where )  {
 	pthread_mutex_lock(&accept_mutex);
@@ -250,8 +258,8 @@ string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_progr
 
 			//string memoryUsageC++ =
 			int secondBracketFromEndPosition = 0;
-					if (lang=="java")secondBracketFromEndPosition=footer.length()-3;//footer.substr(0,footer.find_last_of('{')-1).find_last_of('{');//second from end
-					else if (lang=="c++") secondBracketFromEndPosition=footer.length()-2;
+			if (lang=="java")secondBracketFromEndPosition=footer.length()-3;//footer.substr(0,footer.find_last_of('{')-1).find_last_of('{');//second from end
+			else if (lang=="c++") secondBracketFromEndPosition=footer.length()-2;
 			//secondBracketFromEndPosition--;
 			//if (secondBracketFromEndPosition<0)secondBracketFromEndPosition=0;
 
@@ -386,35 +394,32 @@ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,s
 	pthread_mutex_lock(&accept_mutex);
 	if (conn->connected())
 	{
+
 		string quer= "UPDATE `"+ tableName+ "` SET ";
-		vector<int> keys;
+
 		for (	pair<int,string> me  : records)
-			keys.push_back(me.first);
-		for(int a : keys){
-			quer += "`"+ labels_vec[a] + "`='" + str_with_spec_character(records.find(a)->second) + "'" ;//SpecSymbol
-			quer += ", ";
+		{
+			int key = me.first;
+			quer += "`"+ getLabelVecByInd(key) + "`='" + str_with_spec_character(me.second) + "', " ;//SpecSymbol
+			//quer += "`1`='" + str_with_spec_character(me.second) + "', " ;//SpecSymbol
 		}
+
 		quer.erase(quer.size()-2);
 		quer += " WHERE " ;
 
-		//for(int a : keys)
-		//quer += "`"+ labels_vec[a] + "`='" + records.find(a)->second + "'" ;
-
-
-
-
-		vector<int> keys2;
 		for (	pair<int,string> mal  : where)
-			keys2.push_back(mal.first);
-		for(int a : keys2){
-			quer += "`"+tableName+"`.`"+ labels_vec[a] + "`='" + where.find(a)->second + "'" ;
-			quer += " AND ";
+		{
+			int key = mal.first;
+			quer += "`"+tableName+"`.`"+ getLabelVecByInd(key) + "`='" + mal.second + "' AND " ;
 		}
+
 		quer.erase(quer.size()-4);
 		logfile::addLog(quer);
-		mysqlpp::Connection::thread_start();
+
 		mysqlpp::Query *query;
 		mysqlpp::SimpleResult result;
+
+		mysqlpp::Connection::thread_start();
 		try{
 			query = new mysqlpp::Query( conn->query( quer) );
 			result=query->execute();
