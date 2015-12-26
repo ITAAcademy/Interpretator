@@ -14,7 +14,7 @@ SqlConnectionPool&  SqlConnectionPool::getInstance()
 			Config::getInstance().dataBaseHost.c_str() ,
 			Config::getInstance().userName.c_str() ,
 			Config::getInstance().password.c_str());
-	l12("getInstance");
+	INFO("SQLConnectionPool created");
 	return connection;
 }
 
@@ -34,14 +34,16 @@ SqlConnectionPool::SqlConnectionPool(const char *db_name,const char * host,const
 	}
 	catch(mysqlpp::Exception &ex){
 		iscon = false;
-		logfile::addLog("SqlConnectionPool(constructor) INCORRECT " + string(ex.what()));
+		ERROR("SqlConnectionPool(constructor) INCORRECT " + string(ex.what()));
 	}
 	if (conn)
 	{
-		logfile::addLog ("Connection to host and database successful");
+		DEBUG("Connection to host and database successful");
 	}
 	else
-		logfile::addLog ("Connection to host and database failed");
+	{
+		ERROR("Connection to host and database failed");
+	}
 	pthread_mutex_unlock(&accept_mutex);
 }
 
@@ -59,7 +61,7 @@ SqlConnectionPool::~SqlConnectionPool()
 	delete conn;
 	clear();
 	mysqlpp::Connection::thread_end();
-	logfile::addLog("Pool connection deleted.");
+	INFO("Pool connection deleted.");
 	pthread_mutex_unlock(&accept_mutex);
 }
 
@@ -79,7 +81,7 @@ bool SqlConnectionPool::connectToTable(string table, vector<string> labels) {
 			res = query.store();
 		}
 		catch(mysqlpp::Exception &ex){
-			logfile::addLog("connectToTable INCORRECT " + string(ex.what()));
+			ERROR("connectToTable INCORRECT " + string(ex.what()));
 		}
 		mysqlpp::Connection::thread_end();
 		if (res.capacity()) {
@@ -87,12 +89,16 @@ bool SqlConnectionPool::connectToTable(string table, vector<string> labels) {
 			for (int i=1; i<labels_vec.size(); i++)
 				this->labels+=",`" + labels_vec[i] +"`" ;
 
-			logfile::addLog ("Connection  to table " + table + " successfull");
+			INFO("Connection  to table " + table + " successfull");
 			pthread_mutex_unlock(&accept_mutex);
 			return true;
 		}
 
-		logfile::addLog ("Connection  to table " + table + " failed");
+		ERROR ("Connection  to table " + table + " failed");
+	}
+	else
+	{
+		ERROR("Connection  to table " + table + " failed, because no connection to database");
 	}
 	pthread_mutex_unlock(&accept_mutex);
 	return false;
@@ -122,7 +128,7 @@ vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string wher
 			res = query.store();
 		}
 		catch(mysqlpp::Exception &ex){
-			logfile::addLog("getAllRecordsFromTable INCORRECT " + string(ex.what()));
+			ERROR("getAllRecordsFromTable INCORRECT " + string(ex.what()));
 		}
 		mysqlpp::Connection::thread_end();
 		if (res.capacity())
@@ -141,9 +147,12 @@ vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string wher
 				}
 				records.push_back(temp);
 			}
-			logfile::addLog ("Getting all records from table " + tableName + " successfull");
+			INFO("Getting all records from table " + tableName + " successfull");
 		}
-		else logfile::addLog ("Getting all records from table " + tableName + " failed or table is empty");
+		else
+		{
+			ERROR("Getting all records from table " + tableName + " failed or table is empty");
+		}
 	}
 	pthread_mutex_unlock(&accept_mutex);
 	return records;
@@ -164,8 +173,9 @@ int SqlConnectionPool::lastInsertId()
 			mysqlpp::Query query( conn->query( quer) );
 			res = query.store();
 		}
-		catch(mysqlpp::Exception &ex){
-			logfile::addLog("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
+		catch(mysqlpp::Exception &ex)
+		{
+			ERROR("get lastInsertId INCORRECT " + string(ex.what()));
 		}
 		mysqlpp::Connection::thread_end();
 		logfile::addLog (quer);
@@ -194,12 +204,12 @@ string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_progr
 			mysqlpp::Query query( conn->query( quer) );
 			res = query.store();
 		}
-		catch(mysqlpp::Exception &ex){
-			logfile::addLog("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
+		catch(mysqlpp::Exception &ex)
+		{
+			ERROR("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
 		}
 		mysqlpp::Connection::thread_end();
-		logfile::addLog (quer);
-
+		INFO(quer);
 
 		if (res.capacity())
 		{
@@ -258,8 +268,11 @@ string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_progr
 
 			//string memoryUsageC++ =
 			int secondBracketFromEndPosition = 0;
-			if (lang=="java")secondBracketFromEndPosition=footer.length()-3;//footer.substr(0,footer.find_last_of('{')-1).find_last_of('{');//second from end
-			else if (lang=="c++") secondBracketFromEndPosition=footer.length()-2;
+			if (lang == "java")
+				secondBracketFromEndPosition = footer.length() - 3;//footer.substr(0,footer.find_last_of('{')-1).find_last_of('{');//second from end
+			else
+				if (lang == "c++")
+					secondBracketFromEndPosition=footer.length()-2;
 			//secondBracketFromEndPosition--;
 			//if (secondBracketFromEndPosition<0)secondBracketFromEndPosition=0;
 
@@ -275,12 +288,15 @@ string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_progr
 		}
 		else
 		{
-			logfile::addLog("empty result ");
+			ERROR("getCustomCodeOfProgram: empty result ");
 			rezult = text_of_program;
 		}
 		//mysql_free_result(resptr);
 	}
-	l12("failed, not connected to database");
+	else
+	{
+		ERROR("getCustomCodeOfProgram failed, not connected to database");
+	}
 	pthread_mutex_unlock(&accept_mutex);
 	return rezult;
 }
@@ -323,16 +339,20 @@ bool SqlConnectionPool::addRecordsInToTable(vector<map<int,string> > records) {
 			result=query->execute();
 		}
 		catch(mysqlpp::Exception &ex){
-			logfile::addLog("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
+			ERROR("addRecordsInToTable INCORRECT " + string(ex.what()));
 		}
 		mysqlpp::Connection::thread_end();
 		if (result.rows()) {
-			logfile::addLog ("Adding records in to table " + tableName + " successfull");
+			INFO ("Adding records in to table " + tableName + " successfull");
 			delete query;
 			pthread_mutex_unlock(&accept_mutex);
 			return true;
 		}
-		logfile::addLog ("Adding records in to table " + tableName + " failed");
+		ERROR ("Adding records in to table " + tableName + " failed");
+	}
+	else
+	{
+		ERROR("addRecordsInToTable failed, not connected to database");
 	}
 	pthread_mutex_unlock(&accept_mutex);
 	return false;
@@ -364,7 +384,7 @@ bool SqlConnectionPool::addRecordsInToTable(map<int,string> records) {
 			}
 			quer += ");";
 		}
-		logfile::addLog (quer);
+		INFO ("addRecordsInToTable: " + quer);
 		mysqlpp::Connection::thread_start();
 		mysqlpp::Query *query;
 		mysqlpp::SimpleResult result;
@@ -374,16 +394,20 @@ bool SqlConnectionPool::addRecordsInToTable(map<int,string> records) {
 			result=query->execute();
 		}
 		catch(mysqlpp::Exception &ex){
-			logfile::addLog("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
+			ERROR("addRecordsInToTable INCORRECT " + string(ex.what()));
 		}
 		mysqlpp::Connection::thread_end();
 		if (result.rows()) {
-			logfile::addLog ("Adding records in to table " + tableName + " successfull");
+			INFO ("Adding records in to table " + tableName + " successfull");
 			delete query;
 			pthread_mutex_unlock(&accept_mutex);
 			return true;
 		}
-		logfile::addLog ("Adding records in to table " + tableName + " failed");
+		ERROR ("Adding records in to table " + tableName + " failed");
+	}
+	else
+	{
+		ERROR("addRecordsInToTable failed, not connected to database");
 	}
 	pthread_mutex_unlock(&accept_mutex);
 	return false;
@@ -414,7 +438,7 @@ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,s
 		}
 
 		quer.erase(quer.size()-4);
-		logfile::addLog(quer);
+		INFO("updateRecordsInToTable: " + quer);
 
 		mysqlpp::Query *query;
 		mysqlpp::SimpleResult result;
@@ -425,16 +449,20 @@ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,s
 			result=query->execute();
 		}
 		catch(mysqlpp::Exception &ex){
-			logfile::addLog("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
+			ERROR("updateRecordsInToTable INCORRECT " + string(ex.what()));
 		}
 		mysqlpp::Connection::thread_end();
 		if (result.rows()) {
-			logfile::addLog ("Updating records in table " + tableName +" successfull");
+			INFO ("Updating records in table " + tableName +" successfull");
 			delete query;
 			pthread_mutex_unlock(&accept_mutex);
 			return true;
 		}
-		logfile::addLog ("Updating records in table " + tableName +" failed");
+		ERROR ("Updating records in table " + tableName +" failed");
+	}
+	else
+	{
+		ERROR("updateRecordsInToTable failed, not connected to database");
 	}
 	pthread_mutex_unlock(&accept_mutex);
 	return false;
@@ -464,43 +492,38 @@ bool SqlConnectionPool::isConnected()
 			mysqlpp::Query query( conn->query( quer) );
 			res = query.store();
 			iscon = true;
+			INFO("Server connected to DB");
 		}
 		catch(mysqlpp::Exception &ex){
 			iscon = false;
-			logfile::addLog("Server not connected to DB" + string(ex.what()));
+			ERROR("Server not connected to DB" + string(ex.what()));
 		}
 		mysqlpp::Connection::thread_end();
-		l12("Server connected to DB");
 	}
-	else logfile::addLog("Server not connected to DB");
+	else ERROR("Server not connected to DB");
 	pthread_mutex_unlock(&accept_mutex);
 	return iscon ;//&& (((end_time-start_time)/CLOCKS_PER_SEC*1000- max_idle_time())>0);
 }
 
 void SqlConnectionPool::reconect()
-{l12("recoon0");
-
-pthread_mutex_lock(&accept_mutex);
-l12("recoon1");
-
-try{
-	l12("recoon3");
-	conn = new mysqlpp::Connection(	Config::getInstance().dataBaseName.c_str(),
-			Config::getInstance().dataBaseHost.c_str() ,
-			Config::getInstance().userName.c_str() ,
-			Config::getInstance().password.c_str());
-	l12("recoon5");
-}
-catch(mysqlpp::Exception &ex){
-	logfile::addLog("reconect INCORRECT " + string(ex.what()));
-}
-if (conn)
 {
-	logfile::addLog ("Connection to host and database successful");
-}
-else
-	logfile::addLog ("Connection to host and database failed");
-pthread_mutex_unlock(&accept_mutex);
+	pthread_mutex_lock(&accept_mutex);
+	try{
+		conn = new mysqlpp::Connection(	Config::getInstance().dataBaseName.c_str(),
+				Config::getInstance().dataBaseHost.c_str() ,
+				Config::getInstance().userName.c_str() ,
+				Config::getInstance().password.c_str());
+	}
+	catch(mysqlpp::Exception &ex){
+		ERROR("reconect INCORRECT " + string(ex.what()));
+	}
+	if (conn)
+	{
+		INFO ("Connection to host and database successful");
+	}
+	else
+		ERROR ("Connection to host and database failed");
+	pthread_mutex_unlock(&accept_mutex);
 
 }
 
