@@ -18,7 +18,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 
 	if(!generetionSample(code, flags))
 	{
-		logfile::addLog("Canot open file with generation source code, maybe permission denied	");
+		INFO("Canot open file with generation source code, maybe permission denied	");
 		return "Canot open file with generation source code, maybe permission denied";
 	}
 	cout.flush();
@@ -76,12 +76,12 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	long double  comp_time;
 	warning_err.append(getStdoutFromCommand(build_str, 0, &comp_time));
 
-	logfile::addLog("build time: " + to_string(comp_time) + warning_err);
+	INFO("build time: " + to_string(comp_time) + warning_err);
 	cout.flush();
 	if(fileExist(prog_name))
 	{
 		result.append(getStdoutFromCommand(run_str, 0, &comp_time));
-		logfile::addLog("compute time: " + to_string(comp_time));
+		INFO("compute time: " + to_string(comp_time));
 	}
 	else
 	{
@@ -143,7 +143,7 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 	{
 	case Flag_CPP:
 		sprintf(str, "src/code%d.cpp\0", thID);
-		logfile::addLog(str);
+		INFO(str);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
@@ -275,7 +275,7 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
 		}
 		if(executionTime != 0)
 			executionTime[0] = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
-		logfile::addLog(to_string(time(0)));
+		INFO(to_string(time(0)));
 		pclose(stream);
 	}
 
