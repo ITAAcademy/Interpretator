@@ -50,11 +50,12 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 	functionData.etalon = etalon;
 	functionData.lang = LangCompiler::convertFromName(jSON.getObject("lang", false).asString());
-	functionData.returnValueType = functionValue["type"].asInt();
+	functionData.returnValueType = jSON.getAsInt(functionValue["type"]);//  functionValue["type"].asInt(); 555
+
 	functionData.functionName = "function_main";//@BAG@
 
-	functionData.isArray = functionValue["array_type"].asInt();//functionValue["results"][0].isArray();
-	functionData.size = functionValue["unit_test_num"].asInt();//functionValue["results"][0].size();
+	functionData.isArray =  jSON.getAsInt(functionValue["array_type"]);//.asInt();//functionValue["results"][0].isArray();
+	functionData.size = jSON.getAsInt(functionValue["unit_test_num"]);//.asInt();//functionValue["results"][0].size();
 	functionData.isRange = jSON.isResultsRange();
 	//if (functionValue["checkable_args_indexes"].isArray())
 	bool compareEachArgWithEtalonSeparate=functionValue["checkable_args_indexes"][0].isArray();
@@ -63,8 +64,8 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 	{
 		vector<pair<int,int>> testConditionPares;
 		for (Value arg_indexes_pair : arg_indexes_pares_arr ){
-			pair<int,int> indexPare=std::make_pair(arg_indexes_pair["first"].asInt(),
-					arg_indexes_pair["second"].asInt());
+			pair<int,int> indexPare=std::make_pair(jSON.getAsInt(arg_indexes_pair["first"]),//.asInt(),
+					jSON.getAsInt(arg_indexes_pair["second"]));//.asInt());
 			testConditionPares.push_back(indexPare);
 		}
 		functionData.checkableArgsIndexes.push_back(testConditionPares);
@@ -74,7 +75,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 	for (Value arg_compare_mark: functionValue["compare_mark"])
 	{
-		CompareMark cmp = (CompareMark)arg_compare_mark.asInt();
+		CompareMark cmp = (CompareMark)jSON.getAsInt(arg_compare_mark);//.asInt();
 		functionData.compare_marks.push_back(cmp);
 	}
 
@@ -116,7 +117,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 		FunctionArgument functionArgument;
 		functionArgument.isArray = argumentValue["value"][0].isArray();
 		functionArgument.size = argumentValue["value"][0].size();
-		functionArgument.type = argumentValue["type"].asInt();
+		functionArgument.type = jSON.getAsInt(argumentValue[FIELD_TYPE]);//argumentValue["type"].asInt();
 		functionArgument.name = FunctionArgument::getName(argumentValue["arg_name"].asString(), functionData.lang);
 
 		/*for (Value arg_compare_mark: argumentValue["compare_mark"])

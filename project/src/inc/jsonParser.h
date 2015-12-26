@@ -103,12 +103,17 @@ public:
 	 */
 	static Value getRoot(string json);
 	Value getRoot();
+	int getAsIntS(string obj);
+	int getAsInt(Value obj);
 	Value getObject(string name, bool everyWhere);
 	static bool isJson(string in_json);
 	bool isJson();
 	bool isValidFields();
 	virtual ~jsonParser();
 
+	bool isStringInt(string value);
+	bool isStringBool(string value);
+	bool isStringFloat(string value);
 
 	bool rangeValidation(bool &range_size_inited, int &range_size, string range, string field_name);
 	bool mustBeArrayFloat(Json::Value object, string name , string ps = "", string ps2 = "");
