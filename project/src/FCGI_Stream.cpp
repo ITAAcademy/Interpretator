@@ -76,7 +76,7 @@ bool FCGI_Stream::IsRequest() {
 bool FCGI_Stream::multiIsRequest() {
 	pthread_mutex_t accept_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-	logfile::addLog("Try to accept new request\n");
+	DEBUG("Try to accept new request\n");
 	pthread_mutex_lock(&accept_mutex);
 	status = true;
 	int rc;
@@ -85,13 +85,13 @@ bool FCGI_Stream::multiIsRequest() {
 	if(rc < 0)
 	{
 		status = false;
-		logfile::addLog("Can not accept new request\n");
+		INFO("Can not accept new request\n");
 		return false;
 	}
-	logfile::addLog("request is accepted\n");
+	DEBUG("request is accepted\n");
 	//////////////////////////////////////// get bufer
 	updateBuffer();
-	logfile::addLog("buffer is accepted\n");
+	DEBUG("buffer is accepted\n");
 	/// ok
 	return true;
 }
