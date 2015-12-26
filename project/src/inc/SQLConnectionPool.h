@@ -26,6 +26,7 @@ class SqlConnectionPool : public mysqlpp::ConnectionPool
 
 public:
   static SqlConnectionPool&  getInstance( );
+  SqlConnectionPool();
   ~SqlConnectionPool();
   vector<map<int,string> >   getAllRecordsFromTable( string where ="1") ;
   bool addRecordsInToTable(vector<map<int,string> > records);

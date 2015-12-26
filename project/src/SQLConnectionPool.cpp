@@ -18,6 +18,10 @@ SqlConnectionPool&  SqlConnectionPool::getInstance()
 	return connection;
 }
 
+SqlConnectionPool::SqlConnectionPool()
+{
+	reconect();
+}
 
 mysqlpp::Connection*  SqlConnectionPool::create() {};
 void  SqlConnectionPool::destroy(mysqlpp::Connection*) {};
@@ -55,8 +59,8 @@ SqlConnectionPool::~SqlConnectionPool()
 	pthread_mutex_lock(&accept_mutex);
 	this->release( conn );
 	//delay 1-4 sec before it will be able to using
-	srand( time(0) );
-	sleep( rand()%4 + 1 );
+	//srand( time(0) );
+	//sleep( rand()%4 + 1 );
 
 	delete conn;
 	clear();

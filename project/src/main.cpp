@@ -37,14 +37,15 @@ void addUserToHistory(string userIp, string code) {
 	labl.push_back("ip");
 	labl.push_back("code");
 	labl.push_back("date_time");
-	if (SqlConnectionPool::getInstance().connectToTable("history", labl))
+	SqlConnectionPool sql;
+	if (sql.connectToTable("history", labl))
 	{
 		string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 		map<int, string> temp;
 		temp.insert( { 1, userIp });
 		temp.insert( { 2, str_with_spec_character(code) });
 		temp.insert( { 3, s_datime });
-		SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+		sql.addRecordsInToTable(temp);
 	}
 }
 
@@ -87,8 +88,9 @@ void processTask(int id,Job job) {
 		labl.push_back("result");
 		labl.push_back("warning");
 		DEBUG("Before connect to results");
+		SqlConnectionPool sql;
 		//logfile::addLog("Connection to results successful");
-		if (SqlConnectionPool::getInstance().connectToTable("results", labl))
+		if (sql.connectToTable("results", labl))
 		{
 			string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 			map<int, string> temp;
@@ -98,7 +100,7 @@ void processTask(int id,Job job) {
 			temp.insert( { 4, s_datime });
 			temp.insert( { 5, "" });
 			temp.insert( { 6, "" });
-			SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+			sql.addRecordsInToTable(temp);
 
 			////////////////
 			labl.clear();
@@ -109,10 +111,10 @@ void processTask(int id,Job job) {
 
 			string table;
 		 table = ConnectorSQL::getAssignmentTable(job.lang);
-			if (SqlConnectionPool::getInstance().connectToTable(table, labl))
+			if (sql.connectToTable(table, labl))
 			{
 				job.code =
-						SqlConnectionPool::getInstance().getCustomCodeOfProgram(
+						sql.getCustomCodeOfProgram(
 								to_string(job.task), job.code, id,job.lang);
 				DEBUG(job.code);
 			}
@@ -139,7 +141,7 @@ void processTask(int id,Job job) {
 			labl.push_back("date");
 			labl.push_back("result");
 			labl.push_back("warning");
-			if (SqlConnectionPool::getInstance().connectToTable("results", labl))
+			if (sql.connectToTable("results", labl))
 			{
 				string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 				map<int, string> temp;
@@ -158,7 +160,7 @@ void processTask(int id,Job job) {
 				where.insert({1,job.session});
 				where.insert({2,to_string(job.jobid)});
 				//ConnectorSQL::getInstance().updateRecordsInToTable(temp,wher);
-				SqlConnectionPool::getInstance().updateRecordsInToTable(temp,where);
+				sql.updateRecordsInToTable(temp,where);
 
 			}
 
@@ -201,6 +203,7 @@ void *receiveTask(void *a)
 				stream.close();
 				continue;
 			}
+
 			if(!SqlConnectionPool::getInstance().isConnected()  )
 			{
 
@@ -343,9 +346,9 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 	labl.push_back("etalon");
 	labl.push_back("footer");
 	labl.push_back("json");
-
+	SqlConnectionPool sql;
 	DEBUG("before connectToTable");
-	if (SqlConnectionPool::getInstance().connectToTable(table, labl))
+	if (sql.connectToTable(table, labl))
 	{
 		DEBUG("connectedToTable");
 		map<int, string> temp;
@@ -372,14 +375,14 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 		map<int,string> where;
 		where.insert({0,temp[0]});
 
-		if (generator.getStatus() == 0 && SqlConnectionPool::getInstance().addRecordsInToTable(temp))
+		if (generator.getStatus() == 0 && sql.addRecordsInToTable(temp))
 		{
 			res["status"] = "success";
 			res["table"] = table;
 			res["id"] = to_string(id);
 		}
 		else
-			if (generator.getStatus() == 0 && SqlConnectionPool::getInstance().updateRecordsInToTable(temp, where))
+			if (generator.getStatus() == 0 && sql.updateRecordsInToTable(temp, where))
 			{
 				res["status"] = "updated";
 				res["table"] = table;
@@ -413,8 +416,9 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 	resLabel.push_back("footer");
 	resLabel.push_back("json");
 	string tableName = ConnectorSQL::getAssignmentTable(lang);
-	if (SqlConnectionPool::getInstance().connectToTable(tableName, resLabel)){
-		vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
+	SqlConnectionPool sql;
+	if (sql.connectToTable(tableName, resLabel)){
+		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
 						"`ID`='"+std::to_string(task)+"'");
 				if ((int)records.size()==0)
 			return false;
@@ -442,10 +446,10 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 	labl.push_back("warning");
 
 	bool taskComp = false;
-	if (SqlConnectionPool::getInstance().connectToTable(string("results"), labl))
+	if (sql.connectToTable(string("results"), labl))
 	{
 		DEBUG("no threa2");
-		vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
+		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
 				"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
 		if ((int)records.size()==0)
 			tasksPool.push(processTask,requestedTask);
@@ -460,7 +464,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 		labl.push_back("ip");
 		labl.push_back("code");
 		labl.push_back("date_time");
-		if (SqlConnectionPool::getInstance().connectToTable("history", labl))
+		if (sql.connectToTable("history", labl))
 		{
 			string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 			vector <map<int, string> > rec;
@@ -471,7 +475,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 			rec.push_back(temp);
 
 			//MyConnectionPool::getInstance().getAllRecordsFromTable();
-			SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+			sql.addRecordsInToTable(temp);
 			//MyConnectionPool::getInstance().tt();
 			if(taskComp)
 			{
@@ -512,12 +516,12 @@ bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON)
 	labl.push_back("lang");
 	labl.push_back("signature");
 	labl.push_back("etalon");
-
+	SqlConnectionPool sql;
 	bool taskComp = true;
-	if (SqlConnectionPool::getInstance().connectToTable(string("tests_signatures"), labl))
+	if (sql.connectToTable(string("tests_signatures"), labl))
 	{
 		DEBUG("no threa2");
-		vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
+		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
 				"`task_id`='"+std::to_string(task)+"'");
 		if ((int)records.size()==0)
 			taskComp=true;
@@ -534,7 +538,7 @@ bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON)
 		//rec.push_back(temp);
 
 		//MyConnectionPool::getInstance().getAllRecordsFromTable();
-		bool res = SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+		bool res = sql.addRecordsInToTable(temp);
 		//MyConnectionPool::getInstance().tt();
 		if(!taskComp)
 		{
@@ -571,9 +575,9 @@ bool addTestValues(FCGI_Stream &stream, jsonParser &jSON)
 	labl.push_back("task_id");
 	labl.push_back("return_value");
 	labl.push_back("arguments");
-
+	SqlConnectionPool sql;
 	bool taskComp = true;
-	if (SqlConnectionPool::getInstance().connectToTable(string("tests_values"), labl))
+	if (sql.connectToTable(string("tests_values"), labl))
 	{
 		/*l12("no threa2");
 				vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
@@ -593,7 +597,7 @@ bool addTestValues(FCGI_Stream &stream, jsonParser &jSON)
 		//rec.push_back(temp);
 
 		//MyConnectionPool::getInstance().getAllRecordsFromTable();
-		bool res = SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+		bool res = sql.addRecordsInToTable(temp);
 		//MyConnectionPool::getInstance().tt();
 		/*if(!taskComp)
 			{
@@ -628,7 +632,8 @@ bool addTests(FCGI_Stream &stream, jsonParser &jSON)
 	labl.push_back("json");
 
 	bool taskComp = true;
-	if (SqlConnectionPool::getInstance().connectToTable(string("tests"), labl))
+	SqlConnectionPool sql;
+	if (sql.connectToTable(string("tests"), labl))
 	{
 		/*l12("no threa2");
 				vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
@@ -645,7 +650,7 @@ bool addTests(FCGI_Stream &stream, jsonParser &jSON)
 		temp.insert( { 1, str_with_spec_character(json)});
 		//rec.push_back(temp);
 		//MyConnectionPool::getInstance().getAllRecordsFromTable();
-		bool res = SqlConnectionPool::getInstance().addRecordsInToTable(temp);
+		bool res = sql.addRecordsInToTable(temp);
 		//MyConnectionPool::getInstance().tt();
 		/*if(!taskComp)
 			{
@@ -676,7 +681,8 @@ bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON)
 	labl.push_back("task_id");
 
 	bool taskComp = true;
-	if (SqlConnectionPool::getInstance().connectToTable(string("tests"), labl))
+	SqlConnectionPool sql;
+	if (sql.connectToTable(string("tests"), labl))
 	{
 		/*l12("no threa2");
 				vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
@@ -687,7 +693,7 @@ bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON)
 					taskComp = false;
 		 */
 
-		vector<map<int, string> > records = SqlConnectionPool::getInstance().getAllRecordsFromTable("`task_id`='"+std::to_string(task)+"'");
+		vector<map<int, string> > records = sql.getAllRecordsFromTable("`task_id`='"+std::to_string(task)+"'");
 		//MyConnectionPool::getInstance().tt();
 		bool recordsEmpty = records.size() == 0;
 		if (recordsEmpty)stream << "Status: 204\r\n Content-type: text/html\r\n" << "\r\n" <<"task with this id doesn't excist";
@@ -760,7 +766,8 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 	labl.push_back("date");
 	labl.push_back("result");
 	labl.push_back("warning");
-	if (SqlConnectionPool::getInstance().connectToTable("results", labl)	== true)
+	SqlConnectionPool sql;
+	if (sql.connectToTable("results", labl)	== true)
 	{
 		string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 		map<int, string> temp;
@@ -769,7 +776,7 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 		//3,skip
 		temp.insert( { 4, s_datime });
 		//4
-		vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
+		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
 				"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
 		//	logfile::addLog(std::to_string(records.size()));
 		//for (int i=0; i< records.size(); i++)
