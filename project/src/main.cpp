@@ -354,9 +354,10 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 		map<int, string> temp;
 
 		//new code for testcases part
-		int id = jSON.getObject("task",false).asInt();
+		int id = jSON.getAsIntS("task");//t("task",false));
 		DEBUG("task");
 		DEBUG(std::to_string(id));
+
 
 		TaskCodeGenerator generator(jSON, thread_id);
 
@@ -407,7 +408,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 	string session = jSON.getObject("session", false).asString();
 	unsigned int jobid = jSON.getObject("jobid", false).asUInt();
 	string code = jSON.getObject("code", false).asString();
-	int task = jSON.getObject("task", false).asInt();
+	int task = jSON.getAsIntS("task"); //jSON.getObject("task", false).asInt();
 	string lang = jSON.getObject("lang", false).asString();
 	vector<string> resLabel;
 	resLabel.push_back("ID");
@@ -504,7 +505,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON)
 {
 	//string session = jSON.getObject("session", false).asString();
-	int task = jSON.getObject("task", false).asInt();
+	int task = jSON.getAsIntS("task");//jSON.getObject("task", false).asInt();
 	string lang = jSON.getObject("lang", false).asString();
 	//string signature = jSON.getObject("tests_signatures",false).asString();
 	string etalon = jSON.getObject("etalon",false).asString();
@@ -564,7 +565,7 @@ bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON)
 bool addTestValues(FCGI_Stream &stream, jsonParser &jSON)
 {
 	//string session = jSON.getObject("session", false).asString();
-	int task = jSON.getObject("task", false).asInt();
+	int task = jSON.getAsIntS("task");//jSON.getObject("task", false).asInt();
 	Json::FastWriter fastWriter;
 	Json::Value returnVal = jSON.getObject("return_val", false);
 	string returnStr = fastWriter.write(returnVal);
@@ -623,7 +624,7 @@ bool addTestValues(FCGI_Stream &stream, jsonParser &jSON)
 bool addTests(FCGI_Stream &stream, jsonParser &jSON)
 {
 	//string session = jSON.getObject("session", false).asString();
-	int task = jSON.getObject("task", false).asInt();
+	int task = jSON.getAsIntS("task");//jSON.getObject("task", false).asInt();
 	Json::FastWriter fastWriter;
 	Json::Value jsonValue = jSON.getRoot();
 	std::string json = fastWriter.write(jsonValue);
@@ -676,7 +677,7 @@ bool addTests(FCGI_Stream &stream, jsonParser &jSON)
 bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON)
 {
 	//string session = jSON.getObject("session", false).asString();
-	int task = jSON.getObject("task", false).asInt();
+	int task = jSON.getAsIntS("task");//jSON.getObject("task", false).asInt();
 	vector<string> labl;
 	labl.push_back("task_id");
 
