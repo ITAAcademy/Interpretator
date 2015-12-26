@@ -108,18 +108,7 @@ void processTask(int id,Job job) {
 			labl.push_back("footer");
 
 			string table;
-			if (job.lang == "c++" || job.lang == "C++")
-				table = "assignment_cpp"; //Config::getInstance().getTaskJavaTableName();
-			else if (job.lang == "Java" || job.lang == "java")
-				table = "assignment_java";
-			else if (job.lang == "Js" || job.lang == "js")
-				table = "assignment_js";
-			else if (job.lang == "PHP" || job.lang == "php")
-				table = "assignment_php";
-			else if (job.lang == "C#" || job.lang == "c#" || job.lang == "CS" || job.lang == "cs" )
-				table = "assignment_cs";
-			else
-				table = "assignment_cpp";
+		 table = ConnectorSQL::getAssignmentTable(job.lang);
 			if (SqlConnectionPool::getInstance().connectToTable(table, labl))
 			{
 				job.code =
@@ -346,18 +335,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 	}
 	string lang = jSON.getObject("lang", false).asString();
 	string table;
-	if (lang == "c++" || lang == "C++")
-		table = "assignment_cpp"; //Config::getInstance().getTaskJavaTableName();
-	else if (lang == "cs" || lang == "CS" || lang == "C#" || lang == "c#")
-		table = "assignment_cs";
-	else if (lang == "Java" || lang == "java")
-		table = "assignment_java";
-	else if (lang == "PHP" || lang == "php")
-		table = "assignment_php";
-	else if (lang == "Js" || lang == "js")
-		table = "assignment_js";
-	else
-		table = "assignment_cpp";
+	table=ConnectorSQL::getAssignmentTable(lang);
 
 	vector<string> labl;
 	labl.push_back("ID");
@@ -428,6 +406,21 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 	string code = jSON.getObject("code", false).asString();
 	int task = jSON.getObject("task", false).asInt();
 	string lang = jSON.getObject("lang", false).asString();
+	vector<string> resLabel;
+	resLabel.push_back("ID");
+	resLabel.push_back("header");
+	resLabel.push_back("etalon");
+	resLabel.push_back("footer");
+	resLabel.push_back("json");
+	string tableName = ConnectorSQL::getAssignmentTable(lang);
+	if (SqlConnectionPool::getInstance().connectToTable(tableName, resLabel)){
+		vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
+						"`ID`='"+std::to_string(task)+"'");
+				if ((int)records.size()==0)
+			return false;
+	}
+	else return false;
+
 	Job requestedTask;
 	requestedTask.code = code;
 	requestedTask.jobid = jobid;

@@ -63,6 +63,7 @@ int main(void)
 #include "SQLConnectionPool.h"
 #include "TaskCodeGenerator.h"
 #include "TokenSystem.h"
+#include "SQLconnector.h"
 
 using namespace std;
 using namespace code;

@@ -54,6 +54,7 @@ public:
 	bool isConnectedToTable();
 	string getCustomCodeOfProgram(string ID, string text_of_program,int thrdId,string lang);
 	string getFullCodeOfProgram(string ID,int thrdId) ;
+	static string getAssignmentTable(string lang);
 void closeConection();
 private:
 bool connect_table;
