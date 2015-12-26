@@ -18,7 +18,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 
 	if(!generetionSample(code, flags))
 	{
-		INFO("Canot open file with generation source code, maybe permission denied	");
+		ERROR("Canot open file with generation source code, maybe permission denied	");
 		return "Canot open file with generation source code, maybe permission denied";
 	}
 	cout.flush();
@@ -85,7 +85,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	}
 	else
 	{
-		l12("cLang colpilation: file not exist");
+		ERROR("cLang colpilation: file not exist");
 	}
 	cout.flush();
 	/*
