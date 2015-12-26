@@ -122,17 +122,19 @@ $(document).ready(function () {
 		console.log(JSON.stringify(json));
 		$.ajax({
 			type : 'post',
-			url : 'http://192.168.144.130/',
+			url : 'http://ii.intita.com/',
 			data : JSON.stringify(json),
 			 contentType:"application/json; charset=utf-8",
 			//crossDomain:true,
 			//	response : 'json',
-			dataType : 'text',
+		//	dataType : 'text',
 			error : function (xhr) {
+				debugger;
 				console.log(xhr.responseText);
 			},
 			success : function (data) {
-				alert(data);
+				debugger;
+				console.log("ФФФФФФФФФФФФФФФФФФФ" + data.responseText);
 			}
 		});
 	})

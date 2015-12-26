@@ -22,8 +22,27 @@
 #include "fcgi_config.h"
 #include "fcgiapp.h"
 
-using namespace std;
+#define DEBUG(data)
+#define INFO(data)
+#define ERROR(data)
 
+using namespace std;
+//#define DEBUG_BUILD
+#define ERROR_BUILD
+#define INFO_BUILD
+
+
+#ifdef DEBUG_BUILD
+ #define DEBUG(data) logfile::addLog("DEBUG:" + string(data))
+#endif
+
+#ifdef ERROR_BUILD
+ #define ERROR(data) logfile::addLog("ERROR:" + string(data))
+#endif
+
+#ifdef INFO_BUILD
+ #define INFO(data) logfile::addLog("INFO:" + string(data))
+#endif
 //#define THREAD_COUNT 1
 //#define SOCKET_PATH "127.0.0.1:8000"
 
@@ -56,11 +75,5 @@ struct Token{
 	long jobId;
 	bool isValid = true;
 };
-
-
-
-
-
-
 
 #endif

@@ -131,7 +131,7 @@ void processTask(int id,Job job) {
 			logfile::addLog(to_string(id)+ " Start compiler");
 			JsonValue res;
 
-			//compiler.compile(job.code, true, LangCompiler::convertFromName(job.lang));
+			compiler.compile(job.code, true, LangCompiler::convertFromName(job.lang));
 
 
 			string date = logfile::getDateStamp();
@@ -904,7 +904,7 @@ int main(void)
 	pthread_t *id = new pthread_t[Config::getInstance().getThreadCount()];
 	FCGX_Init();
 	logfile::clear();
-	logfile::addLog("\n\n\n\nStart server ==== Lib is inited");
+	DEBUG("\n\n\n\nStart server ==== Lib is inited");
 	// system("mkdir -m 777 src");
 	// open socket unix or TCP
 	string socket = "127.0.0.1:" + Config::getInstance().getPort();
