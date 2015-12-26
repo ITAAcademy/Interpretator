@@ -457,7 +457,7 @@ Value jsonParser::getObject(string name, bool everyWhere = false)
 		return findInArray(parsedFromString, name);
 	}
 	else
-		logfile::addLog("Error Json parse, input string is empty");
+		ERROR("Error Json parse, input string is empty");
 }
 
 Value jsonParser::findInArray(Value &array, string &name)
@@ -469,7 +469,7 @@ Value jsonParser::findInArray(Value &array, string &name)
 		return res;
 	int size = array.size();
 
-	logfile::addLog("ARR " + name + "size" + to_string(array.size()));
+	DEBUG("ARR " + name + "size" + to_string(array.size()));
 	/*string stt;
 	stt.append("ALL NUMBERS::	\n");
 	for(int i = 0; i < array.getMemberNames().size(); i++)
@@ -480,7 +480,7 @@ value": [[1,2], [3,4]]
 	logfile::addLog(stt);*/
 	if(size != 0)
 	{
-		logfile::addLog("in_lof");
+		DEBUG("in_lof");
 		vector<string> memss = array.getMemberNames();
 		for(int i = 0; i < array.size(); ++i)
 		{
@@ -489,12 +489,12 @@ value": [[1,2], [3,4]]
 				t_find.push_back(array.get(memss[i], Value::null));
 		}
 	}
-	logfile::addLog("size of t_find: " + to_string(t_find.size()));
+	DEBUG("size of t_find: " + to_string(t_find.size()));
 
 	if(t_find.front() == array)
 		t_find.pop_front();
 
-	logfile::addLog("size of t_find: " + to_string(t_find.size()));
+	DEBUG("size of t_find: " + to_string(t_find.size()));
 
 	while(t_find.size() > 0)
 	{
@@ -547,13 +547,12 @@ bool jsonParser::isValidFields()
 {
 	is_results_range = false;
 	is_results_array = false;
-	l12("before parsedFromString==nullValue");
+	DEBUG("before parsedFromString==nullValue");
 	if ((parsedFromString==nullValue) || (parsedFromString.size()==0) || !isJson())
 	{
 		last_error = "error: json format is not correct - it empty or isn*t json";//+
 		return false;
 	}
-	l12("__1");
 	/*l12("before FIELD_JOBID");
 	if(parsedFromString[FIELD_JOBID].isNull() || !parsedFromString[FIELD_JOBID].isConvertibleTo(Json::intValue))
 		return false;
