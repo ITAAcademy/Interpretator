@@ -43,6 +43,12 @@ bool jsonParser::isStringInt(string value)
 
 }
 
+bool jsonParser::isStringUnsignedInt(string value)
+{
+	regex regStr("^[0-9][0-9]{0,}");
+	return  std::regex_match( value, regStr );
+}
+
 bool jsonParser::isStringBool(string value)
 {
 	std::transform(value.begin(), value.end(), value.begin(), ::tolower);
@@ -227,6 +233,15 @@ bool jsonParser::mustBeInt(Json::Value object, string name , string ps )
 
 bool jsonParser::mustBeUnsignedInt(Json::Value object, string name , string ps )
 {
+	if ( object.isString())
+	{
+		if (!isStringUnsignedInt(object.asString()))
+		{
+			last_error = "error: json format is not correct. " + name +" isn`t convertible to unsigned int " + ps;
+			return false;
+		}
+		return true;
+	}
 	if ( !object.isInt() && !object.isUInt())
 	{
 		last_error = "error: json format is not correct. " + name +" isn`t unsigned integer " + ps;
@@ -491,6 +506,17 @@ int jsonParser::getAsInt(Value obj)
 	return rez;
 }
 
+unsigned int jsonParser::getAsUInt(Value obj)
+{
+	if (obj.isUInt())
+		return obj.asUInt();
+	unsigned int rez;
+	string as_str = obj.asString(); //1313
+	if (isStringInt(as_str))
+		sscanf(as_str.c_str(),"%ld", &rez);
+	return rez;
+}
+
 int jsonParser::getAsIntS(string obj) //889
 {
 	if (parsedFromString[obj].isInt())
@@ -499,6 +525,17 @@ int jsonParser::getAsIntS(string obj) //889
 	string as_str = parsedFromString[obj].asString(); //1313
 	if (isStringInt(as_str))
 		sscanf(as_str.c_str(),"%d", &rez);
+	return rez;
+}
+
+unsigned int jsonParser::getAsUIntS(string obj) //889
+{
+	if (parsedFromString[obj].isUInt())
+		return parsedFromString[obj].asUInt();
+	unsigned int rez;
+	string as_str = parsedFromString[obj].asString(); //1313
+	if (isStringInt(as_str))
+		sscanf(as_str.c_str(),"%ld", &rez);
 	return rez;
 }
 

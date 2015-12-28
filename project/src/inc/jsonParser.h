@@ -104,7 +104,9 @@ public:
 	static Value getRoot(string json);
 	Value getRoot();
 	int getAsIntS(string obj);
+	unsigned int getAsUIntS(string obj);
 	int getAsInt(Value obj);
+	unsigned int getAsUInt(Value obj);
 	Value getObject(string name, bool everyWhere);
 	static bool isJson(string in_json);
 	bool isJson();
@@ -112,6 +114,7 @@ public:
 	virtual ~jsonParser();
 
 	bool isStringInt(string value);
+	bool isStringUnsignedInt(string value);
 	bool isStringBool(string value);
 	bool isStringFloat(string value);
 

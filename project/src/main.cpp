@@ -406,7 +406,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 {
 	string session = jSON.getObject("session", false).asString();
-	unsigned int jobid = jSON.getObject("jobid", false).asUInt();
+	unsigned int jobid = jSON.getAsUInt("jobid");//		jSON.getObject("jobid", false).asUInt();
 	string code = jSON.getObject("code", false).asString();
 	int task = jSON.getAsIntS("task"); //jSON.getObject("task", false).asInt();
 	string lang = jSON.getObject("lang", false).asString();
@@ -756,7 +756,7 @@ void show404()
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 {
 	string session = jSON.getObject("session", false).asString();
-	unsigned int jobid = jSON.getObject("jobid", false).asUInt();
+	unsigned int jobid = jSON.getAsUIntS("jobid");//			Object("jobid", false).asUInt();
 	//TO BE CONTINUED ...
 	vector<string> labl;
 
