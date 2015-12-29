@@ -234,7 +234,7 @@ void *receiveTask(void *a)
 				cout.flush();
 				INFO("Parsing successful");
 
-				string operation = jSON.getObject("operation", false).asString();
+				string operation = jSON.getAsString("operation");
 				bool succsesful = true;
 				/*
 				 * OPERATION ADDTASK
@@ -336,7 +336,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 		//stream.close();
 		return false;
 	}
-	string lang = jSON.getObject("lang", false).asString();
+	string lang = jSON.getAsString("lang");
 	string table;
 	table=ConnectorSQL::getAssignmentTable(lang);
 
@@ -405,11 +405,11 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
  */
 bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 {
-	string session = jSON.getObject("session", false).asString();
+	string session = jSON.getAsString("session");
 	unsigned int jobid = jSON.getAsUInt("jobid");//		jSON.getObject("jobid", false).asUInt();
-	string code = jSON.getObject("code", false).asString();
+	string code = jSON.getAsString("code");
 	int task = jSON.getAsIntS("task"); //jSON.getObject("task", false).asInt();
-	string lang = jSON.getObject("lang", false).asString();
+	string lang = jSON.getAsString("lang");
 	vector<string> resLabel;
 	resLabel.push_back("ID");
 	resLabel.push_back("header");
@@ -506,9 +506,9 @@ bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON)
 {
 	//string session = jSON.getObject("session", false).asString();
 	int task = jSON.getAsIntS("task");//jSON.getObject("task", false).asInt();
-	string lang = jSON.getObject("lang", false).asString();
+	string lang = jSON.getAsString("lang");
 	//string signature = jSON.getObject("tests_signatures",false).asString();
-	string etalon = jSON.getObject("etalon",false).asString();
+	string etalon = jSON.getAsString("etalon");
 	Json::FastWriter fastWriter;
 	Json::Value signatureValue = jSON.getObject("signature",false);
 	std::string signature = fastWriter.write(signatureValue);
@@ -755,7 +755,7 @@ void show404()
  */
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 {
-	string session = jSON.getObject("session", false).asString();
+	string session = jSON.getAsString("session");
 	unsigned int jobid = jSON.getAsUIntS("jobid");//			Object("jobid", false).asUInt();
 	//TO BE CONTINUED ...
 	vector<string> labl;

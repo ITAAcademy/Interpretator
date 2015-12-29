@@ -527,6 +527,11 @@ int jsonParser::getAsIntS(string obj) //889
 		sscanf(as_str.c_str(),"%d", &rez);
 	return rez;
 }
+string jsonParser::getAsString(string obj) //889
+{
+	if (parsedFromString[obj].isString()) return parsedFromString[obj].asString();
+	else return "";
+}
 
  unsigned int jsonParser::getAsUIntS(string obj) //889
 {

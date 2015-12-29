@@ -104,6 +104,7 @@ public:
 	static Value getRoot(string json);
 	Value getRoot();
 	int getAsIntS(string obj);
+	string getAsString(string obj);
 	unsigned int getAsUIntS(string obj);
 	int getAsInt(Value obj);
 	unsigned int getAsUInt(Value obj);
