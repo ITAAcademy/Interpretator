@@ -528,15 +528,15 @@ int jsonParser::getAsIntS(string obj) //889
 	return rez;
 }
 
-unsigned int jsonParser::getAsUIntS(string obj) //889
+ unsigned int jsonParser::getAsUIntS(string obj) //889
 {
-	if (parsedFromString[obj].isUInt())
-		return parsedFromString[obj].asUInt();
-	unsigned int rez;
+	if (parsedFromString[obj].isInt())
+		return parsedFromString[obj].asInt();
+	 int rez;
 	string as_str = parsedFromString[obj].asString(); //1313
 	if (isStringInt(as_str))
-		sscanf(as_str.c_str(),"%ld", &rez);
-	return rez;
+		sscanf(as_str.c_str(),"%d", &rez);
+	return (rez < 0) ? -rez : rez;
 }
 
 Value jsonParser::getObject(string name, bool everyWhere = false)
