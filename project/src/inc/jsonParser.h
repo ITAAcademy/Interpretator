@@ -5,15 +5,16 @@
  *      Author: root
  */
 
-#include "includes.h"
-#include "logfile.h"
 
-using namespace Json;
 
 
 #ifndef JSONPARSER_H_
 #define JSONPARSER_H_
 
+#include "includes.h"
+#include "logfile.h"
+
+using namespace Json;
 
 #define	 FIELD_TASK_ID  "task"
 #define FIELD_CODE_TEXT  "code"

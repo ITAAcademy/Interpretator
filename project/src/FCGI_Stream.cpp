@@ -8,7 +8,7 @@
 #include "inc/FCGI_Stream.h"
 
 
-FCGI_Stream::FCGI_Stream( int socketId = 0) {
+FCGI_Stream::FCGI_Stream( int socketId ) {
 	//FCGX_Init();
 	request = new FCGX_Request();
 	this->socketId = socketId;

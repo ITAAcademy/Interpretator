@@ -22,14 +22,22 @@
 #include "fcgi_config.h"
 #include "fcgiapp.h"
 
+#ifndef DEBUG(data)
 #define DEBUG(data)
+#endif
+
 #define INFO(data)
 #define ERROR(data)
 
 using namespace std;
 //#define DEBUG_BUILD
+#ifndef ERROR_BUILD
 #define ERROR_BUILD
+#endif
+
+#ifndef INFO_BUILD
 #define INFO_BUILD
+#endif
 
 
 #ifdef DEBUG_BUILD

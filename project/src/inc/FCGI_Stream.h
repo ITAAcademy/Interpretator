@@ -4,13 +4,15 @@
  *  Created on: May 8, 2015
  *      Author: root
  */
+
+
+#ifndef FSTREAM_H_
+#define FSTREAM_H_
+
 #include "includes.h"
 #include "fcgio.h"
 
 using namespace std;
-
-#ifndef FSTREAM_H_
-#define FSTREAM_H_
 
 class FCGI_Stream {
 private:
@@ -28,7 +30,7 @@ private:
 	int socketId;
 public:
 	const char * null = "NULL";
-	FCGI_Stream( int socketId );
+	FCGI_Stream( int socketId = 0);
 	FCGI_Stream(FCGX_Request *req);
 	~FCGI_Stream();
 	/*
