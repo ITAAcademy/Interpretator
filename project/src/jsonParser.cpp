@@ -19,7 +19,7 @@ bool jsonParser::sizeEqualSizeOfUnitTests(Json::Value object, string name)
 	int object_size = object.size();
 	if ( unit_test_num != object_size )
 	{
-		last_error = "error: json format is not correct. " + name + " array size = " +
+		last_error = "ERROR: json format is not correct. " + name + " array size = " +
 				to_string(object_size) + " , but unit_test_num = " + to_string(unit_test_num);
 		return false;
 	}
@@ -69,7 +69,7 @@ bool jsonParser::rangeValidation(bool &range_size_inited, int &range_size, strin
 	regex regStr("^[-0-9][0-9]{0,}..[-0-9][0-9]{0,}");
 	if (!std::regex_match( range_no_quotes, regStr ))
 	{
-		last_error = "error: json format is not correct. " + field_name + " range format invalid "; //
+		last_error = "ERROR: json format is not correct. " + field_name + " range format invalid "; //
 		last_error += range;
 		return false;
 	}
@@ -91,7 +91,7 @@ bool jsonParser::rangeValidation(bool &range_size_inited, int &range_size, strin
 	else
 		if (range_i_size != range_size)
 		{
-			last_error = "error: json format is not correct. " + field_name +
+			last_error = "ERROR: json format is not correct. " + field_name +
 					" range size (" + to_string(range_i_size) +
 					") != results[0] range size ("  +
 					to_string(range_size) + ")";
@@ -183,7 +183,7 @@ bool jsonParser::mustBeNotArray(Json::Value object, string name , string ps)
 		return true;
 	if ( object.isArray())
 	{
-		last_error = "error: json format is not correct. " + name + " can`t be array " + ps;
+		last_error = "ERROR: json format is not correct. " + name + " can`t be array " + ps;
 		return false;
 	}
 	return true;
@@ -193,7 +193,7 @@ bool jsonParser::mustBeArray(Json::Value object, string name , string ps )
 {
 	if ( !object.isArray())
 	{
-		last_error = "error: json format is not correct. " + name + " must be array " + ps;
+		last_error = "ERROR: json format is not correct. " + name + " must be array " + ps;
 		return false;
 	}
 	if (!mustHaveSizeMoreZero(object,name,ps))
@@ -206,7 +206,7 @@ bool jsonParser::mustHaveSizeMoreZero(Json::Value object, string name , string p
 {
 	if ( object.size() < 1)
 	{
-		last_error = "error: json formatu = reader.parse is not correct. " + name + " size < 1 " + ps;
+		last_error = "ERROR: json formatu = reader.parse is not correct. " + name + " size < 1 " + ps;
 		return false;
 	}
 	return true;
@@ -218,14 +218,14 @@ bool jsonParser::mustBeInt(Json::Value object, string name , string ps )
 	{
 		if (!isStringInt(object.asString()))
 		{
-			last_error = "error: json format is not correct. " + name +" isn`t convertible to int " + ps;
+			last_error = "ERROR: json format is not correct. " + name +" isn`t convertible to int " + ps;
 			return false;
 		}
 		return true;
 	}
 	if ( !object.isInt())
 	{
-		last_error = "error: json format is not correct. " + name +" isn`t integer " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" isn`t integer " + ps;
 		return false;
 	}
 	return true;
@@ -237,14 +237,14 @@ bool jsonParser::mustBeUnsignedInt(Json::Value object, string name , string ps )
 	{
 		if (!isStringUnsignedInt(object.asString()))
 		{
-			last_error = "error: json format is not correct. " + name +" isn`t convertible to unsigned int " + ps;
+			last_error = "ERROR: json format is not correct. " + name +" isn`t convertible to unsigned int " + ps;
 			return false;
 		}
 		return true;
 	}
 	if ( !object.isInt() && !object.isUInt())
 	{
-		last_error = "error: json format is not correct. " + name +" isn`t unsigned integer " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" isn`t unsigned integer " + ps;
 		return false;
 	}
 	string obg_string = object.toStyledString();
@@ -257,7 +257,7 @@ bool jsonParser::mustBeUnsignedInt(Json::Value object, string name , string ps )
 
 	if (obg_string.size() > max_uint_value.size())
 	{
-		last_error = "error: json format is not correct. " + name +" out of range of unsigned integer (max value = " + max_uint_value + ")" + ps;
+		last_error = "ERROR: json format is not correct. " + name +" out of range of unsigned integer (max value = " + max_uint_value + ")" + ps;
 		return false;
 	}
 
@@ -269,7 +269,7 @@ bool jsonParser::mustBeUnsignedInt(Json::Value object, string name , string ps )
 			return true;
 		if ( num > m_num )
 		{
-			last_error = "error: json format is not correct. " + name +" out of range of unsigned integer (max value = " + max_uint_value + ")" + ps;
+			last_error = "ERROR: json format is not correct. " + name +" out of range of unsigned integer (max value = " + max_uint_value + ")" + ps;
 			return false;
 		}
 	}
@@ -281,7 +281,7 @@ bool jsonParser::mustExist(Json::Value object, string name  , string ps)
 {
 	if ( object.isNull())
 	{
-		last_error = "error: json format is not correct. " + name +" don`t exist " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" don`t exist " + ps;
 		return false;
 	}
 	return true;
@@ -291,7 +291,7 @@ bool jsonParser::mustExistBeInt(Json::Value object, string name  , string ps , s
 {
 	if ( object.isNull())
 	{
-		last_error = "error: json format is not correct. " + name +" don`t exist " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" don`t exist " + ps;
 		return false;
 	}
 	if (!mustBeInt(object, name, ps2))
@@ -303,7 +303,7 @@ bool jsonParser::mustExistBeUnsignedInt(Json::Value object, string name  , strin
 {
 	if ( object.isNull())
 	{
-		last_error = "error: json format is not correct. " + name +" don`t exist " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" don`t exist " + ps;
 		return false;
 	}
 	if (!mustBeUnsignedInt(object, name, ps2))
@@ -315,7 +315,7 @@ bool jsonParser::mustExistBeFloat(Json::Value object, string name  , string ps ,
 {
 	if ( object.isNull())
 	{
-		last_error = "error: json format is not correct. " + name +" don`t exist " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" don`t exist " + ps;
 		return false;
 	}
 	if (!mustBeFloat(object, name, ps2))
@@ -327,7 +327,7 @@ bool jsonParser::mustExistBeString(Json::Value object, string name  , string ps 
 {
 	if ( object.isNull())
 	{
-		last_error = "error: json format is not correct. " + name +" don`t exist " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" don`t exist " + ps;
 		return false;
 	}
 	if (!mustBeString(object, name, ps2))
@@ -339,7 +339,7 @@ bool jsonParser::mustExistBeBool(Json::Value object, string name  , string ps , 
 {
 	if ( object.isNull())
 	{
-		last_error = "error: json format is not correct. " + name +" don`t exist " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" don`t exist " + ps;
 		return false;
 	}
 	if (!mustBeBool(object, name, ps2))
@@ -351,7 +351,7 @@ bool jsonParser::mustExistBeArray(Json::Value object, string name  , string ps ,
 {
 	if ( object.isNull())
 	{
-		last_error = "error: json format is not correct. " + name +" don`t exist " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" don`t exist " + ps;
 		return false;
 	}
 	if (!mustBeArray(object, name, ps2))
@@ -389,7 +389,7 @@ bool jsonParser::mustExistBeArrayInt(Json::Value object, string name , string ps
 		int int_obj = getAsInt(object[i]);//.asInt();
 		if (int_obj < min_val || int_obj > max_val)
 		{
-			last_error = "error: json format is not correct. " +  name + stringInScobcah(i) +" value(" + to_string(int_obj) +
+			last_error = "ERROR: json format is not correct. " +  name + stringInScobcah(i) +" value(" + to_string(int_obj) +
 					") out of range(" + to_string(min_val) + ", " + to_string(max_val) + ")";
 			return false;
 		}
@@ -415,14 +415,14 @@ bool jsonParser::mustBeFloat(Json::Value object, string name  , string ps)
 	{
 		if (!isStringFloat(object.asString()))
 		{
-			last_error = "error: json format is not correct. " + name +" isn`t convertible to float " + ps;
+			last_error = "ERROR: json format is not correct. " + name +" isn`t convertible to float " + ps;
 			return false;
 		}
 		return true;
 	}
 	if ( !object.isDouble())
 	{
-		last_error = "error: json format is not correct. " + name +" isn`t float " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" isn`t float " + ps;
 		return false;
 	}
 	return true;
@@ -431,7 +431,7 @@ bool jsonParser::mustBeString(Json::Value object, string name , string ps )
 {
 	if ( !object.isString())
 	{
-		last_error = "error: json format is not correct. " + name +" isn`t string " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" isn`t string " + ps;
 		return false;
 	}
 	return true;
@@ -443,14 +443,14 @@ bool jsonParser::mustBeBool(Json::Value object, string name , string ps )
 	{
 		if (!isStringBool(object.asString()))
 		{
-			last_error = "error: json format is not correct. " + name +" isn`t convertible to bool " + ps;
+			last_error = "ERROR: json format is not correct. " + name +" isn`t convertible to bool " + ps;
 			return false;
 		}
 		return true;
 	}
 	if ( !object.isBool())
 	{
-		last_error = "error: json format is not correct. " + name +" isn`t boolean " + ps;
+		last_error = "ERROR: json format is not correct. " + name +" isn`t boolean " + ps;
 		return false;
 	}
 	return true;
@@ -663,7 +663,7 @@ bool jsonParser::isValidFields()
 	DEBUG("before parsedFromString==nullValue");
 	if ((parsedFromString == nullValue) || (parsedFromString.size() == 0) || !isJson())
 	{
-		last_error = "error: json format is not correct - it empty or isn*t json";//+
+		last_error = "ERROR: json format is not correct - it empty or isn*t json";//+
 		return false;
 	}
 	/*l12("before FIELD_JOBID");
@@ -695,24 +695,24 @@ bool jsonParser::isValidFields()
 
 		/*if(parsedFromString[FIELD_CODE_LANGUAGE].isNull())
 		{
-			last_error = "error: json format is not correct. Field \"code\" not exist"; //
+			last_error = "ERROR: json format is not correct. Field \"code\" not exist"; //
 			return false;
 		}
 
 		if( !parsedFromString[FIELD_CODE_LANGUAGE].isString())
 		{
-			last_error = "error: json format is not correct. Field \"code\" not string";
+			last_error = "ERROR: json format is not correct. Field \"code\" not string";
 			return false;
 		}*/
 
 		/*	if ( parsedFromString[FIELD_NAME].isNull())
 		{
-			last_error = "error: json format is not correct. Field \"name\" not exist"; //
+			last_error = "ERROR: json format is not correct. Field \"name\" not exist"; //
 			return false;
 		}
 		if (!parsedFromString[FIELD_NAME].isString())
 		{
-			last_error = "error: json format is not correct. Field \"name\" not string";
+			last_error = "ERROR: json format is not correct. Field \"name\" not string";
 			return false;
 		}
 		 */
@@ -753,37 +753,37 @@ bool jsonParser::isValidFields()
 
 		/*if(parsedFromString[FUNCTION][FIELD_FUNCTION_NAME].isNull())
 		{
-			last_error = "error: json format is not correct. Field \"function_name\" not exist"; //
+			last_error = "ERROR: json format is not correct. Field \"function_name\" not exist"; //
 			return false;
 		}
 		l12("___104");
 		if ( !parsedFromString[FUNCTION][FIELD_FUNCTION_NAME].isString())
 		{
-			last_error = "error: json format is not correct. Field \"function_name\" not string";
+			last_error = "ERROR: json format is not correct. Field \"function_name\" not string";
 			return false;
 		}
 		l12("___105");*/
 		/*if(parsedFromString[FUNCTION][FIELD_IS_ARRAY].isNull())
 		{
-			last_error = "error: json format is not correct. Field \"is_array\" not exist"; //
+			last_error = "ERROR: json format is not correct. Field \"is_array\" not exist"; //
 			return false;
 		}
 		l12("___106");
 		if ( !parsedFromString[FUNCTION][FIELD_IS_ARRAY].isBool())
 		{
-			last_error = "error: json format is not correct. Field \"is_array\" not boolean";
+			last_error = "ERROR: json format is not correct. Field \"is_array\" not boolean";
 			return false;
 		}
 		l12("___107");*/
 		/*if(parsedFromString[FUNCTION][FIELD_SIZE].isNull())
 		{
-			last_error = "error: json format is not correct. Field \"size\" not exist"; //
+			last_error = "ERROR: json format is not correct. Field \"size\" not exist"; //
 			return false;
 		}
 		l12("___108");
 		if ( !parsedFromString[FUNCTION][FIELD_SIZE].isInt())
 		{
-			last_error = "error: json format is not correct. Field \"size\" not boolean";
+			last_error = "ERROR: json format is not correct. Field \"size\" not boolean";
 			return false;
 		}
 		l12("___109");*/
@@ -817,7 +817,7 @@ bool jsonParser::isValidFields()
 
 		/*if ( results_size != args_size)
 		{
-			last_error = "error: json format is not correct. Size of results (" + to_string(results_size) +
+			last_error = "ERROR: json format is not correct. Size of results (" + to_string(results_size) +
 					") != size of args (" + to_string(args_size) + ")"
 					;
 			return false;
@@ -878,7 +878,7 @@ bool jsonParser::isValidFields()
 					break;
 				default:
 				{
-					last_error = "error: json format is not correct. Result type don`t recognized";
+					last_error = "ERROR: json format is not correct. Result type don`t recognized";
 					return false;
 				}
 				}
@@ -910,7 +910,7 @@ bool jsonParser::isValidFields()
 
 						if ( results_k_array_size != results_0_array_size)
 						{
-							last_error = "error: json format is not correct. Results[" + to_string(k) +
+							last_error = "ERROR: json format is not correct. Results[" + to_string(k) +
 									"] size = "+ to_string(results_k_array_size) +
 									", but results[0] size = " + to_string(results_0_array_size);
 							return false;
@@ -920,7 +920,7 @@ bool jsonParser::isValidFields()
 							{
 							case code::FunctionData::RET_VAL_RANGE:
 
-								last_error = "error: json format is not correct. results[" + to_string(k) +
+								last_error = "ERROR: json format is not correct. results[" + to_string(k) +
 								"] can`t be array of ranges";					;
 								return false;
 								break;
@@ -953,7 +953,7 @@ bool jsonParser::isValidFields()
 								}
 								break;
 							default:
-								last_error = "error: json format is not correct. Result type don*t recognized";
+								last_error = "ERROR: json format is not correct. Result type don*t recognized";
 								return false;
 							}
 						}
@@ -983,7 +983,7 @@ bool jsonParser::isValidFields()
 
 			if ( value_type >= code::FunctionData::Last)
 			{
-				last_error = "error: json format is not correct. Field \"type\" of args[" +
+				last_error = "ERROR: json format is not correct. Field \"type\" of args[" +
 						to_string(i) + "] out of types"; //
 				return false;
 			}
@@ -1002,7 +1002,7 @@ bool jsonParser::isValidFields()
 
 			if ( values_size != unit_test_num )
 			{
-				last_error = "error: json format is not correct. Args[" + to_string(i) +
+				last_error = "ERROR: json format is not correct. Args[" + to_string(i) +
 						"] values size (" + to_string(values_size) + ") != unit_test_num (" +
 						to_string(unit_test_num) + ")";
 				return false;
@@ -1022,7 +1022,7 @@ bool jsonParser::isValidFields()
 
 			if ( etalon_values_size != unit_test_num )
 			{
-				last_error = "error: json format is not correct. Args[" + to_string(i) +
+				last_error = "ERROR: json format is not correct. Args[" + to_string(i) +
 						"] etalon_value size (" + to_string(values_size) + ") != runit_test_num(" +
 						to_string(unit_test_num) + ")";
 				return false;
@@ -1038,7 +1038,7 @@ bool jsonParser::isValidFields()
 			}*/
 			/*if ( value_type != args_0_value_type)
 			{
-				last_error = "error: json format is not correct. Args[" + to_string(i) +
+				last_error = "ERROR: json format is not correct. Args[" + to_string(i) +
 						"] type (" + to_string(value_type) + ") != args[0] type (" + to_string(args_0_value_type)+ ")";
 				return false;
 			}*/
@@ -1047,7 +1047,7 @@ bool jsonParser::isValidFields()
 
 			/*if ( args_0_values_0_is_array != values_0_is_array)
 			{
-				last_error = "error: json format is not correct. Args[" + to_string(i) +
+				last_error = "ERROR: json format is not correct. Args[" + to_string(i) +
 						"] values[0].isArray() = " + to_string(values_0_is_array) + "), but args[0] values[0].isArray() = " + to_string(args_0_values_0_is_array);
 				return false;
 			}*/
@@ -1132,7 +1132,7 @@ bool jsonParser::isValidFields()
 					break;
 
 				default:
-					last_error = "error: json format is not correct. Args[" + to_string(i) + "] type don*t recognized";
+					last_error = "ERROR: json format is not correct. Args[" + to_string(i) + "] type don*t recognized";
 					return false;
 				}
 			}
@@ -1178,7 +1178,7 @@ bool jsonParser::isValidFields()
 
 					if ( values_k_array_size != values_0_array_size)
 					{
-						last_error = "error: json format is not correct. " + s_value_k +
+						last_error = "ERROR: json format is not correct. " + s_value_k +
 								" size = "+ to_string(values_k_array_size) +
 								", but args[" + to_string(i) +"] values[0] size = " + to_string(values_0_array_size);
 						return false;
@@ -1189,7 +1189,7 @@ bool jsonParser::isValidFields()
 
 					if ( field_etalon_value_k.size() != values_0_array_size)
 					{
-						last_error = "error: json format is not correct. " + s_etalon_value_k +
+						last_error = "ERROR: json format is not correct. " + s_etalon_value_k +
 								" size = "+ to_string(values_k_array_size) +
 								", but args[" + to_string(i) +"] values[0] size = " + to_string(values_0_array_size);
 						return false;
@@ -1201,7 +1201,7 @@ bool jsonParser::isValidFields()
 						///////// 1
 						case code::FunctionData::RET_VAL_RANGE:
 
-							last_error = "error: json format is not correct. " + s_value_k +
+							last_error = "ERROR: json format is not correct. " + s_value_k +
 							" can`t be array of ranges";					;
 							return false;
 							break;
@@ -1259,7 +1259,7 @@ bool jsonParser::isValidFields()
 							break;
 
 						default:
-							last_error = "error: json format is not correct. Args[" + to_string(i) +" type don*t recognized";
+							last_error = "ERROR: json format is not correct. Args[" + to_string(i) +" type don*t recognized";
 							return false;
 						}
 					}
@@ -1279,12 +1279,12 @@ bool jsonParser::isValidFields()
 			return false;
 		/*if(parsedFromString[FIELD_CODE_LANGUAGE].isNull() )
 		{
-			last_error = "error: json format is not correct. Field \"lang\" not exist"; //
+			last_error = "ERROR: json format is not correct. Field \"lang\" not exist"; //
 			return false;
 		}
 		if ( !parsedFromString[FIELD_CODE_LANGUAGE].isString())
 		{
-			last_error = "error: json format is not correct. Field \"lang\" not string";
+			last_error = "ERROR: json format is not correct. Field \"lang\" not string";
 			return false;
 		}*/
 
@@ -1307,7 +1307,7 @@ bool jsonParser::isValidFields()
 	}
 	else
 	{
-		last_error = "error: json format is not correct. Operation ";
+		last_error = "ERROR: json format is not correct. Operation ";
 		last_error += parsedFromString[FIELD_OPERATION].toStyledString();
 		last_error += " not exist";
 		return false ;
