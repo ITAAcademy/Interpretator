@@ -38,9 +38,24 @@ bool jsonParser::mustHaveSizeMoreZeroAndBeNotTwoDimensionalArray(Json::Value obj
 
 bool jsonParser::isStringInt(string value)
 {
-	regex regStr("^[-0-9][0-9]{0,}");
-	return  std::regex_match( value, regStr );
+	/*regex regStr("^[-0-9][0-9]{0,}");
+	return  std::regex_match( value, regStr );*/
+	if (value.size() == 0)
+		return false;
+	char cymbl = value[0];
+	if (cymbl == '-' && value.size() == 1)
+		return false;
+	else
+	if (cymbl != '-' && (cymbl < '0' || cymbl > '9'))
+		return false;
 
+	for (int i = 1; i < value.size(); i++)
+	{
+		cymbl = value[i];
+		if (cymbl < '0' || cymbl > '9')
+			return false;
+	}
+	return true;
 }
 
 bool jsonParser::isStringUnsignedInt(string value)
@@ -57,10 +72,33 @@ bool jsonParser::isStringBool(string value)
 
 bool jsonParser::isStringFloat(string value)
 {
-	string range_no_quotes = value.substr(1, value.size() - 3);
+	/*string range_no_quotes = value.substr(1, value.size() - 3);
 	regex regStr("^[-0-9][0-9]{0,}.?[0-9]{1,}");
 	//regex regStr("[0-9]{0,}");
-	return  std::regex_match( value, regStr );
+	return  std::regex_match( value, regStr );*/
+	bool no_point = true;
+
+	if (value.size() == 0)
+		return false;
+	char cymbl = value[0];
+	if (cymbl != '-' && (cymbl < '0' || cymbl > '9'))
+		return false;
+
+	for (int i = 1; i < value.size(); i++)
+	{
+		cymbl = value[i];
+		if (cymbl == '.')
+		{
+			if (no_point)
+				no_point = false;
+			else
+				return false;
+		}
+		else
+		if (cymbl < '0' || cymbl > '9')
+			return false;
+	}
+	return true;
 }
 
 bool jsonParser::rangeValidation(bool &range_size_inited, int &range_size, string range, string field_name)
@@ -533,11 +571,11 @@ string jsonParser::getAsString(string obj) //889
 	else return "";
 }
 
- unsigned int jsonParser::getAsUIntS(string obj) //889
+unsigned int jsonParser::getAsUIntS(string obj) //889
 {
 	if (parsedFromString[obj].isInt())
 		return parsedFromString[obj].asInt();
-	 int rez;
+	int rez;
 	string as_str = parsedFromString[obj].asString(); //1313
 	if (isStringInt(as_str))
 		sscanf(as_str.c_str(),"%d", &rez);
