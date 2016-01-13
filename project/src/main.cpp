@@ -897,6 +897,8 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 
 int main(void)
 {
+	logfile::putLogInArchiveTar();
+
 	Config::getInstance().makeValueStructure();
 	Config::getInstance().scanConfigFile();
 

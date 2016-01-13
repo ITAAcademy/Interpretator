@@ -44,7 +44,8 @@ public:
     static void addLog(int threadID, string str);
     static void clear();
     static string getDateStamp();
-
+    static bool isFileExist(const char *fileName);
+    static void putLogInArchiveTar();
 private:
     FCGX_Request *Request;
     char *returnIP();
