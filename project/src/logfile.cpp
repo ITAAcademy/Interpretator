@@ -27,7 +27,7 @@ void logfile::putLogInArchiveTar()
 		timeinfo = localtime(&rawtime);
 		strftime(buffer,80,"%d-%m-%Y %I:%M:%S",timeinfo);
 		std::string str(buffer);
-		string output = "tar -c log.txt >  \"log " + str + ".tar\";rm log.txt";
+		string output = "tar -c log.txt >  \"log " + str + ".tar\"";
 		system(output.c_str());
 		//cout << output;
 	}
