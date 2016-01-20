@@ -46,8 +46,8 @@ bool jsonParser::isStringInt(string value)
 	if (cymbl == '-' && value.size() == 1)
 		return false;
 	else
-	if (cymbl != '-' && (cymbl < '0' || cymbl > '9'))
-		return false;
+		if (cymbl != '-' && (cymbl < '0' || cymbl > '9'))
+			return false;
 
 	for (int i = 1; i < value.size(); i++)
 	{
@@ -95,8 +95,8 @@ bool jsonParser::isStringFloat(string value)
 				return false;
 		}
 		else
-		if (cymbl < '0' || cymbl > '9')
-			return false;
+			if (cymbl < '0' || cymbl > '9')
+				return false;
 	}
 	return true;
 }
@@ -718,9 +718,6 @@ bool jsonParser::isValidFields()
 	if( !mustExistBeInt(parsedFromString[FIELD_TASK_ID], "task"))
 		return false;
 
-
-
-
 	if( !mustExistBeString(parsedFromString[FIELD_OPERATION], "operation"))
 		return false;
 
@@ -1307,7 +1304,8 @@ bool jsonParser::isValidFields()
 		return true;
 	}
 
-	if (parsedFromString[FIELD_OPERATION]=="start")
+	Value operation = parsedFromString[FIELD_OPERATION];
+	if (operation == "start")
 	{
 
 		if( !mustExistBeUnsignedInt(parsedFromString[FIELD_JOBID], "jobid"))
@@ -1327,19 +1325,26 @@ bool jsonParser::isValidFields()
 		}*/
 
 	}
-	else if (parsedFromString[FIELD_OPERATION]=="status"){
+	else if (operation =="status"){
 
 	}
-	else if (parsedFromString[FIELD_OPERATION]=="result"){
+	else if (operation =="getJson"){
+		if( !mustExistBeString(parsedFromString[FIELD_CODE_LANGUAGE], "lang"))
+			return false;
+		if( !mustExistBeInt(parsedFromString[FIELD_TASK_ID], "task"))
+			return false;
+
+	}
+	else if (operation =="result"){
 
 		if( !mustExistBeUnsignedInt(parsedFromString[FIELD_JOBID], "jobid"))
 			return false;
 
 	}
-	else if (parsedFromString[FIELD_OPERATION]=="getToken"){
+	else if (operation=="getToken"){
 
 	}
-	else if (parsedFromString[FIELD_OPERATION]=="getFromToken"){
+	else if (operation=="getFromToken"){
 		if( !mustExistBeString(parsedFromString[FIELD_TOKEN], "token"))
 			return false;
 	}

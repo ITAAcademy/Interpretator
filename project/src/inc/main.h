@@ -83,5 +83,6 @@ bool addTests(FCGI_Stream &stream, jsonParser &jSON);
 bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON);
 bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON);
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id);
+bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id);
 bool editTask( FCGI_Stream &stream, jsonParser &jSON);
 #endif

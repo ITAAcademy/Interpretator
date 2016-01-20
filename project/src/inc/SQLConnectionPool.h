@@ -28,6 +28,7 @@ public:
   static SqlConnectionPool&  getInstance( );
   SqlConnectionPool();
   ~SqlConnectionPool();
+  string  getJsonFromTable( int task );
   vector<map<int,string> >   getAllRecordsFromTable( string where ="1") ;
   bool addRecordsInToTable(vector<map<int,string> > records);
   bool addRecordsInToTable(map<int,string>  records);

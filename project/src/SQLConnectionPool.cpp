@@ -162,6 +162,48 @@ vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string wher
 	return records;
 }
 
+////////////////////
+
+string  SqlConnectionPool::getJsonFromTable( int task )  {
+	pthread_mutex_lock(&accept_mutex);
+	string json="";
+	vector<map<int,string> >  records;
+	string quer = "SELECT `json` FROM `" + tableName + "` WHERE `id` = " + to_string(task);
+
+	if (conn->connected())
+	{
+		mysqlpp::Connection::thread_start();
+		mysqlpp::StoreQueryResult res;
+		try{
+			mysqlpp::Query query( conn->query( quer) );
+			res = query.store();
+		}
+		catch(mysqlpp::Exception &ex){
+			ERROR("getJsonFromTable INCORRECT " + string(ex.what()));
+		}
+		mysqlpp::Connection::thread_end();
+
+		if (res.capacity())
+		{
+			mysqlpp::StoreQueryResult::const_iterator it;
+			for (it = res.begin(); it != res.end(); ++it)
+			{
+				map<int,string> temp;
+				mysqlpp::Row row = *it;
+				json = string(row[0]);
+			}
+			INFO("getJsonFromTable " + tableName + " successfull");
+		}
+		else
+		{
+			ERROR("Getting json from table " + tableName + " failed or table is empty");
+		}
+	}
+	pthread_mutex_unlock(&accept_mutex);
+
+	return json;
+}
+
 
 
 int SqlConnectionPool::lastInsertId()

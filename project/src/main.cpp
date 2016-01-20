@@ -110,7 +110,7 @@ void processTask(int id,Job job) {
 			labl.push_back("footer");
 
 			string table;
-		 table = ConnectorSQL::getAssignmentTable(job.lang);
+			table = ConnectorSQL::getAssignmentTable(job.lang);
 			if (sql.connectToTable(table, labl))
 			{
 				job.code =
@@ -245,57 +245,63 @@ void *receiveTask(void *a)
 						succsesful = false;
 				}
 				else
-					if (operation == "start")
+					if (operation == "getJson")
 					{
-						if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp)))
+						if(!getJson(stream, jSON, id))
 							succsesful = false;
 					}
 					else
-						if (operation == "addtestsig")
+						if (operation == "start")
 						{
-							if(!addTestSignature(stream, jSON))
+							if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp)))
 								succsesful = false;
 						}
 						else
-							if (operation == "addtestval")
+							if (operation == "addtestsig")
 							{
-								if (!addTestValues(stream,jSON))
+								if(!addTestSignature(stream, jSON))
 									succsesful = false;
 							}
 							else
-								if (operation == "add_tests")
+								if (operation == "addtestval")
 								{
-									if (!addTests(stream,jSON))
+									if (!addTestValues(stream,jSON))
 										succsesful = false;
 								}
 								else
-									if (operation == "retreive_tests")
+									if (operation == "add_tests")
 									{
-										if (!retreiveTests(stream,jSON))
+										if (!addTests(stream,jSON))
 											succsesful = false;
 									}
 									else
-										if (operation == "result" || operation == "status")
+										if (operation == "retreive_tests")
 										{
-											if(!result_status(stream, jSON, operation))
+											if (!retreiveTests(stream,jSON))
 												succsesful = false;
 										}
 										else
-											if (operation == "getToken")
+											if (operation == "result" || operation == "status")
 											{
-												if(!TokenSystem::getObject()->generationToken(stream, jSON))
+												if(!result_status(stream, jSON, operation))
 													succsesful = false;
 											}
 											else
-												if (operation == "getFromToken")
+												if (operation == "getToken")
 												{
-													if(!TokenSystem::getObject()->getFromToken(stream, jSON))
+													if(!TokenSystem::getObject()->generationToken(stream, jSON))
 														succsesful = false;
 												}
 												else
-												{
-													errorResponder.showError(505, "operation is invalid");
-												}
+													if (operation == "getFromToken")
+													{
+														if(!TokenSystem::getObject()->getFromToken(stream, jSON))
+															succsesful = false;
+													}
+													else
+													{
+														errorResponder.showError(505, "operation is invalid");
+													}
 
 				if(!succsesful)
 				{
@@ -327,6 +333,54 @@ void *receiveTask(void *a)
  *  				NEW TASK
  *
  */
+
+
+bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
+{
+	if ( !jSON.isValidFields() )
+		return false;
+	int task = jSON.getAsIntS("task");
+
+	string lang = jSON.getAsString("lang");
+	string table;
+	table=ConnectorSQL::getAssignmentTable(lang);
+
+	vector<string> labl;
+	labl.push_back("ID");
+	labl.push_back("header");
+	labl.push_back("etalon");
+	labl.push_back("footer");
+	labl.push_back("json");
+	SqlConnectionPool sql;
+
+	stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+	JsonValue res;
+
+	if (sql.connectToTable(table, labl))
+	{
+
+		string jsona = sql.getJsonFromTable(task);
+		int size = jsona.size();
+		if (size > 0)
+		{
+			res["status"] = "success";
+			res["json"] = jsona;
+		}
+		else
+		{
+			res["json"] = "";
+			res["status"] = "failed";
+		}
+		stream << res.toStyledString();
+		stream.close();
+		return true;
+	}
+	else
+		return false;
+}
+
+
+
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 {
 	if ( !jSON.isValidFields() )
@@ -420,8 +474,8 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 	SqlConnectionPool sql;
 	if (sql.connectToTable(tableName, resLabel)){
 		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
-						"`ID`='"+std::to_string(task)+"'");
-				if ((int)records.size()==0)
+				"`ID`='"+std::to_string(task)+"'");
+		if ((int)records.size()==0)
 			return false;
 	}
 	else return false;
