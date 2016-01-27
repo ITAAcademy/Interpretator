@@ -67,7 +67,7 @@ bool jsonParser::isStringUnsignedInt(string value)
 bool jsonParser::isStringBool(string value)
 {
 	std::transform(value.begin(), value.end(), value.begin(), ::tolower);
-	return (value == "false" || value == "true" );
+	return (value == "false" || value == "true" || value == "1" || value == "0" );
 }
 
 bool jsonParser::isStringFloat(string value)
@@ -488,6 +488,12 @@ bool jsonParser::mustBeBool(Json::Value object, string name , string ps )
 	}
 	if ( !object.isBool())
 	{
+		if (object.isInt())
+		{
+			int asint = object.asInt();
+			if (asint == 0 || asint == 1)
+				return true;
+		}
 		last_error = "ERROR: json format is not correct. " + name +" isn`t boolean " + ps;
 		return false;
 	}
