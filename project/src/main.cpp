@@ -460,7 +460,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 {
 	string session = jSON.getAsString("session");
-	unsigned int jobid = jSON.getAsUInt("jobid");//		jSON.getObject("jobid", false).asUInt();
+	int jobid = jSON.getAsUIntS("jobid");//		jSON.getObject("jobid", false).asUInt();
 	string code = jSON.getAsString("code");
 	int task = jSON.getAsIntS("task"); //jSON.getObject("task", false).asInt();
 	string lang = jSON.getAsString("lang");

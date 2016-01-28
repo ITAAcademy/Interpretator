@@ -579,8 +579,12 @@ string jsonParser::getAsString(string obj) //889
 
 unsigned int jsonParser::getAsUIntS(string obj) //889
 {
+	if (parsedFromString[obj].isUInt())
+		return parsedFromString[obj].asUInt();
+
 	if (parsedFromString[obj].isInt())
-		return parsedFromString[obj].asInt();
+			return parsedFromString[obj].asInt();
+
 	int rez;
 	string as_str = parsedFromString[obj].asString(); //1313
 	if (isStringInt(as_str))
