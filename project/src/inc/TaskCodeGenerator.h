@@ -55,9 +55,10 @@ struct FunctionData{
 	bool isRange = false;
 	vector<vector<pair<int,int>>> checkableArgsIndexes;
 	int result_array_size;
-	int size=0;
+	int unit_tests_nums = 0;
 	string functionName;
 	vector<string> result;
+	vector<vector<string>> result_array;
 	vector<string> tests_code;
 	vector<CompareMark> compare_marks;
 	vector<FunctionArgument> args;

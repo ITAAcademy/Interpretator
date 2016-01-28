@@ -429,8 +429,9 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 
 		map<int,string> where;
 		where.insert({0,temp[0]});
+		int status = generator.getStatus();
 
-		if (generator.getStatus() == 0 && sql.addRecordsInToTable(temp))
+		if (status == 0 && sql.addRecordsInToTable(temp))
 		{
 			res["status"] = "success";
 			res["table"] = table;

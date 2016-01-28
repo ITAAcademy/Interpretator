@@ -583,7 +583,7 @@ unsigned int jsonParser::getAsUIntS(string obj) //889
 		return parsedFromString[obj].asUInt();
 
 	if (parsedFromString[obj].isInt())
-			return parsedFromString[obj].asInt();
+		return parsedFromString[obj].asInt();
 
 	int rez;
 	string as_str = parsedFromString[obj].asString(); //1313
@@ -763,20 +763,26 @@ bool jsonParser::isValidFields()
 		 */
 		Json::Value field_tests_code = parsedFromString[FUNCTION][FIELD_TESTS_CODE];
 		Json::Value field_args = parsedFromString[FUNCTION][FIELD_ARGS];
+		Json::Value field_lang = parsedFromString[FIELD_CODE_LANGUAGE];
 		Json::Value field_results = parsedFromString[FUNCTION][FIELD_RESULTS];
 		Json::Value field_type = parsedFromString[FUNCTION][FIELD_TYPE];
 		Json::Value field_compare_mark = parsedFromString[FUNCTION][FIELD_COMPARE_MARK];
 		Json::Value field_array_type = parsedFromString[FUNCTION][FIELD_ARRAY_TYPE];
 		Json::Value field_unit_test_num = parsedFromString[FUNCTION][FIELD_UNIT_TESTS_NUM];
+		Json::Value field_size = parsedFromString[FUNCTION][FIELD_SIZE];
 
 		if( !mustExist(parsedFromString[FUNCTION], "function"))
 			return false;
 
+		if( !mustExist(field_lang, "lang"))
+				return false;
+
+
+
+
 		bool is_results_exist = mustExist(field_results, "results");
 
-		if (is_results_exist)
-			if( !mustExistBeArray(field_results, "results"))
-				return false;
+
 
 		if( !mustExistBeArrayString(field_tests_code, "tests_code"))
 			return false;
@@ -787,11 +793,28 @@ bool jsonParser::isValidFields()
 		if( !mustExistBeInt(field_unit_test_num, "unit_test_num"))
 			return false;
 
+		if( !mustExistBeInt(field_size, "size"))
+			return false;
+
 		if( !mustExistBeInt(field_array_type, "array_type"))
 			return false;
 
 		unit_test_num = getAsInt(field_unit_test_num);//.asInt();
 		is_results_array = getAsInt(field_array_type);//.asInt();
+
+		int compare_mark_size = field_compare_mark.size();
+		if (  compare_mark_size != unit_test_num)
+		{
+			last_error = "ERROR: json format is not correct. field_compare_mark size = " + to_string(compare_mark_size) +
+					", but unit_test_num = " +  to_string(unit_test_num);;					;
+			return false;
+		}
+
+		if (is_results_exist)
+		{
+			if( !mustExistBeArray(field_results, "results"))
+				return false;
+		}
 
 		if( !mustExistBeArray(field_args, "args"))
 			return false;
@@ -843,10 +866,8 @@ bool jsonParser::isValidFields()
 		vector<string> args_array = parsedFromString[FUNCTION][FIELD_ARGS].getMemberNames();
 		 */
 
-		if (is_results_exist)
-			results_array_size = field_results.size();
-		else
-			results_array_size = 0;
+
+		results_array_size = getAsInt(field_size);
 
 		int field_tests_code_size = field_tests_code.size();
 
@@ -883,7 +904,7 @@ bool jsonParser::isValidFields()
 					int range_size;
 					bool range_size_inited;
 					range_size_inited = false;
-					for (int i=0; i < results_array_size; i++)
+					for (int i=0; i < unit_test_num; i++)
 					{
 						if( !mustBeNotArrayString(field_results[i],
 								string("results[" + to_string(i) + "]"), " of ranges", ", thats why can`t be range"))
@@ -894,28 +915,28 @@ bool jsonParser::isValidFields()
 					}
 					break;
 				case code::FunctionData::RET_VAL_BOOL:
-					for (int i=0; i < results_array_size; i++)
+					for (int i=0; i < unit_test_num; i++)
 					{
 						if( !mustBeNotArrayBool(field_results[i],string("results[" + to_string(i) + "]"), ", cuz results[0] isn`t"))
 							return false;
 					}
 					break;
 				case code::FunctionData::RET_VAL_FLOAT	:
-					for (int i=0; i < results_array_size; i++)
+					for (int i=0; i < unit_test_num; i++)
 					{
 						if( !mustBeNotArrayFloat(field_results[i], string("results[" + to_string(i) + "]"), ", cuz results[0] isn`t"))
 							return false;
 					}
 					break;
 				case code::FunctionData::RET_VAL_INT	:
-					for (int i=0; i < results_array_size; i++)
+					for (int i=0; i < unit_test_num; i++)
 					{
 						if( !mustBeNotArrayInt(field_results[i], string("results[" + to_string(i) + "]"), ", cuz results[0] isn`t"))
 							return false;
 					}
 					break;
 				case code::FunctionData::RET_VAL_STRING:
-					for (int i=0; i < results_array_size ; i++)
+					for (int i=0; i < unit_test_num ; i++)
 					{
 						if( !mustBeNotArrayString(field_results[i],	string("results[" + to_string(i) + "]"), ", cuz results[0] isn`t"))
 							return false;
@@ -931,7 +952,7 @@ bool jsonParser::isValidFields()
 			else
 				if ( is_results_array == FunctionData::ARRAY )
 				{
-					int results_0_array_size  = field_results[0].size();
+					//int results_0_array_size  = field_results[0].size();
 					//results_array_size = results_0_array_size;
 
 					if(!mustHaveSizeMoreZero(field_results[0],"results[0]","Where results[0] values?"))
@@ -944,7 +965,7 @@ bool jsonParser::isValidFields()
 					}
 
 
-					for (int k=0; k < results_array_size; k++)
+					for (int k=0; k < unit_test_num; k++)
 					{
 						Json::Value result_k = field_results[k];
 
@@ -953,11 +974,11 @@ bool jsonParser::isValidFields()
 
 						int results_k_array_size  = result_k.size();
 
-						if ( results_k_array_size != results_0_array_size)
+						if ( results_k_array_size != results_array_size)
 						{
 							last_error = "ERROR: json format is not correct. Results[" + to_string(k) +
 									"] size = "+ to_string(results_k_array_size) +
-									", but results[0] size = " + to_string(results_0_array_size);
+									", but results_array_size = " + to_string(results_array_size);//555
 							return false;
 						}
 						{
@@ -1020,9 +1041,22 @@ bool jsonParser::isValidFields()
 
 			Json::Value args_i = parsedFromString[FUNCTION][FIELD_ARGS][ i ];
 			Json::Value args_i_type = parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_TYPE];
+			Json::Value args_i_compare_mark = parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_COMPARE_MARK];
 
 			if(!mustExistBeInt(args_i_type, string("type of args[" + to_string(i) + "]" )))
 				return false;
+
+			if(!mustExistBeArrayInt(args_i_compare_mark, string("compare_mark of args[" + to_string(i) + "]" )))
+				return false;
+
+			int args_i_compare_mark_size = args_i_compare_mark.size();
+			if ( args_i_compare_mark_size != unit_test_num )
+			{
+				last_error = "ERROR: json format is not correct. Args[" + to_string(i) +
+						"] compare_mark size (" + to_string(args_i_compare_mark_size) + ") != unit_test_num (" +
+						to_string(unit_test_num) + ")";
+				return false;
+			}
 
 			int value_type = getAsInt(args_i_type);//.asInt();
 
