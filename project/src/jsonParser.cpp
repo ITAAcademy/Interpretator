@@ -1255,6 +1255,7 @@ bool jsonParser::isValidFields()
 			Json::Value args_i_arg_name = args_i[FIELD_ARG_NAME];
 			Json::Value args_i_value = args_i[FIELD_VALUE];
 			Json::Value args_i_etalon_value = args_i[FIELD_ETALON_VALUE];
+			Json::Value args_i_arg_size = args_i["size"];
 
 			if(!mustExistBeInt(args_i_type, string("type of args[" + to_string(i) + "]" )))
 				return false;
@@ -1272,6 +1273,10 @@ bool jsonParser::isValidFields()
 			}
 
 			int arg_is_array =  getAsInt(args_i_is_array);
+
+			if (arg_is_array)
+				if (!mustExistBeInt(args_i_arg_size,string("size of args[" + to_string(i) + "]" )))
+					return false;
 
 			if (!mustExistBeArrayOf(args_i_value, value_type, arg_is_array, string("value of args[" + to_string(i) + "]" )))
 				return false;

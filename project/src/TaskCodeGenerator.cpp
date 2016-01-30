@@ -138,12 +138,16 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 
 	Value functionArgs = functionValue["args"];
+
 	for (int i=0; i<functionArgs.size(); i++)
 	{
 		Value argumentValue = functionArgs.get(i,false);
 		FunctionArgument functionArgument;
-		functionArgument.isArray = argumentValue["value"][0].isArray();
-		functionArgument.size = argumentValue["value"][0].size();
+		functionArgument.isArray = jSON.getAsInt(argumentValue["is_array"]);//[0].isArray();
+		if (functionArgument.isArray)
+			functionArgument.size = jSON.getAsInt(argumentValue["size"]);
+		else
+			functionArgument.size = 0;
 		functionArgument.type = jSON.getAsInt(argumentValue[FIELD_TYPE]);//argumentValue["type"].asInt();
 		functionArgument.name = FunctionArgument::getName(argumentValue["arg_name"].asString(), functionData.lang);
 
@@ -161,7 +165,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 		{
 			if (!modvalue.isNull()){
 				functionArgument.etalonValue[etalonValueArgsCount] = jsonParser::getAsString(modvalue);
-						//modvalue.asString(); //_opo
+				//modvalue.asString(); //_opo
 			}
 			etalonValueArgsCount++;
 		}
@@ -503,7 +507,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				reader.parse(arg.value[i], values_u);
 				reader.parse(arg.etalonValue[i], etalons_values_u);
 
-				for(int i = 0; i < values_u.size(); i++)
+
+
+				int values_u_size = arg.size;
+
+				//999
+				for(int i = 0; i < values_u_size ; i++)
 				{
 					argumentDefinition += arg.name + string(ETALON_FOR_FUNCTION_ENDING) +
 							"[" + to_string(i) + "] = " + arg.name +"[" + to_string(i) + "] = "
