@@ -244,7 +244,7 @@ bool jsonParser::mustHaveSizeMoreZero(Json::Value object, string name , string p
 {
 	if ( object.size() < 1)
 	{
-		last_error = "ERROR: json formatu = reader.parse is not correct. " + name + " size < 1 " + ps;
+		last_error = "ERROR: json format is not correct. " + name + " size < 1 " + ps;
 		return false;
 	}
 	return true;
@@ -337,6 +337,19 @@ bool jsonParser::mustExistBeInt(Json::Value object, string name  , string ps , s
 	return true;
 }
 
+bool jsonParser::mustExistBeIntMin(Json::Value object, string name, int min_value)
+{
+	if (!mustExistBeInt(object, name))
+		return false;
+	int value = getAsInt(object);
+	if (value < min_value)
+	{
+		last_error = "ERROR: json format is not correct. " + name +" value( " + to_string(value) + ") less then min(" + to_string(min_value) + ")";
+		return false;
+	}
+	return true;
+}
+
 bool jsonParser::mustExistBeUnsignedInt(Json::Value object, string name  , string ps , string ps2)
 {
 	if ( object.isNull())
@@ -412,6 +425,68 @@ bool jsonParser::mustExistBeArrayInt(Json::Value object, string name , string ps
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeInt(object[i], name + stringInScobcah(i)))
+			return false;
+	return true;
+}
+
+bool jsonParser::mustExistBeArrayBool(Json::Value object, string name , string ps, string ps2 )
+{
+	if (!mustExistBeArray(object, name, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeBool(object[i], name + stringInScobcah(i)))
+			return false;
+	return true;
+}
+
+
+
+bool jsonParser::mustExistBeArrayOfBoolArrays(Json::Value object, string name , string ps, string ps2 )
+{
+	if (!mustExistBeArray(object, name, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeArrayBool(object[i], name + stringInScobcah(i)))
+			return false;
+	return true;
+}
+
+bool jsonParser::mustExistBeArrayOfStringArrays(Json::Value object, string name , string ps, string ps2 )
+{
+	if (!mustExistBeArray(object, name, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeArrayString(object[i], name + stringInScobcah(i)))
+			return false;
+	return true;
+}
+
+bool jsonParser::mustExistBeArrayOfIntArrays(Json::Value object, string name , string ps, string ps2 )
+{
+	if (!mustExistBeArray(object, name, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeArrayInt(object[i], name + stringInScobcah(i)))
+			return false;
+	return true;
+}
+
+bool jsonParser::mustExistBeArrayOfFloatArrays(Json::Value object, string name , string ps, string ps2 )
+{
+	if (!mustExistBeArray(object, name, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeArrayFloat(object[i], name + stringInScobcah(i)))
+			return false;
+	return true;
+}
+
+bool jsonParser::mustExistBeArrayFloat(Json::Value object, string name , string ps, string ps2 )
+{
+	if (!mustExistBeArray(object, name, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeFloat(object[i], name + stringInScobcah(i)))
 			return false;
 	return true;
 }
@@ -544,7 +619,7 @@ int jsonParser::getAsInt(Value obj)
 	if (obj.isInt())
 		return obj.asInt();
 	int rez;
-	string as_str = obj.asString(); //1313
+	string as_str = getAsString(obj);
 	if (isStringInt(as_str))
 		sscanf(as_str.c_str(),"%d", &rez);
 	return rez;
@@ -571,10 +646,31 @@ int jsonParser::getAsIntS(string obj) //889
 		sscanf(as_str.c_str(),"%d", &rez);
 	return rez;
 }
-string jsonParser::getAsString(string obj) //889
+
+string jsonParser::getAsStringS(string obj) //889
 {
 	if (parsedFromString[obj].isString()) return parsedFromString[obj].asString();
 	else return "";
+}
+
+string jsonParser::getAsString(Value obj) //889
+{
+	if (obj.isString())
+		return obj.asString();
+	else
+		if (obj.isBool())
+			return to_string(obj.asBool());
+		else
+			if (obj.isDouble())
+				return  to_string(obj.asDouble());
+			else
+				if (obj.isInt())
+					return  to_string(obj.asInt());
+				else
+					if (obj.isUInt())
+						return  to_string(obj.asUInt());
+					else
+						return "";
 }
 
 unsigned int jsonParser::getAsUIntS(string obj) //889
@@ -704,6 +800,96 @@ int jsonParser::getRangeLast()
 	return range_last;
 }
 
+bool jsonParser::mustExistBeArrayRanges(Json::Value object, string name , string ps , string  ps2)
+{
+	if (!mustExistBeArray(object, name, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeRange(object[i], name + stringInScobcah(i)))
+			return false;
+	return true;
+}
+
+bool jsonParser::mustBeRange(Json::Value object, string name , string ps )
+{
+	if ( !object.isString())
+	{
+		last_error = "ERROR: json format is not correct. " + name +" isn`t string " + ps;
+		return false;
+	}
+
+	string range = object.asString();
+	int range_size;
+	bool range_size_inited;
+	range_size_inited = false;
+	if (!rangeValidation(range_size_inited, range_size, range, name))
+		return false;
+	return true;
+}
+
+bool jsonParser::mustExistBeArrayOf(Json::Value object, int type,  bool is_array, string name  )
+{
+	if (is_array)
+	{
+		switch(type)
+		{
+		case FunctionData::RET_VAL_RANGE:
+			last_error = "ERROR: json format is not correct. " + name +" can`t be array of ranges arrays ";
+			return false;
+			break;
+		case FunctionData::RET_VAL_BOOL:
+			if(!mustExistBeArrayOfBoolArrays(object, name))
+				return false;
+			break;
+		case FunctionData::RET_VAL_FLOAT:
+			if(!mustExistBeArrayOfFloatArrays(object, name))
+				return false;
+			break;
+		case FunctionData::RET_VAL_STRING:
+			if(!mustExistBeArrayOfStringArrays(object, name))
+				return false;
+			break;
+		case FunctionData::RET_VAL_INT:
+			if(!mustExistBeArrayOfIntArrays(object, name))
+				return false;
+			break;
+		default:
+			last_error = "ERROR: json format is not correct." + name + " type (" + to_string(type) + ") don*t recognized";
+			return false;
+		}
+	}
+	else
+	{
+		switch(type)
+		{
+		case FunctionData::RET_VAL_RANGE:
+			if(!mustExistBeArrayRanges(object, name))
+				return false;
+			break;
+		case FunctionData::RET_VAL_BOOL:
+			if(!mustExistBeArrayBool(object, name))
+				return false;
+			break;
+		case FunctionData::RET_VAL_FLOAT:
+			if(!mustExistBeArrayFloat(object, name))
+				return false;
+			break;
+		case FunctionData::RET_VAL_STRING:
+			if(!mustExistBeArrayString(object, name))
+				return false;
+			break;
+		case FunctionData::RET_VAL_INT:
+			if(!mustExistBeArrayInt(object, name))
+				return false;
+			break;
+		default:
+			last_error = "ERROR: json format is not correct." + name + " type (" + to_string(type) + ") don*t recognized";
+			return false;
+		}
+	}
+	return true;
+}
+
 bool jsonParser::isValidFields()
 {
 	is_results_range = false;
@@ -734,7 +920,9 @@ bool jsonParser::isValidFields()
 
 	if (parsedFromString[FIELD_OPERATION]=="addtask" || parsedFromString[FIELD_OPERATION]=="edittask")
 	{
-		if( !mustExistBeString(parsedFromString[FIELD_ETALON], "etalon"))
+		Json::Value field_etalon = parsedFromString[FIELD_ETALON];
+
+		if( !mustExistBeString( field_etalon , "etalon"))
 			return false;
 
 
@@ -775,12 +963,21 @@ bool jsonParser::isValidFields()
 			return false;
 
 		if( !mustExist(field_lang, "lang"))
+			return false;
+
+
+
+
+		bool is_results_exist;
+		string etalon = field_etalon.asString();
+		if (!(etalon.find_first_not_of("\t\n\r ") == string::npos))
+			is_results_exist = false;
+		else
+		{
+			if (!mustExist(field_results, "results"))
 				return false;
-
-
-
-
-		bool is_results_exist = mustExist(field_results, "results");
+			is_results_exist = true;
+		}
 
 
 
@@ -793,14 +990,21 @@ bool jsonParser::isValidFields()
 		if( !mustExistBeInt(field_unit_test_num, "unit_test_num"))
 			return false;
 
-		if( !mustExistBeInt(field_size, "size"))
-			return false;
+		unit_test_num = getAsInt(field_unit_test_num);//.asInt();
+
+
 
 		if( !mustExistBeInt(field_array_type, "array_type"))
 			return false;
 
-		unit_test_num = getAsInt(field_unit_test_num);//.asInt();
+
 		is_results_array = getAsInt(field_array_type);//.asInt();
+
+		int result_type = getAsInt(field_type);
+
+		if (is_results_array)
+			if( !mustExistBeIntMin(field_size, "size", 1))
+				return false;
 
 		int compare_mark_size = field_compare_mark.size();
 		if (  compare_mark_size != unit_test_num)
@@ -867,7 +1071,8 @@ bool jsonParser::isValidFields()
 		 */
 
 
-		results_array_size = getAsInt(field_size);
+		if (is_results_array)
+			results_array_size = getAsInt(field_size);
 
 		int field_tests_code_size = field_tests_code.size();
 
@@ -895,7 +1100,11 @@ bool jsonParser::isValidFields()
 
 		if (is_results_exist)
 		{
-			if ( is_results_array == FunctionData::NOT_ARRAY )
+			if (!mustExistBeArrayOf(field_results, result_type, is_results_array, string("result" )))
+				return false;
+
+
+			/*if ( is_results_array == FunctionData::NOT_ARRAY )
 			{
 				switch(type_rezult)
 				{
@@ -1024,7 +1233,7 @@ bool jsonParser::isValidFields()
 							}
 						}
 					}
-				}
+				}*/
 		}
 
 
@@ -1042,8 +1251,40 @@ bool jsonParser::isValidFields()
 			Json::Value args_i = parsedFromString[FUNCTION][FIELD_ARGS][ i ];
 			Json::Value args_i_type = parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_TYPE];
 			Json::Value args_i_compare_mark = parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_COMPARE_MARK];
+			Json::Value args_i_is_array = parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_IS_ARRAY];
+			Json::Value args_i_arg_name = args_i[FIELD_ARG_NAME];
+			Json::Value args_i_value = args_i[FIELD_VALUE];
+			Json::Value args_i_etalon_value = args_i[FIELD_ETALON_VALUE];
 
 			if(!mustExistBeInt(args_i_type, string("type of args[" + to_string(i) + "]" )))
+				return false;
+
+			if(!mustExistBeInt(args_i_is_array, string("is_array of args[" + to_string(i) + "]" )))
+				return false;
+
+			int value_type = getAsInt(args_i_type);
+
+			if ( value_type >= code::FunctionData::Last)
+			{
+				last_error = "ERROR: json format is not correct. Field \"type\" of args[" +
+						to_string(i) + "] out of types"; //
+				return false;
+			}
+
+			int arg_is_array =  getAsInt(args_i_is_array);
+
+			if (!mustExistBeArrayOf(args_i_value, value_type, arg_is_array, string("value of args[" + to_string(i) + "]" )))
+				return false;
+
+			bool is_args_i_etalon_value = false;
+			if (mustExist(args_i_etalon_value, string("etalon_value of args[" + to_string(i) + "]" )))
+			{
+				if (!mustExistBeArrayOf(args_i_etalon_value, value_type, arg_is_array, string("etalon_value of args[" + to_string(i) + "]" )))
+					return false;
+				is_args_i_etalon_value = true;
+			}
+
+			if(!mustExistBeString(args_i_arg_name, string("arg_name of args[" + to_string(i) + "]" )))
 				return false;
 
 			if(!mustExistBeArrayInt(args_i_compare_mark, string("compare_mark of args[" + to_string(i) + "]" )))
@@ -1058,25 +1299,6 @@ bool jsonParser::isValidFields()
 				return false;
 			}
 
-			int value_type = getAsInt(args_i_type);//.asInt();
-
-			if ( value_type >= code::FunctionData::Last)
-			{
-				last_error = "ERROR: json format is not correct. Field \"type\" of args[" +
-						to_string(i) + "] out of types"; //
-				return false;
-			}
-
-			Json::Value args_i_arg_name = args_i[FIELD_ARG_NAME];
-
-			if(!mustExistBeString(args_i_arg_name, string("arg_name of args[" + to_string(i) + "]" )))
-				return false;
-
-			Json::Value args_i_value = args_i[FIELD_VALUE];
-
-			if(!mustExistBeArray(args_i_value, string("value of args[" + to_string(i) + "]" )))
-				return false;
-
 			int values_size = args_i_value.size();
 
 			if ( values_size != unit_test_num )
@@ -1088,51 +1310,26 @@ bool jsonParser::isValidFields()
 			}
 
 			//////////1
-			Json::Value args_i_etalon_value = args_i[FIELD_ETALON_VALUE];
-			//Json::Value args_i_compare_mark = args_i[FIELD_COMPARE_MARK];
 
-			if(!mustExistBeArray(args_i_etalon_value, string("etalon_value of args[" + to_string(i) + "]" )))
-				return false;
 
 			/*if(!mustExistBeArrayInt(args_i_compare_mark, string("compare_mark of args[" + to_string(i) + "]" ),"","",0, CompareMark::Last - 1))
 				return false;*/
 
 			int etalon_values_size = args_i_etalon_value.size();
 
-			if ( etalon_values_size != unit_test_num )
-			{
-				last_error = "ERROR: json format is not correct. Args[" + to_string(i) +
-						"] etalon_value size (" + to_string(values_size) + ") != runit_test_num(" +
-						to_string(unit_test_num) + ")";
-				return false;
-			}
+			if (is_args_i_etalon_value)
+				if ( etalon_values_size != unit_test_num )
+				{
+					last_error = "ERROR: json format is not correct. Args[" + to_string(i) +
+							"] etalon_value size (" + to_string(etalon_values_size) + ") != runit_test_num(" +
+							to_string(unit_test_num) + ")";
+					return false;
+				}
 
-			////////////2
-
-			/*if (!values_0_is_array_seted)
-			{
-				args_0_values_0_is_array = parsedFromString[FUNCTION][FIELD_ARGS][i][FIELD_VALUE][0].isArray();
-				values_0_is_array_seted = true;
-				args_0_value_type = value_type;
-			}*/
-			/*if ( value_type != args_0_value_type)
-			{
-				last_error = "ERROR: json format is not correct. Args[" + to_string(i) +
-						"] type (" + to_string(value_type) + ") != args[0] type (" + to_string(args_0_value_type)+ ")";
-				return false;
-			}*/
-
-			bool values_0_is_array = args_i_value[0].isArray();
-
-			/*if ( args_0_values_0_is_array != values_0_is_array)
-			{
-				last_error = "ERROR: json format is not correct. Args[" + to_string(i) +
-						"] values[0].isArray() = " + to_string(values_0_is_array) + "), but args[0] values[0].isArray() = " + to_string(args_0_values_0_is_array);
-				return false;
-			}*/
+			//666
 
 
-			if ( !values_0_is_array )
+			/*if ( !arg_is_array )
 			{
 				switch(value_type)
 				{
@@ -1148,7 +1345,7 @@ bool jsonParser::isValidFields()
 								string("args[" + to_string(i) +	"] values[" + to_string(j)+ "]" ), " of ranges", " cuz it range"))
 							return false;
 
-						string range = args_i_value[j].toStyledString();
+						string range = getAsString(args_i_value[j]);
 						rangeValidation(range_size_inited, range_size, range, string("args[" + to_string(i) +	"]"));
 					}
 					break;
@@ -1222,27 +1419,8 @@ bool jsonParser::isValidFields()
 				if (!mustHaveSizeMoreZeroAndBeNotTwoDimensionalArray(args_i_value[0],string("args[" + to_string(i) +"] values[0]")))
 					return false;
 
-				/*if (!mustHaveSizeMoreZero(args_i_value[0],string("args[" + to_string(i) +"] values[0]")))
-					return false;
-				if ( args_i_value[0][0].isArray())
-				{
-					if (!mustBeNotArray(args_i_value[0][0][0].isArray(),string("args[" + to_string(i) +"] values[0][0]")))
-						return false;
-				}*/
-
 				if (!mustHaveSizeMoreZeroAndBeNotTwoDimensionalArray(args_i_etalon_value[0],string("args[" + to_string(i) +"] etalon_values[0]")))
 					return false;
-
-				/*int etalon_values_0_array_size  = args_i_etalon_value[0].size();
-				if (!mustHaveSizeMoreZero(args_i_etalon_value[0],string("args[" + to_string(i) +"] etalon_values[0]")))
-					return false;
-				if ( args_i_etalon_value[0][0].isArray())
-				{
-					if (!mustBeNotArray(args_i_etalon_value[0][0][0].isArray(),string("args[" + to_string(i) +"] etalon_values[0][0]")))
-						return false;
-				}*/
-
-
 				//9969
 				for (int k=0; k < values_size; k++)
 				{
@@ -1274,76 +1452,76 @@ bool jsonParser::isValidFields()
 						return false;
 					}
 
+
+					switch(value_type)
 					{
-						switch(value_type)
+					///////// 1
+					case code::FunctionData::RET_VAL_RANGE:
+
+						last_error = "ERROR: json format is not correct. " + s_value_k +
+						" can`t be array of ranges";					;
+						return false;
+						break;
+					case code::FunctionData::RET_VAL_INT	: //6565
+						for (int j=0; j < values_k_array_size; j++)
 						{
-						///////// 1
-						case code::FunctionData::RET_VAL_RANGE:
+							string s_value_k_j = s_value_k + "[" + to_string(i) + "]";
+							string s_etalon_value_k_j = s_etalon_value_k + "[" + to_string(i) + "]";
 
-							last_error = "ERROR: json format is not correct. " + s_value_k +
-							" can`t be array of ranges";					;
-							return false;
-							break;
-						case code::FunctionData::RET_VAL_INT	: //6565
-							for (int j=0; j < values_k_array_size; j++)
-							{
-								string s_value_k_j = s_value_k + "[" + to_string(i) + "]";
-								string s_etalon_value_k_j = s_etalon_value_k + "[" + to_string(i) + "]";
+							if ( !mustBeNotArrayInt(field_value_k[j], s_value_k_j ) )
+								return false;
 
-								if ( !mustBeNotArrayInt(field_value_k[j], s_value_k_j ) )
-									return false;
-
-								if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
-									return false;
-							}
-							break;
-						case code::FunctionData::RET_VAL_FLOAT	:
-							for (int j=0; j < values_k_array_size; j++)
-							{
-								string s_value_k_j = s_value_k + "[" + to_string(i) + "]";
-								string s_etalon_value_k_j = s_etalon_value_k + "[" + to_string(i) + "]";
-
-								if ( !mustBeNotArrayFloat(field_value_k[j], s_value_k_j ) )
-									return false;
-
-								if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
-									return false;
-							}
-							break;
-						case code::FunctionData::RET_VAL_BOOL	:
-							for (int j=0; j < values_k_array_size; j++)
-							{
-								string s_value_k_j = s_value_k + "[" + to_string(i) + "]";
-								string s_etalon_value_k_j = s_etalon_value_k + "[" + to_string(i) + "]";
-
-								if ( !mustBeNotArrayBool(field_value_k[j], s_value_k_j ) )
-									return false;
-
-								if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
-									return false;
-							}
-							break;
-						case code::FunctionData::RET_VAL_STRING:
-							for (int j=0; j < values_k_array_size; j++)
-							{
-								string s_value_k_j = s_value_k + "[" + to_string(i) + "]";
-								string s_etalon_value_k_j = s_etalon_value_k + "[" + to_string(i) + "]";
-
-								if ( !mustBeNotArrayString(field_value_k[j], s_value_k_j ) )
-									return false;
-
-								if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
-									return false;
-							}
-							break;
-
-						default:
-							last_error = "ERROR: json format is not correct. Args[" + to_string(i) +" type don*t recognized";
-							return false;
+							if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
+								return false;
 						}
+						break;
+					case code::FunctionData::RET_VAL_FLOAT	:
+						for (int j=0; j < values_k_array_size; j++)
+						{
+							string s_value_k_j = s_value_k + "[" + to_string(i) + "]";
+							string s_etalon_value_k_j = s_etalon_value_k + "[" + to_string(i) + "]";
+
+							if ( !mustBeNotArrayFloat(field_value_k[j], s_value_k_j ) )
+								return false;
+
+							if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
+								return false;
+						}
+						break;
+					case code::FunctionData::RET_VAL_BOOL	:
+						for (int j=0; j < values_k_array_size; j++)
+						{
+							string s_value_k_j = s_value_k + "[" + to_string(i) + "]";
+							string s_etalon_value_k_j = s_etalon_value_k + "[" + to_string(i) + "]";
+
+							if ( !mustBeNotArrayBool(field_value_k[j], s_value_k_j ) )
+								return false;
+
+							if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
+								return false;
+						}
+						break;
+					case code::FunctionData::RET_VAL_STRING:
+						for (int j=0; j < values_k_array_size; j++)
+						{
+							string s_value_k_j = s_value_k + "[" + to_string(i) + "]";
+							string s_etalon_value_k_j = s_etalon_value_k + "[" + to_string(i) + "]";
+
+							if ( !mustBeNotArrayString(field_value_k[j], s_value_k_j ) )
+								return false;
+
+							if ( !mustBeNotArray(field_etalon_value_k[j], s_etalon_value_k_j ) )
+								return false;
+						}
+						break;
+
+					default:
+						last_error = "ERROR: json format is not correct. Args[" + to_string(i) +" type don*t recognized";
+						return false;
 					}
+
 				}
-			}
+			}*/
 		}
 		return true;
 	}

@@ -104,23 +104,26 @@ public:
 	 */
 	static Value getRoot(string json);
 	Value getRoot();
-	int getAsIntS(string obj);
-	string getAsString(string obj);
+	 int getAsIntS(string obj);
+	static int getAsInt(Value obj);
+	static string getAsString(Value obj);
+	string getAsStringS(string obj);
 	unsigned int getAsUIntS(string obj);
-	int getAsInt(Value obj);
-	unsigned int getAsUInt(Value obj);
+	static unsigned int getAsUInt(Value obj);
 	Value getObject(string name, bool everyWhere);
 	static bool isJson(string in_json);
 	bool isJson();
 	bool isValidFields();
 	virtual ~jsonParser();
 
-	bool isStringInt(string value);
-	bool isStringUnsignedInt(string value);
-	bool isStringBool(string value);
-	bool isStringFloat(string value);
+	static bool isStringInt(string value);
+	static bool isStringUnsignedInt(string value);
+	static bool isStringBool(string value);
+	static bool isStringFloat(string value);
 
 	bool rangeValidation(bool &range_size_inited, int &range_size, string range, string field_name);
+
+	bool mustExistBeArrayOf(Json::Value object, int type,  bool is_array, string name  );
 	bool mustBeArrayFloat(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustBeArrayInt(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustBeArrayString(Json::Value object, string name , string ps = "", string ps2 = "");
@@ -140,9 +143,11 @@ public:
 	bool mustBeBool(Json::Value object, string name , string ps = "");
 	bool mustBeFloat(Json::Value object, string name , string ps = "");
 	bool mustBeString(Json::Value object, string name , string ps = "");
+	bool mustBeRange(Json::Value object, string name , string ps = "");
 	bool mustExist(Json::Value object, string name , string ps = "");
 
 	bool mustExistBeInt(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeIntMin(Json::Value object, string name, int min_value);
 	bool mustExistBeUnsignedInt(Json::Value object, string name , string ps = "", string ps2 = "");
 
 	bool mustExistBeFloat(Json::Value object, string name , string ps = "", string ps2 = "");
@@ -150,7 +155,14 @@ public:
 	bool mustExistBeBool(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArray(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArrayString(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArrayRanges(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArrayInt(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArrayBool(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArrayOfBoolArrays(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArrayOfStringArrays(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArrayOfIntArrays(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArrayOfFloatArrays(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustExistBeArrayFloat(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArrayInt(Json::Value object, string name , string ps, string ps2, int min_val, int max_val);
 
 	bool mustHaveSizeMoreZeroAndBeNotTwoDimensionalArray(Json::Value object, string name , string ps = "", string ps2 = "");

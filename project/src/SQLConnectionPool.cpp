@@ -6,6 +6,7 @@
  */
 
 #include "inc/SQLConnectionPool.h"
+#include "mysql.h"
 
 SqlConnectionPool&  SqlConnectionPool::getInstance()
 {

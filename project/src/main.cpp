@@ -234,7 +234,7 @@ void *receiveTask(void *a)
 				cout.flush();
 				INFO("Parsing successful");
 
-				string operation = jSON.getAsString("operation");
+				string operation = jSON.getAsStringS("operation");
 				bool succsesful = true;
 				/*
 				 * OPERATION ADDTASK
@@ -462,7 +462,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 {
 	string session = jSON.getAsString("session");
 	int jobid = jSON.getAsUIntS("jobid");//		jSON.getObject("jobid", false).asUInt();
-	string code = jSON.getAsString("code");
+	string code = jSON.getAsStringS("code");
 	int task = jSON.getAsIntS("task"); //jSON.getObject("task", false).asInt();
 	string lang = jSON.getAsString("lang");
 	vector<string> resLabel;
