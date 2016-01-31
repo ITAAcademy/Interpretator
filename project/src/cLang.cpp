@@ -58,7 +58,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		break;
 	case Flag_CS:
 		code_file_name = "./src/Main" + to_string(thID) + ".exe";
-		build_str = "gmcs ./src/Main" + to_string(thID) + ".cs 2>&1";
+		build_str = "dmcs ./src/Main" + to_string(thID) + ".cs 2>&1";
 		run_str = " mono ./src/Main" + to_string(thID) + ".exe 2>&1 " + "; rm ./src/Main" + to_string(thID) + ".exe";
 		prog_name = code_file_name;
 		break;

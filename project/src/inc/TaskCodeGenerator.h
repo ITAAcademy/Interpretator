@@ -33,8 +33,11 @@ struct FunctionArgument{
 	int type=0;
 	int isArray = false;
 	int size=0;
-	map<int,string> etalonValue;
+	//map<int,string> etalonValue;
+	vector<string> etalonValue;
+	vector<vector<string>> etalon_value_array;
 	vector<string> value;
+	vector<vector<string>> value_array;
 	//vector<CompareMark> compare_marks;
 	string name;
 	/*string getTypeInt(int lang );
@@ -121,6 +124,7 @@ public:
 	bool updateData(jsonParser &jSON, int thread_id);
 	string getHeader();
 	string getFooter();
+	static string addBracketsToStr(string value);
 
 	const string& getEtalon() const ;
 

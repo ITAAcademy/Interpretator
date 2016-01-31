@@ -28,6 +28,11 @@ bool TaskCodeGenerator::updateData(jsonParser &jSON, int thread_id)
 	footer = generateFooter(data);
 }
 
+string TaskCodeGenerator::addBracketsToStr(string value)
+{
+	return "\"" + value + "\"";
+}
+
 string TaskCodeGenerator::getHeader()
 {
 	return header;
@@ -58,7 +63,10 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 	functionData.unit_tests_nums = jSON.getAsInt(functionValue["unit_test_num"]);//.asInt();//functionValue["results"][0].size();
 	functionData.isRange = jSON.isResultsRange();
 
-	functionData.result_array_size =  jSON.getAsInt(functionValue["size"]);
+	if (functionData.isArray)
+		functionData.result_array_size =  jSON.getAsInt(functionValue["size"]);
+	else
+		functionData.result_array_size = 0;
 
 	for (Value arg_indexes_pares_arr : functionValue["checkable_args_indexes"])
 	{
@@ -116,6 +124,8 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 						for (int b = 0; b < functionData.result_array_size; b++)
 						{
 							string as_str = jsonParser::getAsString(functionValue[FIELD_RESULTS][k]);
+							if (functionData.returnValueType == FunctionData::RET_VAL_STRING)
+								as_str = addBracketsToStr(as_str);
 							res.push_back( functionValue[FIELD_RESULTS][k][b].asString() );
 						}
 
@@ -123,8 +133,9 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 					}
 					else
 					{
-
 						string as_str = jsonParser::getAsString(functionValue[FIELD_RESULTS][k]);
+						if (functionData.returnValueType == FunctionData::RET_VAL_STRING)
+							as_str = addBracketsToStr(as_str);
 						functionData.result.push_back( as_str);
 					}
 				}
@@ -139,7 +150,9 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 	Value functionArgs = functionValue["args"];
 
-	for (int i=0; i<functionArgs.size(); i++)
+
+
+	for (int i=0; i < functionArgs.size(); i++)
 	{
 		Value argumentValue = functionArgs.get(i,false);
 		FunctionArgument functionArgument;
@@ -151,26 +164,81 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 		functionArgument.type = jSON.getAsInt(argumentValue[FIELD_TYPE]);//argumentValue["type"].asInt();
 		functionArgument.name = FunctionArgument::getName(argumentValue["arg_name"].asString(), functionData.lang);
 
+
+		bool is_etalon_value = !(argumentValue[FIELD_ETALON_VALUE].isNull());
 		/*for (Value arg_compare_mark: argumentValue["compare_mark"])
 		{
 			functionArgument.compare_marks.push_back( (CompareMark) arg_compare_mark.asInt());
 		}*/
+		//Json::Value args_i_value = jSON.getParsedFromString()[FUNCTION][FIELD_ARGS][ i ][FIELD_VALUE];
+
+		int etalon_value_counter = 0;
 
 		for(JsonValue value:argumentValue["value"])
 		{
-			functionArgument.value.push_back(jsonParser::getAsString(value)); //_opo
+			if (functionArgument.isArray)
+			{
+				vector<string> value_arr;
+				for (int y = 0; y < functionArgument.size; y++)
+				{
+					//string value_s = jsonParser::getAsString(value);
+					string value_s = jSON.getAsString(value[y]);
+					//jSON.getAsString(value);
+					if (functionArgument.type == FunctionData::RET_VAL_STRING)
+						value_s = addBracketsToStr(value_s);
+					value_arr.push_back(value_s); //_opo
+				}
+				functionArgument.value_array.push_back(value_arr);
+				if (is_etalon_value)
+				{
+					vector<string> etalon_value_arr;
+					int arg_size = functionArgument.size;
+					for (int y = 0; y < arg_size; y++)
+					{
+						//string value_s = jsonParser::getAsString(value);
+						string value_s = jSON.getAsString(argumentValue["etalon_value"][i][y]);
+						//getAsString(argumentValue[FIELD_ETALON_VALUE][y]);
+						//jSON.getAsString(value);
+						if (functionArgument.type == FunctionData::RET_VAL_STRING)
+							value_s = addBracketsToStr(value_s);
+						etalon_value_arr.push_back(value_s); //_opo
+					}
+					functionArgument.etalon_value_array.push_back(etalon_value_arr);
+				}
+			}
+			else
+			{
+				string value_s = jsonParser::getAsString(value);
+				functionArgument.value.push_back(value_s); //_opo
+				if (is_etalon_value)
+				{
+					//string value_s = jsonParser::getAsString(argumentValue[FIELD_ETALON_VALUE]);
+					string value_s = jsonParser::getAsString(argumentValue[FIELD_ETALON_VALUE][etalon_value_counter++]);
+					if (functionArgument.type == FunctionData::RET_VAL_STRING)
+						value_s = addBracketsToStr(value_s);
+					functionArgument.etalonValue.push_back(value_s); //_opo
+				}
+			}
 		}
 		int etalonValueArgsCount = 0;
-		for(JsonValue modvalue:argumentValue["etalon_value"])
+		/*for(JsonValue modvalue:argumentValue["etalon_value"])
 		{
+			if (modvalue.isArray())
+			{
+
+			}
+			else
+			{
+
+			}
+
+
 			if (!modvalue.isNull()){
 				functionArgument.etalonValue[etalonValueArgsCount] = jsonParser::getAsString(modvalue);
 				//modvalue.asString(); //_opo
 			}
 			etalonValueArgsCount++;
-		}
-
-
+		}*/
 
 		functionData.args.push_back(functionArgument);
 	}
@@ -427,6 +495,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			}
 		}
 
+
 		/*if (functionData.isRange )//@WHAT@
 		{
 
@@ -453,13 +522,17 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		for(FunctionArgument arg : functionData.args)
 		{
-			bool isEtalonValueComparsion = arg.etalonValue.count(i);//etalon value excist for
+			bool isEtalonValueComparsion ;
+
+			//count(i);//etalon value excist for
 			//cerr <<"argCount:"<<+argCount<< "isEtalonValueComparsion:"<<isEtalonValueComparsion<<endl;
 			currentArgumentIndex++;
 			vector<string> args_results;
 			vector<string> args_results_must_be_after_main_func;
 			if ( !arg.isArray )
 			{
+				isEtalonValueComparsion = arg.etalonValue.size();
+
 				const string castToFloat="(float)" ;
 				string currentArgDef;
 				string currentArgEtalonDef;
@@ -477,8 +550,13 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 						currentArgEtalonDef+=castToFloat;
 					}
 				}
+				//666
+				string ar_value = arg.value[i];
 
-				currentArgDef +=  arg.value[i]+";\n";
+				if (arg.type == FunctionData::RET_VAL_STRING)
+					ar_value = addBracketsToStr(ar_value);
+
+				currentArgDef +=  ar_value +";\n";
 				argumentDefinition += currentArgDef;
 
 				if (isEtalonValueComparsion)
@@ -500,26 +578,30 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			}
 			else
 			{
+				isEtalonValueComparsion = arg.etalon_value_array.size();
 				cerr<< "etalon_value is array\n";
 				Reader reader;
-				JsonValue values_u;
-				JsonValue etalons_values_u;
-				reader.parse(arg.value[i], values_u);
+				//JsonValue values_u;
+				/*				JsonValue etalons_values_u;
+				//reader.parse(arg.value[i], values_u);
 				reader.parse(arg.etalonValue[i], etalons_values_u);
-
+				 */
 
 
 				int values_u_size = arg.size;
 
 				//999
-				for(int i = 0; i < values_u_size ; i++)
+				for(int k = 0; k < values_u_size ; k++)
 				{
+					string value_i = arg.value_array[i][k];
 					argumentDefinition += arg.name + string(ETALON_FOR_FUNCTION_ENDING) +
-							"[" + to_string(i) + "] = " + arg.name +"[" + to_string(i) + "] = "
-							+ values_u[i].asString() + ";\n";
-					if (isEtalonValueComparsion){
-						argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(i) +
-								"] = " + etalons_values_u[i].asString() + ";\n";
+							"[" + to_string(k) + "] = " + arg.name +"[" + to_string(k) + "] = "
+							+ value_i + ";\n";
+					if (isEtalonValueComparsion)
+					{
+						string value = arg.etalon_value_array[i][k];
+						argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(k) +
+								"] = " + value + ";\n";
 					}
 					//"]getAllRecordsFromTable = " + etalons_values_u[i].asString() + ";\n";
 				}
@@ -532,6 +614,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 							arg.size, (ValueTypes) arg.type, CompareMark::Equial, functionData.lang);
 
 				}
+				else
+					variablesCorrect += "true;\n";
 			}
 
 
@@ -543,7 +627,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			}
 
 
-			string argStringValue = arg.value[i];
+			//string argStringValue = arg.value[i];
 			string arrName = arg.name;//    "array"+std::to_string(arraysCount);
 
 			string etalonArrName = arrName + ETALON_FOR_FUNCTION_ENDING;
@@ -649,7 +733,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			}
 			else
 			{
-				argsString += " = " + functionData.result[i] + ";\n"; //888
+				argsString += "result_etalon = " + functionData.result[i] + ";\n"; //888
 			}
 		}
 		argsString += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";

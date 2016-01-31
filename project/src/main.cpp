@@ -390,7 +390,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 		//stream.close();
 		return false;
 	}
-	string lang = jSON.getAsString("lang");
+	string lang = jSON.getAsStringS("lang");
 	string table;
 	table=ConnectorSQL::getAssignmentTable(lang);
 
@@ -460,11 +460,11 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
  */
 bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 {
-	string session = jSON.getAsString("session");
-	int jobid = jSON.getAsUIntS("jobid");//		jSON.getObject("jobid", false).asUInt();
+	string session = jSON.getAsStringS("session");
+	unsigned int jobid = jSON.getAsUIntS("jobid");//		jSON.getObject("jobid", false).asUInt();
 	string code = jSON.getAsStringS("code");
 	int task = jSON.getAsIntS("task"); //jSON.getObject("task", false).asInt();
-	string lang = jSON.getAsString("lang");
+	string lang = jSON.getAsStringS("lang");
 	vector<string> resLabel;
 	resLabel.push_back("ID");
 	resLabel.push_back("header");
@@ -810,8 +810,8 @@ void show404()
  */
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 {
-	string session = jSON.getAsString("session");
-	unsigned int jobid = jSON.getAsUIntS("jobid");//			Object("jobid", false).asUInt();
+	string session = jSON.getAsStringS("session");
+	unsigned int jobid = jSON.getAsUIntS("jobid");//			Object("jobid", false).asUInt();578565
 	//TO BE CONTINUED ...
 	vector<string> labl;
 
