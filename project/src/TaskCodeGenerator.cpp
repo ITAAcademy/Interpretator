@@ -123,10 +123,11 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 						vector<string> res;
 						for (int b = 0; b < functionData.result_array_size; b++)
 						{
-							string as_str = jsonParser::getAsString(functionValue[FIELD_RESULTS][k]);
+							string as_str = jsonParser::getAsString(functionValue[FIELD_RESULTS][k][b]);
 							if (functionData.returnValueType == FunctionData::RET_VAL_STRING)
 								as_str = addBracketsToStr(as_str);
-							res.push_back( functionValue[FIELD_RESULTS][k][b].asString() );
+							res.push_back( as_str);
+									//functionValue[FIELD_RESULTS][k][b].asString() );
 						}
 
 						functionData.result_array.push_back(res);
