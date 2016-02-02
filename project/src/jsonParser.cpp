@@ -1224,14 +1224,14 @@ bool jsonParser::isValidFields()
 			}
 
 			if (!mustExistBeArrayOf(args_i_value, value_type, arg_is_array,
-					string("value of args[" + to_string(i) + "]" ), -1, arg_i_array_size))
+					string("value of args[" + to_string(i) + "]" ), unit_test_num, arg_i_array_size))
 				return false;
 
 			bool is_args_i_etalon_value = false;
 			if (mustExist(args_i_etalon_value, string("etalon_value of args[" + to_string(i) + "]" )))
 			{
 				if (!mustExistBeArrayOf(args_i_etalon_value, value_type, arg_is_array,
-						string("etalon_value of args[" + to_string(i) + "]" ), arg_i_array_size, arg_i_array_size))
+						string("etalon_value of args[" + to_string(i) + "]" ), unit_test_num, arg_i_array_size))
 					return false;
 				is_args_i_etalon_value = true;
 			}
