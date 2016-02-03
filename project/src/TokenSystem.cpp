@@ -54,9 +54,9 @@ bool TokenSystem::getFromToken(FCGI_Stream &stream, jsonParser &jSON)
 	value =  tokenList[strToken];
 
 	string session = value.session;
-	int jobid = value.jobId;
+	string jobid = value.jobId;
 	l12( "GET FROM TOKEN" );
-	l12( to_string(jobid) );
+	l12( (jobid) );
 	l12( session );
 	//TO BE CONTINUED ...
 	vector<string> labl;
@@ -73,12 +73,12 @@ bool TokenSystem::getFromToken(FCGI_Stream &stream, jsonParser &jSON)
 		string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 		map<int, string> temp;
 		temp.insert( { 1, session });
-		temp.insert( { 2, to_string(jobid) });
+		temp.insert( { 2, (jobid) });
 		//3,skip
 		temp.insert( { 4, s_datime });
 		//4
 		vector<map<int, string> > records =	SqlConnectionPool::getInstance().getAllRecordsFromTable(
-				"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
+				"`session`='"+session+"' AND `jobid`='"+(jobid)+"'");
 		//	logfile::addLog(std::to_string(records.size()));
 		/*
 		 * RESULT

@@ -1481,8 +1481,13 @@ bool jsonParser::isValidFields()
 	Value operation = parsedFromString[FIELD_OPERATION];
 	if (operation == "start")
 	{
+		if( !mustExist(parsedFromString[FIELD_JOBID], "token"))
+					return false;
 
-		if( !mustExistBeUnsignedInt(parsedFromString[FIELD_JOBID], "jobid"))
+		if( !mustExist(parsedFromString[FIELD_JOBID], "session"))
+							return false;
+
+		if( !mustExist(parsedFromString[FIELD_JOBID], "jobid"))
 			return false;
 
 		if( !mustExistBeString(parsedFromString[FIELD_CODE_TEXT], "code"))
@@ -1511,7 +1516,7 @@ bool jsonParser::isValidFields()
 	}
 	else if (operation =="result"){
 
-		if( !mustExistBeUnsignedInt(parsedFromString[FIELD_JOBID], "jobid"))
+		if( !mustExist(parsedFromString[FIELD_JOBID], "jobid"))
 			return false;
 
 	}

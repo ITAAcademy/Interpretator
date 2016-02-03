@@ -95,7 +95,7 @@ void processTask(int id,Job job) {
 			string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 			map<int, string> temp;
 			temp.insert( { 1, job.session });
-			temp.insert( { 2, std::to_string(job.jobid) });
+			temp.insert( { 2, (job.jobid) });
 			temp.insert( { 3, "in proccess"});
 			temp.insert( { 4, s_datime });
 			temp.insert( { 5, "" });
@@ -146,7 +146,7 @@ void processTask(int id,Job job) {
 				string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 				map<int, string> temp;
 				temp.insert( { 1, job.session });
-				temp.insert( { 2, to_string(job.jobid) });
+				temp.insert( { 2, (job.jobid) });
 				if(compiler.getResult().size() == 0)
 					temp.insert( { 3, "failed"});
 				else
@@ -158,7 +158,7 @@ void processTask(int id,Job job) {
 				//string where = "`results`.`jobid`='"+to_string(job.jobid)+"' AND `results`.`session`='"+job.session+"'";
 				map<int,string> where;
 				where.insert({1,job.session});
-				where.insert({2,to_string(job.jobid)});
+				where.insert({2,(job.jobid)});
 				//ConnectorSQL::getInstance().updateRecordsInToTable(temp,wher);
 				sql.updateRecordsInToTable(temp,where);
 
@@ -228,6 +228,7 @@ void *receiveTask(void *a)
 			 * ALL OK STARTif (SqlConnectionPool::getInstance().connectToTable(string("results"), labl))
 			 */
 
+			string errora = "";
 			if (parsingSuccessful)
 			{
 				string ip_usera = FCGX_GetParam("REMOTE_ADDR", request->envp);
@@ -253,7 +254,7 @@ void *receiveTask(void *a)
 					else
 						if (operation == "start")
 						{
-							if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp)))
+							if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp), errora))
 								succsesful = false;
 						}
 						else
@@ -305,7 +306,7 @@ void *receiveTask(void *a)
 
 				if(!succsesful)
 				{
-					string error = jSON.getLastError();
+					string error = jSON.getLastError() + "\n" + errora;
 					errorResponder.showError(400, error);
 					stream.close();
 					continue;
@@ -458,10 +459,11 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
  * 					START
  *
  */
-bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
+bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error )
 {
+	error = "";
 	string session = jSON.getAsStringS("session");
-	unsigned int jobid = jSON.getAsUIntS("jobid");//		jSON.getObject("jobid", false).asUInt();
+	string jobid = jSON.getAsStringS("jobid");//		jSON.getObject("jobid", false).asUInt();
 	string code = jSON.getAsStringS("code");
 	int task = jSON.getAsIntS("task"); //jSON.getObject("task", false).asInt();
 	string lang = jSON.getAsStringS("lang");
@@ -477,7 +479,10 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
 				"`ID`='"+std::to_string(task)+"'");
 		if ((int)records.size()==0)
+		{
+			error = "Task " + to_string(task) + " in lang " + lang + " not exist";
 			return false;
+		}
 	}
 	else return false;
 
@@ -506,7 +511,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 	{
 		DEBUG("no threa2");
 		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
-				"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
+				"`session`='"+session+"' AND `jobid`='"+(jobid)+"'");
 		if ((int)records.size()==0)
 			tasksPool.push(processTask,requestedTask);
 		//processTask(0, requestedTask);
@@ -541,7 +546,12 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user)
 				stream << res.toStyledString();
 			}
 			else
+			{
 				stream << "Status: 204\r\n Content-type: text/html\r\n" << "\r\n";
+				JsonValue res;
+				res["status"] = "Added to compile queue";
+				stream << res.toStyledString();
+			}
 		}
 		else
 		{
@@ -811,7 +821,7 @@ void show404()
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 {
 	string session = jSON.getAsStringS("session");
-	unsigned int jobid = jSON.getAsUIntS("jobid");//			Object("jobid", false).asUInt();578565
+	string jobid = jSON.getAsStringS("jobid");//			Object("jobid", false).asUInt();578565
 	//TO BE CONTINUED ...
 	vector<string> labl;
 
@@ -828,12 +838,12 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 		string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 		map<int, string> temp;
 		temp.insert( { 1, session });
-		temp.insert( { 2, to_string(jobid) });
+		temp.insert( { 2, (jobid) });
 		//3,skip
 		temp.insert( { 4, s_datime });
 		//4
 		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
-				"`session`='"+session+"' AND `jobid`='"+to_string(jobid)+"'");
+				"`session`='"+session+"' AND `jobid`='"+(jobid)+"'");
 		//	logfile::addLog(std::to_string(records.size()));
 		//for (int i=0; i< records.size(); i++)
 

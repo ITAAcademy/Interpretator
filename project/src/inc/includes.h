@@ -72,7 +72,7 @@ string getCompareString(string name1,  ValueTypes type1,string name2, ValueTypes
 //Config *config;
 struct Job {
 	string session;
-	unsigned int jobid;
+	string jobid;
 	string code;
 	int task;
 	string lang;
@@ -80,7 +80,7 @@ struct Job {
 
 struct Token{
 	string session;
-	long jobId;
+	string jobId;
 	bool isValid = true;
 };
 
