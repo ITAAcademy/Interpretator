@@ -252,7 +252,7 @@ void *receiveTask(void *a)
 							succsesful = false;
 					}
 					else
-						if (operation == "start")
+						if (operation == "start" || operation == "s")
 						{
 							if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp), errora))
 								succsesful = false;
@@ -282,7 +282,7 @@ void *receiveTask(void *a)
 												succsesful = false;
 										}
 										else
-											if (operation == "result" || operation == "status")
+											if (operation == "result" || operation == "status" || operation == "r" )
 											{
 												if(!result_status(stream, jSON, operation))
 													succsesful = false;
@@ -547,9 +547,9 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error 
 			}
 			else
 			{
-				stream << "Status: 204\r\n Content-type: text/html\r\n" << "\r\n";
+				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 				JsonValue res;
-				res["status"] = "Added to compile queue";
+				res["status"] = "Added to compile";
 				stream << res.toStyledString();
 			}
 		}
@@ -875,7 +875,7 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 		if(records.size() > 0)
 		{
 			res["status"] = records[0][3];
-			if (operation == "result")
+			if (operation == "result" || operation == "r")
 			{
 				res["date"] = records[0][4];
 				res["warning"] = records[0][6];

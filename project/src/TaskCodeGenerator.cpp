@@ -167,6 +167,8 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 
 		bool is_etalon_value = !(argumentValue[FIELD_ETALON_VALUE].isNull());
+		if (is_etalon_value)
+			is_etalon_value = argumentValue[FIELD_ETALON_VALUE].size() > 0;
 		/*for (Value arg_compare_mark: argumentValue["compare_mark"])
 		{
 			functionArgument.compare_marks.push_back( (CompareMark) arg_compare_mark.asInt());
@@ -214,10 +216,11 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 				if (is_etalon_value)
 				{
 					//string value_s = jsonParser::getAsString(argumentValue[FIELD_ETALON_VALUE]);
-					string value_s = jsonParser::getAsString(argumentValue[FIELD_ETALON_VALUE][etalon_value_counter++]);
+					value_s = jsonParser::getAsString(argumentValue[FIELD_ETALON_VALUE][etalon_value_counter++]);
 					if (functionArgument.type == FunctionData::RET_VAL_STRING)
 						value_s = addBracketsToStr(value_s);
 					functionArgument.etalonValue.push_back(value_s); //_opo
+					//functionArgument.etalonValue.insert(functionArgument.etalonValue.end(), value_s);
 				}
 			}
 		}
@@ -562,7 +565,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 				if (isEtalonValueComparsion)
 				{
-					currentArgEtalonDef += arg.etalonValue[i] + string(";\n"); //etalon value for argu
+					string etal_val = arg.etalonValue[i];
+					currentArgEtalonDef += etal_val + string(";\n"); //etalon value for argu
 					argumentEtalonDefinition += currentArgEtalonDef;
 					if (etalongArgCountChecks > 0 ){//If checking of etalon already performed
 						variablesCorrect += " && ";

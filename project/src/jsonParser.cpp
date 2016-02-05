@@ -1000,7 +1000,7 @@ bool jsonParser::isValidFields()
 				return false;*/
 			if (!mustExistBeArrayOf(field_results, result_type, is_results_array, string("result" ),
 					unit_test_num, result_array_size))
-							return false;
+				return false;
 		}
 
 		if( !mustExistBeArray(field_args, "args", -1))
@@ -1230,10 +1230,14 @@ bool jsonParser::isValidFields()
 			bool is_args_i_etalon_value = false;
 			if (mustExist(args_i_etalon_value, string("etalon_value of args[" + to_string(i) + "]" )))
 			{
-				if (!mustExistBeArrayOf(args_i_etalon_value, value_type, arg_is_array,
-						string("etalon_value of args[" + to_string(i) + "]" ), unit_test_num, arg_i_array_size))
-					return false;
-				is_args_i_etalon_value = true;
+				int siz = args_i_etalon_value.size();
+				if (siz  > 0)
+				{
+					if (!mustExistBeArrayOf(args_i_etalon_value, value_type, arg_is_array,
+							string("etalon_value of args[" + to_string(i) + "]" ), unit_test_num, arg_i_array_size))
+						return false;
+					is_args_i_etalon_value = true;
+				}
 			}
 
 			if(!mustExistBeString(args_i_arg_name, string("arg_name of args[" + to_string(i) + "]" )))
@@ -1479,13 +1483,13 @@ bool jsonParser::isValidFields()
 	}
 
 	Value operation = parsedFromString[FIELD_OPERATION];
-	if (operation == "start")
+	if (operation == "start" || operation == "s")
 	{
 		if( !mustExist(parsedFromString[FIELD_JOBID], "token"))
-					return false;
+			return false;
 
 		if( !mustExist(parsedFromString[FIELD_JOBID], "session"))
-							return false;
+			return false;
 
 		if( !mustExist(parsedFromString[FIELD_JOBID], "jobid"))
 			return false;
@@ -1514,7 +1518,7 @@ bool jsonParser::isValidFields()
 			return false;
 
 	}
-	else if (operation =="result"){
+	else if (operation =="result" || operation =="r"){
 
 		if( !mustExist(parsedFromString[FIELD_JOBID], "jobid"))
 			return false;

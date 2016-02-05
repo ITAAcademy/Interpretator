@@ -33,7 +33,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		code_file_name = "prog" + to_string(thID) + ".out";
 		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
 		build_str = "g++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
-				".out 2>&1; rm ./src/code" + to_string(thID) + ".cpp";
+				".out 2>&1;rm ./src/code" + to_string(thID) + ".cpp";
 		//".out 2>&1	";
 		run_str = " ./prog" + to_string(thID) + ".out 2>&1;  rm prog" + to_string(thID) + ".out";
 		prog_name = code_file_name;
@@ -74,7 +74,24 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	in.append("rm prog.out;");
 	in.append("fi;");*/
 	long double  comp_time;
-	warning_err.append(getStdoutFromCommand(build_str, 0, &comp_time));
+	string warning = getStdoutFromCommand(build_str, 0, &comp_time);
+
+	if (flags == Flag_JS)
+	{
+		/*int war_size = warning.size();
+		char res[war_size];
+		char buf[war_size];
+		sscanf(warning.c_str(),"%s\n%s", buf, res);
+		warning = res;
+
+		*/
+		//warning.erase(0, warning.find("\n") + 1);
+		warning.erase(0, warning.find("\n") + 1);
+		warning.erase(0, warning.find("\n") + 1);
+	}
+	cout << "\n\n\n" << warning;
+
+	warning_err.append(warning);
 
 	INFO("build time: " + to_string(comp_time) + warning_err);
 	cout.flush();
