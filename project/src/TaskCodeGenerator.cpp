@@ -92,7 +92,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 	}
 
 
-	if ((etalon.find_first_not_of("\t\n\r ") == string::npos))
+	if ((etalon.find_first_not_of("\t\n\r ") == string::npos)) //if etalon not empty
 		for(JsonValue value:functionValue["results"])
 		{
 			if (jSON.isResultsRange())
@@ -127,7 +127,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 							if (functionData.returnValueType == FunctionData::RET_VAL_STRING)
 								as_str = addBracketsToStr(as_str);
 							res.push_back( as_str);
-									//functionValue[FIELD_RESULTS][k][b].asString() );
+							//functionValue[FIELD_RESULTS][k][b].asString() );
 						}
 
 						functionData.result_array.push_back(res);
@@ -466,10 +466,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	string etalongArgsString;
 
 	bool is_float = (functionData.returnValueType == ValueTypes::VAL_FLOAT);
+	//if (!(functionData.etalon.find_first_not_of("\t\n\r ") == string::npos)) //if etalon empty
 	for(int i = 0; i < functionData.unit_tests_nums; i++)
 	{
-
-		if(functionData.result.size() > 0)
+		//if(functionData.result.size() > 0) //666
 		{
 			if ( functionData.isArray != FunctionData::ARRAY)
 			{
@@ -481,18 +481,19 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			else
 			{
 				//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
-				Reader reader;
+				/*Reader reader;
 				JsonValue values_u;
 				JsonValue etalons_values_u;
-				reader.parse(functionData.result[i], values_u);
+				reader.parse(functionData.result[i], values_u);*/
 
+				vector <string> r_array = functionData.result_array[i];
 
-				for (int h = 0; h < values_u.size(); h++)
+				for (int h = 0; h < r_array.size(); h++)
 				{
 					argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ FunctionArgument::getName("result_etalon", functionData.lang) + "[" + to_string(h) + "] = ";
 					if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
 						argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
-					argsString += values_u[h].asString() + ";\n";
+					argsString += r_array[h] + ";\n";
 				}
 
 
@@ -733,7 +734,13 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				for (int u = 0; u < res.size() ; u++)
 				{
 					string num = "[" + to_string(u) + "]";
-					argsString += result_for_etalon + num + " = " + res[u] + ";\n";
+					argsString += result_for_etalon + num + " = ";
+
+					if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
+						argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT,
+								false, functionData.lang) + ") ";
+
+					argsString += res[u] + ";\n";
 				}
 			}
 			else
@@ -1071,7 +1078,7 @@ bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionD
 	variables.push_back(resultVar);
 
 	resultVar.name = FunctionArgument::getName("result", functionData.lang) +  string(ETALON_FOR_FUNCTION_ENDING);
-	output += resultVar.generateDefinition(true, functionData.lang);
+	output += resultVar.generateDefinition(false, functionData.lang);
 	variables.push_back(resultVar);
 
 

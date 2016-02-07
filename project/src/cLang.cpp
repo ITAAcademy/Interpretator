@@ -84,14 +84,15 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		sscanf(warning.c_str(),"%s\n%s", buf, res);
 		warning = res;
 
-		*/
+		 */
 		//warning.erase(0, warning.find("\n") + 1);
 		warning.erase(0, warning.find("\n") + 1);
 		warning.erase(0, warning.find("\n") + 1);
 	}
 	cout << "\n\n\n" << warning;
 
-	warning_err.append(warning);
+
+		warning_err.append(warning);
 
 	INFO("build time: " + to_string(comp_time) + warning_err);
 	cout.flush();
@@ -186,11 +187,11 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 			return false;
 		break;
 	case Flag_JS:
-			sprintf(str, "src/Main%d.js\0", thID);
-			file.open(str, fstream::out);
-			if(!file.is_open())
-				return false;
-			break;
+		sprintf(str, "src/Main%d.js\0", thID);
+		file.open(str, fstream::out);
+		if(!file.is_open())
+			return false;
+		break;
 
 	}
 	cout.flush();

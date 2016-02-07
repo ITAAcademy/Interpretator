@@ -177,6 +177,8 @@ bool ConnectorSQL::addRecordsInToTable(map<int,string> records) {
 						return false;
 }
 string ConnectorSQL::getAssignmentTable(string lang){
+	return "assignment";
+	/*
 	if (lang == "c++" || lang == "C++")
 				return "assignment_cpp"; //Config::getInstance().getTaskJavaTableName();
 			else if (lang == "Java" || lang == "java")
@@ -188,7 +190,7 @@ string ConnectorSQL::getAssignmentTable(string lang){
 			else if (lang == "C#" || lang == "c#" || lang == "CS" || lang == "cs" )
 				return "assignment_cs";
 			else
-				return "assignment_cpp";
+				return "assignment_cpp";*/
 }
 //work12
 string ConnectorSQL::getFullCodeOfProgram(string ID,int thrdId)  {
