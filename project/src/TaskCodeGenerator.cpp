@@ -469,7 +469,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	//if (!(functionData.etalon.find_first_not_of("\t\n\r ") == string::npos)) //if etalon empty
 	for(int i = 0; i < functionData.unit_tests_nums; i++)
 	{
-		//if(functionData.result.size() > 0) //666
+		//if(functionData.result.size() > 0)
 		{
 			if ( functionData.isArray != FunctionData::ARRAY)
 			{
@@ -555,7 +555,6 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 						currentArgEtalonDef+=castToFloat;
 					}
 				}
-				//666
 				string ar_value = arg.value[i];
 
 				if (arg.type == FunctionData::RET_VAL_STRING)

@@ -76,23 +76,27 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	long double  comp_time;
 	string warning = getStdoutFromCommand(build_str, 0, &comp_time);
 
+	//cout << "\n\n\n" << warning;
 	if (flags == Flag_JS)
 	{
-		/*int war_size = warning.size();
-		char res[war_size];
-		char buf[war_size];
-		sscanf(warning.c_str(),"%s\n%s", buf, res);
-		warning = res;
+		if (warning.find("project/src/Main") != string::npos)
+		{
+			//warning.erase(0, warning.find("\n") + 1);
+			warning.erase(0, warning.find(".js:") + 4);
 
-		 */
-		//warning.erase(0, warning.find("\n") + 1);
-		warning.erase(0, warning.find("\n") + 1);
-		warning.erase(0, warning.find("\n") + 1);
+			string line = warning;
+			line.erase(line.find("\n"), line.size() - 1);
+			std::string::size_type sz;
+			int error_line = std::stoi( line, &sz );
+			error_line -= 12;
+			warning.erase(0, warning.find("\n"));
+			warning = "error in:" + to_string(error_line) + warning;
+		}
 	}
-	cout << "\n\n\n" << warning;
 
 
-		warning_err.append(warning);
+
+	warning_err.append(warning);
 
 	INFO("build time: " + to_string(comp_time) + warning_err);
 	cout.flush();
