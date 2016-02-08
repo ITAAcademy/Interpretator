@@ -123,7 +123,7 @@ vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string wher
 
 	vector<map<int,string> >  records;
 	string quer = "SELECT * FROM `" + tableName + "` WHERE "+where;
-	l12 (quer);
+	//l12 (quer);
 	if (conn->connected())
 	{
 		mysqlpp::Connection::thread_start();
@@ -225,7 +225,7 @@ int SqlConnectionPool::lastInsertId()
 			ERROR("get lastInsertId INCORRECT " + string(ex.what()));
 		}
 		mysqlpp::Connection::thread_end();
-		logfile::addLog (quer);
+		//logfile::addLog (quer);
 
 
 		if (res.capacity())
@@ -331,7 +331,7 @@ string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_progr
 			rezult = beforeHeader + header + "\n " +
 					text_of_program + " \n " +
 					/*beforeFooter+*/ footer;
-			logfile::addLog(rezult);
+			//logfile::addLog(rezult);
 		}
 		else
 		{
@@ -379,7 +379,7 @@ bool SqlConnectionPool::addRecordsInToTable(vector<map<int,string> > records) {
 
 		mysqlpp::Connection::thread_start();
 		mysqlpp::Query *query;
-		logfile::addLog (quer);
+		//logfile::addLog (quer);
 		mysqlpp::SimpleResult result;
 		try{
 			query = new mysqlpp::Query( conn->query( quer) );
@@ -529,7 +529,7 @@ bool SqlConnectionPool::isConnected()
 	// end_time = clock();
 	//
 	pthread_mutex_lock(&accept_mutex);
-	l12("isConnected( )");
+	//l12("isConnected( )");
 	if (conn)
 	{
 		string quer = "show databases;";

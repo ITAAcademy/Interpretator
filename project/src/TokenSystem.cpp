@@ -45,9 +45,9 @@ bool TokenSystem::getFromToken(FCGI_Stream &stream, jsonParser &jSON)
 		res["status"] = "Token time out";
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 		stream << res.toStyledString();
-		logfile::addLog("Token time out");
-		l12( "GET FROM TOKEN" );
-		l12( to_string(tokenList.size()) );
+		//logfile::addLog("Token time out");
+		//l12( "GET FROM TOKEN" );
+		//l12( to_string(tokenList.size()) );
 		cout.flush();
 		return true;
 	}
@@ -55,9 +55,9 @@ bool TokenSystem::getFromToken(FCGI_Stream &stream, jsonParser &jSON)
 
 	string session = value.session;
 	string jobid = value.jobId;
-	l12( "GET FROM TOKEN" );
-	l12( (jobid) );
-	l12( session );
+	//l12( "GET FROM TOKEN" );
+	////l12( (jobid) );
+	//l12( session );
 	//TO BE CONTINUED ...
 	vector<string> labl;
 
@@ -107,7 +107,7 @@ bool TokenSystem::getFromToken(FCGI_Stream &stream, jsonParser &jSON)
  		 stream << "result:"+records[i][5] << "\n";
  		 stream << "warning:"+records[i][6] << "\n";
 		 */
-		logfile::addLog("Table 'results' outputed");
+		//logfile::addLog("Table 'results' outputed");
 		cout.flush();
 	}
 	else

@@ -49,7 +49,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 {
 	FunctionData functionData;
 	string etalon = jSON.getObject("etalon", false).asString();
-	l12("etalon");
+	//l12("etalon");
 
 	Value functionValue = jSON.getObject("function",false);
 
@@ -352,7 +352,7 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	headerStr += "{\n" + functionData.etalon + "return "+defaultReturnValue+";\n}\n"; // add etalon function
 	headerStr += generateFunctionProtorype(functionData, functionData.functionName) + "{\n";
 	/*l12("Yura: 2202:");
-	l12(headerStr);*/
+	//l12(headerStr);*/
 	return headerStr;
 }
 
@@ -844,8 +844,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	//C++
 
-	l12("Yura:: 00001");
-	l12(footerBody);
+	//l12("Yura:: 00001");
+	//l12(footerBody);
 	return footerBody;
 }
 

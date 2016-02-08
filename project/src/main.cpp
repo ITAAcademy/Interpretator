@@ -197,9 +197,9 @@ void *receiveTask(void *a)
 			DEBUG(request);
 			if (strcmp(stream.getRequestMethod(), "GET") == 0)
 			{
-				logfile::addLog(id, "Request Method don't POST !!!");
+				//logfile::addLog(id, "Request Method don't POST !!!");
 				errorResponder.showError(404);
-				INFO("session closed");
+				//INFO("session closed");
 				stream.close();
 				continue;
 			}
@@ -315,7 +315,7 @@ void *receiveTask(void *a)
 			}
 			else
 			{
-				logfile::addLog(id,	"Json format is not correct!!! \n::::::::::::::::::::::::\n" + stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
+				//logfile::addLog(id,	"Json format is not correct!!! \n::::::::::::::::::::::::\n" + stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
 				errorResponder.showError(400, jSON.getLastError());
 				stream.close();
 				continue;
@@ -952,7 +952,7 @@ bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation)
 		 stream << "result:"+records[i][5] << "\n";
 		 stream << "warning:"+records[i][6] << "\n";
 		 */
-		logfile::addLog("Table 'results' outputed");
+		//logfile::addLog("Table 'results' outputed");
 		cout.flush();
 	}
 	else

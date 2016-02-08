@@ -21,6 +21,8 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		ERROR("Canot open file with generation source code, maybe permission denied	");
 		return "Canot open file with generation source code, maybe permission denied";
 	}
+	l12("11111111111111111111111");
+	l12(code);
 	cout.flush();
 	cout.flush();
 	string code_file_name;
@@ -77,6 +79,8 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	string warning = getStdoutFromCommand(build_str, 0, &comp_time);
 
 	//cout << "\n\n\n" << warning;
+	l12("2222222222222222222");
+	l12(warning);
 	if (flags == Flag_JS)
 	{
 		if (warning.find("project/src/Main") != string::npos)
@@ -102,7 +106,11 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	cout.flush();
 	if(fileExist(prog_name))
 	{
-		result.append(getStdoutFromCommand(run_str, 0, &comp_time));
+		string std_out_string = getStdoutFromCommand(run_str, 0, &comp_time);
+		result.append(std_out_string);
+		l12("333333333333333333");
+		l12(std_out_string);
+
 		INFO("compute time: " + to_string(comp_time));
 	}
 	else
