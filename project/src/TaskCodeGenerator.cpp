@@ -751,7 +751,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		argsString += variablesCorrect + ";\n";
 		//argsString += FunctionArgument::getName("isTrue", functionData.lang) + " = true;\n";
 		argsString += variablesCorrectByEtalonPrefix+variablesCorrectByEtalonEnding;
-		argsString += functionData.tests_code[i] + "\n";
+
+		string ss = functionData.tests_code[i] + "\n";
+		//cout << ss;
+		argsString += "\n";
 
 		ValueTypes arrType = (ValueTypes) functionData.returnValueType;
 		CompareMark cmp = functionData.compare_marks[i];
