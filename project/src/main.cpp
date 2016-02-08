@@ -119,7 +119,7 @@ void processTask(int id,Job job) {
 				DEBUG(job.code);
 			}
 
-			INFO(to_string(id)+ " Start compiler");
+			//INFO(to_string(id)+ " Start compiler");
 			JsonValue res;
 
 			compiler.compile(job.code, true, LangCompiler::convertFromName(job.lang));
@@ -165,7 +165,7 @@ void processTask(int id,Job job) {
 			}
 
 
-			INFO(to_string(id) + " Stop compiler");
+			//INFO(to_string(id) + " Stop compiler");
 		}
 		else {
 
@@ -199,7 +199,7 @@ void *receiveTask(void *a)
 			{
 				//logfile::addLog(id, "Request Method don't POST !!!");
 				errorResponder.showError(404);
-				//INFO("session closed");
+				////INFO("session closed");
 				stream.close();
 				continue;
 			}
@@ -208,7 +208,7 @@ void *receiveTask(void *a)
 			{
 
 				errorResponder.showError(505, "DataBaseERR");
-				INFO("Try reconect to DB");
+				//INFO("Try reconect to DB");
 				stream.close();
 				SqlConnectionPool::getInstance().reconect(); //124
 				continue;  //////////////////////////////
@@ -233,7 +233,7 @@ void *receiveTask(void *a)
 			{
 				string ip_usera = FCGX_GetParam("REMOTE_ADDR", request->envp);
 				cout.flush();
-				INFO("Parsing successful");
+				//INFO("Parsing successful");
 
 				string operation = jSON.getAsStringS("operation");
 				bool succsesful = true;
@@ -324,7 +324,7 @@ void *receiveTask(void *a)
 		}
 	}
 	//close session
-	INFO("session closed");
+	//INFO("session closed");
 	stream.close();
 	return NULL;
 }
@@ -981,9 +981,9 @@ int main(void)
 		ERROR(string("Cannot open socket	" + socket));
 		return 1;
 	}
-	INFO(
+	/*INFO(
 			"Socket is opened " + socket + "...  create "
-			+ to_string(Config::getInstance().getThreadCount()) + " threads");
+			+ to_string(Config::getInstance().getThreadCount()) + " threads");*/
 	int i;
 	//create thread
 	for (i = 0; i < Config::getInstance().getThreadCount(); i++) {
@@ -998,6 +998,6 @@ int main(void)
 		pthread_join(id[i], NULL);
 	}
 	delete[] id;
-	INFO("Server stoped successful");
+	//INFO("Server stoped successful");
 	return 0;
 }
