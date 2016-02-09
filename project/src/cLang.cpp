@@ -31,13 +31,13 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	string prog_name;
 	string run_str ;
 	switch(flags){
-	case Flag_CPP:
+	case Flag_CPP:  //  &> results.txt
 		code_file_name = "prog" + to_string(thID) + ".out";
 		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
 		build_str = "g++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
-				".out 2>&1;rm ./src/code" + to_string(thID) + ".cpp";
+				".out  2>&1 ;rm ./src/code" + to_string(thID) + ".cpp";  // 2>&1 | tee -a cout.txt
 		//".out 2>&1	";
-		run_str = " ./prog" + to_string(thID) + ".out 2>&1;  rm prog" + to_string(thID) + ".out";
+		run_str = " ./prog" + to_string(thID) + ".out 2>&1 ;  rm prog" + to_string(thID) + ".out";
 		prog_name = code_file_name;
 		break;
 	case Flag_Java:
@@ -79,8 +79,8 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	string warning = getStdoutFromCommand(build_str, 0, &comp_time);
 
 	//cout << "\n\n\n" << warning;
-	l12("2222222222222222222");
-	l12(warning);
+	//l12("2222222222222222222");
+	//l12(warning);
 	if (flags == Flag_JS)
 	{
 		if (warning.find("project/src/Main") != string::npos)
@@ -108,8 +108,8 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	{
 		string std_out_string = getStdoutFromCommand(run_str, 0, &comp_time);
 		result.append(std_out_string);
-		l12("333333333333333333");
-		l12(std_out_string);
+		//l12("333333333333333333");
+		//l12(std_out_string);
 
 		//INFO("compute time: " + to_string(comp_time));
 	}
@@ -165,6 +165,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 
 bool LangCompiler::generetionSample(string code, compilerFlag flags)
 {
+	std::ofstream cout("cout.txt", std::ios::out);
 	// in the future
 	cout.flush();
 	ofstream file;
@@ -289,8 +290,9 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
 	const long double sysTime = time(0) *1000;
 	//printf("%lf", sysTime);
 	//  const long double sysTimeMS = sysTime*1000;
-	stream = popen(cmd.c_str(), "r");
+	//stream =
 
+	stream = popen(cmd.c_str(), "r");
 
 	if (stream) {
 		while (!feof(stream))
@@ -309,6 +311,11 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
 		pclose(stream);
 	}
 
+	/*std::ifstream in ;
+	in << popen(cmd.c_str(), "r");
+	std::string contents((std::istreambuf_iterator<char>(in)),
+	    std::istreambuf_iterator<char>());
+	data = contents;*/
 	return data;
 	/*std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
 	    if (!pipe) return "ERROR";
