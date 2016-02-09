@@ -35,33 +35,33 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		code_file_name = "prog" + to_string(thID) + ".out";
 		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
 		build_str = "g++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
-				".out  2>&1 ;rm ./src/code" + to_string(thID) + ".cpp";  // 2>&1 | tee -a cout.txt
+				".out  2>&1 | tee -a cout.txt;rm ./src/code" + to_string(thID) + ".cpp";  // 2>&1 | tee -a cout.txt
 		//".out 2>&1	";
-		run_str = " ./prog" + to_string(thID) + ".out 2>&1 ;  rm prog" + to_string(thID) + ".out";
+		run_str = " ./prog" + to_string(thID) + ".out 2>&1 | tee -a cout.txt;  rm prog" + to_string(thID) + ".out";
 		prog_name = code_file_name;
 		break;
 	case Flag_Java:
 		code_file_name = "Main" + to_string(thID) + ".class";
-		build_str = "cd src; javac Main" + to_string(thID) + ".java -d ../ 2>&1";
-		run_str = " java Main" + to_string(thID) + " 2>&1 ;  rm Main" + to_string(thID)+".class";
+		build_str = "cd src; javac Main" + to_string(thID) + ".java -d ../ 2>&1 |  tee -a cout.txt";
+		run_str = " java Main" + to_string(thID) + " 2>&1 |  tee -a cout.txt ;  rm Main" + to_string(thID)+".class";
 		prog_name = "Main"+to_string(thID)+".class";
 		break;
 	case Flag_JS:
 		code_file_name = "Main" + to_string(thID) + ".js";
-		build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../ 2>&1";
-		run_str = " node Main" + to_string(thID) + " 2>&1 ;  rm Main" + to_string(thID)+".js";
+		build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../ 2>&1 |  tee -a cout.txt";
+		run_str = " node Main" + to_string(thID) + " 2>&1 |  tee -a cout.txt ;  rm Main" + to_string(thID)+".js";
 		prog_name = "Main"+to_string(thID)+".js";
 		break;
 	case Flag_PHP:
 		code_file_name = "./src/Main" + to_string(thID) + ".php";
 		build_str = "";
-		run_str = "php ./src/Main" + to_string(thID) + ".php 2>&1 ;  ";
+		run_str = "php ./src/Main" + to_string(thID) + ".php 2>&1 |  tee -a cout.txt ;  ";
 		prog_name = code_file_name;
 		break;
 	case Flag_CS:
 		code_file_name = "./src/Main" + to_string(thID) + ".exe";
-		build_str = "dmcs ./src/Main" + to_string(thID) + ".cs 2>&1";
-		run_str = " mono ./src/Main" + to_string(thID) + ".exe 2>&1 " + "; rm ./src/Main" + to_string(thID) + ".exe";
+		build_str = "dmcs ./src/Main" + to_string(thID) + ".cs 2>&1 |  tee -a cout.txt";
+		run_str = " mono ./src/Main" + to_string(thID) + ".exe 2>&1 |  tee -a cout.txt " + "; rm ./src/Main" + to_string(thID) + ".exe";
 		prog_name = code_file_name;
 		break;
 	}//java -jar js.jar myscript.js
