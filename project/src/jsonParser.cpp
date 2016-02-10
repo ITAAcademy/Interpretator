@@ -36,12 +36,17 @@ bool jsonParser::mustHaveSizeMoreZeroAndBeNotTwoDimensionalArray(Json::Value obj
 	return true;
 }
 
-bool jsonParser::isStringInt(string value)
+bool jsonParser::isStringInt(string value, bool enable_zero_len)
 {
 	/*regex regStr("^[-0-9][0-9]{0,}");
 	return  std::regex_match( value, regStr );*/
 	if (value.size() == 0)
-		return false;
+	{
+		if (enable_zero_len)
+			return true;
+		else
+			return false;
+	}
 	char cymbl = value[0];
 	if (cymbl == '-' && value.size() == 1)
 		return false;
@@ -58,19 +63,26 @@ bool jsonParser::isStringInt(string value)
 	return true;
 }
 
-bool jsonParser::isStringUnsignedInt(string value)
+bool jsonParser::isStringUnsignedInt(string value, bool enable_zero_len)
 {
 	regex regStr("^[0-9][0-9]{0,}");
 	return  std::regex_match( value, regStr );
 }
 
-bool jsonParser::isStringBool(string value)
+bool jsonParser::isStringBool(string value, bool enable_zero_len)
 {
+	if (value.size() == 0)
+	{
+		if (enable_zero_len)
+			return true;
+		else
+			return false;
+	}
 	std::transform(value.begin(), value.end(), value.begin(), ::tolower);
 	return (value == "false" || value == "true" || value == "1" || value == "0" );
 }
 
-bool jsonParser::isStringFloat(string value)
+bool jsonParser::isStringFloat(string value, bool enable_zero_len)
 {
 	/*string range_no_quotes = value.substr(1, value.size() - 3);
 	regex regStr("^[-0-9][0-9]{0,}.?[0-9]{1,}");
@@ -79,7 +91,12 @@ bool jsonParser::isStringFloat(string value)
 	bool no_point = true;
 
 	if (value.size() == 0)
-		return false;
+	{
+		if (enable_zero_len)
+			return true;
+		else
+			return false;
+	}
 	char cymbl = value[0];
 	if (cymbl != '-' && (cymbl < '0' || cymbl > '9'))
 		return false;
@@ -138,7 +155,7 @@ bool jsonParser::rangeValidation(bool &range_size_inited, int &range_size, strin
 	return true;
 }
 
-bool jsonParser::mustBeArrayFloat(Json::Value object, string name , int size, string ps, string ps2 )
+bool jsonParser::mustBeArrayFloat(Json::Value object, string name , int size, bool enable_zero_len , string ps, string ps2 )
 {
 	if (!mustBeArray(object,name,size,ps))
 		return false;
@@ -149,7 +166,7 @@ bool jsonParser::mustBeArrayFloat(Json::Value object, string name , int size, st
 	return true;
 }
 
-bool jsonParser::mustBeArrayInt(Json::Value object, string name , int size, string ps, string ps2 )
+bool jsonParser::mustBeArrayInt(Json::Value object, string name , int size, bool enable_zero_len , string ps, string ps2 )
 {
 	if (!mustBeArray(object,name ,size ,ps))
 		return false;
@@ -159,7 +176,7 @@ bool jsonParser::mustBeArrayInt(Json::Value object, string name , int size, stri
 	return true;
 }
 
-bool jsonParser::mustBeArrayString(Json::Value object, string name, int size , string ps, string ps2 )
+bool jsonParser::mustBeArrayString(Json::Value object, string name, int size, bool enable_zero_len  , string ps, string ps2 )
 {
 	if (!mustBeArray(object,name,size ,ps))
 		return false;
@@ -169,7 +186,7 @@ bool jsonParser::mustBeArrayString(Json::Value object, string name, int size , s
 	return true;
 }
 
-bool jsonParser::jsonParser::mustBeArrayBool(Json::Value object, string name , int size, string ps, string ps2 )
+bool jsonParser::jsonParser::mustBeArrayBool(Json::Value object, string name , int size, bool enable_zero_len , string ps, string ps2 )
 {
 	if (!mustBeArray(object,name,size ,ps))
 		return false;
@@ -261,11 +278,11 @@ bool jsonParser::mustHaveSizeMoreZero(Json::Value object, string name , string p
 	return true;
 }
 
-bool jsonParser::mustBeInt(Json::Value object, string name , string ps )
+bool jsonParser::mustBeInt(Json::Value object, string name , string ps , bool enable_zero_len)
 {
 	if ( object.isString())
 	{
-		if (!isStringInt(object.asString()))
+		if (!isStringInt(object.asString(), enable_zero_len))
 		{
 			last_error = "ERROR: json format is not correct. " + name +" isn`t convertible to int " + ps;
 			return false;
@@ -430,29 +447,29 @@ bool jsonParser::mustExistBeArrayString(Json::Value object, string name,  int ar
 			return false;
 	return true;
 }
-bool jsonParser::mustExistBeArrayInt(Json::Value object, string name ,  int array_size, string ps, string ps2 )
+bool jsonParser::mustExistBeArrayInt(Json::Value object, string name ,  int array_size, bool enable_zero_len , string ps, string ps2 )
 {
 	if (!mustExistBeArray(object, name, array_size, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
-		if (!mustBeInt(object[i], name + stringInScobcah(i)))
+		if (!mustBeInt(object[i], name + stringInScobcah(i),"",enable_zero_len))
 			return false;
 	return true;
 }
 
-bool jsonParser::mustExistBeArrayBool(Json::Value object, string name ,  int array_size , string ps, string ps2 )
+bool jsonParser::mustExistBeArrayBool(Json::Value object, string name ,  int array_size, bool enable_zero_len , string ps, string ps2 )
 {
 	if (!mustExistBeArray(object, name, array_size, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
-		if (!mustBeBool(object[i], name + stringInScobcah(i)))
+		if (!mustBeBool(object[i], name + stringInScobcah(i),"", enable_zero_len))
 			return false;
 	return true;
 }
 
 
 
-bool jsonParser::mustExistBeArrayOfBoolArrays(Json::Value object, string name,  int array_size , int size_i_array , string ps, string ps2 )
+bool jsonParser::mustExistBeArrayOfBoolArrays(Json::Value object, string name,  int array_size , int size_i_array , bool enable_zero_len, string ps, string ps2 )
 {
 	if (!mustExistBeArray(object, name, array_size, ps,ps2))
 		return false;
@@ -462,7 +479,7 @@ bool jsonParser::mustExistBeArrayOfBoolArrays(Json::Value object, string name,  
 	return true;
 }
 
-bool jsonParser::mustExistBeArrayOfStringArrays(Json::Value object, string name,  int array_size , int size_i_array , string ps, string ps2 )
+bool jsonParser::mustExistBeArrayOfStringArrays(Json::Value object, string name,  int array_size , int size_i_array , bool enable_zero_len, string ps, string ps2 )
 {
 	if (!mustExistBeArray(object, name, array_size, ps,ps2))
 		return false;
@@ -472,27 +489,27 @@ bool jsonParser::mustExistBeArrayOfStringArrays(Json::Value object, string name,
 	return true;
 }
 
-bool jsonParser::mustExistBeArrayOfIntArrays(Json::Value object, string name,  int array_size  , int size_i_array, string ps, string ps2 )
+bool jsonParser::mustExistBeArrayOfIntArrays(Json::Value object, string name,  int array_size  , int size_i_array, bool enable_zero_len, string ps, string ps2 )
 {
 	if (!mustExistBeArray(object, name, array_size, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
-		if (!mustBeArrayInt(object[i], name + stringInScobcah(i),size_i_array))
+		if (!mustBeArrayInt(object[i], name + stringInScobcah(i),size_i_array, enable_zero_len))
 			return false;
 	return true;
 }
 
-bool jsonParser::mustExistBeArrayOfFloatArrays(Json::Value object, string name,  int array_size , int size_i_array , string ps, string ps2 )
+bool jsonParser::mustExistBeArrayOfFloatArrays(Json::Value object, string name,  int array_size , int size_i_array, bool enable_zero_len , string ps, string ps2 )
 {
 	if (!mustExistBeArray(object, name, array_size, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
-		if (!mustBeArrayFloat(object[i], name + stringInScobcah(i), size_i_array))
+		if (!mustBeArrayFloat(object[i], name + stringInScobcah(i), size_i_array, enable_zero_len))
 			return false;
 	return true;
 }
 
-bool jsonParser::mustExistBeArrayFloat(Json::Value object, string name ,  int array_size, string ps, string ps2 )
+bool jsonParser::mustExistBeArrayFloat(Json::Value object, string name ,  int array_size, bool enable_zero_len, string ps, string ps2 )
 {
 	if (!mustExistBeArray(object, name, array_size, ps,ps2))
 		return false;
@@ -502,13 +519,13 @@ bool jsonParser::mustExistBeArrayFloat(Json::Value object, string name ,  int ar
 	return true;
 }
 
-bool jsonParser::mustExistBeArrayInt(Json::Value object, string name ,  int array_size, string ps, string ps2 , int min_val, int max_val)
+bool jsonParser::mustExistBeArrayInt(Json::Value object, string name ,  int array_size, bool enable_zero_len, string ps, string ps2 , int min_val, int max_val)
 {
 	if (!mustExistBeArray(object, name, array_size, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 	{
-		if (!mustBeInt(object[i], name + stringInScobcah(i)))
+		if (!mustBeInt(object[i], name + stringInScobcah(i),"", enable_zero_len))
 			return false;
 		int int_obj = getAsInt(object[i]);//.asInt();
 		if (int_obj < min_val || int_obj > max_val)
@@ -533,7 +550,7 @@ string jsonParser::stringInScobcah(int inp)
 
 
 
-bool jsonParser::mustBeFloat(Json::Value object, string name  , string ps)
+bool jsonParser::mustBeFloat(Json::Value object, string name  , string ps, bool enable_zero_len)
 {
 	if ( object.isString())
 	{
@@ -551,7 +568,7 @@ bool jsonParser::mustBeFloat(Json::Value object, string name  , string ps)
 	}
 	return true;
 }
-bool jsonParser::mustBeString(Json::Value object, string name , string ps )
+bool jsonParser::mustBeString(Json::Value object, string name , string ps, bool enable_zero_len )
 {
 	if ( !object.isString())
 	{
@@ -561,7 +578,7 @@ bool jsonParser::mustBeString(Json::Value object, string name , string ps )
 	return true;
 }
 
-bool jsonParser::mustBeBool(Json::Value object, string name , string ps )
+bool jsonParser::mustBeBool(Json::Value object, string name , string ps, bool enable_zero_len )
 {
 	if ( object.isString())
 	{
@@ -838,7 +855,7 @@ bool jsonParser::mustBeRange(Json::Value object, string name , string ps )
 	return true;
 }
 
-bool jsonParser::mustExistBeArrayOf(Json::Value object, int type,  bool is_array, string name, int array_size, int size_i_array  )
+bool jsonParser::mustExistBeArrayOf(Json::Value object, int type,  bool is_array, string name, int array_size, int size_i_array, bool enable_zero_len  )
 {
 	if (is_array)
 	{
@@ -849,19 +866,19 @@ bool jsonParser::mustExistBeArrayOf(Json::Value object, int type,  bool is_array
 			return false;
 			break;
 		case FunctionData::RET_VAL_BOOL:
-			if(!mustExistBeArrayOfBoolArrays(object, name,array_size , size_i_array))
+			if(!mustExistBeArrayOfBoolArrays(object, name,array_size , size_i_array , enable_zero_len))
 				return false;
 			break;
 		case FunctionData::RET_VAL_FLOAT:
-			if(!mustExistBeArrayOfFloatArrays(object, name,array_size , size_i_array))
+			if(!mustExistBeArrayOfFloatArrays(object, name,array_size , size_i_array, enable_zero_len))
 				return false;
 			break;
 		case FunctionData::RET_VAL_STRING:
-			if(!mustExistBeArrayOfStringArrays(object, name,array_size , size_i_array))
+			if(!mustExistBeArrayOfStringArrays(object, name,array_size , size_i_array, enable_zero_len))
 				return false;
 			break;
 		case FunctionData::RET_VAL_INT:
-			if(!mustExistBeArrayOfIntArrays(object, name,array_size , size_i_array))
+			if(!mustExistBeArrayOfIntArrays(object, name,array_size , size_i_array, enable_zero_len))
 				return false;
 			break;
 		default:
@@ -878,11 +895,11 @@ bool jsonParser::mustExistBeArrayOf(Json::Value object, int type,  bool is_array
 				return false;
 			break;
 		case FunctionData::RET_VAL_BOOL:
-			if(!mustExistBeArrayBool(object, name, array_size))
+			if(!mustExistBeArrayBool(object, name, array_size,enable_zero_len))
 				return false;
 			break;
 		case FunctionData::RET_VAL_FLOAT:
-			if(!mustExistBeArrayFloat(object, name, array_size))
+			if(!mustExistBeArrayFloat(object, name, array_size, enable_zero_len))
 				return false;
 			break;
 		case FunctionData::RET_VAL_STRING:
@@ -890,7 +907,7 @@ bool jsonParser::mustExistBeArrayOf(Json::Value object, int type,  bool is_array
 				return false;
 			break;
 		case FunctionData::RET_VAL_INT:
-			if(!mustExistBeArrayInt(object, name, array_size))
+			if(!mustExistBeArrayInt(object, name, array_size, enable_zero_len))
 				return false;
 			break;
 		default:
@@ -960,7 +977,7 @@ bool jsonParser::isValidFields()
 		if( !mustExistBeArrayString(field_tests_code, "tests_code",unit_test_num))
 			return false;
 
-		if( !mustExistBeArrayInt(field_compare_mark, "compare_mark",unit_test_num ,"", "",0, CompareMark::Last - 1))
+		if( !mustExistBeArrayInt(field_compare_mark, "compare_mark",unit_test_num, false,"", "",0, CompareMark::Last - 1))
 			return false;
 
 
@@ -1234,7 +1251,7 @@ bool jsonParser::isValidFields()
 				if (siz  > 0)
 				{
 					if (!mustExistBeArrayOf(args_i_etalon_value, value_type, arg_is_array,
-							string("etalon_value of args[" + to_string(i) + "]" ), unit_test_num, arg_i_array_size))
+							string("etalon_value of args[" + to_string(i) + "]" ), unit_test_num, arg_i_array_size, true))
 						return false;
 					is_args_i_etalon_value = true;
 				}
@@ -1243,9 +1260,11 @@ bool jsonParser::isValidFields()
 			if(!mustExistBeString(args_i_arg_name, string("arg_name of args[" + to_string(i) + "]" )))
 				return false;
 
-			if(!mustExistBeArrayInt(args_i_compare_mark, string("compare_mark of args[" + to_string(i) + "]" ), unit_test_num))
+			if(!mustExistBeArrayInt(args_i_compare_mark, string("compare_mark of args[" +
+					to_string(i) + "]" ), unit_test_num))
 				return false;
-
+		/*	bool mustExistBeArrayInt(Json::Value object, string name,
+					int array_size, bool enable_zero_len = false , string ps = "", string ps2 = "");*/
 			int args_i_compare_mark_size = args_i_compare_mark.size();
 			/*if ( args_i_compare_mark_size != unit_test_num )
 			{
