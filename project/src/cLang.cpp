@@ -112,7 +112,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 
 	warning_err.append(warning);
 
-	//INFO("build time: " + to_string(comp_time) + warning_err);
+	INFO("build time: " + to_string(comp_time) + warning_err);
 	cout.flush();
 	if(fileExist(prog_name))
 	{
@@ -121,7 +121,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		//l12("333333333333333333");
 		//l12(std_out_string);
 
-		//INFO("compute time: " + to_string(comp_time));
+		INFO("compute time: " + to_string(comp_time));
 	}
 	else
 	{
@@ -184,7 +184,7 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 	{
 	case Flag_CPP:
 		sprintf(str, "src/code%d.cpp\0", thID);
-		//INFO(str);
+		INFO(str);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
@@ -317,7 +317,7 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
 		}
 		if(executionTime != 0)
 			executionTime[0] = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
-		//INFO(to_string(time(0)));
+		INFO(to_string(time(0)));
 		pclose(stream);
 	}
 
