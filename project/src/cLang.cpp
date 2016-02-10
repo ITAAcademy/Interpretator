@@ -35,11 +35,21 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		code_file_name = "prog" + to_string(thID) + ".out";
 		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
 		build_str = "g++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
-				".out  2>&1 |  tee -a cout.txt;rm ./src/code" + to_string(thID) + ".cpp";  // 2>&1  tee -a cout.txt
+				".out 2>&1 |  tee -a cout.txt;rm ./src/code" + to_string(thID) + ".cpp";  // 2>&1 | tee -a cout.txt
 		//".out 2>&1	";
-		run_str = " ./prog" + to_string(thID) + ".out 2>&1 |  tee -a cout.txt;  rm prog" + to_string(thID) + ".out";
+		run_str = " ./prog" + to_string(thID) + ".out  2>&1 |  tee -a cout.txt;  rm prog" + to_string(thID) + ".out";
 		prog_name = code_file_name;
 		break;
+
+		/*case Flag_CPP:  //  &> results.txt
+		code_file_name = "prog" + to_string(thID) + ".out";
+		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
+		build_str = "g++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
+				".out 2>&1 | tee -a cout.txt;rm ./src/code" + to_string(thID) + ".cpp";  // 2>&1 | tee -a cout.txt
+		//".out 2>&1	";
+		run_str = " ./prog" + to_string(thID) + ".out 2>&1 | tee -a cout.txt;  rm prog" + to_string(thID) + ".out";
+		prog_name = code_file_name;
+		break;*/
 	case Flag_Java:
 		code_file_name = "Main" + to_string(thID) + ".class";
 		build_str = "cd src; javac Main" + to_string(thID) + ".java -d ../ 2>&1 |  tee -a cout.txt";
@@ -311,11 +321,18 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
 		pclose(stream);
 	}
 
-	/*std::ifstream in ;
-	in << popen(cmd.c_str(), "r");
-	std::string contents((std::istreambuf_iterator<char>(in)),
-	    std::istreambuf_iterator<char>());
-	data = contents;*/
+	if (data == "")
+	{
+		//popen(cmd.c_str(), "r");
+		std::ifstream in;
+		in.open("cout.txt", std::ifstream::in);
+		if (in.good())
+		{
+			std::string contents((std::istreambuf_iterator<char>(in)),
+					std::istreambuf_iterator<char>());
+			data = contents;
+		}
+	}
 	return data;
 	/*std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
 	    if (!pipe) return "ERROR";
