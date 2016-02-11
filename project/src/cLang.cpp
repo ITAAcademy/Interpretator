@@ -102,7 +102,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 			line.erase(line.find("\n"), line.size() - 1);
 			std::string::size_type sz;
 			int error_line = std::stoi( line, &sz );
-			error_line -= 12;
+			error_line -= 5;
 			warning.erase(0, warning.find("\n"));
 			warning = "error in:" + to_string(error_line) + warning;
 		}
@@ -133,10 +133,10 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	 */
 	if(flags == Flag_JS)
 	{
-		if(std::size_t pos = warning_err.find("/var/www/fcgi/src/") != -1)      // position of "live" in str
+		if(std::size_t pos = warning_err.find("error in:") != -1)      // position of "live" in str
 		{
-			warning_err = warning_err.substr (pos + 18); // 18 - Length of @/var/www/fcgi/src/@
-			result = " ";
+		//	warning_err = warning_err.substr (pos + 18); // 18 - Length of @/var/www/fcgi/src/@
+			result = "";
 		}
 		else
 		{

@@ -354,8 +354,8 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	}
 
 
-	headerStr += generateFunctionProtorype(functionData, "function_etalon"); //create prototype for etalon function
-	headerStr += "{\n" + functionData.etalon + "return "+defaultReturnValue+";\n}\n"; // add etalon function
+	/*headerStr += generateFunctionProtorype(functionData, "function_etalon"); //create prototype for etalon function
+	headerStr += "{\n" + functionData.etalon + "return "+defaultReturnValue+";\n}\n"; // add etalon function*/
 	headerStr += generateFunctionProtorype(functionData, functionData.functionName) + "{\n";
 	/*l12("Yura: 2202:");
 	//l12(headerStr);*/
@@ -382,6 +382,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		footerBody += "return "+defaultReturnValue+";\n}\n";//Close function body
 	else
 		footerBody += "\n}\n";
+
+	footerBody += generateFunctionProtorype(functionData, "function_etalon"); //create prototype for etalon function
+	footerBody += "{\n" + functionData.etalon + "return "+defaultReturnValue+";\n}\n"; // add etalon function
 
 	string space=" ";
 	char divider=',';
