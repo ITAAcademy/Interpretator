@@ -473,9 +473,23 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 	bool is_float = (functionData.returnValueType == ValueTypes::VAL_FLOAT);
 	//if (!(functionData.etalon.find_first_not_of("\t\n\r ") == string::npos)) //if etalon empty
+
+	bool is_etalon_func_empty = (functionData.etalon.find_first_not_of("\t\n\r ") == string::npos);
+	//***
+
 	for(int i = 0; i < functionData.unit_tests_nums; i++)
 	{
 		//if(functionData.result.size() > 0)
+		/*if (!is_etalon_func_empty)
+		{
+			argsString +=  FunctionArgument::getName("result_etalon", functionData.lang) + " = ";
+			if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
+				argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
+
+			//argsString += " function_etalon(" + argForEtalonFunction +  ");\n";//---
+		}
+		else*/
+		if (is_etalon_func_empty)
 		{
 			if ( functionData.isArray != FunctionData::ARRAY)
 			{
@@ -492,15 +506,18 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				JsonValue etalons_values_u;
 				reader.parse(functionData.result[i], values_u);*/
 
-				vector <string> r_array = functionData.result_array[i];
-
-				for (int h = 0; h < r_array.size(); h++)
 				{
-					argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ FunctionArgument::getName("result_etalon", functionData.lang) + "[" + to_string(h) + "] = ";
-					if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
-						argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
-					argsString += r_array[h] + ";\n";
+					vector <string> r_array = functionData.result_array[i];
+
+					for (int h = 0; h < r_array.size(); h++)
+					{
+						argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ FunctionArgument::getName("result_etalon", functionData.lang) + "[" + to_string(h) + "] = ";
+						if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
+							argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
+						argsString += r_array[h] + ";\n";
+					}
 				}
+
 
 
 			}
@@ -515,8 +532,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		string argumentDefinition;
 		string argumentEtalonDefinition;
-		string argForMainFunction;
-		string argForEtalonFunction;
+		string argForMainFunction = " ";
+		string argForEtalonFunction = " ";
 
 		int argCount = 0;
 		int etalongArgCountChecks = 0;
@@ -647,7 +664,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			//string argStringValue = arg.value[i];
 			string arrName = arg.name;//    "array"+std::to_string(arraysCount);
 
-			string etalonArrName = arrName + ETALON_FOR_FUNCTION_ENDING;
+			string etalonArrName = arrName + string(ETALON_FOR_FUNCTION_ENDING);
 			if (functionData.lang == LangCompiler::Flag_CS)
 			{
 				argForMainFunction += "ref ";
@@ -734,9 +751,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		string etalon_s = functionData.etalon;
 		bool is_etalon_func_empty = (etalon_s.find_first_not_of("\t\n\r ") == string::npos);
 
-		if (!is_etalon_func_empty)
-			argsString += result_for_etalon + " = function_etalon(" + argForEtalonFunction +  ");\n";
-		else
+		if (is_etalon_func_empty)
+			/*argsString += result_for_etalon + " = function_etalon(" + argForEtalonFunction +  ");\n";
+		else*/
 		{
 			if (functionData.isArray)
 			{
@@ -759,7 +776,17 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				argsString += "result_etalon = " + functionData.result[i] + ";\n"; //888
 			}
 		}
-		argsString += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+		else
+		{
+			string gg = FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang) +  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+			argsString += gg;
+		}
+
+
+
+		string gg = FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+		argsString += gg;
+
 		argsString += variablesCorrect + ";\n";
 		//argsString += FunctionArgument::getName("isTrue", functionData.lang) + " = true;\n";
 		argsString += variablesCorrectByEtalonPrefix+variablesCorrectByEtalonEnding;
@@ -1092,7 +1119,7 @@ bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionD
 	variables.push_back(resultVar);
 
 	resultVar.name = FunctionArgument::getName("result", functionData.lang) +  string(ETALON_FOR_FUNCTION_ENDING);
-	output += resultVar.generateDefinition(false, functionData.lang);
+	output += resultVar.generateDefinition(true, functionData.lang);
 	variables.push_back(resultVar);
 
 
@@ -1118,6 +1145,14 @@ bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionD
 string TaskCodeGenerator::generateVar(int type, string name, int lang, string value)
 {
 	return FunctionArgument::generateType(type, 0, lang) + name + " ";
+}
+
+string TaskCodeGenerator::generateInputParametersString(FunctionData functionData)
+{
+	string inputParam = "";
+
+	return inputParam;
+
 }
 
 string TaskCodeGenerator::getStandartInclude(int lang)

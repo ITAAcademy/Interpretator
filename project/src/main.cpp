@@ -342,9 +342,9 @@ bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 		return false;
 	int task = jSON.getAsIntS("task");
 
-	string lang = jSON.getAsStringS("lang");
+	//string lang = jSON.getAsStringS("lang");
 	string table;
-	table=ConnectorSQL::getAssignmentTable(lang);
+	table=ConnectorSQL::getAssignmentTable(" hahaha dont need");
 
 	vector<string> labl;
 	labl.push_back("ID");

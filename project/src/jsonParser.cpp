@@ -1531,8 +1531,8 @@ bool jsonParser::isValidFields()
 
 	}
 	else if (operation =="getJson"){
-		if( !mustExistBeString(parsedFromString[FIELD_CODE_LANGUAGE], "lang"))
-			return false;
+		/*if( !mustExistBeString(parsedFromString[FIELD_CODE_LANGUAGE], "lang"))
+			return false;*/
 		if( !mustExistBeInt(parsedFromString[FIELD_TASK_ID], "task"))
 			return false;
 

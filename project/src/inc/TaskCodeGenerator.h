@@ -104,6 +104,8 @@ class TaskCodeGenerator {
 	string header;
 	string footer;
 	static int status;
+	/*string argForMainFunction = "";
+	string argForEtalonFunction = "";*/
 public:
 	static string getArrayCompareString(string name1, int arr1_size, ValueTypes type1,string name2, int arr2_size, ValueTypes type2, CompareMark mark, int lang);
 	static string getCompareString(string name1,  ValueTypes type1,string name2, ValueTypes type2, CompareMark mark, int lang);
@@ -111,8 +113,9 @@ public:
 	virtual ~TaskCodeGenerator();
 	static bool generateVariables(string &output, FunctionData functionData, vector<FunctionArgument> &variables);
 	static string generateHeader(FunctionData functionData);
-	static string generateFooter(FunctionData functionData);
+	/*static*/ string generateFooter(FunctionData functionData);
 	static string generateVar(int type, string name, int lang, string value = string());
+	static string generateInputParametersString(FunctionData functionData);
 
 	static 	string convertStringToType(string argStringValue, int type, int lang);
 	static string convertTypeToString(int type, int lang);
