@@ -161,7 +161,7 @@ bool jsonParser::mustBeArrayFloat(Json::Value object, string name , int size, bo
 		return false;
 	int obj_size = object.size();
 	for (int i = 0; i < obj_size ; i++)
-		if (!mustBeFloat(object[i], name + stringInScobcah(i), ps2))
+		if (!mustBeFloat(object[i], name + stringInScobcah(i), ps2,enable_zero_len))
 			return false;
 	return true;
 }
@@ -191,7 +191,7 @@ bool jsonParser::jsonParser::mustBeArrayBool(Json::Value object, string name , i
 	if (!mustBeArray(object,name,size ,ps))
 		return false;
 	for (int i = 0; i < object.size(); i++)
-		if (!mustBeBool(object[i], name + stringInScobcah(i), ps2))
+		if (!mustBeBool(object[i], name + stringInScobcah(i), ps2,enable_zero_len))
 			return false;
 	return true;
 }
@@ -474,7 +474,7 @@ bool jsonParser::mustExistBeArrayOfBoolArrays(Json::Value object, string name,  
 	if (!mustExistBeArray(object, name, array_size, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
-		if (!mustBeArrayBool(object[i], name + stringInScobcah(i),size_i_array))
+		if (!mustBeArrayBool(object[i], name + stringInScobcah(i),size_i_array,enable_zero_len))
 			return false;
 	return true;
 }
@@ -484,7 +484,7 @@ bool jsonParser::mustExistBeArrayOfStringArrays(Json::Value object, string name,
 	if (!mustExistBeArray(object, name, array_size, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
-		if (!mustBeArrayString(object[i], name + stringInScobcah(i),size_i_array))
+		if (!mustBeArrayString(object[i], name + stringInScobcah(i),size_i_array,enable_zero_len))
 			return false;
 	return true;
 }
@@ -554,7 +554,7 @@ bool jsonParser::mustBeFloat(Json::Value object, string name  , string ps, bool 
 {
 	if ( object.isString())
 	{
-		if (!isStringFloat(object.asString()))
+		if (!isStringFloat(object.asString(),enable_zero_len))
 		{
 			last_error = "ERROR: json format is not correct. " + name +" isn`t convertible to float " + ps;
 			return false;
@@ -582,7 +582,7 @@ bool jsonParser::mustBeBool(Json::Value object, string name , string ps, bool en
 {
 	if ( object.isString())
 	{
-		if (!isStringBool(object.asString()))
+		if (!isStringBool(object.asString(), enable_zero_len))
 		{
 			last_error = "ERROR: json format is not correct. " + name +" isn`t convertible to bool " + ps;
 			return false;
