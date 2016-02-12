@@ -514,7 +514,7 @@ bool jsonParser::mustExistBeArrayFloat(Json::Value object, string name ,  int ar
 	if (!mustExistBeArray(object, name, array_size, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
-		if (!mustBeFloat(object[i], name + stringInScobcah(i)))
+		if (!mustBeFloat(object[i], name + stringInScobcah(i),"",enable_zero_len))
 			return false;
 	return true;
 }

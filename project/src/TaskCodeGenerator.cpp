@@ -478,7 +478,6 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	//if (!(functionData.etalon.find_first_not_of("\t\n\r ") == string::npos)) //if etalon empty
 
 	bool is_etalon_func_empty = (functionData.etalon.find_first_not_of("\t\n\r ") == string::npos);
-	//***
 
 	for(int i = 0; i < functionData.unit_tests_nums; i++)
 	{
@@ -551,6 +550,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		int checkableArgsCount = 0;
 		int currentArgumentIndex=-1;
 
+		bool wasEtalonComparation = false;
+
 		for(FunctionArgument arg : functionData.args)
 		{
 			bool isEtalonValueComparsion ;
@@ -563,6 +564,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			if ( !arg.isArray )
 			{
 				isEtalonValueComparsion = arg.etalonValue.size();
+
+				if ( isEtalonValueComparsion )
+					wasEtalonComparation = true;
 
 				const string castToFloat="(float)" ;
 				string currentArgDef;
@@ -598,6 +602,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 						currentArgEtalonDef += etal_val + string(";\n"); //etalon value for argu
 						argumentEtalonDefinition += currentArgEtalonDef;
 						if (etalongArgCountChecks > 0 ){//If checking of etalon already performed
+							if (variablesCorrect != "variablesCorrect = ") //***
 							variablesCorrect += " && ";
 						}
 						variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name +
@@ -616,7 +621,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			else
 			{
 
-				cerr<< "etalon_value is array\n";
+				//cerr<< "etalon_value is array\n";
 				Reader reader;
 				//JsonValue values_u;
 				/*				JsonValue etalons_values_u;
@@ -652,14 +657,15 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 				if (isEtalonValueComparsion){
 					if (etalongArgCountChecks > 0 ){//If checking of etalon already performed
+						if (variablesCorrect != "variablesCorrect = ") //***
 						variablesCorrect += " && ";
 					}
 					variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_ENDING),
 							arg.size, (ValueTypes) arg.type, CompareMark::Equial, functionData.lang);
 
-				}
+				}/*
 				else
-					variablesCorrect += "true;\n";
+					variablesCorrect += "true;\n";*/
 			}
 
 
@@ -690,6 +696,11 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			//for (int k=0;k<variables.size();k++)
 
 		}
+
+		if (!wasEtalonComparation)
+			variablesCorrect += "true;\n";
+
+
 		if (i<checkableArgsIndexes.size())
 		{
 			for (int l = 0; l < checkableArgsIndexes[i].size();l++)
