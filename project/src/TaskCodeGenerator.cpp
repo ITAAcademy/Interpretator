@@ -615,7 +615,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			}
 			else
 			{
-				isEtalonValueComparsion = arg.etalon_value_array.size();
+
 				cerr<< "etalon_value is array\n";
 				Reader reader;
 				//JsonValue values_u;
@@ -624,17 +624,24 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				reader.parse(arg.etalonValue[i], etalons_values_u);
 				 */
 
+				isEtalonValueComparsion = arg.etalon_value_array.size();
+				if (isEtalonValueComparsion)
+					isEtalonValueComparsion = arg.etalon_value_array[i].size();
 
 				int values_u_size = arg.size;
 
 				//999
 				for(int k = 0; k < values_u_size ; k++)
 				{
+					bool isEtalonValueComparsion_k  = false;
+					if (isEtalonValueComparsion)
+						isEtalonValueComparsion_k = (arg.etalon_value_array[i].size() > k);
+
 					string value_i = arg.value_array[i][k];
 					argumentDefinition += arg.name + string(ETALON_FOR_FUNCTION_ENDING) +
 							"[" + to_string(k) + "] = " + arg.name +"[" + to_string(k) + "] = "
 							+ value_i + ";\n";
-					if (isEtalonValueComparsion)
+					if (isEtalonValueComparsion_k)
 					{
 						string value = arg.etalon_value_array[i][k];
 						argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(k) +
