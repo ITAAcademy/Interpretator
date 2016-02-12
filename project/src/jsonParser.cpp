@@ -171,7 +171,7 @@ bool jsonParser::mustBeArrayInt(Json::Value object, string name , int size, bool
 	if (!mustBeArray(object,name ,size ,ps))
 		return false;
 	for (int i = 0; i < object.size(); i++)
-		if (!mustBeInt(object[i], name + stringInScobcah(i), ps2))
+		if (!mustBeInt(object[i], name + stringInScobcah(i), ps2,enable_zero_len))
 			return false;
 	return true;
 }
