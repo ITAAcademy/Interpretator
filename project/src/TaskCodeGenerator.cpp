@@ -539,7 +539,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		int argCount = 0;
 		int etalongArgCountChecks = 0;
-		string variablesCorrect = "" + correctArgumentsConditionName + " = ";
+		string variablesCorrect = correctArgumentsConditionName + " = ";
 		string variablesCorrectByEtalonPrefix = "" + argumentsEqualToEtalonConditionName + " = ";
 		string variablesCorrectByEtalonEnding = "";
 
@@ -595,6 +595,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 				if (isEtalonValueComparsion)
 				{
+					//-`-`-`-
 					string etal_val = arg.etalonValue[i];
 					if (etal_val.size())
 					{
@@ -697,8 +698,11 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 		}
 
-		if (!wasEtalonComparation)
+		if (variablesCorrect == correctArgumentsConditionName + " = ")
 			variablesCorrect += "true;\n";
+
+		/*if (!wasEtalonComparation)
+			variablesCorrect += "true;\n";*/
 
 
 		if (i<checkableArgsIndexes.size())

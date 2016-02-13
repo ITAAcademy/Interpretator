@@ -107,6 +107,64 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 			warning = "error in:" + to_string(error_line) + warning;
 		}
 	}
+	else
+		if (flags == Flag_CPP && false)
+		{
+			string output = "";
+			while  (warning.find("error: ") != string::npos)
+			{
+				string war_temp = warning;
+
+				//find line number
+
+				string num_s = war_temp;
+
+				cout << "\n\n\n" << num_s;
+
+				int num_s_begin = num_s.find(".cpp:") + 5;
+				int num_s_end = num_s.find(": er");
+
+
+				num_s.erase(0, num_s_begin);
+				if (num_s[0] == ' ')
+					num_s.erase(0, num_s.find(".cpp:") + 5 );
+
+
+				//cout << "\n\n\n" << num_s;
+
+				num_s.erase(num_s_end - num_s_begin, num_s.size() - 1 );
+
+				//cout << "\n\n\n" << num_s;
+
+
+				war_temp.erase(0, war_temp.find("error: ") + 7);
+				warning = war_temp;
+
+				cout << "\n\n\n" << war_temp;
+
+				int first_n = war_temp.find("\n");
+				int second_n =  war_temp.find("\n",first_n + 1);
+				int third_n =  war_temp.find("\n",second_n +1 );
+				int forth_n =  war_temp.find("\n",third_n + 1);
+				int fifth_n =  war_temp.find("\n",forth_n + 1);
+
+				war_temp.erase(first_n, war_temp.size() - 1);
+
+
+				cout << "\n\n\n" << war_temp;
+
+				output += "error " + num_s + ":\n" +  war_temp ;//+ "\n";
+
+				cout << "\n\n\n" << warning;
+
+				warning.erase(0, third_n)	 ;
+
+				cout << "\n\n\n" << warning;
+			}
+			warning = output;
+		}
+
+
 
 
 
@@ -135,7 +193,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	{
 		if(std::size_t pos = warning_err.find("error in:") != -1)      // position of "live" in str
 		{
-		//	warning_err = warning_err.substr (pos + 18); // 18 - Length of @/var/www/fcgi/src/@
+			//	warning_err = warning_err.substr (pos + 18); // 18 - Length of @/var/www/fcgi/src/@
 			result = "";
 		}
 		else
