@@ -108,7 +108,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		}
 	}
 	else
-		if (flags == Flag_CPP && false)
+		if (flags == Flag_CPP)
 		{
 			string output = "";
 			while  (warning.find("error: ") != string::npos)
@@ -141,6 +141,63 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 			}
 			warning = output;
 		}
+		else
+			if (flags == Flag_CS)
+			{
+				string output = "";
+
+				string last = warning;
+				int border = last.find("Compilation ");
+				last.erase(0, border);
+				warning.erase(border, warning.size() - 1);
+
+				if (last.find("succ") != string::npos )
+					warning = "";
+				else
+				{
+
+					while  (warning.find(" error ") != string::npos)
+					{
+						string war_temp = warning;
+						string num_s = war_temp;
+						int num_s_begin = num_s.find(".cs(") + 4;
+						int num_s_end = num_s.find(": er");
+						war_temp.erase(0, war_temp.find(" error ") + 7);
+
+						num_s.erase(0, num_s_begin);
+						num_s.erase(num_s_end - num_s_begin -1, num_s.size() - 1 );
+
+						int num_line;
+						int num_char;
+						sscanf(num_s.c_str(),"%d,%d", &num_line, &num_char);
+						num_line -= 8; //it have 8 lines behind student code
+						num_s = std::to_string(num_line) + ":" + to_string(num_char);
+						/*if (num_s[0] <'0' || num_s[0] > '9')
+							{
+								num_s_begin = num_s.find(".cpp:") + 5;
+								num_s_end = num_s.find(": er");
+								num_s.erase(0, num_s_begin);
+							}*/
+						warning = war_temp;
+
+						string error_cod = war_temp;
+						error_cod.erase(error_cod.find(":"),error_cod.size() - 1);
+
+						int first_n = war_temp.find("\n");
+						/*int second_n =  war_temp.find("\n",first_n + 1);
+							int third_n =  war_temp.find("\n",second_n +1 );
+							int forth_n =  war_temp.find("\n",third_n + 1);
+							int fifth_n =  war_temp.find("\n",forth_n + 1);*/
+
+						war_temp.erase(first_n , war_temp.size() - 1);
+						war_temp.erase(0, war_temp.find(":") + 2);
+						string temp_error = "error in " + num_s + " (" + error_cod + "): " +  war_temp ;//+ "\n";
+						output += temp_error + "\n";
+						warning.erase(0, first_n)	 ;
+					}
+					warning = output;// + last;
+				}
+			}
 
 
 

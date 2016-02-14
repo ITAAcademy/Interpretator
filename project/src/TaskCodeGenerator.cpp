@@ -1144,7 +1144,7 @@ bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionD
 	variables.push_back(resultVar);
 
 	resultVar.name = FunctionArgument::getName("result", functionData.lang) +  string(ETALON_FOR_FUNCTION_ENDING);
-	output += resultVar.generateDefinition(true, functionData.lang);
+	output += resultVar.generateDefinition(false, functionData.lang);
 	variables.push_back(resultVar);
 
 
