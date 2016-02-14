@@ -9,88 +9,9 @@ LangCompiler::~LangCompiler(){
 
 }
 
-string LangCompiler::compile(string code, bool show, compilerFlag flags)
+//compilerFlag
+bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags )
 {
-	string res;
-	warning_err.clear();
-	result.clear();
-	cout.flush();
-
-	if(!generetionSample(code, flags))
-	{
-		ERROR("Canot open file with generation source code, maybe permission denied	");
-		return "Canot open file with generation source code, maybe permission denied";
-	}
-	//l12("11111111111111111111111");
-	//l12(code);
-	cout.flush();
-	cout.flush();
-	string code_file_name;
-
-	string build_str ;
-	string prog_name;
-	string run_str ;
-	switch(flags){
-	case Flag_CPP:  //  &> results.txt
-		code_file_name = "prog" + to_string(thID) + ".out";
-		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
-		build_str = "g++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
-				".out 2>&1 |  tee -a cout.txt;rm ./src/code" + to_string(thID) + ".cpp";  // 2>&1 | tee -a cout.txt
-		//".out 2>&1	";
-		run_str = " ./prog" + to_string(thID) + ".out  2>&1 |  tee -a cout.txt;  rm prog" + to_string(thID) + ".out";
-		prog_name = code_file_name;
-		break;
-
-		/*case Flag_CPP:  //  &> results.txt
-		code_file_name = "prog" + to_string(thID) + ".out";
-		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
-		build_str = "g++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
-				".out 2>&1 | tee -a cout.txt;rm ./src/code" + to_string(thID) + ".cpp";  // 2>&1 | tee -a cout.txt
-		//".out 2>&1	";
-		run_str = " ./prog" + to_string(thID) + ".out 2>&1 | tee -a cout.txt;  rm prog" + to_string(thID) + ".out";
-		prog_name = code_file_name;
-		break;*/
-	case Flag_Java:
-		code_file_name = "Main" + to_string(thID) + ".class";
-		build_str = "cd src; javac Main" + to_string(thID) + ".java -d ../ 2>&1 |  tee -a cout.txt";
-		run_str = " java Main" + to_string(thID) + " 2>&1 |  tee -a cout.txt ;  rm Main" + to_string(thID)+".class";
-		prog_name = "Main"+to_string(thID)+".class";
-		break;
-	case Flag_JS:
-		code_file_name = "Main" + to_string(thID) + ".js";
-		build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../ 2>&1 |  tee -a cout.txt";
-		run_str = " node Main" + to_string(thID) + " 2>&1 |  tee -a cout.txt ;  rm Main" + to_string(thID)+".js";
-		prog_name = "Main"+to_string(thID)+".js";
-		break;
-	case Flag_PHP:
-		code_file_name = "./src/Main" + to_string(thID) + ".php";
-		build_str = "";
-		run_str = "php ./src/Main" + to_string(thID) + ".php 2>&1 |  tee -a cout.txt ;  ";
-		prog_name = code_file_name;
-		break;
-	case Flag_CS:
-		code_file_name = "./src/Main" + to_string(thID) + ".exe";
-		build_str = "dmcs ./src/Main" + to_string(thID) + ".cs 2>&1 |  tee -a cout.txt";
-		run_str = " mono ./src/Main" + to_string(thID) + ".exe 2>&1 |  tee -a cout.txt " + "; rm ./src/Main" + to_string(thID) + ".exe";
-		prog_name = code_file_name;
-		break;
-	}//java -jar js.jar myscript.js
-
-	/*
-	 * BETA // don't delete
-	 *
-	in.append("cd /var/www/fcgi/srs/; clang++ -Wall -stdlib=libc++ code$1.cpp -o prog$1.out; if [ -f /var/www/fcgi/srs/prog$1.out ]; then  ./prog$1.out;  rm prog$1.out; fi");
-	in.append("cd /var/www/fcgi/srs/;");
-	in.append("clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o prog" + to_string(thID) + ".out;");
-	in.append("if [ -f /var/www/fcgi/srs/" + code_file_name + " ]; then ./" + code_file_name) + ";";
-	in.append("rm prog.out;");
-	in.append("fi;");*/
-	long double  comp_time;
-	string warning = getStdoutFromCommand(build_str, 0, &comp_time);
-
-	//cout << "\n\nerror:\n" << warning;
-	//l12("2222222222222222222");
-	//l12(warning);
 	if (flags == Flag_JS)
 	{
 		if (warning.find("project/src/Main") != string::npos)
@@ -198,10 +119,140 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 					warning = output;// + last;
 				}
 			}
+			else
+				if (flags == Flag_PHP )
+				{
+					string error_s = "";
+
+					if  (warning.find("error: ") != string::npos)
+						error_s = "error, ";
+					else
+						if  (warning.find("PHP Notice: ") != string::npos)
+						error_s = "PHP Notice: ";
+
+					if (error_s.size())
+					{
+						string war_temp = warning;
+
+						war_temp.erase(0, war_temp.find(error_s) + error_s.size());
+						if (war_temp.find(error_s) != string::npos)
+						{
+							war_temp.erase(0, war_temp.find(error_s) + error_s.size());
+						}
+
+						string num_s = war_temp;
+						int num_s_begin = num_s.find("on line ") + 8;
+
+						num_s.erase(0, num_s_begin);
+
+						int num_line;
+						sscanf(num_s.c_str(),"%d\n", &num_line);
+						num_line -= 7;
+						num_s = to_string(num_line);
 
 
+						war_temp.erase(war_temp.find(" in "),war_temp.size() - 1);
 
+						warning = "error in " + num_s + ": " +  war_temp + "\n";
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else
+				{
+					return false;
+				}
+	return true;
+}
 
+string LangCompiler::compile(string code, bool show, compilerFlag flags)
+{
+	string res;
+	warning_err.clear();
+	result.clear();
+	cout.flush();
+
+	if(!generetionSample(code, flags))
+	{
+		ERROR("Canot open file with generation source code, maybe permission denied	");
+		return "Canot open file with generation source code, maybe permission denied";
+	}
+	//l12("11111111111111111111111");
+	//l12(code);
+	cout.flush();
+	cout.flush();
+	string code_file_name;
+
+	string build_str ;
+	string prog_name;
+	string run_str ;
+	switch(flags){
+	case Flag_CPP:  //  &> results.txt
+		code_file_name = "prog" + to_string(thID) + ".out";
+		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
+		build_str = "g++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
+				".out 2>&1 |  tee -a cout.txt;rm ./src/code" + to_string(thID) + ".cpp";  // 2>&1 | tee -a cout.txt
+		//".out 2>&1	";
+		run_str = " ./prog" + to_string(thID) + ".out  2>&1 |  tee -a cout.txt;  rm prog" + to_string(thID) + ".out";
+		prog_name = code_file_name;
+		break;
+
+		/*case Flag_CPP:  //  &> results.txt
+		code_file_name = "prog" + to_string(thID) + ".out";
+		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
+		build_str = "g++ -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
+				".out 2>&1 | tee -a cout.txt;rm ./src/code" + to_string(thID) + ".cpp";  // 2>&1 | tee -a cout.txt
+		//".out 2>&1	";
+		run_str = " ./prog" + to_string(thID) + ".out 2>&1 | tee -a cout.txt;  rm prog" + to_string(thID) + ".out";
+		prog_name = code_file_name;
+		break;*/
+	case Flag_Java:
+		code_file_name = "Main" + to_string(thID) + ".class";
+		build_str = "cd src; javac Main" + to_string(thID) + ".java -d ../ 2>&1 |  tee -a cout.txt";
+		run_str = " java Main" + to_string(thID) + " 2>&1 |  tee -a cout.txt ;  rm Main" + to_string(thID)+".class";
+		prog_name = "Main"+to_string(thID)+".class";
+		break;
+	case Flag_JS:
+		code_file_name = "Main" + to_string(thID) + ".js";
+		build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../ 2>&1 |  tee -a cout.txt";
+		run_str = " node Main" + to_string(thID) + " 2>&1 |  tee -a cout.txt ;  rm Main" + to_string(thID)+".js";
+		prog_name = "Main"+to_string(thID)+".js";
+		break;
+	case Flag_PHP:
+		code_file_name = "./src/Main" + to_string(thID) + ".php";
+		build_str = "";
+		run_str ="php ./src/Main"
+				+ to_string(thID) + ".php 2>&1 |  tee -a cout.txt ;  rm  /src/Main" + to_string(thID) + ".php; ";
+		prog_name = code_file_name;
+		break;
+	case Flag_CS:
+		code_file_name = "./src/Main" + to_string(thID) + ".exe";
+		build_str = "dmcs ./src/Main" + to_string(thID) + ".cs 2>&1 |  tee -a cout.txt";
+		run_str = " mono ./src/Main" + to_string(thID) + ".exe 2>&1 |  tee -a cout.txt " + "; rm ./src/Main" + to_string(thID) + ".exe";
+		prog_name = code_file_name;
+		break;
+	}//java -jar js.jar myscript.js
+
+	/*
+	 * BETA // don't delete
+	 *
+	in.append("cd /var/www/fcgi/srs/; clang++ -Wall -stdlib=libc++ code$1.cpp -o prog$1.out; if [ -f /var/www/fcgi/srs/prog$1.out ]; then  ./prog$1.out;  rm prog$1.out; fi");
+	in.append("cd /var/www/fcgi/srs/;");
+	in.append("clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o prog" + to_string(thID) + ".out;");
+	in.append("if [ -f /var/www/fcgi/srs/" + code_file_name + " ]; then ./" + code_file_name) + ";";
+	in.append("rm prog.out;");
+	in.append("fi;");*/
+	long double  comp_time;
+	string warning = getStdoutFromCommand(build_str, 0, &comp_time);
+
+	//cout << "\n\nerror:\n" << warning;
+	//l12("2222222222222222222");
+	//l12(warning);
+	//compilerFlag
+	if (flags != compilerFlag::Flag_PHP)
+		beautyErrorOutput(warning, flags );
 
 	warning_err.append(warning);
 
@@ -210,16 +261,31 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	if(fileExist(prog_name))
 	{
 		string std_out_string = getStdoutFromCommand(run_str, 0, &comp_time);
-		result.append(std_out_string);
-		//l12("333333333333333333");
-		//l12(std_out_string);
 
-		INFO("compute time: " + to_string(comp_time));
+		if (flags == compilerFlag::Flag_PHP)
+		{
+			if (beautyErrorOutput(std_out_string, flags ))
+			{
+				warning_err.append(std_out_string);
+				ERROR("cLang colpilation: php return error");
+			}
+			else
+			{
+				result.append(std_out_string);
+				INFO("compute time: " + to_string(comp_time));
+			}
+		}
+		else
+		{
+			result.append(std_out_string);
+			INFO("compute time: " + to_string(comp_time));
+		}
 	}
 	else
 	{
 		ERROR("cLang colpilation: file not exist");
 	}
+
 	cout.flush();
 	/*
 	 * parse error and result if not found err

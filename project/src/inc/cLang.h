@@ -33,6 +33,9 @@ public:
 	LangCompiler(int ID);
 
 	~LangCompiler();
+
+
+	static bool beautyErrorOutput(string &warning,compilerFlag flags );
 	/*
 	 * Compile __ if all ok return app result else return CLang compiler error
 	 *
