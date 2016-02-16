@@ -25,8 +25,11 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool st
 			int error_line = std::stoi( line, &sz );
 			if (student_or_teacher)
 				error_line -= 5;
+			else
+				error_line -= 10;
 
 			warning.erase(0, warning.find("\n"));
+			warning.erase(warning.find("at function"), warning.size() - 1);
 			warning = "error in:" + to_string(error_line) + warning;
 		}
 	}
@@ -162,6 +165,8 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool st
 						sscanf(num_s.c_str(),"%d\n", &num_line);
 						if (student_or_teacher)
 							num_line -= lines_begind;
+						else
+							num_line -= 12;
 						num_s = to_string(num_line);
 
 
