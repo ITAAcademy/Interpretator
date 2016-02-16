@@ -416,7 +416,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 
 		TaskCodeGenerator generator(jSON, thread_id);
 
-		LangCompiler compiler(9);
+		LangCompiler compiler(thread_id);
 
 		string code = sql.generateProgramCode(generator.getHeader(), string(""), generator.getFooter(), lang);
 		compiler.compile(code, true, LangCompiler::convertFromName(lang),false);
@@ -427,12 +427,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 		if (errors.size())
 		{
 			error = "failed code compilation: " + errors ;
-			return false;/*
-
-			res["status"]
-			stream << res.toStyledString();
-			stream.close();
-			return true;*/
+			return false;
 		}
 
 
