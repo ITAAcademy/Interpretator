@@ -56,9 +56,9 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool st
 				int error_line = std::stoi( num_s, &sz );
 
 				if (student_or_teacher)
-					error_line = -39;
+					error_line = -38;
 				else
-					error_line -= 45;
+					error_line -= 44;
 
 
 				int first_n = war_temp.find("\n");
@@ -105,6 +105,8 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool st
 						sscanf(num_s.c_str(),"%d,%d", &num_line, &num_char);
 						if (student_or_teacher)
 							num_line -= 8; //it have 8 lines behind student code
+						else
+							num_line -= 14;
 
 						num_s = std::to_string(num_line) + ":" + to_string(num_char);
 						/*if (num_s[0] <'0' || num_s[0] > '9')
