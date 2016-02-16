@@ -25,6 +25,7 @@ class SqlConnectionPool : public mysqlpp::ConnectionPool
 {
 
 public:
+	static string generateProgramCode(string header,string text_of_program, string footer, string lang  );
   static SqlConnectionPool&  getInstance( );
   SqlConnectionPool();
   ~SqlConnectionPool();

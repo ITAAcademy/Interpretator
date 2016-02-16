@@ -242,7 +242,7 @@ void *receiveTask(void *a)
 				 */
 				if (operation == "addtask")
 				{
-					if(!addNewtask(stream, jSON, id))
+					if(!addNewtask(stream, jSON, id, errora))
 						succsesful = false;
 				}
 				else
@@ -382,7 +382,7 @@ bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 
 
 
-bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
+bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error)
 {
 	if ( !jSON.isValidFields() )
 	{
@@ -416,6 +416,26 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 
 		TaskCodeGenerator generator(jSON, thread_id);
 
+		LangCompiler compiler(9);
+
+		string code = sql.generateProgramCode(generator.getHeader(), string(""), generator.getFooter(), lang);
+		compiler.compile(code, true, LangCompiler::convertFromName(lang),false);
+		string errors = compiler.getWarningErr();
+
+		JsonValue res;
+
+		if (errors.size())
+		{
+			error = "failed code compilation: " + errors ;
+			return false;/*
+
+			res["status"]
+			stream << res.toStyledString();
+			stream.close();
+			return true;*/
+		}
+
+
 		int valuesCount = 0;
 		temp.insert( { valuesCount++, std::to_string(id) });
 		temp.insert( { valuesCount++, (generator.getHeader())});
@@ -425,7 +445,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 		temp.insert({valuesCount++, (jSON.getJson())});
 		DEBUG("temp.insert");
 		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-		JsonValue res;
+
 
 
 		map<int,string> where;
@@ -446,6 +466,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 				res["id"] = to_string(id);
 			}
 			else res["status"] = "failed";
+
 		stream << res.toStyledString();
 		stream.close();
 		return true;

@@ -10,7 +10,7 @@ LangCompiler::~LangCompiler(){
 }
 
 //compilerFlag
-bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags )
+bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool student_or_teacher )
 {
 	if (flags == Flag_JS)
 	{
@@ -23,7 +23,9 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags )
 			line.erase(line.find("\n"), line.size() - 1);
 			std::string::size_type sz;
 			int error_line = std::stoi( line, &sz );
-			error_line -= 5;
+			if (student_or_teacher)
+				error_line -= 5;
+
 			warning.erase(0, warning.find("\n"));
 			warning = "error in:" + to_string(error_line) + warning;
 		}
@@ -47,8 +49,18 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags )
 					num_s.erase(0, num_s_begin);
 				}
 				warning = war_temp;
-				cout << "\n\nerror:\n" << warning;
+
 				num_s.erase(num_s_end - num_s_begin, num_s.size() - 1 );
+
+				std::string::size_type sz;
+				int error_line = std::stoi( num_s, &sz );
+
+				if (student_or_teacher)
+					error_line = -39;
+				else
+					error_line -= 45;
+
+
 				int first_n = war_temp.find("\n");
 				int second_n =  war_temp.find("\n",first_n + 1);
 				int third_n =  war_temp.find("\n",second_n +1 );
@@ -56,7 +68,7 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags )
 				int fifth_n =  war_temp.find("\n",forth_n + 1);
 
 				war_temp.erase(second_n, war_temp.size() - 1);
-				string temp_error = "error " + num_s + ": " +  war_temp ;//+ "\n";
+				string temp_error = "error " + to_string(error_line) + ": " +  war_temp ;//+ "\n";
 				output += temp_error + "\n";
 				warning.erase(0, third_n)	 ;
 			}
@@ -91,7 +103,9 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags )
 						int num_line;
 						int num_char;
 						sscanf(num_s.c_str(),"%d,%d", &num_line, &num_char);
-						num_line -= 8; //it have 8 lines behind student code
+						if (student_or_teacher)
+							num_line -= 8; //it have 8 lines behind student code
+
 						num_s = std::to_string(num_line) + ":" + to_string(num_char);
 						/*if (num_s[0] <'0' || num_s[0] > '9')
 							{
@@ -144,7 +158,8 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags )
 
 						int num_line;
 						sscanf(num_s.c_str(),"%d\n", &num_line);
-						num_line -= lines_begind;
+						if (student_or_teacher)
+							num_line -= lines_begind;
 						num_s = to_string(num_line);
 
 
@@ -177,7 +192,10 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags )
 
 							int num_line;
 							sscanf(num_s.c_str(),"%d\n", &num_line);
-							num_line -= 6;
+							if (student_or_teacher)
+								num_line -= 6;//12
+							else
+								num_line -= 12;
 							num_s = to_string(num_line);
 
 							int first_n = war_temp.find("\n");
@@ -186,10 +204,19 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags )
 							int forth_n =  war_temp.find("\n",third_n + 1);
 							int fifth_n =  war_temp.find("\n",forth_n + 1);
 
-							war_temp.erase(forth_n, war_temp.size() - 1);
-							string temp_error = "error in line" + num_s + ": " +  war_temp ;//+ "\n";
+							int next_er = war_temp.find("^\n  symbol:");
+							if (next_er == -1)
+								next_er = war_temp.find("symbol:");
+							if (next_er == -1)
+								next_er = war_temp.find("\n     ^\nMain");
+							if (next_er == -1)
+								next_er = second_n;
+
+
+							war_temp.erase(next_er, war_temp.size() - 1);
+							string temp_error = "error in line " + num_s + ": " +  war_temp ;//+ "\n";
 							output += temp_error + "\n";
-							warning.erase(0, forth_n)	 ;
+							warning.erase(0, next_er)	 ;
 						}
 						warning = output;
 					}
@@ -200,7 +227,7 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags )
 	return true;
 }
 
-string LangCompiler::compile(string code, bool show, compilerFlag flags)
+string LangCompiler::compile(string code, bool show, compilerFlag flags, bool student_or_teacher)
 {
 	string res;
 	warning_err.clear();
@@ -285,7 +312,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 	//l12(warning);
 	//compilerFlag
 	if (flags != compilerFlag::Flag_PHP)
-		beautyErrorOutput(warning, flags );
+		beautyErrorOutput(warning, flags , student_or_teacher);
 
 	warning_err.append(warning);
 
@@ -297,7 +324,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 
 		if (flags == compilerFlag::Flag_PHP)
 		{
-			if (beautyErrorOutput(std_out_string, flags ))
+			if (beautyErrorOutput(std_out_string, flags, student_or_teacher ))
 			{
 				warning_err.append(std_out_string);
 				ERROR("cLang colpilation: php return error");
