@@ -120,50 +120,83 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags )
 				}
 			}
 			else
-				if (flags == Flag_PHP )
+				if (flags == Flag_PHP)
 				{
-					string error_s = "";
+					string error_s = "on line ";
+					int lines_begind = 6;
 
-					if  (warning.find("error: ") != string::npos)
-						error_s = "error, ";
-					else
-						if  (warning.find("PHP Notice: ") != string::npos)
-						error_s = "PHP Notice: ";
-
-					if (error_s.size())
+					if  (warning.find(error_s) != string::npos)
 					{
 						string war_temp = warning;
 
-						war_temp.erase(0, war_temp.find(error_s) + error_s.size());
-						if (war_temp.find(error_s) != string::npos)
+						string num_s = war_temp;
+
+						war_temp.erase(war_temp.find(" in /"), war_temp.size() - 1);
+						/*if (war_temp.find(error_s) != string::npos)
 						{
 							war_temp.erase(0, war_temp.find(error_s) + error_s.size());
-						}
+						}*/
 
-						string num_s = war_temp;
-						int num_s_begin = num_s.find("on line ") + 8;
+
+						int num_s_begin = num_s.find("on line ") + error_s.size();
 
 						num_s.erase(0, num_s_begin);
 
 						int num_line;
 						sscanf(num_s.c_str(),"%d\n", &num_line);
-						num_line -= 7;
+						num_line -= lines_begind;
 						num_s = to_string(num_line);
 
 
-						war_temp.erase(war_temp.find(" in "),war_temp.size() - 1);
+						//war_temp.erase(war_temp.find(" in "),war_temp.size() - 1);
 
-						warning = "error in " + num_s + ": " +  war_temp + "\n";
+						warning = war_temp + " in line " + num_s +  "\n";
 					}
+
 					else
 					{
 						return false;
 					}
 				}
 				else
-				{
-					return false;
-				}
+					if (flags == Flag_Java)
+					{
+						string output = "";
+						while  (warning.find("error: ") != string::npos)
+						{
+							string war_temp = warning;
+							string num_s = war_temp;
+							int num_s_begin = num_s.find(".java:") + 6;
+							int num_s_end = num_s.find(": er");
+							war_temp.erase(0, war_temp.find("error: ") + 7);
+							num_s.erase(0, num_s_begin);
+
+							warning = war_temp;
+
+							num_s.erase(num_s_end - num_s_begin, num_s.size() - 1 );
+
+							int num_line;
+							sscanf(num_s.c_str(),"%d\n", &num_line);
+							num_line -= 6;
+							num_s = to_string(num_line);
+
+							int first_n = war_temp.find("\n");
+							int second_n =  war_temp.find("\n",first_n + 1);
+							int third_n =  war_temp.find("\n",second_n +1 );
+							int forth_n =  war_temp.find("\n",third_n + 1);
+							int fifth_n =  war_temp.find("\n",forth_n + 1);
+
+							war_temp.erase(forth_n, war_temp.size() - 1);
+							string temp_error = "error in line" + num_s + ": " +  war_temp ;//+ "\n";
+							output += temp_error + "\n";
+							warning.erase(0, forth_n)	 ;
+						}
+						warning = output;
+					}
+					else
+					{
+						return false;
+					}
 	return true;
 }
 
@@ -224,7 +257,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags)
 		code_file_name = "./src/Main" + to_string(thID) + ".php";
 		build_str = "";
 		run_str ="php ./src/Main"
-				+ to_string(thID) + ".php 2>&1 |  tee -a cout.txt ;  rm  /src/Main" + to_string(thID) + ".php; ";
+				+ to_string(thID) + ".php 2>&1 |  tee -a cout.txt ; ";// rm  /src/Main" + to_string(thID) + ".php; ";
 		prog_name = code_file_name;
 		break;
 	case Flag_CS:
