@@ -798,6 +798,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 			}
 			else
 			{
+				if (functionData.lang == LangCompiler::Flag_PHP)
+					argsString += "$";
 				argsString += "result_etalon = " + functionData.result[i] + ";\n"; //888
 			}
 		}
