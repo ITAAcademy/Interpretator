@@ -144,6 +144,11 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool st
 					string error_s = "on line ";
 					int lines_begind = 6;
 
+					if (warning.find("Failed loading /usr/lib/php5/20100525/xcache.so") != string::npos)
+					{
+						warning.erase(0, warning.find("directory\n") + 11);
+					}
+
 					if  (warning.find(error_s) != string::npos)
 					{
 						string war_temp = warning;
