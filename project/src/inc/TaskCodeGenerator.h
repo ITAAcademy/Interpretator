@@ -107,6 +107,7 @@ class TaskCodeGenerator {
 	/*string argForMainFunction = "";
 	string argForEtalonFunction = "";*/
 public:
+	static string generateDefaultReturnValue(int lang, int returnValueType, int isArray);
 	static string getArrayCompareString(string name1, int arr1_size, ValueTypes type1,string name2, int arr2_size, ValueTypes type2, CompareMark mark, int lang);
 	static string getCompareString(string name1,  ValueTypes type1,string name2, ValueTypes type2, CompareMark mark, int lang);
 	TaskCodeGenerator(jsonParser &jSON, int thread_id);

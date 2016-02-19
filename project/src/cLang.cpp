@@ -1,5 +1,7 @@
 #include "inc/cLang.h"
 
+#include <stdio.h>
+
 LangCompiler::LangCompiler(int ID){
 	thID = ID;
 	timeOut = 2000/1000;
@@ -12,12 +14,19 @@ LangCompiler::~LangCompiler(){
 //compilerFlag
 bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool student_or_teacher )
 {
+	//return false;
 	if (flags == Flag_JS)
 	{
+		l12("**************************");
+					l12( warning);
+					l12("**************************");
 		if (warning.find("project/src/Main") != string::npos)
 		{
 			//warning.erase(0, warning.find("\n") + 1);
+
 			warning.erase(0, warning.find(".js:") + 4);
+
+
 
 			string line = warning;
 			line.erase(line.find("\n"), line.size() - 1);

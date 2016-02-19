@@ -362,26 +362,57 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	return headerStr;
 }
 
-string TaskCodeGenerator::generateFooter(FunctionData functionData){
-
-	vector<FunctionArgument> variables;
-	string defaultReturnValue = "0";
-	if (functionData.lang==LangCompiler::Flag_Java)//What
-		defaultReturnValue="null";
-	else
-		if (functionData.lang==LangCompiler::Flag_CS)
+string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueType, int isArray)
+{
+	string defaultReturnValue = "";
+	if (lang==LangCompiler::Flag_Java)//What
+	{
+		defaultReturnValue = "";
+		switch (returnValueType)
 		{
-			defaultReturnValue = "default(" + FunctionArgument::generateType(functionData.returnValueType, false, functionData.lang);
-			if (functionData.isArray == FunctionData::ARRAY)
+		case FunctionData::RET_VAL_BOOL:
+			defaultReturnValue +=" false";
+			break;
+
+		case FunctionData::RET_VAL_FLOAT:
+			defaultReturnValue +=" 98989.9898889898";
+			break;
+
+		case FunctionData::RET_VAL_INT:
+			defaultReturnValue +=" 65533";
+			break;
+
+		case FunctionData::RET_VAL_STRING:
+			defaultReturnValue +=" qhejih34213	ed	qe0134139\n\t```))((*&&^%";
+			break;
+		default:
+			defaultReturnValue = "null";
+			break;
+		}
+	}
+	else
+		if (lang==LangCompiler::Flag_CS)
+		{
+			defaultReturnValue = "default(" + FunctionArgument::generateType(returnValueType, false, lang);
+			if (isArray == FunctionData::ARRAY)
 				defaultReturnValue += " [] ";
 			defaultReturnValue += ")";
 		}
+
+	return defaultReturnValue;
+}
+
+string TaskCodeGenerator::generateFooter(FunctionData functionData){
+
+	vector<FunctionArgument> variables;
+	//int lang, int returnValueType, int isArray
+	string defaultReturnValue = generateDefaultReturnValue(functionData.lang, functionData.returnValueType, functionData.isArray);
 	//999
 	string footerBody = "";
-	if (functionData.lang != (int) LangCompiler::Flag_Java)
+	//if (functionData.lang != (int) LangCompiler::Flag_Java)
 		footerBody += "return "+defaultReturnValue+";\n}\n";//Close function body
-	else
-		footerBody += "\n}\n";
+	/*else
+		footerBody += "\n}\n";*/
 
 	footerBody += generateFunctionProtorype(functionData, "function_etalon"); //create prototype for etalon function
 	footerBody += "{\n" + functionData.etalon + "return "+defaultReturnValue+";\n}\n"; // add etalon function
@@ -556,6 +587,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		{
 			bool isEtalonValueComparsion ;
 
+			string arr_nama = arg.name;
+
 			//count(i);//etalon value excist for
 			//cerr <<"argCount:"<<+argCount<< "isEtalonValueComparsion:"<<isEtalonValueComparsion<<endl;
 			currentArgumentIndex++;
@@ -604,7 +637,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 						argumentEtalonDefinition += currentArgEtalonDef;
 						if (etalongArgCountChecks > 0 ){//If checking of etalon already performed
 							if (variablesCorrect != "variablesCorrect = ") //***
-							variablesCorrect += " && ";
+								variablesCorrect += " && ";
 						}
 						variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name +
 								string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial,
@@ -645,8 +678,13 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 
 					string value_i = arg.value_array[i][k];
 					argumentDefinition += arg.name + string(ETALON_FOR_FUNCTION_ENDING) +
-							"[" + to_string(k) + "] = " + arg.name +"[" + to_string(k) + "] = "
-							+ value_i + ";\n";
+							"[" + to_string(k) + "] = " + arg.name +"[" + to_string(k) + "] = ";
+					if ((functionData.lang == LangCompiler::Flag_CS || functionData.lang == LangCompiler::Flag_Java)
+							&& arg.type == FunctionData::RET_VAL_FLOAT)
+						argumentDefinition += " (float) ";
+
+					argumentDefinition	+= value_i + ";\n";
+
 					if (isEtalonValueComparsion_k)
 					{
 						string value = arg.etalon_value_array[i][k];
@@ -659,7 +697,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				if (isEtalonValueComparsion){
 					if (etalongArgCountChecks > 0 ){//If checking of etalon already performed
 						if (variablesCorrect != "variablesCorrect = ") //***
-						variablesCorrect += " && ";
+							variablesCorrect += " && ";
 					}
 					variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_ENDING),
 							arg.size, (ValueTypes) arg.type, CompareMark::Equial, functionData.lang);
@@ -923,8 +961,9 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 	string result = "( ";
 	if ((int)type1 != (int) type2) //equial type
 	{
-		name1 = "to_string( " + name1 + " )";
-		name2 = "to_string( " + name2 + " )";
+		//name1 = "to_string( " + name1 + " )";
+		name1 = "String.valueOf(" + name1 + " )";
+		name2 = "String.valueOf( " + name2 + " )";
 		type1 = ValueTypes::VAL_STRING;
 	}
 	string floorFuncName;
