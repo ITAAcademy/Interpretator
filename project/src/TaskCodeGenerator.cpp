@@ -410,7 +410,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	//999
 	string footerBody = "";
 	//if (functionData.lang != (int) LangCompiler::Flag_Java)
-		footerBody += "return "+defaultReturnValue+";\n}\n";//Close function body
+	footerBody += "return "+defaultReturnValue+";\n}\n";//Close function body
 	/*else
 		footerBody += "\n}\n";*/
 
@@ -459,6 +459,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		        if (!comparer.Equals(a1[i], a2[i]))\n\
 		            return false;\n\
 		    return true;\n}\n";
+		break;
+
+	case LangCompiler::Flag_JS:
+		arrCompFuncStr = "\nfunction safeToString(x) {\n\
+		      return x + '';\n\
+		  }\n";
 		break;
 	}
 	footerBody += arrCompFuncStr;
@@ -635,8 +641,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 						//currentArgDef += arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " +arg.name + " = " ;
 						currentArgEtalonDef += etal_val + string(";\n"); //etalon value for argu
 						argumentEtalonDefinition += currentArgEtalonDef;
-						if (etalongArgCountChecks > 0 ){//If checking of etalon already performed
-							if (variablesCorrect != "variablesCorrect = ") //***
+						if (etalongArgCountChecks > 0 )
+						{//If checking of etalon already performed
+							string chek_temp = variablesCorrect;
+							chek_temp.erase(0, chek_temp.find("variablesCorrect = ") + 19);
+
+							if (chek_temp.find_first_not_of("\t\n\r ") != string::npos)
 								variablesCorrect += " && ";
 						}
 						variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name +
@@ -695,8 +705,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 				}
 
 				if (isEtalonValueComparsion){
-					if (etalongArgCountChecks > 0 ){//If checking of etalon already performed
-						if (variablesCorrect != "variablesCorrect = ") //***
+					if (etalongArgCountChecks > 0 )
+					{//If checking of etalon already performed
+						string chek_temp = variablesCorrect;
+						chek_temp.erase(0, chek_temp.find("variablesCorrect = ") + 19);
+
+						if (chek_temp.find_first_not_of("\t\n\r ") != string::npos)
 							variablesCorrect += " && ";
 					}
 					variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_ENDING),
@@ -956,14 +970,44 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	return footerBody;
 }
 
+string TaskCodeGenerator::convertAnyToString(string name1,  ValueTypes type1, int lang)
+{
+	if (lang == LangCompiler::Flag_Java)
+	{
+		//name1 = "to_string( " + name1 + " )";
+		name1 = "String.valueOf(" + name1 + " )";
+
+	}
+	else
+		if (lang == LangCompiler::Flag_CPP)
+		{
+			name1 = "to_string(" + name1 + ")";
+		}
+		else
+			if (lang == LangCompiler::Flag_CS)
+			{
+				name1 = "Convert.ToString(" + name1 + ")";
+			}
+			else
+				if (lang == LangCompiler::Flag_JS)
+				{
+					name1 = "safeToString(" + name1 + ")";
+				}
+				else
+					if (lang == LangCompiler::Flag_PHP)
+					{
+						name1 = "(string)" + name1;
+					}
+	return name1;
+}
+
 string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,string name2,  ValueTypes type2, CompareMark mark, int lang)
 {
 	string result = "( ";
 	if ((int)type1 != (int) type2) //equial type
 	{
-		//name1 = "to_string( " + name1 + " )";
-		name1 = "String.valueOf(" + name1 + " )";
-		name2 = "String.valueOf( " + name2 + " )";
+		name1 = convertAnyToString(name1, type1, lang);
+		name2 = convertAnyToString(name2, type2, lang);
 		type1 = ValueTypes::VAL_STRING;
 	}
 	string floorFuncName;
@@ -1233,7 +1277,7 @@ string TaskCodeGenerator::getStandartInclude(int lang)
 		#include <cxxabi.h>\n\
 		#include <cmath>\n\
 		#include <stdio.h>\n\
-		#include <string.h>";
+		#include <string.h>\n";
 		break;
 	}
 	case LangCompiler::Flag_Java:{

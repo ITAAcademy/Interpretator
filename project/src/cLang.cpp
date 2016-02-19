@@ -12,7 +12,7 @@ LangCompiler::~LangCompiler(){
 }
 
 //compilerFlag
-bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool student_or_teacher )
+bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, int student__teacher_programer )
 {
 	//return false;
 	if (flags == Flag_JS)
@@ -32,9 +32,10 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool st
 			line.erase(line.find("\n"), line.size() - 1);
 			std::string::size_type sz;
 			int error_line = std::stoi( line, &sz );
-			if (student_or_teacher)
+			if (student__teacher_programer == 0)
 				error_line -= 5;
 			else
+				if (student__teacher_programer == 1)
 				error_line -= 10;
 
 			warning.erase(0, warning.find("\n"));
@@ -67,9 +68,10 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool st
 				std::string::size_type sz;
 				int error_line = std::stoi( num_s, &sz );
 
-				if (student_or_teacher)
+				if (student__teacher_programer == 0)
 					error_line = -38;
 				else
+					if (student__teacher_programer == 1)
 					error_line -= 44;
 
 
@@ -115,9 +117,10 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool st
 						int num_line;
 						int num_char;
 						sscanf(num_s.c_str(),"%d,%d", &num_line, &num_char);
-						if (student_or_teacher)
+						if (student__teacher_programer == 0)
 							num_line -= 8; //it have 8 lines behind student code
 						else
+							if (student__teacher_programer == 1)
 							num_line -= 14;
 
 						num_s = std::to_string(num_line) + ":" + to_string(num_char);
@@ -177,9 +180,10 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool st
 
 						int num_line;
 						sscanf(num_s.c_str(),"%d\n", &num_line);
-						if (student_or_teacher)
+						if (student__teacher_programer == 0)
 							num_line -= lines_begind;
 						else
+							if (student__teacher_programer == 1)
 							num_line -= 12;
 						num_s = to_string(num_line);
 
@@ -213,9 +217,10 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool st
 
 							int num_line;
 							sscanf(num_s.c_str(),"%d\n", &num_line);
-							if (student_or_teacher)
+							if (student__teacher_programer == 0)
 								num_line -= 6;//12
 							else
+								if (student__teacher_programer == 1)
 								num_line -= 12;
 							num_s = to_string(num_line);
 
@@ -248,7 +253,7 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, bool st
 	return true;
 }
 
-string LangCompiler::compile(string code, bool show, compilerFlag flags, bool student_or_teacher)
+string LangCompiler::compile(string code, bool show, compilerFlag flags, int student__teacher_programer)
 {
 	string res;
 	warning_err.clear();
@@ -333,7 +338,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, bool st
 	//l12(warning);
 	//compilerFlag
 	if (flags != compilerFlag::Flag_PHP)
-		beautyErrorOutput(warning, flags , student_or_teacher);
+		beautyErrorOutput(warning, flags , student__teacher_programer);
 
 	warning_err.append(warning);
 
@@ -345,7 +350,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, bool st
 
 		if (flags == compilerFlag::Flag_PHP)
 		{
-			if (beautyErrorOutput(std_out_string, flags, student_or_teacher ))
+			if (beautyErrorOutput(std_out_string, flags, student__teacher_programer ))
 			{
 				warning_err.append(std_out_string);
 				ERROR("cLang colpilation: php return error");

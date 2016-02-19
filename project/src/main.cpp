@@ -416,10 +416,26 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 
 		TaskCodeGenerator generator(jSON, thread_id);
 
+		/*{
+			string etalona = generator.getEtalon();
+			int pre_last_return_pos = 0;
+			int last_return_pos = 0;
+			while(true)
+			{
+				int pos = etalona.find("return", last_return_pos + 2);
+				if (pos == -1)
+					break;
+				pre_last_return_pos = last_return_pos;
+				last_return_pos = pos;
+			}
+			etalona.erase(pre_last_return_pos, last_return_pos );
+
+		}*/
+
 		LangCompiler compiler(thread_id);
 
 		string code = sql.generateProgramCode(generator.getHeader(), string(""), generator.getFooter(), lang);
-		compiler.compile(code, true, LangCompiler::convertFromName(lang),false);
+		compiler.compile(code, true, LangCompiler::convertFromName(lang));
 		string errors = compiler.getWarningErr();
 
 		JsonValue res;

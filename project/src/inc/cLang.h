@@ -35,14 +35,14 @@ public:
 	~LangCompiler();
 
 
-	static bool beautyErrorOutput(string &warning,compilerFlag flags, bool student_or_teacher ); // student = true
+	static bool beautyErrorOutput(string &warning,compilerFlag flags, int student__teacher_programer ); // student = true
 	/*
 	 * Compile __ if all ok return app result else return CLang compiler error
 	 *
 	 *  show == include in textEdit
 	 *
 	 */
-	string compile(string code, bool show, compilerFlag flags = Flag_Java, bool student_or_teacher = true);
+	string compile(string code, bool show, compilerFlag flags = Flag_Java, int student__teacher_programer = 2);
 
 	long double getTimeOut()const;
 
