@@ -340,16 +340,28 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 		headerStr+="public class Main{{thId}}{\n";
 		defaultReturnValue="null";
 		break;
+
 	case LangCompiler::Flag_PHP:
 		headerStr += "<?php \n";// php ID
+		defaultReturnValue=" \"	2zgi	1e6o	818oe83r2\"";
 		break;
+
 	case LangCompiler::Flag_CS:
 		headerStr+="public class MainClass {\n";
-		int type = functionData.returnValueType;
-		defaultReturnValue = "default(" + FunctionArgument::generateType(type, false, functionData.lang);
+		//int type = functionData.returnValueType;
+		defaultReturnValue = "default(" + FunctionArgument::generateType(functionData.returnValueType,
+				false, functionData.lang);
 		if (functionData.isArray == FunctionData::ARRAY)
 			defaultReturnValue += " [] ";
 		defaultReturnValue += ")";
+		break;
+
+	case LangCompiler::Flag_JS:
+		defaultReturnValue=" \"	2zgi	1e6o	818oe83r2\"";
+		break;
+
+	case LangCompiler::Flag_CPP:
+		defaultReturnValue=" null";
 		break;
 	}
 
@@ -398,6 +410,16 @@ string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueTy
 				defaultReturnValue += " [] ";
 			defaultReturnValue += ")";
 		}
+		else
+			if (lang==LangCompiler::Flag_PHP || lang==LangCompiler::Flag_JS)
+			{
+				defaultReturnValue = " \"fG13791323`02y13`132/4-28*2\"";
+			}
+			else
+				if (lang==LangCompiler::Flag_CPP)
+				{
+					defaultReturnValue = " null";
+				}
 
 	return defaultReturnValue;
 }
@@ -473,61 +495,61 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
   return Object.prototype.toString.call(obj)\
     .match(/^\[object\s(.*)\]$/)[1];\
 	}\n";
-	break;
-}
-footerBody += arrCompFuncStr;
-/*
- * MAIN FUNCTION START
- */
-switch(functionData.lang)
-{
-//in JS main function is absense, so we don't append it when our lang is js
-case LangCompiler::Flag_CPP:
-	footerBody+="int main()\n\
+		break;
+	}
+	footerBody += arrCompFuncStr;
+	/*
+	 * MAIN FUNCTION START
+	 */
+	switch(functionData.lang)
+	{
+	//in JS main function is absense, so we don't append it when our lang is js
+	case LangCompiler::Flag_CPP:
+		footerBody+="int main()\n\
 					{\n";
-	break;
-case LangCompiler::Flag_Java: //@BAD@
-	footerBody+="public static void main(String[] args)\n\
+		break;
+	case LangCompiler::Flag_Java: //@BAD@
+		footerBody+="public static void main(String[] args)\n\
 {\n";
-	break;
+		break;
 
-case LangCompiler::Flag_CS:
-	footerBody+="public static void Main(String[] args)\n\
+	case LangCompiler::Flag_CS:
+		footerBody+="public static void Main(String[] args)\n\
 		{\n";
-	break;
-}
+		break;
+	}
 
-string variable_s;
-generateVariables(variable_s, functionData, variables);
+	string variable_s;
+	generateVariables(variable_s, functionData, variables);
 
-footerBody += variable_s;
+	footerBody += variable_s;
 
-string correctArgumentsConditionName = FunctionArgument::getName("variablesCorrect", functionData.lang);
-string argumentsEqualToEtalonConditionName = FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
+	string correctArgumentsConditionName = FunctionArgument::getName("variablesCorrect", functionData.lang);
+	string argumentsEqualToEtalonConditionName = FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
 
-string type_n = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) + " ";
+	string type_n = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) + " ";
 
-/*	footerBody +=  type_n
+	/*	footerBody +=  type_n
 			+  FunctionArgument::getName("isTrue", functionData.lang) + ";\n";//moved out from cicle to fix variable duplicates
- */
-string conditionsVariableDeclaration = type_n +" "+
-		argumentsEqualToEtalonConditionName+";\n" + type_n + " " + correctArgumentsConditionName+";\n";
-footerBody+= conditionsVariableDeclaration;
+	 */
+	string conditionsVariableDeclaration = type_n +" "+
+			argumentsEqualToEtalonConditionName+";\n" + type_n + " " + correctArgumentsConditionName+";\n";
+	footerBody+= conditionsVariableDeclaration;
 
 
 
-string argsString;
-string etalongArgsString;
+	string argsString;
+	string etalongArgsString;
 
-bool is_float = (functionData.returnValueType == ValueTypes::VAL_FLOAT);
-//if (!(functionData.etalon.find_first_not_of("\t\n\r ") == string::npos)) //if etalon empty
+	bool is_float = (functionData.returnValueType == ValueTypes::VAL_FLOAT);
+	//if (!(functionData.etalon.find_first_not_of("\t\n\r ") == string::npos)) //if etalon empty
 
-bool is_etalon_func_empty = (functionData.etalon.find_first_not_of("\t\n\r ") == string::npos);
+	bool is_etalon_func_empty = (functionData.etalon.find_first_not_of("\t\n\r ") == string::npos);
 
-for(int i = 0; i < functionData.unit_tests_nums; i++)
-{
-	//if(functionData.result.size() > 0)
-	/*if (!is_etalon_func_empty)
+	for(int i = 0; i < functionData.unit_tests_nums; i++)
+	{
+		//if(functionData.result.size() > 0)
+		/*if (!is_etalon_func_empty)
 		{
 			argsString +=  FunctionArgument::getName("result_etalon", functionData.lang) + " = ";
 			if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
@@ -536,119 +558,183 @@ for(int i = 0; i < functionData.unit_tests_nums; i++)
 			//argsString += " function_etalon(" + argForEtalonFunction +  ");\n";//---
 		}
 		else*/
-	if (is_etalon_func_empty)
-	{
-		if ( functionData.isArray != FunctionData::ARRAY)
+		if (is_etalon_func_empty)
 		{
-			argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + " = " + */	FunctionArgument::getName("result_etalon", functionData.lang) + " = ";
-			if ((functionData.lang == LangCompiler::Flag_CS) && (functionData.returnValueType == FunctionData::RET_VAL_FLOAT))
-				argsString += "(float) ";
-			argsString += functionData.result[i] + ";\n";
-		}
-		else
-		{
-			//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
-			/*Reader reader;
+			if ( functionData.isArray != FunctionData::ARRAY)
+			{
+				argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + " = " + */	FunctionArgument::getName("result_etalon", functionData.lang) + " = ";
+				if ((functionData.lang == LangCompiler::Flag_CS) && (functionData.returnValueType == FunctionData::RET_VAL_FLOAT))
+					argsString += "(float) ";
+				argsString += functionData.result[i] + ";\n";
+			}
+			else
+			{
+				//footerBody += arg.name +"[" + to_string(i) + "] = " + arg.value[i] + ";\n";
+				/*Reader reader;
 				JsonValue values_u;
 				JsonValue etalons_values_u;
 				reader.parse(functionData.result[i], values_u);*/
 
-			{
-				vector <string> r_array = functionData.result_array[i];
-
-				for (int h = 0; h < r_array.size(); h++)
 				{
-					argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ FunctionArgument::getName("result_etalon", functionData.lang) + "[" + to_string(h) + "] = ";
-					if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
-						argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
-					argsString += r_array[h] + ";\n";
+					vector <string> r_array = functionData.result_array[i];
+
+					for (int h = 0; h < r_array.size(); h++)
+					{
+						argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ FunctionArgument::getName("result_etalon", functionData.lang) + "[" + to_string(h) + "] = ";
+						if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
+							argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
+						argsString += r_array[h] + ";\n";
+					}
 				}
+
+
+
 			}
-
-
-
 		}
-	}
 
 
-	/*if (functionData.isRange )//@WHAT@
+		/*if (functionData.isRange )//@WHAT@
 		{
 
 		}
 		else*/
 
-	string argumentDefinition;
-	string argumentEtalonDefinition;
-	string argForMainFunction = " ";
-	string argForEtalonFunction = " ";
+		string argumentDefinition;
+		string argumentEtalonDefinition;
+		string argForMainFunction = " ";
+		string argForEtalonFunction = " ";
 
-	int argCount = 0;
-	int etalongArgCountChecks = 0;
-	string variablesCorrect = correctArgumentsConditionName + " = ";
-	string variablesCorrectByEtalonPrefix = "" + argumentsEqualToEtalonConditionName + " = ";
-	string variablesCorrectByEtalonEnding = "";
+		int argCount = 0;
+		int etalongArgCountChecks = 0;
+		string variablesCorrect = correctArgumentsConditionName + " = ";
+		string variablesCorrectByEtalonPrefix = "" + argumentsEqualToEtalonConditionName + " = ";
+		string variablesCorrectByEtalonEnding = "";
 
-	vector<CompareMark> compare_marks = functionData.compare_marks;
+		vector<CompareMark> compare_marks = functionData.compare_marks;
 
-	vector<vector< pair<int,int> > > checkableArgsIndexes = functionData.checkableArgsIndexes;
+		vector<vector< pair<int,int> > > checkableArgsIndexes = functionData.checkableArgsIndexes;
 
-	int checkableArgsCount = 0;
-	int currentArgumentIndex=-1;
+		int checkableArgsCount = 0;
+		int currentArgumentIndex=-1;
 
-	bool wasEtalonComparation = false;
+		bool wasEtalonComparation = false;
 
-	for(FunctionArgument arg : functionData.args)
-	{
-		bool isEtalonValueComparsion ;
-
-		string arr_nama = arg.name;
-
-		//count(i);//etalon value excist for
-		//cerr <<"argCount:"<<+argCount<< "isEtalonValueComparsion:"<<isEtalonValueComparsion<<endl;
-		currentArgumentIndex++;
-		vector<string> args_results;
-		vector<string> args_results_must_be_after_main_func;
-		if ( !arg.isArray )
+		for(FunctionArgument arg : functionData.args)
 		{
-			isEtalonValueComparsion = arg.etalonValue.size();
+			bool isEtalonValueComparsion ;
 
-			if ( isEtalonValueComparsion )
-				wasEtalonComparation = true;
+			string arr_nama = arg.name;
 
-			const string castToFloat="(float)" ;
-			string currentArgDef;
-			string currentArgEtalonDef;
-
-
-			currentArgDef += arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " +arg.name + " = " ;
-			if (isEtalonValueComparsion)
+			//count(i);//etalon value excist for
+			//cerr <<"argCount:"<<+argCount<< "isEtalonValueComparsion:"<<isEtalonValueComparsion<<endl;
+			currentArgumentIndex++;
+			vector<string> args_results;
+			vector<string> args_results_must_be_after_main_func;
+			if ( !arg.isArray )
 			{
-				currentArgEtalonDef += arg.name + string(ETALON_ENDING) + string(" = ") ; //etalon value for argument
-			}
-			if ( (functionData.lang == LangCompiler::Flag_Java || functionData.lang == LangCompiler::Flag_CS) && arg.type == ValueTypes::VAL_FLOAT)
-			{
-				currentArgDef+=castToFloat;
-				if (isEtalonValueComparsion){
-					currentArgEtalonDef+=castToFloat;
-				}
-			}
-			string ar_value = arg.value[i];
+				isEtalonValueComparsion = arg.etalonValue.size();
 
-			if (arg.type == FunctionData::RET_VAL_STRING)
-				ar_value = addBracketsToStr(ar_value);
+				if ( isEtalonValueComparsion )
+					wasEtalonComparation = true;
 
-			currentArgDef +=  ar_value +";\n";
-			argumentDefinition += currentArgDef;
+				const string castToFloat="(float)" ;
+				string currentArgDef;
+				string currentArgEtalonDef;
 
-			if (isEtalonValueComparsion)
-			{
-				//-`-`-`-
-				string etal_val = arg.etalonValue[i];
-				if (etal_val.size())
+
+				currentArgDef += arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " +arg.name + " = " ;
+				if (isEtalonValueComparsion)
 				{
-					//currentArgDef += arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " +arg.name + " = " ;
-					currentArgEtalonDef += etal_val + string(";\n"); //etalon value for argu
-					argumentEtalonDefinition += currentArgEtalonDef;
+					currentArgEtalonDef += arg.name + string(ETALON_ENDING) + string(" = ") ; //etalon value for argument
+				}
+				if ( (functionData.lang == LangCompiler::Flag_Java || functionData.lang == LangCompiler::Flag_CS) && arg.type == ValueTypes::VAL_FLOAT)
+				{
+					currentArgDef+=castToFloat;
+					if (isEtalonValueComparsion){
+						currentArgEtalonDef+=castToFloat;
+					}
+				}
+				string ar_value = arg.value[i];
+
+				if (arg.type == FunctionData::RET_VAL_STRING)
+					ar_value = addBracketsToStr(ar_value);
+
+				currentArgDef +=  ar_value +";\n";
+				argumentDefinition += currentArgDef;
+
+				if (isEtalonValueComparsion)
+				{
+					//-`-`-`-
+					string etal_val = arg.etalonValue[i];
+					if (etal_val.size())
+					{
+						//currentArgDef += arg.name + string(ETALON_FOR_FUNCTION_ENDING) + " = " +arg.name + " = " ;
+						currentArgEtalonDef += etal_val + string(";\n"); //etalon value for argu
+						argumentEtalonDefinition += currentArgEtalonDef;
+						if (etalongArgCountChecks > 0 )
+						{//If checking of etalon already performed
+							string chek_temp = variablesCorrect;
+							chek_temp.erase(0, chek_temp.find("variablesCorrect = ") + 19);
+
+							if (chek_temp.find_first_not_of("\t\n\r ") != string::npos)
+								variablesCorrect += " && ";
+						}
+						variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name +
+								string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial,
+								functionData.lang);
+					}
+					/*else
+						variablesCorrect += "true;\n";*/
+				}/*
+				else
+				{
+					variablesCorrect += "true;\n";
+				}*/
+
+			}
+			else
+			{
+
+				//cerr<< "etalon_value is array\n";
+				Reader reader;
+				//JsonValue values_u;
+				/*				JsonValue etalons_values_u;
+				//reader.parse(arg.value[i], values_u);
+				reader.parse(arg.etalonValue[i], etalons_values_u);
+				 */
+
+				isEtalonValueComparsion = arg.etalon_value_array.size();
+				if (isEtalonValueComparsion)
+					isEtalonValueComparsion = arg.etalon_value_array[i].size();
+
+				int values_u_size = arg.size;
+
+				//999
+				for(int k = 0; k < values_u_size ; k++)
+				{
+					bool isEtalonValueComparsion_k  = false;
+					if (isEtalonValueComparsion)
+						isEtalonValueComparsion_k = (arg.etalon_value_array[i].size() > k);
+
+					string value_i = arg.value_array[i][k];
+					argumentDefinition += arg.name + string(ETALON_FOR_FUNCTION_ENDING) +
+							"[" + to_string(k) + "] = " + arg.name +"[" + to_string(k) + "] = ";
+					if ((functionData.lang == LangCompiler::Flag_CS || functionData.lang == LangCompiler::Flag_Java)
+							&& arg.type == FunctionData::RET_VAL_FLOAT)
+						argumentDefinition += " (float) ";
+
+					argumentDefinition	+= value_i + ";\n";
+
+					if (isEtalonValueComparsion_k)
+					{
+						string value = arg.etalon_value_array[i][k];
+						argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(k) +
+								"] = " + value + ";\n";
+					}
+					//"]getAllRecordsFromTable = " + etalons_values_u[i].asString() + ";\n";
+				}
+
+				if (isEtalonValueComparsion){
 					if (etalongArgCountChecks > 0 )
 					{//If checking of etalon already performed
 						string chek_temp = variablesCorrect;
@@ -657,325 +743,261 @@ for(int i = 0; i < functionData.unit_tests_nums; i++)
 						if (chek_temp.find_first_not_of("\t\n\r ") != string::npos)
 							variablesCorrect += " && ";
 					}
-					variablesCorrect += getCompareString(arg.name,(ValueTypes) arg.type, arg.name +
-							string(ETALON_ENDING), (ValueTypes)arg.type, CompareMark::Equial,
-							functionData.lang);
-				}
-				/*else
-						variablesCorrect += "true;\n";*/
-			}/*
-				else
-				{
-					variablesCorrect += "true;\n";
-				}*/
+					variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_ENDING),
+							arg.size, (ValueTypes) arg.type, CompareMark::Equial, functionData.lang);
 
-		}
-		else
-		{
-
-			//cerr<< "etalon_value is array\n";
-			Reader reader;
-			//JsonValue values_u;
-			/*				JsonValue etalons_values_u;
-				//reader.parse(arg.value[i], values_u);
-				reader.parse(arg.etalonValue[i], etalons_values_u);
-			 */
-
-			isEtalonValueComparsion = arg.etalon_value_array.size();
-			if (isEtalonValueComparsion)
-				isEtalonValueComparsion = arg.etalon_value_array[i].size();
-
-			int values_u_size = arg.size;
-
-			//999
-			for(int k = 0; k < values_u_size ; k++)
-			{
-				bool isEtalonValueComparsion_k  = false;
-				if (isEtalonValueComparsion)
-					isEtalonValueComparsion_k = (arg.etalon_value_array[i].size() > k);
-
-				string value_i = arg.value_array[i][k];
-				argumentDefinition += arg.name + string(ETALON_FOR_FUNCTION_ENDING) +
-						"[" + to_string(k) + "] = " + arg.name +"[" + to_string(k) + "] = ";
-				if ((functionData.lang == LangCompiler::Flag_CS || functionData.lang == LangCompiler::Flag_Java)
-						&& arg.type == FunctionData::RET_VAL_FLOAT)
-					argumentDefinition += " (float) ";
-
-				argumentDefinition	+= value_i + ";\n";
-
-				if (isEtalonValueComparsion_k)
-				{
-					string value = arg.etalon_value_array[i][k];
-					argumentEtalonDefinition += arg.name + ETALON_ENDING + "[" + to_string(k) +
-							"] = " + value + ";\n";
-				}
-				//"]getAllRecordsFromTable = " + etalons_values_u[i].asString() + ";\n";
-			}
-
-			if (isEtalonValueComparsion){
-				if (etalongArgCountChecks > 0 )
-				{//If checking of etalon already performed
-					string chek_temp = variablesCorrect;
-					chek_temp.erase(0, chek_temp.find("variablesCorrect = ") + 19);
-
-					if (chek_temp.find_first_not_of("\t\n\r ") != string::npos)
-						variablesCorrect += " && ";
-				}
-				variablesCorrect += getArrayCompareString(arg.name,arg.size, (ValueTypes) arg.type, arg.name + string(ETALON_ENDING),
-						arg.size, (ValueTypes) arg.type, CompareMark::Equial, functionData.lang);
-
-			}/*
+				}/*
 				else
 					variablesCorrect += "true;\n";*/
+			}
+
+
+			if(argCount>0)
+			{
+				argForMainFunction += divider;
+				argForEtalonFunction += divider;
+
+			}
+
+
+			//string argStringValue = arg.value[i];
+			string arrName = arg.name;//    "array"+std::to_string(arraysCount);
+
+			string etalonArrName = arrName + string(ETALON_FOR_FUNCTION_ENDING);
+			if (functionData.lang == LangCompiler::Flag_CS)
+			{
+				argForMainFunction += "ref ";
+				argForEtalonFunction += "ref ";
+			}
+			argForMainFunction += arrName;
+			argForEtalonFunction += etalonArrName;
+
+			if (isEtalonValueComparsion){
+				etalongArgCountChecks++;
+			}
+			argCount++;
+			//for (int k=0;k<variables.size();k++)
+
 		}
 
+		if (variablesCorrect == correctArgumentsConditionName + " = ")
+			variablesCorrect += "true;\n";
 
-		if(argCount>0)
-		{
-			argForMainFunction += divider;
-			argForEtalonFunction += divider;
-
-		}
-
-
-		//string argStringValue = arg.value[i];
-		string arrName = arg.name;//    "array"+std::to_string(arraysCount);
-
-		string etalonArrName = arrName + string(ETALON_FOR_FUNCTION_ENDING);
-		if (functionData.lang == LangCompiler::Flag_CS)
-		{
-			argForMainFunction += "ref ";
-			argForEtalonFunction += "ref ";
-		}
-		argForMainFunction += arrName;
-		argForEtalonFunction += etalonArrName;
-
-		if (isEtalonValueComparsion){
-			etalongArgCountChecks++;
-		}
-		argCount++;
-		//for (int k=0;k<variables.size();k++)
-
-	}
-
-	if (variablesCorrect == correctArgumentsConditionName + " = ")
-		variablesCorrect += "true;\n";
-
-	/*if (!wasEtalonComparation)
+		/*if (!wasEtalonComparation)
 			variablesCorrect += "true;\n";*/
 
 
-	if (i<checkableArgsIndexes.size())
-	{
-		for (int l = 0; l < checkableArgsIndexes[i].size();l++)
+		if (i<checkableArgsIndexes.size())
 		{
-			//if (std::find(checkableArgsIndexes[indexOfTest].begin(),checkableArgsIndexes[indexOfTest].end(),
-			int firstCheckableVariableIndex=checkableArgsIndexes[i][l].first;
-			int secondCheckableVariableIndex=checkableArgsIndexes[i][l].second;
-			if(variables.size() < firstCheckableVariableIndex || variables.size() < secondCheckableVariableIndex)
+			for (int l = 0; l < checkableArgsIndexes[i].size();l++)
 			{
-				status = (int)COMPARE_VALUE_FROM_TH;
-				break;
+				//if (std::find(checkableArgsIndexes[indexOfTest].begin(),checkableArgsIndexes[indexOfTest].end(),
+				int firstCheckableVariableIndex=checkableArgsIndexes[i][l].first;
+				int secondCheckableVariableIndex=checkableArgsIndexes[i][l].second;
+				if(variables.size() < firstCheckableVariableIndex || variables.size() < secondCheckableVariableIndex)
+				{
+					status = (int)COMPARE_VALUE_FROM_TH;
+					break;
+				}
+				FunctionArgument *firstGlobalVariable = &variables[firstCheckableVariableIndex];
+				FunctionArgument *secondGlobalVariable = &variables[secondCheckableVariableIndex];
+
+				if ( checkableArgsCount > 0 )
+					variablesCorrectByEtalonEnding+=" && ";
+
+				ValueTypes type1 = (ValueTypes) firstGlobalVariable->type;
+				ValueTypes type2 = (ValueTypes) secondGlobalVariable->type;
+
+
+
+
+				bool isFirstArray ;
+				if (firstCheckableVariableIndex == 0)
+					isFirstArray = functionData.isArray;
+				else
+					isFirstArray = functionData.args[firstCheckableVariableIndex].isArray;
+
+				bool isSecondArray ;
+				if (secondCheckableVariableIndex == 0)
+					isSecondArray = functionData.isArray;
+				else
+					isSecondArray = functionData.args[secondCheckableVariableIndex].isArray;
+
+
+				if (isFirstArray  && isSecondArray)
+				{
+					variablesCorrectByEtalonEnding += getArrayCompareString(firstGlobalVariable->name, firstGlobalVariable->size , type1,
+							secondGlobalVariable->name , secondGlobalVariable->size, type2,
+							CompareMark::Equial, functionData.lang);
+				}
+				else
+				{
+					variablesCorrectByEtalonEnding += getCompareString(firstGlobalVariable->name,  type1,	secondGlobalVariable->name , type2,	CompareMark::Equial, functionData.lang);
+				}
+
+				checkableArgsCount++;
+
 			}
-			FunctionArgument *firstGlobalVariable = &variables[firstCheckableVariableIndex];
-			FunctionArgument *secondGlobalVariable = &variables[secondCheckableVariableIndex];
-
-			if ( checkableArgsCount > 0 )
-				variablesCorrectByEtalonEnding+=" && ";
-
-			ValueTypes type1 = (ValueTypes) firstGlobalVariable->type;
-			ValueTypes type2 = (ValueTypes) secondGlobalVariable->type;
-
-
-
-
-			bool isFirstArray ;
-			if (firstCheckableVariableIndex == 0)
-				isFirstArray = functionData.isArray;
-			else
-				isFirstArray = functionData.args[firstCheckableVariableIndex].isArray;
-
-			bool isSecondArray ;
-			if (secondCheckableVariableIndex == 0)
-				isSecondArray = functionData.isArray;
-			else
-				isSecondArray = functionData.args[secondCheckableVariableIndex].isArray;
-
-
-			if (isFirstArray  && isSecondArray)
-			{
-				variablesCorrectByEtalonEnding += getArrayCompareString(firstGlobalVariable->name, firstGlobalVariable->size , type1,
-						secondGlobalVariable->name , secondGlobalVariable->size, type2,
-						CompareMark::Equial, functionData.lang);
-			}
-			else
-			{
-				variablesCorrectByEtalonEnding += getCompareString(firstGlobalVariable->name,  type1,	secondGlobalVariable->name , type2,	CompareMark::Equial, functionData.lang);
-			}
-
-			checkableArgsCount++;
-
 		}
-	}
 
-	if (variablesCorrectByEtalonEnding.length()>1)//if comparsion conditions excists (our_func arg[i] == etalon_func arg[i])
-		variablesCorrectByEtalonEnding += ";";
-	else
-		variablesCorrectByEtalonEnding+="true;";//condition try if comparsion need no.
+		if (variablesCorrectByEtalonEnding.length()>1)//if comparsion conditions excists (our_func arg[i] == etalon_func arg[i])
+			variablesCorrectByEtalonEnding += ";";
+		else
+			variablesCorrectByEtalonEnding+="true;";//condition try if comparsion need no.
 
-	argsString += argumentDefinition;
-	if (etalongArgCountChecks>0)
-		argsString += argumentEtalonDefinition;
-
+		argsString += argumentDefinition;
+		if (etalongArgCountChecks>0)
+			argsString += argumentEtalonDefinition;
 
 
-	/*if (functionData.lang == LangCompiler::Flag_Java)
+
+		/*if (functionData.lang == LangCompiler::Flag_Java)
 			argsString+=")";*/
-	//argsString +=
-	string result_for_etalon = FunctionArgument::getName("result", functionData.lang) + string(ETALON_FOR_FUNCTION_ENDING);
-	string etalon_s = functionData.etalon;
-	bool is_etalon_func_empty = (etalon_s.find_first_not_of("\t\n\r ") == string::npos);
+		//argsString +=
+		string result_for_etalon = FunctionArgument::getName("result", functionData.lang) + string(ETALON_FOR_FUNCTION_ENDING);
+		string etalon_s = functionData.etalon;
+		bool is_etalon_func_empty = (etalon_s.find_first_not_of("\t\n\r ") == string::npos);
 
-	if (is_etalon_func_empty)
-		/*argsString += result_for_etalon + " = function_etalon(" + argForEtalonFunction +  ");\n";
+		if (is_etalon_func_empty)
+			/*argsString += result_for_etalon + " = function_etalon(" + argForEtalonFunction +  ");\n";
 		else*/
-	{
-		if (functionData.isArray)
 		{
-			//argsString += dele
-			vector<string> res = functionData.result_array[i];
-			for (int u = 0; u < res.size() ; u++)
+			if (functionData.isArray)
 			{
-				string num = "[" + to_string(u) + "]";
-				argsString += result_for_etalon + num + " = ";
+				//argsString += dele
+				vector<string> res = functionData.result_array[i];
+				for (int u = 0; u < res.size() ; u++)
+				{
+					string num = "[" + to_string(u) + "]";
+					argsString += result_for_etalon + num + " = ";
 
-				if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
-					argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT,
-							false, functionData.lang) + ") ";
+					if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
+						argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT,
+								false, functionData.lang) + ") ";
 
-				argsString += res[u] + ";\n";
+					argsString += res[u] + ";\n";
+				}
+			}
+			else
+			{
+				if (functionData.lang == LangCompiler::Flag_PHP)
+					argsString += "$";
+				argsString += "result_etalon = " + functionData.result[i] + ";\n"; //888
 			}
 		}
 		else
 		{
-			if (functionData.lang == LangCompiler::Flag_PHP)
-				argsString += "$";
-			argsString += "result_etalon = " + functionData.result[i] + ";\n"; //888
+			string gg = FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang) +  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+			argsString += gg;
 		}
-	}
-	else
-	{
-		string gg = FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang) +  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+
+
+
+		string gg = FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
 		argsString += gg;
+
+		argsString += variablesCorrect + ";\n";
+		//argsString += FunctionArgument::getName("isTrue", functionData.lang) + " = true;\n";
+		argsString += variablesCorrectByEtalonPrefix+variablesCorrectByEtalonEnding;
+
+		string ss = functionData.tests_code[i] + "\n";
+		//cout << ss;
+		argsString += "\n";
+
+		ValueTypes arrType = (ValueTypes) functionData.returnValueType;
+		CompareMark cmp = functionData.compare_marks[i];
+
+		/*
+		 *  HAVE RESULT?
+		 */
+		string true_result_name = "result_etalon";
+		if(functionData.result.empty())
+			true_result_name = "result_for_etalon";
+
+		if (functionData.isArray == FunctionData::ARRAY)
+		{
+			argsString += "if ("  + getArrayCompareString(
+					FunctionArgument::getName("result",
+							functionData.lang) ,functionData.result_array_size, (ValueTypes) arrType,
+							FunctionArgument::getName(true_result_name, functionData.lang),
+							functionData.result_array_size, (ValueTypes) arrType,
+
+							cmp,
+							functionData.lang);
+
+		}
+		else
+		{
+			string temp = "if ("  + getCompareString(FunctionArgument::getName("result ", functionData.lang)  ,	arrType,
+					FunctionArgument::getName(true_result_name, functionData.lang) , arrType,
+					cmp, functionData.lang);
+			argsString += temp;
+		}
+
+
+		//if (functionData.isArray)//@WHAT@
+		{
+			argsString += " && " + FunctionArgument::getName("variablesCorrect", functionData.lang)
+			/*+ " && " + FunctionArgument::getName("isTrue", functionData.lang)*/ + ")\n";// IF END
+			//TODO
+		}
+		switch(functionData.lang)
+		{
+		case LangCompiler::Flag_CPP:
+			argsString += "std::cout << \" @" + to_string(i) + "@\";\n";
+			argsString += "else\n";
+			argsString += "std::cout << \" @" + to_string(i) + "!@\";\n";
+			break;
+		case LangCompiler::Flag_Java://@BAD@
+			argsString += "System.out.println(\" @" + to_string(i) + "@\");\n";
+			argsString += "else\n";
+			argsString += "System.out.println(\" @" + to_string(i) + "!@\");\n";
+			break;
+
+		case LangCompiler::Flag_JS:
+			argsString += "console.log(\" @" + to_string(i) + "@\");\n";
+			argsString += "else\n";
+			argsString += "console.log(\" @" + to_string(i) + "!@\");\n";
+			break;
+		case LangCompiler::Flag_PHP:
+			argsString += "echo \" @" + to_string(i) + "@\";\n";
+			argsString += "else\n";
+			argsString += "echo \" @" + to_string(i) + "!@\";\n";
+			break;
+		case LangCompiler::Flag_CS:
+			argsString += "System.Console.WriteLine(\" @" + to_string(i) + "@\");\n";
+			argsString += "else\n";
+			argsString += "System.Console.WriteLine(\" @" + to_string(i) + "!@\");\n";
+			break;
+
+		}
+
+
+
 	}
 
-
-
-	string gg = FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
-	argsString += gg;
-
-	argsString += variablesCorrect + ";\n";
-	//argsString += FunctionArgument::getName("isTrue", functionData.lang) + " = true;\n";
-	argsString += variablesCorrectByEtalonPrefix+variablesCorrectByEtalonEnding;
-
-	string ss = functionData.tests_code[i] + "\n";
-	//cout << ss;
-	argsString += "\n";
-
-	ValueTypes arrType = (ValueTypes) functionData.returnValueType;
-	CompareMark cmp = functionData.compare_marks[i];
-
+	footerBody+=argsString;
 	/*
-	 *  HAVE RESULT?
+	 * close footer
 	 */
-	string true_result_name = "result_etalon";
-	if(functionData.result.empty())
-		true_result_name = "result_for_etalon";
-
-	if (functionData.isArray == FunctionData::ARRAY)
-	{
-		argsString += "if ("  + getArrayCompareString(
-				FunctionArgument::getName("result",
-						functionData.lang) ,functionData.result_array_size, (ValueTypes) arrType,
-						FunctionArgument::getName(true_result_name, functionData.lang),
-						functionData.result_array_size, (ValueTypes) arrType,
-
-						cmp,
-						functionData.lang);
-
-	}
-	else
-	{
-		string temp = "if ("  + getCompareString(FunctionArgument::getName("result ", functionData.lang)  ,	arrType,
-				FunctionArgument::getName(true_result_name, functionData.lang) , arrType,
-				cmp, functionData.lang);
-		argsString += temp;
-	}
-
-
-	//if (functionData.isArray)//@WHAT@
-	{
-		argsString += " && " + FunctionArgument::getName("variablesCorrect", functionData.lang)
-		/*+ " && " + FunctionArgument::getName("isTrue", functionData.lang)*/ + ")\n";// IF END
-		//TODO
-	}
 	switch(functionData.lang)
 	{
 	case LangCompiler::Flag_CPP:
-		argsString += "std::cout << \" @" + to_string(i) + "@\";\n";
-		argsString += "else\n";
-		argsString += "std::cout << \" @" + to_string(i) + "!@\";\n";
+		footerBody += "\nreturn 0;\n}";
 		break;
-	case LangCompiler::Flag_Java://@BAD@
-		argsString += "System.out.println(\" @" + to_string(i) + "@\");\n";
-		argsString += "else\n";
-		argsString += "System.out.println(\" @" + to_string(i) + "!@\");\n";
+	case LangCompiler::Flag_Java: 	case LangCompiler::Flag_CS://@BAD@
+		footerBody += "}}";//"\nreturn 0;\n\t}\n}";
 		break;
-
-	case LangCompiler::Flag_JS:
-		argsString += "console.log(\" @" + to_string(i) + "@\");\n";
-		argsString += "else\n";
-		argsString += "console.log(\" @" + to_string(i) + "!@\");\n";
+	case LangCompiler::Flag_PHP://@BAD@
+		footerBody += "?>\n";
 		break;
-	case LangCompiler::Flag_PHP:
-		argsString += "echo \" @" + to_string(i) + "@\";\n";
-		argsString += "else\n";
-		argsString += "echo \" @" + to_string(i) + "!@\";\n";
-		break;
-	case LangCompiler::Flag_CS:
-		argsString += "System.Console.WriteLine(\" @" + to_string(i) + "@\");\n";
-		argsString += "else\n";
-		argsString += "System.Console.WriteLine(\" @" + to_string(i) + "!@\");\n";
-		break;
-
 	}
 
+	//C++
 
-
-}
-
-footerBody+=argsString;
-/*
- * close footer
- */
-switch(functionData.lang)
-{
-case LangCompiler::Flag_CPP:
-	footerBody += "\nreturn 0;\n}";
-	break;
-case LangCompiler::Flag_Java: 	case LangCompiler::Flag_CS://@BAD@
-	footerBody += "}}";//"\nreturn 0;\n\t}\n}";
-	break;
-case LangCompiler::Flag_PHP://@BAD@
-	footerBody += "?>\n";
-	break;
-}
-
-//C++
-
-//l12("Yura:: 00001");
-//l12(footerBody);
-return footerBody;
+	//l12("Yura:: 00001");
+	//l12(footerBody);
+	return footerBody;
 }
 
 string TaskCodeGenerator::getStrToCompareTypes(string name1, string name2,  int lang)
@@ -998,12 +1020,12 @@ string TaskCodeGenerator::getStrToCompareTypes(string name1, string name2,  int 
 			else
 				if (lang == LangCompiler::Flag_JS)
 				{
-					name1 = "getClass(" + name1 + ") == getClass("+ name1 + ")";
+					name1 = "getClass(" + name1 + ") == getClass("+ name2 + ")";
 				}
 				else
 					if (lang == LangCompiler::Flag_PHP)
 					{
-						name1 = "gettype(" + name1 + ") == gettype("+ name1 + ")";
+						name1 = "gettype(" + name1 + ") == gettype("+ name2 + ")";
 					}
 	return name1;
 }
@@ -1197,7 +1219,7 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 			}
 			break;
 	}
-	return result;
+	return result += " && " + getStrToCompareTypes(name1,name2,lang);
 }
 
 string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, ValueTypes type1,string name2, int arr2_size, ValueTypes type2, CompareMark mark, int lang)
