@@ -144,10 +144,6 @@ ii.intita.com
 "jobid" : 54554,
 "code" : "
 ",
-"etalon" : " j",
-"header" : " j",
-"footer" : " j",
-"name" : "12143",
 "task": 222,
 "lang": "c++"
 }
