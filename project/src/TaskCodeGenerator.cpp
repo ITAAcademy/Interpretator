@@ -357,7 +357,7 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 		break;
 
 	case LangCompiler::Flag_JS:
-		defaultReturnValue=" \"	2zgi	1e6o	818oe83r2\"";
+		//defaultReturnValue=" \"	2zgi	1e6o	818oe83r2\"";
 		break;
 
 	case LangCompiler::Flag_CPP:
@@ -411,7 +411,7 @@ string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueTy
 			defaultReturnValue += ")";
 		}
 		else
-			if (lang==LangCompiler::Flag_PHP || lang==LangCompiler::Flag_JS)
+			if (lang==LangCompiler::Flag_PHP)// || lang==LangCompiler::Flag_JS)
 			{
 				defaultReturnValue = " \"fG13791323`02y13`132/4-28*2\"";
 			}
@@ -484,17 +484,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		break;
 
 	case LangCompiler::Flag_JS:
-		arrCompFuncStr = "\nfunction safeToString(x) {\n\
-		      return x + '';\n\
-		  }\n\
-	function getClass(obj) {\
-  if (typeof obj === \"undefined\")\
-    return \"undefined\";\
-  if (obj === null)\
-    return \"null\";\
-  return Object.prototype.toString.call(obj)\
-    .match(/^\[object\s(.*)\]$/)[1];\
-	}\n";
+		//arrCompFuncStr =
 		break;
 	}
 	footerBody += arrCompFuncStr;
@@ -1020,7 +1010,7 @@ string TaskCodeGenerator::getStrToCompareTypes(string name1, string name2,  int 
 			else
 				if (lang == LangCompiler::Flag_JS)
 				{
-					name1 = "getClass(" + name1 + ") == getClass("+ name2 + ")";
+					name1 = "typeof  " + name1 + " == typeof "+ name2 + " ";
 				}
 				else
 					if (lang == LangCompiler::Flag_PHP)

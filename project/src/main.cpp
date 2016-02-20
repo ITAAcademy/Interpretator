@@ -414,6 +414,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 		DEBUG(std::to_string(id));
 
 
+
+
 		TaskCodeGenerator generator(jSON, thread_id);
 
 		/*{
@@ -437,6 +439,16 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 		string code = sql.generateProgramCode(generator.getHeader(), string(""), generator.getFooter(), lang);
 		compiler.compile(code, true, LangCompiler::convertFromName(lang));
 		string errors = compiler.getWarningErr();
+		if (errors.size() == 0)
+		{
+			int lang_int = jSON.getAsIntS("lang");
+			if (lang_int == (int) LangCompiler::Flag_JS)
+			{
+				errors = compiler.getResult();
+				if (errors.find("error") == -1)
+					errors = "";
+			}
+		}
 
 		JsonValue res;
 

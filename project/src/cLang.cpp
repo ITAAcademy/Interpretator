@@ -14,12 +14,12 @@ LangCompiler::~LangCompiler(){
 //compilerFlag
 bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, int student__teacher_programer )
 {
-	//return false;
+	//return true;
 	if (flags == Flag_JS)
 	{
-		l12("**************************");
+		/*l12("**************************");
 					l12( warning);
-					l12("**************************");
+					l12("**************************");*/
 		if (warning.find("project/src/Main") != string::npos)
 		{
 			//warning.erase(0, warning.find("\n") + 1);
