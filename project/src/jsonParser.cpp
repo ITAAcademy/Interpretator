@@ -12,6 +12,7 @@ jsonParser::jsonParser(string json)
 {
 	bJsonValid = setJson(json);
 	max_uint_value = to_string (std::numeric_limits<unsigned int>::max());
+	initKeywords();
 }
 
 bool jsonParser::sizeEqualSizeOfUnitTests(Json::Value object, string name)
@@ -186,7 +187,7 @@ bool jsonParser::mustBeArrayString(Json::Value object, string name, int size, bo
 	return true;
 }
 
-bool jsonParser::jsonParser::mustBeArrayBool(Json::Value object, string name , int size, bool enable_zero_len , string ps, string ps2 )
+bool jsonParser::mustBeArrayBool(Json::Value object, string name , int size, bool enable_zero_len , string ps, string ps2 )
 {
 	if (!mustBeArray(object,name,size ,ps))
 		return false;
@@ -402,6 +403,8 @@ bool jsonParser::mustExistBeFloat(Json::Value object, string name  , string ps ,
 	return true;
 }
 
+
+
 bool jsonParser::mustExistBeString(Json::Value object, string name  , string ps , string ps2)
 {
 	if ( object.isNull())
@@ -578,6 +581,61 @@ bool jsonParser::mustBeString(Json::Value object, string name , string ps, bool 
 	return true;
 }
 
+bool jsonParser::mustBeNotKeyword(Json::Value object, string name, int lang)
+{
+	string str = object.asString();
+
+	switch(lang)
+	{
+	case LangCompiler::Flag_CPP: case LangCompiler::Flag_CS: case LangCompiler::Flag_PHP:
+		if (str[0] >= '0' && str[0] <= '9')
+		{
+			last_error = "ERROR: json format is not correct. " + name +" value[0] (\""+ str[0] + "\") out of avaible cymbols (A-Z,a-z, _ )";
+			return false;
+		}
+		for(int i = 0; i < str.size(); i++)
+		{
+			char c = str[i];
+			if ( !(c == '_' ||
+					(c >= 'a' && c <='z') ||
+					(c >= 'A' && c <='Z') ||
+					c >= '0' && c <= '9'))
+			{
+				last_error = "ERROR: json format is not correct. " + name +" value (\""+ str + "\") out of avaible cymbols (A-Z,a-z, _ , 0-9)";
+				return false;
+			}
+		}
+		break;
+
+	case LangCompiler::Flag_JS: case LangCompiler::Flag_Java:
+		if (str[0] >= '0' && str[0] <= '9')
+		{
+			last_error = "ERROR: json format is not correct. " + name +" value[0] (\""+ str[0] + "\") out of avaible cymbols (A-Z,a-z, _ )";
+			return false;
+		}
+		for(int i = 0; i < str.size(); i++)
+		{
+			char c = str[i];
+			if ( !(c == '_' || c == '$' ||
+					(c >= 'a' && c <='z') ||
+					(c >= 'A' && c <='Z') ||
+					c >= '0' && c <= '9'))
+			{
+				last_error = "ERROR: json format is not correct. " + name +" value (\""+ str + "\") out of avaible cymbols (A-Z,a-z, _ , $,  0-9)";
+				return false;
+			}
+		}
+		break;
+	}
+
+	if (isStrKeyWord(str, lang))
+	{
+		last_error = "ERROR: json format is not correct. " + name +" value (\""+ str + "\") match to keyword";
+		return false;
+	}
+	return true;
+}
+
 bool jsonParser::mustBeBool(Json::Value object, string name , string ps, bool enable_zero_len )
 {
 	if ( object.isString())
@@ -603,6 +661,440 @@ bool jsonParser::mustBeBool(Json::Value object, string name , string ps, bool en
 	return true;
 }
 
+bool jsonParser::isStrInVector(string str, vector<string> vec)
+{
+	int str_size = str.size();
+	for(string temp: vec)
+	{
+		int temp_size = temp.size();
+		if (temp_size == str_size)
+		{
+			bool is_overlap = true;
+			for (int i = 0; i < temp_size; )
+			{
+				if (str[i] == temp[i])
+					i++;
+				else
+				{
+					is_overlap = false;
+					break;
+				}
+			}
+			if (is_overlap)
+				return true;
+		}
+	}
+	return false;
+}
+
+bool jsonParser::isStrKeyWord(string str,int lang)
+{
+	switch(lang)
+	{
+	case LangCompiler::Flag_CPP:
+		return isStrInVector(str, keywords_cpp);
+
+	case LangCompiler::Flag_CS:
+		return isStrInVector(str, keywords_cs);
+
+	case LangCompiler::Flag_JS:
+		return isStrInVector(str, keywords_js);
+
+	case LangCompiler::Flag_Java:
+		return isStrInVector(str, keywords_java);
+
+	case LangCompiler::Flag_PHP:
+		return false;
+	}
+	return false;
+}
+
+void jsonParser::initKeywords()
+{
+	keywords_cpp.push_back("asm");
+	keywords_cpp.push_back("auto");
+	keywords_cpp.push_back("bool");
+	keywords_cpp.push_back("break");
+	keywords_cpp.push_back("case");
+	keywords_cpp.push_back("catch");
+	keywords_cpp.push_back("char");
+	keywords_cpp.push_back("class");
+	keywords_cpp.push_back("const");
+	keywords_cpp.push_back("const_cast");
+	keywords_cpp.push_back("continue");
+	keywords_cpp.push_back("default");
+	keywords_cpp.push_back("delete");
+	keywords_cpp.push_back("do");
+	keywords_cpp.push_back("double");
+	keywords_cpp.push_back("dynamic_cast");
+	keywords_cpp.push_back("else");
+	keywords_cpp.push_back("enum");
+	keywords_cpp.push_back("explicit");
+	keywords_cpp.push_back("export");
+	keywords_cpp.push_back("extern");
+	keywords_cpp.push_back("false");
+	keywords_cpp.push_back("float");
+	keywords_cpp.push_back("for");
+	keywords_cpp.push_back("friend");
+	keywords_cpp.push_back("goto");
+	keywords_cpp.push_back("goto");
+	keywords_cpp.push_back("inline");
+	keywords_cpp.push_back("int");
+	keywords_cpp.push_back("long");
+	keywords_cpp.push_back("mutable");
+	keywords_cpp.push_back("namespace");
+	keywords_cpp.push_back("new");
+	keywords_cpp.push_back("operator");
+	keywords_cpp.push_back("private");
+	keywords_cpp.push_back("protected");
+	keywords_cpp.push_back("public");
+	keywords_cpp.push_back("register");
+	keywords_cpp.push_back("reinterpret_cast");
+	keywords_cpp.push_back("return");
+	keywords_cpp.push_back("short");
+	keywords_cpp.push_back("signed");
+	keywords_cpp.push_back("sizeof");
+	keywords_cpp.push_back("static");
+	keywords_cpp.push_back("static_cast");
+	keywords_cpp.push_back("short short");
+	keywords_cpp.push_back("signed");
+	keywords_cpp.push_back("sizeof");
+	keywords_cpp.push_back("static");
+	keywords_cpp.push_back("static_cast");
+	keywords_cpp.push_back("struct");
+	keywords_cpp.push_back("switch");
+	keywords_cpp.push_back("template");
+	keywords_cpp.push_back("this");
+	keywords_cpp.push_back("throw");
+	keywords_cpp.push_back("typedef");
+	keywords_cpp.push_back("true");
+	keywords_cpp.push_back("try");
+	keywords_cpp.push_back("typeid");
+	keywords_cpp.push_back("typename");
+	keywords_cpp.push_back("union");
+	keywords_cpp.push_back("voidunion");
+	keywords_cpp.push_back("using");
+	keywords_cpp.push_back("virtual");
+	keywords_cpp.push_back("void");
+
+	keywords_java.push_back("abstract");
+	keywords_java.push_back("continue");
+	keywords_java.push_back("for");
+	keywords_java.push_back("new");
+	keywords_java.push_back("switch");
+	keywords_java.push_back("assert");
+	keywords_java.push_back("default");
+	keywords_java.push_back("goto");
+	keywords_java.push_back("package");
+	keywords_java.push_back("synchronized");
+	keywords_java.push_back("boolean");
+	keywords_java.push_back("do");
+	keywords_java.push_back("if");
+	keywords_java.push_back("private");
+	keywords_java.push_back("this");
+	keywords_java.push_back("break");
+	keywords_java.push_back("double");
+	keywords_java.push_back("implements");
+	keywords_java.push_back("protected");
+	keywords_java.push_back("throw");
+	keywords_java.push_back("byte");
+	keywords_java.push_back("else");
+	keywords_java.push_back("import");
+	keywords_java.push_back("public");
+	keywords_java.push_back("throws");
+	keywords_java.push_back("case");
+	keywords_java.push_back("enum");
+	keywords_java.push_back("instanceof");
+	keywords_java.push_back("return");
+	keywords_java.push_back("transient");
+	keywords_java.push_back("catch");
+	keywords_java.push_back("extends");
+	keywords_java.push_back("int");
+	keywords_java.push_back("short");
+	keywords_java.push_back("try");
+	keywords_java.push_back("char");
+	keywords_java.push_back("final");
+	keywords_java.push_back("interface");
+	keywords_java.push_back("static");
+	keywords_java.push_back("void");
+	keywords_java.push_back("class");
+	keywords_java.push_back("finally");
+	keywords_java.push_back("long");
+	keywords_java.push_back("strictfp");
+	keywords_java.push_back("volatile");
+	keywords_java.push_back("const");
+	keywords_java.push_back("float");
+	keywords_java.push_back("native");
+	keywords_java.push_back("super");
+	keywords_java.push_back("while");
+
+	keywords_js.push_back("abstract");
+	keywords_js.push_back("arguments");
+	keywords_js.push_back("boolean");
+	keywords_js.push_back("break");
+	keywords_js.push_back("byte");
+	keywords_js.push_back("case");
+	keywords_js.push_back("catch");
+	keywords_js.push_back("char");
+	keywords_js.push_back("class");
+	keywords_js.push_back("const");
+	keywords_js.push_back("continue");
+	keywords_js.push_back("debugger");
+	keywords_js.push_back("default");
+	keywords_js.push_back("delete");
+	keywords_js.push_back("do");
+	keywords_js.push_back("double");
+	keywords_js.push_back("else");
+	keywords_js.push_back("enum");
+	keywords_js.push_back("eval");
+	keywords_js.push_back("export");
+	keywords_js.push_back("extends");
+	keywords_js.push_back("false");
+	keywords_js.push_back("final");
+	keywords_js.push_back("finally");
+	keywords_js.push_back("float");
+	keywords_js.push_back("for");
+	keywords_js.push_back("function");
+	keywords_js.push_back("goto");
+	keywords_js.push_back("if");
+	keywords_js.push_back("implements");
+	keywords_js.push_back("import");
+	keywords_js.push_back("in");
+	keywords_js.push_back("instanceof");
+	keywords_js.push_back("int");
+	keywords_js.push_back("interface");
+	keywords_js.push_back("let");
+	keywords_js.push_back("long");
+	keywords_js.push_back("native");
+	keywords_js.push_back("new");
+	keywords_js.push_back("null");
+	keywords_js.push_back("package");
+	keywords_js.push_back("private");
+	keywords_js.push_back("protected");
+	keywords_js.push_back("public");
+	keywords_js.push_back("return");
+	keywords_js.push_back("short");
+	keywords_js.push_back("static");
+	keywords_js.push_back("super");
+	keywords_js.push_back("switch");
+	keywords_js.push_back("synchronized");
+	keywords_js.push_back("this");
+	keywords_js.push_back("throw");
+	keywords_js.push_back("throws");
+	keywords_js.push_back("transient");
+	keywords_js.push_back("true");
+	keywords_js.push_back("try");
+	keywords_js.push_back("typeof");
+	keywords_js.push_back("var");
+	keywords_js.push_back("void");
+	keywords_js.push_back("volatile");
+	keywords_js.push_back("Array");
+	keywords_js.push_back("Date");
+	keywords_js.push_back("eval");
+	keywords_js.push_back("function");
+	keywords_js.push_back("hasOwnProperty");
+	keywords_js.push_back("Infinity");
+	keywords_js.push_back("isFinite");
+	keywords_js.push_back("isNaN");
+	keywords_js.push_back("isPrototypeOf");
+	keywords_js.push_back("length");
+	keywords_js.push_back("Math");
+	keywords_js.push_back("NaN");
+	keywords_js.push_back("name");
+	keywords_js.push_back("Number");
+	keywords_js.push_back("Object");
+	keywords_js.push_back("prototype");
+	keywords_js.push_back("String");
+	keywords_js.push_back("toString");
+	keywords_js.push_back("undefined");
+	keywords_js.push_back("valueOf");
+	keywords_js.push_back("getClass");
+	keywords_js.push_back("java");
+	keywords_js.push_back("JavaArray");
+	keywords_js.push_back("javaClass");
+	keywords_js.push_back("JavaObject");
+	keywords_js.push_back("JavaPackage");
+	keywords_js.push_back("alert");
+	keywords_js.push_back("all");
+	keywords_js.push_back("anchor");
+	keywords_js.push_back("anchors");
+	keywords_js.push_back("area");
+	keywords_js.push_back("assign");
+	keywords_js.push_back("blur");
+	keywords_js.push_back("button");
+	keywords_js.push_back("checkbox");
+	keywords_js.push_back("clearInterval");
+	keywords_js.push_back("clearTimeout");
+	keywords_js.push_back("clientInformation");
+	keywords_js.push_back("close");
+	keywords_js.push_back("closed");
+	keywords_js.push_back("confirm");
+	keywords_js.push_back("constructor");
+	keywords_js.push_back("crypto");
+	keywords_js.push_back("decodeURI");
+	keywords_js.push_back("decodeURIComponent");
+	keywords_js.push_back("defaultStatus");
+	keywords_js.push_back("document");
+	keywords_js.push_back("element");
+	keywords_js.push_back("elements");
+	keywords_js.push_back("embed");
+	keywords_js.push_back("embeds");
+	keywords_js.push_back("encodeURI");
+	keywords_js.push_back("encodeURIComponent");
+	keywords_js.push_back("escape");
+	keywords_js.push_back("event");
+	keywords_js.push_back("fileUpload");
+	keywords_js.push_back("focus");
+	keywords_js.push_back("form");
+	keywords_js.push_back("forms");
+	keywords_js.push_back("frame");
+	keywords_js.push_back("innerHeight");
+	keywords_js.push_back("innerWidth");
+	keywords_js.push_back("layer");
+	keywords_js.push_back("layers");
+	keywords_js.push_back("link");
+	keywords_js.push_back("location");
+	keywords_js.push_back("mimeTypes");
+	keywords_js.push_back("navigate");
+	keywords_js.push_back("navigator");
+	keywords_js.push_back("frames");
+	keywords_js.push_back("frameRate");
+	keywords_js.push_back("hidden");
+	keywords_js.push_back("history");
+	keywords_js.push_back("image");
+	keywords_js.push_back("images");
+	keywords_js.push_back("offscreenBuffering");
+	keywords_js.push_back("open");
+	keywords_js.push_back("opener");
+	keywords_js.push_back("option");
+	keywords_js.push_back("outerHeight");
+	keywords_js.push_back("outerWidth");
+	keywords_js.push_back("packages");
+	keywords_js.push_back("pageXOffset");
+	keywords_js.push_back("pageYOffset");
+	keywords_js.push_back("parent");
+	keywords_js.push_back("parseFloat");
+	keywords_js.push_back("parseInt");
+	keywords_js.push_back("password");
+	keywords_js.push_back("pkcs11");
+	keywords_js.push_back("plugin");
+	keywords_js.push_back("prompt");
+	keywords_js.push_back("propertyIsEnum");
+	keywords_js.push_back("radio");
+	keywords_js.push_back("reset");
+	keywords_js.push_back("screenX");
+	keywords_js.push_back("screenY");
+	keywords_js.push_back("scroll");
+	keywords_js.push_back("secure");
+	keywords_js.push_back("select");
+	keywords_js.push_back("self");
+	keywords_js.push_back("setInterval");
+	keywords_js.push_back("setTimeout");
+	keywords_js.push_back("status");
+	keywords_js.push_back("submit");
+	keywords_js.push_back("taint");
+	keywords_js.push_back("text");
+	keywords_js.push_back("textarea");
+	keywords_js.push_back("top");
+	keywords_js.push_back("unescape");
+	keywords_js.push_back("untaint");
+	keywords_js.push_back("window");
+	keywords_js.push_back("onblur");
+	keywords_js.push_back("onclick");
+	keywords_js.push_back("onerror");
+	keywords_js.push_back("onfocus");
+	keywords_js.push_back("onkeydown");
+	keywords_js.push_back("onkeypress");
+	keywords_js.push_back("onkeyup");
+	keywords_js.push_back("onmouseover");
+	keywords_js.push_back("onload");
+	keywords_js.push_back("onmouseup");
+	keywords_js.push_back("onmousedown");
+	keywords_js.push_back("onsubmit");
+
+	keywords_cs.push_back("abstract");
+	keywords_cs.push_back("as");
+	keywords_cs.push_back("base");
+	keywords_cs.push_back("bool");
+	keywords_cs.push_back("break");
+	keywords_cs.push_back("byte");
+	keywords_cs.push_back("case");
+	keywords_cs.push_back("catch");
+	keywords_cs.push_back("char");
+	keywords_cs.push_back("checked");
+	keywords_cs.push_back("class");
+	keywords_cs.push_back("const");
+	keywords_cs.push_back("continue");
+	keywords_cs.push_back("decimal");
+	keywords_cs.push_back("default");
+	keywords_cs.push_back("delegate");
+	keywords_cs.push_back("do");
+	keywords_cs.push_back("double");
+	keywords_cs.push_back("else");
+	keywords_cs.push_back("enum");
+	keywords_cs.push_back("event");
+	keywords_cs.push_back("explicit");
+	keywords_cs.push_back("extern");
+	keywords_cs.push_back("false");
+	keywords_cs.push_back("finally");
+	keywords_cs.push_back("fixed");
+	keywords_cs.push_back("float");
+	keywords_cs.push_back("for");
+	keywords_cs.push_back("foreach");
+	keywords_cs.push_back("goto");
+	keywords_cs.push_back("if");
+	keywords_cs.push_back("implicit");
+	keywords_cs.push_back("in");
+	keywords_cs.push_back("in (generic modifier)");
+	keywords_cs.push_back("int");
+	keywords_cs.push_back("interface");
+	keywords_cs.push_back("internal");
+	keywords_cs.push_back("is");
+	keywords_cs.push_back("lock");
+	keywords_cs.push_back("long");
+	keywords_cs.push_back("namespace");
+	keywords_cs.push_back("new");
+	keywords_cs.push_back("null");
+	keywords_cs.push_back("object");
+	keywords_cs.push_back("operator");
+	keywords_cs.push_back("out");
+	keywords_cs.push_back("out");
+	keywords_cs.push_back("override");
+	keywords_cs.push_back("params");
+	keywords_cs.push_back("private");
+	keywords_cs.push_back("protected");
+	keywords_cs.push_back("public");
+	keywords_cs.push_back("readonly");
+	keywords_cs.push_back("ref");
+	keywords_cs.push_back("return");
+	keywords_cs.push_back("sbyte");
+	keywords_cs.push_back("sealed");
+	keywords_cs.push_back("short");
+	keywords_cs.push_back("sizeof");
+	keywords_cs.push_back("stackalloc");
+	keywords_cs.push_back("static");
+	keywords_cs.push_back("string");
+	keywords_cs.push_back("struct");
+	keywords_cs.push_back("switch");
+	keywords_cs.push_back("this");
+	keywords_cs.push_back("throw");
+	keywords_cs.push_back("true");
+	keywords_cs.push_back("try");
+	keywords_cs.push_back("typeof");
+	keywords_cs.push_back("uint");
+	keywords_cs.push_back("ulong");
+	keywords_cs.push_back("unchecked");
+	keywords_cs.push_back("unsafe");
+	keywords_cs.push_back("ushort");
+	keywords_cs.push_back("using");
+	keywords_cs.push_back("virtual");
+	keywords_cs.push_back("void");
+	keywords_cs.push_back("volatile");
+	keywords_cs.push_back("while");
+
+
+}
+
 bool jsonParser::isResultsArray()
 {
 	return is_results_array;
@@ -622,6 +1114,7 @@ jsonParser::jsonParser()
 {
 	json.clear();
 	max_uint_value = to_string (std::numeric_limits<unsigned int>::max());
+	initKeywords();
 }
 
 jsonParser::~jsonParser() {
@@ -954,8 +1447,34 @@ bool jsonParser::isValidFields()
 		if( !mustExist(parsedFromString[FUNCTION], "function"))
 			return false;
 
-		if( !mustExist(field_lang, "lang"))
+		if( !mustExistBeString(field_lang, "lang"))
 			return false;
+
+		string lang_s = getAsString(field_lang);
+		std::transform(lang_s.begin(), lang_s.end(), lang_s.begin(), ::tolower);
+		int lang_int = 0;
+
+		if (lang_s == "c++")
+			lang_int = LangCompiler::Flag_CPP;
+		else
+			if (lang_s == "cs" || lang_s == "c#")
+				lang_int = LangCompiler::Flag_CS;
+			else
+				if (lang_s == "js")
+					lang_int = LangCompiler::Flag_JS;
+				else
+					if (lang_s == "php")
+						lang_int = LangCompiler::Flag_PHP;
+					else
+						if (lang_s == "java")
+							lang_int = LangCompiler::Flag_Java;
+						else
+						{
+							last_error = "ERROR: lang not defined";//+
+							return false;
+						}
+
+
 
 		bool is_results_exist;
 		string etalon = field_etalon.asString();
@@ -1260,10 +1779,13 @@ bool jsonParser::isValidFields()
 			if(!mustExistBeString(args_i_arg_name, string("arg_name of args[" + to_string(i) + "]" )))
 				return false;
 
+			if (!mustBeNotKeyword(args_i_arg_name, string("arg_name of args[" + to_string(i) + "]" ), lang_int))
+				return false;
+
 			if(!mustExistBeArrayInt(args_i_compare_mark, string("compare_mark of args[" +
 					to_string(i) + "]" ), unit_test_num))
 				return false;
-		/*	bool mustExistBeArrayInt(Json::Value object, string name,
+			/*	bool mustExistBeArrayInt(Json::Value object, string name,
 					int array_size, bool enable_zero_len = false , string ps = "", string ps2 = "");*/
 			int args_i_compare_mark_size = args_i_compare_mark.size();
 			/*if ( args_i_compare_mark_size != unit_test_num )

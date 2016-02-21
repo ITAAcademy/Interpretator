@@ -71,6 +71,12 @@ using namespace Json;
 
 class jsonParser {
 
+	vector<string> keywords_cpp ;
+	vector<string> keywords_java ;
+	vector<string> keywords_cs ;
+	vector<string> keywords_js ;
+	vector<string> keywords_php ;
+
 	string max_uint_value ; //for parsing uint in json
 
 	Json::Value parsedFromString;
@@ -89,6 +95,9 @@ class jsonParser {
 
 	int unit_test_num;
 public:
+	bool isStrKeyWord(string str, int lang);
+	bool isStrInVector(string str, vector<string> vec);
+	void initKeywords();
 	bool isResultsArray();
 	int getResultsArraySize();
 	bool isResultsRange();
@@ -153,6 +162,7 @@ public:
 
 	bool mustExistBeFloat(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeString(Json::Value object, string name , string ps = "", string ps2 = "");
+	bool mustBeNotKeyword(Json::Value object, string name, int lang);
 	bool mustExistBeBool(Json::Value object, string name , string ps = "", string ps2 = "");
 	bool mustExistBeArray(Json::Value object, string name,  int array_size , string ps = "", string ps2 = "");
 	bool mustExistBeArrayString(Json::Value object, string name, int array_size , string ps = "", string ps2 = "");
