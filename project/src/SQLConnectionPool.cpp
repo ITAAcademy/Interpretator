@@ -169,7 +169,7 @@ string  SqlConnectionPool::getJsonFromTable( int task )  {
 	pthread_mutex_lock(&accept_mutex);
 	string json="";
 	vector<map<int,string> >  records;
-	string quer = "SELECT `json` FROM `" + tableName + "` WHERE `id` = " + to_string(task);
+	string quer = "SELECT `json` FROM `" + tableName + "` WHERE `ID` = " + to_string(task);
 
 	if (conn->connected())
 	{

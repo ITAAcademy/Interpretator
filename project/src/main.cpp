@@ -345,7 +345,7 @@ bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 
 	//string lang = jSON.getAsStringS("lang");
 	string table;
-	table=ConnectorSQL::getAssignmentTable(" hahaha dont need");
+	table = ConnectorSQL::getAssignmentTable(" hahaha dont need");
 
 	vector<string> labl;
 	labl.push_back("ID");
@@ -463,7 +463,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 			stream << res.toStyledString();
 			stream.close();
 			return false;
-/*
+			/*
 			res["status"] = "failed 0000";
 			res["table"] = table;
 						res["id"] = to_string(id);
@@ -539,12 +539,19 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error 
 	resLabel.push_back("json");
 	string tableName = ConnectorSQL::getAssignmentTable(lang);
 	SqlConnectionPool sql;
+	JsonValue res;
+
+	stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+
 	if (sql.connectToTable(tableName, resLabel)){
 		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
 				"`ID`='"+std::to_string(task)+"'");
 		if ((int)records.size()==0)
 		{
 			error = "Task " + to_string(task) + " in lang " + lang + " not exist";
+			res["status"] = error;
+			stream << res.toStyledString();
+			stream.close();
 			return false;
 		}
 	}
@@ -604,17 +611,21 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error 
 			//MyConnectionPool::getInstance().tt();
 			if(taskComp)
 			{
-				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-				JsonValue res;
+				//stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+
 				res["status"] = "already exist";
 				stream << res.toStyledString();
+				stream.close();
+				return false;
 			}
 			else
 			{
-				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+				//stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 				JsonValue res;
 				res["status"] = "Added to compile";
 				stream << res.toStyledString();
+				stream.close();
+				return true;
 			}
 		}
 		else
