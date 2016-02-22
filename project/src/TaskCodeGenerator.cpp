@@ -418,7 +418,7 @@ string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueTy
 			else
 				if (lang==LangCompiler::Flag_CPP)
 				{
-					defaultReturnValue = " null";
+					defaultReturnValue = " NULL";
 				}
 
 	return defaultReturnValue;
@@ -781,9 +781,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 		{
 			for (int l = 0; l < checkableArgsIndexes[i].size();l++)
 			{
+
 				//if (std::find(checkableArgsIndexes[indexOfTest].begin(),checkableArgsIndexes[indexOfTest].end(),
 				int firstCheckableVariableIndex=checkableArgsIndexes[i][l].first;
 				int secondCheckableVariableIndex=checkableArgsIndexes[i][l].second;
+				//if (firstCheckableVariableIndex <)
+
 				if(variables.size() < firstCheckableVariableIndex || variables.size() < secondCheckableVariableIndex)
 				{
 					status = (int)COMPARE_VALUE_FROM_TH;
@@ -995,12 +998,12 @@ string TaskCodeGenerator::getStrToCompareTypes(string name1, string name2,  int 
 	if (lang == LangCompiler::Flag_Java)
 	{
 		//name1 = "to_string( " + name1 + " )";
-		name1 += "getClass().equals(" + name2 +".getClass())";
+		name1 = "getClass().equals(" + name2 +".getClass())";
 	}
 	else
 		if (lang == LangCompiler::Flag_CPP)
 		{
-			name1 += "typeid(" + name1 + ").name() == typeid(" + name2 + ").name()";
+			name1 = "typeid(" + name1 + ").name() == typeid(" + name2 + ").name()";
 		}
 		else
 			if (lang == LangCompiler::Flag_CS)

@@ -242,8 +242,9 @@ void *receiveTask(void *a)
 				 */
 				if (operation == "addtask")
 				{
-					if(!addNewtask(stream, jSON, id, errora))
-						succsesful = false;
+					/*if(!addNewtask(stream, jSON, id, errora))
+						succsesful = false;*/
+					addNewtask(stream, jSON, id, errora);
 				}
 				else
 					if (operation == "getJson")
@@ -382,7 +383,7 @@ bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 
 
 
-bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error)
+bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error)//***
 {
 	if ( !jSON.isValidFields() )
 	{
@@ -402,6 +403,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 	labl.push_back("footer");
 	labl.push_back("json");
 	SqlConnectionPool sql;
+
+	JsonValue res;
 	DEBUG("before connectToTable");
 	if (sql.connectToTable(table, labl))
 	{
@@ -450,12 +453,23 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 			}
 		}
 
-		JsonValue res;
+		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 
-		if (errors.size())
+		if (errors.size() )
 		{
 			error = "failed code compilation: " + errors ;
+			//res["status"] = "failed";
+			res["status"] = error;
+			stream << res.toStyledString();
+			stream.close();
 			return false;
+/*
+			res["status"] = "failed 0000";
+			res["table"] = table;
+						res["id"] = to_string(id);
+			stream << res.toStyledString();
+			stream.close();
+			return true;*/
 		}
 
 
@@ -467,7 +481,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 		temp.insert( { valuesCount++, (generator.getFooter())});
 		temp.insert({valuesCount++, (jSON.getJson())});
 		DEBUG("temp.insert");
-		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+
 
 
 
@@ -495,7 +509,13 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 		return true;
 	}
 	else
+	{
+		res["status"] = "failed";
+
+		stream << res.toStyledString();
+		stream.close();
 		return false;
+	}
 }
 
 /*

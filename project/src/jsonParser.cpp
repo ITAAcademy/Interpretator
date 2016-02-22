@@ -776,6 +776,15 @@ void jsonParser::initKeywords()
 	keywords_cpp.push_back("using");
 	keywords_cpp.push_back("virtual");
 	keywords_cpp.push_back("void");
+	keywords_cpp.push_back("include");
+	keywords_cpp.push_back("include");
+	//keywords_cpp.push_back("ifndef");
+	//keywords_cpp.push_back("ifdef");
+
+	keywords_cpp.push_back("null");
+	keywords_cpp.push_back("NULL");
+	keywords_cpp.push_back("type");
+	keywords_cpp.push_back("define");
 
 	keywords_java.push_back("abstract");
 	keywords_java.push_back("continue");
