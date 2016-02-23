@@ -385,11 +385,15 @@ bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error)//***
 {
+	JsonValue res;
+	stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 	if ( !jSON.isValidFields() )
 	{
-		//string error = jSON.getLastError();
-		//stream << error;
-		//stream.close();
+		string error = jSON.getLastError();
+		res["status"] = error;
+		stream << res.toStyledString();
+		stream.close();
+		return false;
 		return false;
 	}
 	string lang = jSON.getAsStringS("lang");
@@ -404,7 +408,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 	labl.push_back("json");
 	SqlConnectionPool sql;
 
-	JsonValue res;
+
 	DEBUG("before connectToTable");
 	if (sql.connectToTable(table, labl))
 	{
@@ -453,7 +457,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 			}
 		}
 
-		stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+
 
 		if (errors.size() )
 		{

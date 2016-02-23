@@ -1731,6 +1731,8 @@ bool jsonParser::isValidFields()
 		int args_0_value_type;
 		int args_0_values_size;*/
 
+		vector <string> arg_names;
+
 		for (int i=0; i < args_size; i++)
 		{
 
@@ -1787,6 +1789,18 @@ bool jsonParser::isValidFields()
 
 			if(!mustExistBeString(args_i_arg_name, string("arg_name of args[" + to_string(i) + "]" )))
 				return false;
+
+			string cur_arg_name = getAsString(args_i_arg_name);
+			for (string temp_name : arg_names)
+			{
+				if (temp_name == cur_arg_name)
+				{
+					last_error = "ERROR: json format is not correct. arg_name of args[" + to_string(i) + "] value ("
+							+ cur_arg_name + ") repeat second time";
+					return false;
+				}
+			}
+			arg_names.push_back(cur_arg_name);
 
 			if (!mustBeNotKeyword(args_i_arg_name, string("arg_name of args[" + to_string(i) + "]" ), lang_int))
 				return false;
