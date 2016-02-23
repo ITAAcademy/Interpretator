@@ -307,8 +307,14 @@ void *receiveTask(void *a)
 
 				if(!succsesful)
 				{
+					JsonValue res;
+					stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 					string error = jSON.getLastError() + "\n" + errora;
-					errorResponder.showError(400, error);
+					/*	errorResponder.showError(400, error);
+					stream.close();*/
+
+					res["status"] = error;
+					stream << res.toStyledString();
 					stream.close();
 					continue;
 				}
@@ -316,9 +322,16 @@ void *receiveTask(void *a)
 			}
 			else
 			{
+				JsonValue res;
+				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 				//logfile::addLog(id,	"Json format is not correct!!! \n::::::::::::::::::::::::\n" + stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
-				errorResponder.showError(400, jSON.getLastError());
+				/*errorResponder.showError(400, jSON.getLastError());
+				stream.close();*/
+
+				res["status"] = jSON.getLastError();
+				stream << res.toStyledString();
 				stream.close();
+
 				continue;
 			}
 
@@ -393,7 +406,6 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 		res["status"] = error;
 		stream << res.toStyledString();
 		stream.close();
-		return false;
 		return false;
 	}
 	string lang = jSON.getAsStringS("lang");
