@@ -36,10 +36,19 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, int stu
 				error_line -= 5;
 			else
 				if (student__teacher_programer == 1)
-				error_line -= 10;
+					error_line -= 10;
 
 			warning.erase(0, warning.find("\n"));
-			warning.erase(warning.find("at function"), warning.size() - 1);
+
+			int begin = warning.find("at function");
+			int end = warning.size() - 1;
+			if (begin == -1)
+			{
+				begin = warning.find("at Object");
+			}
+
+			if (begin > -1)
+				warning.erase(begin, end);
 			warning = "error in:" + to_string(error_line) + warning;
 		}
 	}
@@ -72,7 +81,7 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, int stu
 					error_line = -38;
 				else
 					if (student__teacher_programer == 1)
-					error_line -= 44;
+						error_line -= 44;
 
 
 				int first_n = war_temp.find("\n");
@@ -121,7 +130,7 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, int stu
 							num_line -= 8; //it have 8 lines behind student code
 						else
 							if (student__teacher_programer == 1)
-							num_line -= 14;
+								num_line -= 14;
 
 						num_s = std::to_string(num_line) + ":" + to_string(num_char);
 						/*if (num_s[0] <'0' || num_s[0] > '9')
@@ -184,7 +193,7 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, int stu
 							num_line -= lines_begind;
 						else
 							if (student__teacher_programer == 1)
-							num_line -= 12;
+								num_line -= 12;
 						num_s = to_string(num_line);
 
 
@@ -221,7 +230,7 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, int stu
 								num_line -= 6;//12
 							else
 								if (student__teacher_programer == 1)
-								num_line -= 12;
+									num_line -= 12;
 							num_s = to_string(num_line);
 
 							int first_n = war_temp.find("\n");
