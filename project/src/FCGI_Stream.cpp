@@ -85,7 +85,7 @@ bool FCGI_Stream::multiIsRequest() {
 	if(rc < 0)
 	{
 		status = false;
-		//INFO("Can not accept new request\n");
+		INFO("Can not accept new request\n");
 		return false;
 	}
 	DEBUG("request is accepted\n");

@@ -343,7 +343,7 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 
 	case LangCompiler::Flag_PHP:
 		headerStr += "<?php \n";// php ID
-		defaultReturnValue=" \"default return value2\"";
+		defaultReturnValue=" \"	2zgi	1e6o	818oe83r2\"";
 		break;
 
 	case LangCompiler::Flag_CS:
@@ -357,7 +357,7 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 		break;
 
 	case LangCompiler::Flag_JS:
-		defaultReturnValue=" \"default return value 3\"";
+		//defaultReturnValue=" \"	2zgi	1e6o	818oe83r2\"";
 		break;
 
 	case LangCompiler::Flag_CPP:
@@ -411,9 +411,9 @@ string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueTy
 			defaultReturnValue += ")";
 		}
 		else
-			if (lang==LangCompiler::Flag_PHP || lang==LangCompiler::Flag_JS)
+			if (lang==LangCompiler::Flag_PHP)// || lang==LangCompiler::Flag_JS)
 			{
-				defaultReturnValue = " \"default return value 1\"";
+				defaultReturnValue = " \"fG13791323`02y13`132/4-28*2\"";
 			}
 			else
 				if (lang==LangCompiler::Flag_CPP)
@@ -432,17 +432,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData){
 	//999
 	string footerBody = "";
 	//if (functionData.lang != (int) LangCompiler::Flag_Java)
-	string temp1 =  "return "+defaultReturnValue+";\n}\n";//Close function body
-	footerBody += temp1;
+	footerBody += "return "+defaultReturnValue+";\n}\n";//Close function body
 	/*else
 		footerBody += "\n}\n";*/
 
 	footerBody += generateFunctionProtorype(functionData, "function_etalon"); //create prototype for etalon function
-
-	string temp2 = "{\n" + functionData.etalon;
-	temp2 += "\nreturn ";
-	temp2 += defaultReturnValue+";\n}\n"; // add etalon function
-	footerBody += temp2;
+	footerBody += "{\n" + functionData.etalon + "return "+defaultReturnValue+";\n}\n"; // add etalon function
 
 	string space=" ";
 	char divider=',';
@@ -1246,11 +1241,8 @@ string TaskCodeGenerator::getArrayCompareString(string name1, int arr1_size, Val
 			return string( "Arrays.equals(" + name1 + ", " +  name2 + ")");
 			break;
 
-			//
-
 		case LangCompiler::Flag_JS:
 			return ""+name1+".toString()=="+name2+".toString()";
-			//return name1 + ".every(function(element, index) {return element === " + name2 + "[index];})";
 			break;
 
 		case LangCompiler::Flag_CPP:
