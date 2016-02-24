@@ -74,7 +74,7 @@ void processTask(int id,Job job) {
 	 CodeClear clr;
 	 string outStr = code;
 	 clr.ClearText(outStr);*/
-	DEBUG("before code empty check");
+	//DEBUG("before code empty check");
 	if (!job.code.empty())
 	{
 
@@ -87,7 +87,7 @@ void processTask(int id,Job job) {
 		labl.push_back("date");
 		labl.push_back("result");
 		labl.push_back("warning");
-		DEBUG("Before connect to results");
+		//DEBUG("Before connect to results");
 		SqlConnectionPool sql;
 		//logfile::addLog("Connection to results successful");
 		if (sql.connectToTable("results", labl))
@@ -116,10 +116,10 @@ void processTask(int id,Job job) {
 				job.code =
 						sql.getCustomCodeOfProgram(
 								to_string(job.task), job.code, id,job.lang);
-				DEBUG(job.code);
+				//DEBUG(job.code);
 			}
 
-			INFO(to_string(id)+ " Start compiler");
+			//INFO(to_string(id)+ " Start compiler");
 			JsonValue res;
 
 			compiler.compile(job.code, true, LangCompiler::convertFromName(job.lang));
@@ -129,7 +129,7 @@ void processTask(int id,Job job) {
 			res["date"] = date;
 			res["result"] = compiler.getResult();
 			res["warnings"] = compiler.getWarningErr();
-			DEBUG( res.toStyledString());
+			//DEBUG( res.toStyledString());
 
 
 			labl.clear();
@@ -165,7 +165,7 @@ void processTask(int id,Job job) {
 			}
 
 
-			INFO(to_string(id) + " Stop compiler");
+			//INFO(to_string(id) + " Stop compiler");
 		}
 		else {
 
@@ -178,7 +178,7 @@ void processTask(int id,Job job) {
 
 void *receiveTask(void *a)
 {
-	DEBUG("void *receiveTask(void *a) ");
+	//DEBUG("void *receiveTask(void *a) ");
 	ThreadArguments argumento = ((ThreadArguments *) a)[0];
 
 	int rc, i;
@@ -194,7 +194,7 @@ void *receiveTask(void *a)
 	{
 		if (stream.multiIsRequest()) { /////////////!!!!!!!!!!!!!!!!!!!
 			//	break;
-			DEBUG(request);
+			////DEBUG(request);
 			if (strcmp(stream.getRequestMethod(), "GET") == 0)
 			{
 				//logfile::addLog(id, "Request Method don't POST !!!");
@@ -208,32 +208,36 @@ void *receiveTask(void *a)
 			{
 
 				errorResponder.showError(505, "DataBaseERR");
-				INFO("Try reconect to DB");
+				//INFO("Try reconect to DB");
 				stream.close();
 				SqlConnectionPool::getInstance().reconect(); //124
 				continue;  //////////////////////////////
 			}
-			DEBUG("Before jsonParser jSON(stream.getRequestBuffer());");
+			////DEBUG("Before jsonParser jSON(stream.getRequestBuffer());");
 			jsonParser jSON(stream.getRequestBuffer());
 
-			DEBUG("Before parsing successful check");
+			////DEBUG("Before parsing successful check");
 			bool isValidFields = jSON.isValidFields();
 			bool parsingSuccessful = jSON.isJson() && isValidFields;
-			DEBUG("Before jSON.isJson()");
+		//	//DEBUG("Before jSON.isJson()");
 			if (parsingSuccessful)
-				DEBUG("Before jSON.isValidFields()");
+				//DEBUG("Before jSON.isValidFields()");
 			//parsingSuccessful = jSON.isValidFields(); //reader.parse( str, parsedFromString, false);// IsJSON
-			DEBUG("Before parsing");
+			//DEBUG("Before parsing");
 			/*
 			 * ALL OK STARTif (SqlConnectionPool::getInstance().connectToTable(string("results"), labl))
 			 */
 
-			string errora = "";
+
+			//	string errora = "";
 			if (parsingSuccessful)
 			{
+				string errora = "";
+				l12(jSON.getJson());
+
 				string ip_usera = FCGX_GetParam("REMOTE_ADDR", request->envp);
 				cout.flush();
-				INFO("Parsing successful");
+				//INFO("Parsing successful");
 
 				string operation = jSON.getAsStringS("operation");
 				bool succsesful = true;
@@ -338,7 +342,7 @@ void *receiveTask(void *a)
 		}
 	}
 	//close session
-	INFO("session closed");
+	//INFO("session closed");
 	stream.close();
 	return NULL;
 }
@@ -421,16 +425,16 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 	SqlConnectionPool sql;
 
 
-	DEBUG("before connectToTable");
+	//DEBUG("before connectToTable");
 	if (sql.connectToTable(table, labl))
 	{
-		DEBUG("connectedToTable");
+		//DEBUG("connectedToTable");
 		map<int, string> temp;
 
 		//new code for testcases part
 		int id = jSON.getAsIntS("task");//t("task",false));
-		DEBUG("task");
-		DEBUG(std::to_string(id));
+		//DEBUG("task");
+		//DEBUG(std::to_string(id));
 
 
 
@@ -493,10 +497,10 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 		temp.insert( { valuesCount++, std::to_string(id) });
 		temp.insert( { valuesCount++, (generator.getHeader())});
 		temp.insert( { valuesCount++, (generator.getEtalon())});
-		DEBUG("qwe33");
+		//DEBUG("qwe33");
 		temp.insert( { valuesCount++, (generator.getFooter())});
 		temp.insert({valuesCount++, (jSON.getJson())});
-		DEBUG("temp.insert");
+		//DEBUG("temp.insert");
 
 
 
@@ -579,7 +583,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error 
 	requestedTask.lang = lang;
 	requestedTask.session = session;
 	requestedTask.task = task;
-	DEBUG("no threa22");
+	//DEBUG("no threa22");
 	/*
 	 * BAD NEED FIX @BUDLO@ INCLUDE INTO sql
 	 */
@@ -596,7 +600,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error 
 	bool taskComp = false;
 	if (sql.connectToTable(string("results"), labl))
 	{
-		DEBUG("no threa2");
+		//DEBUG("no threa2");
 		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
 				"`session`='"+session+"' AND `jobid`='"+(jobid)+"'");
 		if ((int)records.size()==0)
@@ -677,7 +681,7 @@ bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON)
 	bool taskComp = true;
 	if (sql.connectToTable(string("tests_signatures"), labl))
 	{
-		DEBUG("no threa2");
+		//DEBUG("no threa2");
 		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
 				"`task_id`='"+std::to_string(task)+"'");
 		if ((int)records.size()==0)
@@ -1063,13 +1067,13 @@ int main(void)
 	pthread_t *id = new pthread_t[Config::getInstance().getThreadCount()];
 	FCGX_Init();
 	logfile::clear();
-	DEBUG("\n\n\n\nStart server ==== Lib is inited");
+	//DEBUG("\n\n\n\nStart server ==== Lib is inited");
 	// system("mkdir -m 777 src");
 	// open socket unix or TCP
 	string socket = "127.0.0.1:" + Config::getInstance().getPort();
 	socketId = FCGX_OpenSocket(socket.c_str(), 2000);
 	if (socketId < 0) {
-		ERROR(string("Cannot open socket	" + socket));
+		//ERROR(string("Cannot open socket	" + socket));
 		return 1;
 	}
 	/*INFO(
@@ -1089,6 +1093,6 @@ int main(void)
 		pthread_join(id[i], NULL);
 	}
 	delete[] id;
-	INFO("Server stoped successful");
+	//INFO("Server stoped successful");
 	return 0;
 }

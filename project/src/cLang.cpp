@@ -20,6 +20,7 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, int stu
 		/*l12("**************************");
 					l12( warning);
 					l12("**************************");*/
+
 		if (warning.find("project/src/Main") != string::npos)
 		{
 			//warning.erase(0, warning.find("\n") + 1);
@@ -30,6 +31,7 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, int stu
 
 			string line = warning;
 			line.erase(line.find("\n"), line.size() - 1);
+
 			std::string::size_type sz;
 			int error_line = std::stoi( line, &sz );
 			if (student__teacher_programer == 0)
@@ -271,7 +273,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 
 	if(!generetionSample(code, flags))
 	{
-		ERROR("Canot open file with generation source code, maybe permission denied	");
+		//ERROR("Canot open file with generation source code, maybe permission denied	");
 		return "Canot open file with generation source code, maybe permission denied";
 	}
 	//l12("11111111111111111111111");
@@ -351,7 +353,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 
 	warning_err.append(warning);
 
-	INFO("build time: " + to_string(comp_time) + warning_err);
+	////INFO("build time: " + to_string(comp_time) + warning_err);
 	cout.flush();
 	if(fileExist(prog_name))
 	{
@@ -362,23 +364,23 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 			if (beautyErrorOutput(std_out_string, flags, student__teacher_programer ))
 			{
 				warning_err.append(std_out_string);
-				ERROR("cLang colpilation: php return error");
+				//ERROR("cLang colpilation: php return error");
 			}
 			else
 			{
 				result.append(std_out_string);
-				INFO("compute time: " + to_string(comp_time));
+				//INFO("compute time: " + to_string(comp_time));
 			}
 		}
 		else
 		{
 			result.append(std_out_string);
-			INFO("compute time: " + to_string(comp_time));
+			//INFO("compute time: " + to_string(comp_time));
 		}
 	}
 	else
 	{
-		ERROR("cLang colpilation: file not exist");
+		//ERROR("cLang colpilation: file not exist");
 	}
 
 	cout.flush();
@@ -438,7 +440,7 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 	{
 	case Flag_CPP:
 		sprintf(str, "src/code%d.cpp\0", thID);
-		INFO(str);
+		//INFO(str);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
@@ -571,7 +573,7 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
 		}
 		if(executionTime != 0)
 			executionTime[0] = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
-		INFO(to_string(time(0)));
+		//INFO(to_string(time(0)));
 		pclose(stream);
 	}
 
