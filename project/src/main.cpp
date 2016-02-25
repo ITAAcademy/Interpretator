@@ -488,13 +488,16 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 			return true;*/
 		}
 
+		string footer = generator.getFooter();
+		footer.erase(0,  footer.find("\n"));
+
 
 		int valuesCount = 0;
 		temp.insert( { valuesCount++, std::to_string(id) });
 		temp.insert( { valuesCount++, (generator.getHeader())});
 		temp.insert( { valuesCount++, (generator.getEtalon())});
 		DEBUG("qwe33");
-		temp.insert( { valuesCount++, (generator.getFooter())});
+		temp.insert( { valuesCount++, (footer)});
 		temp.insert({valuesCount++, (jSON.getJson())});
 		DEBUG("temp.insert");
 

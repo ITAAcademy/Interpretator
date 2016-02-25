@@ -272,7 +272,8 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 	if (functionData.lang==LangCompiler::Flag_JS)
 		functionStr += modifiers + " ";
 	else
-		functionStr += modifiers + " " + FunctionArgument::generateType(functionData.returnValueType, functionData.isArray, functionData.lang);
+		functionStr += modifiers + " " + FunctionArgument::generateType(functionData.returnValueType,
+				functionData.isArray, functionData.lang, true);
 
 	if (functionData.lang == LangCompiler::Flag_CS && functionData.isArray == FunctionData::ARRAY)
 		functionStr += " [] ";
@@ -287,7 +288,7 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 			functionStr += divider;
 		string type="";
 		if ( functionData.lang != LangCompiler::Flag_JS)
-			type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang);// 0 == C++
+			type = FunctionArgument::generateType(arg.type, arg.isArray, functionData.lang, true);// 0 == C++
 		//functionStr += type + space;
 
 
@@ -383,19 +384,35 @@ string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueTy
 		switch (returnValueType)
 		{
 		case FunctionData::RET_VAL_BOOL:
-			defaultReturnValue +=" false";
+			if (isArray == 0)
+				defaultReturnValue +=" false";
+			else
+				if (isArray == 1)
+					defaultReturnValue +=" new boolean[]{false}";
 			break;
 
 		case FunctionData::RET_VAL_FLOAT:
-			defaultReturnValue +=" 98989.9898889898";
+			if (isArray == 0)
+				defaultReturnValue +=" 98989.9898889898";
+			else
+				if (isArray == 1)
+					defaultReturnValue +=" new float[]{0}";
 			break;
 
 		case FunctionData::RET_VAL_INT:
-			defaultReturnValue +=" 65533";
+			if (isArray == 0)
+				defaultReturnValue +=" 65533";
+			else
+				if (isArray == 1)
+					defaultReturnValue +=" new int[]{0}";
 			break;
 
 		case FunctionData::RET_VAL_STRING:
-			defaultReturnValue +=" qhejih34213	ed	qe0134139\n\t```))((*&&^%";
+			if (isArray == 0)
+				defaultReturnValue +=" qhejih34213	ed	qe0134139\n\t```))((*&&^%";
+			else
+				if (isArray == 1)
+					defaultReturnValue +=" new string[]{\"asdfasdaq4rrea\"}";
 			break;
 		default:
 			defaultReturnValue = "null";
@@ -424,20 +441,24 @@ string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueTy
 	return defaultReturnValue;
 }
 
-string TaskCodeGenerator::generateFooter(FunctionData functionData){
-
+string TaskCodeGenerator::generateFooter(FunctionData functionData)
+{
 	vector<FunctionArgument> variables;
 	//int lang, int returnValueType, int isArray
+
 	string defaultReturnValue = generateDefaultReturnValue(functionData.lang, functionData.returnValueType, functionData.isArray);
-	//999
+
 	string footerBody = "";
-	//if (functionData.lang != (int) LangCompiler::Flag_Java)
 	footerBody += "return "+defaultReturnValue+";\n}\n";//Close function body
-	/*else
-		footerBody += "\n}\n";*/
 
 	footerBody += generateFunctionProtorype(functionData, "function_etalon"); //create prototype for etalon function
-	footerBody += "{\n" + functionData.etalon + "return "+defaultReturnValue+";\n}\n"; // add etalon function
+	footerBody += "{\n" + functionData.etalon;
+	//+ "return "+defaultReturnValue+";\n}\n"; // add etalon function
+
+	if ((functionData.etalon.find_first_not_of("\t\n\r ") == string::npos))
+		footerBody += "return "+defaultReturnValue+";\n}\n";
+	else
+		footerBody += "\n}\n";
 
 	string space=" ";
 	char divider=',';
@@ -998,7 +1019,8 @@ string TaskCodeGenerator::getStrToCompareTypes(string name1, string name2,  int 
 	if (lang == LangCompiler::Flag_Java)
 	{
 		//name1 = "to_string( " + name1 + " )";
-		name1 = "getClass().equals(" + name2 +".getClass())";
+		//name1 += ".getClass().equals(" + name2 +".getClass())";
+		name1 = "true";
 	}
 	else
 		if (lang == LangCompiler::Flag_CPP)
@@ -1463,7 +1485,7 @@ string FunctionArgument::getName(int lang)
 	return FunctionArgument::getName(name, lang);
 }
 
-string FunctionArgument::generateType(int type, int arrayType, int lang)
+string FunctionArgument::generateType(int type, int arrayType, int lang,  bool return_or_param)
 {
 	if (lang==LangCompiler::Flag_PHP) return " ";//arg types specify not in PHP
 	if (lang==LangCompiler::Flag_JS) return "var";//arg types specify not in js
@@ -1473,19 +1495,49 @@ string FunctionArgument::generateType(int type, int arrayType, int lang)
 	{
 	case FunctionData::RET_VAL_BOOL:
 		if (lang == (int) LangCompiler::Flag_Java)
+		{
 			result +=  "boolean";
+			/*if (return_or_param)
+				result +=  "boolean";
+			else
+				result +=  "Boolean";*/
+		}
 		else
 			result += "bool";
 		break;
 	case FunctionData::RET_VAL_FLOAT:
-		result += "float";
+		if (lang == (int) LangCompiler::Flag_Java)
+		{
+			result +=  "float";
+			/*if (return_or_param)
+				result +=  "float";
+			else
+				result +=  "Float";*/
+		}
+		else
+			result += "float";
 		break;
 	case FunctionData::RET_VAL_INT:
-		result += "int";
+		if (lang == (int) LangCompiler::Flag_Java)
+		{
+			result +=  "int";
+			/*if (return_or_param)
+				result +=  "int";
+			else
+				result +=  "Integer";*/
+		}
+		else
+			result += "int";
 		break;
 	case FunctionData::RET_VAL_STRING:
 		if (lang == (int) LangCompiler::Flag_Java)
-			result +=  "String";
+		{
+			result +=  "string";
+			/*	if (return_or_param)
+				result +=  "string";
+			else
+				result +=  "String";*/
+		}
 		else
 			result += "string";
 		break;
@@ -1507,9 +1559,9 @@ string FunctionArgument::generateType(int type, int arrayType, int lang)
 	return result;
 }
 
-string FunctionArgument::generateDefinition(bool is_result, int lang)
+string FunctionArgument::generateDefinition(bool is_result, int lang, bool return_or_param)
 {
-	string stype = generateType(type, false, lang);
+	string stype = generateType(type, false, lang,return_or_param);
 	string result = stype;
 	switch( lang)
 	{

@@ -45,8 +45,8 @@ struct FunctionArgument{
 	string getTypeString(int lang );
 	string getTypeBool(int lang );
 	string getType(int lang );*/
-	string generateDefinition(bool is_result, int lang );
-	static string generateType(int type, int arrayType, int lang);
+	string generateDefinition(bool is_result, int lang, bool return_or_param = false );
+	static string generateType(int type, int arrayType, int lang, bool return_or_param = false);
 	static string getName(string name, int lang);
 	string getName(int lang);
 };
