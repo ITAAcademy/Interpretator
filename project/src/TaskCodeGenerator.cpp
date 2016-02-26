@@ -1058,7 +1058,7 @@ string TaskCodeGenerator::convertAnyToString(string name1,  ValueTypes type1, in
 		if (lang == LangCompiler::Flag_CPP)
 		{
 			if (type1 != ValueTypes::VAL_STRING)
-				name1 = "to_string(" + name1 + ")";
+				name1 = "std::to_string(" + name1 + ")";
 		}
 		else
 			if (lang == LangCompiler::Flag_CS)
@@ -1214,10 +1214,10 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 						result += "(new String(" + name1 + ").compareTo(" + name2 +")) < 0)";
 						break;
 					case CompareMark::Equial: default:
-						result += "new String(" + name1 + ").equals(" + name2 +"))";
+						result += "new String(" + name1 + ").equals(" + name2 +"))";///
 						break;
 					case CompareMark::NotEquial:
-						result += "!(new String(" + name1 + ").equals(" + name2 +"))";
+						result += "!(new String(" + name1 + ").equals(" + name2 +")))";
 						break;
 					case CompareMark::More:
 						result += "(new String(" + name1 + ").compareTo(" + name2 +")) > 0)";
