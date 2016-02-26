@@ -158,7 +158,7 @@ bool jsonParser::rangeValidation(bool &range_size_inited, int &range_size, strin
 
 bool jsonParser::mustBeArrayFloat(Json::Value object, string name , int size, bool enable_zero_len , string ps, string ps2 )
 {
-	if (!mustBeArray(object,name,size,ps))
+	if (!mustBeArray(object,name,size,enable_zero_len,ps))
 		return false;
 	int obj_size = object.size();
 	for (int i = 0; i < obj_size ; i++)
@@ -169,7 +169,7 @@ bool jsonParser::mustBeArrayFloat(Json::Value object, string name , int size, bo
 
 bool jsonParser::mustBeArrayInt(Json::Value object, string name , int size, bool enable_zero_len , string ps, string ps2 )
 {
-	if (!mustBeArray(object,name ,size ,ps))
+	if (!mustBeArray(object,name ,size,enable_zero_len ,ps))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeInt(object[i], name + stringInScobcah(i), ps2,enable_zero_len))
@@ -179,7 +179,7 @@ bool jsonParser::mustBeArrayInt(Json::Value object, string name , int size, bool
 
 bool jsonParser::mustBeArrayString(Json::Value object, string name, int size, bool enable_zero_len  , string ps, string ps2 )
 {
-	if (!mustBeArray(object,name,size ,ps))
+	if (!mustBeArray(object,name,size,enable_zero_len ,ps))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeString(object[i], name + stringInScobcah(i), ps2))
@@ -189,7 +189,7 @@ bool jsonParser::mustBeArrayString(Json::Value object, string name, int size, bo
 
 bool jsonParser::mustBeArrayBool(Json::Value object, string name , int size, bool enable_zero_len , string ps, string ps2 )
 {
-	if (!mustBeArray(object,name,size ,ps))
+	if (!mustBeArray(object,name,size,enable_zero_len ,ps))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeBool(object[i], name + stringInScobcah(i), ps2,enable_zero_len))
@@ -246,25 +246,28 @@ bool jsonParser::mustBeNotArray(Json::Value object, string name , string ps)
 	return true;
 }
 
-bool jsonParser::mustBeArray(Json::Value object, string name, int size, string ps )
+bool jsonParser::mustBeArray(Json::Value object, string name, int size, bool able_have_zero_size , string ps )
 {
 	if ( !object.isArray())
 	{
 		last_error = "ERROR: json format is not correct. " + name + " must be array " + ps;
 		return false;
 	}
-	if (size > -1)
+	if (!able_have_zero_size)
 	{
-		if (object.size() != size)
+		if (size > -1)
 		{
-			last_error = "ERROR: json format is not correct. " + name +" array size (" +
-					to_string(object.size()) + ") != " + to_string(size);
-			return false;
+			if (object.size() != size)
+			{
+				last_error = "ERROR: json format is not correct. " + name +" array size (" +
+						to_string(object.size()) + ") != " + to_string(size);
+				return false;
+			}
 		}
+		else
+			if (!mustHaveSizeMoreZero(object,name,ps))
+				return false;
 	}
-	else
-		if (!mustHaveSizeMoreZero(object,name,ps))
-			return false;
 	return true;
 }
 
@@ -429,21 +432,21 @@ bool jsonParser::mustExistBeBool(Json::Value object, string name  , string ps , 
 	return true;
 }
 
-bool jsonParser::mustExistBeArray(Json::Value object, string name,  int array_size  , string ps , string ps2)
+bool jsonParser::mustExistBeArray(Json::Value object, string name,  int array_size , bool able_have_zero_size  , string ps , string ps2)
 {
 	if ( object.isNull())
 	{
 		last_error = "ERROR: json format is not correct. " + name +" don`t exist " + ps;
 		return false;
 	}
-	if (!mustBeArray(object, name, array_size,  ps2))
+	if (!mustBeArray(object, name, array_size,able_have_zero_size,  ps2))
 		return false;
 	return true;
 }
 
-bool jsonParser::mustExistBeArrayString(Json::Value object, string name,  int array_size , string ps, string ps2 )
+bool jsonParser::mustExistBeArrayString(Json::Value object, string name,  int array_size, bool able_have_zero_size  , string ps, string ps2 )
 {
-	if (!mustExistBeArray(object, name, array_size, ps,ps2))
+	if (!mustExistBeArray(object, name, array_size,able_have_zero_size, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeString(object[i], name + stringInScobcah(i)))
@@ -452,7 +455,7 @@ bool jsonParser::mustExistBeArrayString(Json::Value object, string name,  int ar
 }
 bool jsonParser::mustExistBeArrayInt(Json::Value object, string name ,  int array_size, bool enable_zero_len , string ps, string ps2 )
 {
-	if (!mustExistBeArray(object, name, array_size, ps,ps2))
+	if (!mustExistBeArray(object, name, array_size,enable_zero_len, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeInt(object[i], name + stringInScobcah(i),"",enable_zero_len))
@@ -462,7 +465,7 @@ bool jsonParser::mustExistBeArrayInt(Json::Value object, string name ,  int arra
 
 bool jsonParser::mustExistBeArrayBool(Json::Value object, string name ,  int array_size, bool enable_zero_len , string ps, string ps2 )
 {
-	if (!mustExistBeArray(object, name, array_size, ps,ps2))
+	if (!mustExistBeArray(object, name, array_size,enable_zero_len, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeBool(object[i], name + stringInScobcah(i),"", enable_zero_len))
@@ -474,7 +477,7 @@ bool jsonParser::mustExistBeArrayBool(Json::Value object, string name ,  int arr
 
 bool jsonParser::mustExistBeArrayOfBoolArrays(Json::Value object, string name,  int array_size , int size_i_array , bool enable_zero_len, string ps, string ps2 )
 {
-	if (!mustExistBeArray(object, name, array_size, ps,ps2))
+	if (!mustExistBeArray(object, name, array_size,enable_zero_len, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeArrayBool(object[i], name + stringInScobcah(i),size_i_array,enable_zero_len))
@@ -484,7 +487,7 @@ bool jsonParser::mustExistBeArrayOfBoolArrays(Json::Value object, string name,  
 
 bool jsonParser::mustExistBeArrayOfStringArrays(Json::Value object, string name,  int array_size , int size_i_array , bool enable_zero_len, string ps, string ps2 )
 {
-	if (!mustExistBeArray(object, name, array_size, ps,ps2))
+	if (!mustExistBeArray(object, name, array_size,enable_zero_len, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeArrayString(object[i], name + stringInScobcah(i),size_i_array,enable_zero_len))
@@ -494,7 +497,7 @@ bool jsonParser::mustExistBeArrayOfStringArrays(Json::Value object, string name,
 
 bool jsonParser::mustExistBeArrayOfIntArrays(Json::Value object, string name,  int array_size  , int size_i_array, bool enable_zero_len, string ps, string ps2 )
 {
-	if (!mustExistBeArray(object, name, array_size, ps,ps2))
+	if (!mustExistBeArray(object, name, array_size,enable_zero_len, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeArrayInt(object[i], name + stringInScobcah(i),size_i_array, enable_zero_len))
@@ -504,7 +507,7 @@ bool jsonParser::mustExistBeArrayOfIntArrays(Json::Value object, string name,  i
 
 bool jsonParser::mustExistBeArrayOfFloatArrays(Json::Value object, string name,  int array_size , int size_i_array, bool enable_zero_len , string ps, string ps2 )
 {
-	if (!mustExistBeArray(object, name, array_size, ps,ps2))
+	if (!mustExistBeArray(object, name, array_size,enable_zero_len, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeArrayFloat(object[i], name + stringInScobcah(i), size_i_array, enable_zero_len))
@@ -514,7 +517,7 @@ bool jsonParser::mustExistBeArrayOfFloatArrays(Json::Value object, string name, 
 
 bool jsonParser::mustExistBeArrayFloat(Json::Value object, string name ,  int array_size, bool enable_zero_len, string ps, string ps2 )
 {
-	if (!mustExistBeArray(object, name, array_size, ps,ps2))
+	if (!mustExistBeArray(object, name, array_size,enable_zero_len, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeFloat(object[i], name + stringInScobcah(i),"",enable_zero_len))
@@ -524,7 +527,7 @@ bool jsonParser::mustExistBeArrayFloat(Json::Value object, string name ,  int ar
 
 bool jsonParser::mustExistBeArrayInt(Json::Value object, string name ,  int array_size, bool enable_zero_len, string ps, string ps2 , int min_val, int max_val)
 {
-	if (!mustExistBeArray(object, name, array_size, ps,ps2))
+	if (!mustExistBeArray(object, name, array_size,enable_zero_len, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 	{
@@ -1332,7 +1335,7 @@ int jsonParser::getRangeLast()
 
 bool jsonParser::mustExistBeArrayRanges(Json::Value object, string name,  int array_size , string ps , string  ps2)
 {
-	if (!mustExistBeArray(object, name, array_size, ps,ps2))
+	if (!mustExistBeArray(object, name, array_size, false, ps,ps2))
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeRange(object[i], name + stringInScobcah(i)))
