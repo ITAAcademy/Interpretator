@@ -122,7 +122,7 @@ void processTask(int id,Job job) {
 			INFO(to_string(id)+ " Start compiler");
 			JsonValue res;
 
-			compiler.compile(job.code, true, LangCompiler::convertFromName(job.lang));
+			compiler.compile(job.code, true, LangCompiler::convertFromName(job.lang),0);
 
 
 			string date = logfile::getDateStamp();

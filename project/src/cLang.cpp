@@ -12,253 +12,324 @@ LangCompiler::~LangCompiler(){
 }
 
 //compilerFlag
+
+bool LangCompiler::beautyErrorOutputCpp(string &warning,compilerFlag flags, int student__teacher_programer )
+{
+	string output = "";
+	int div_by_zero = warning.find(": warning: division by zero");
+
+	string excep = warning;
+	if (div_by_zero > -1)
+	{
+		excep.erase(0,div_by_zero - 10);
+		excep.erase(  excep.find("[-Wdiv") , excep.size() - 1);
+
+		string line = excep;
+
+		int line_begin = line.find("p:");
+
+		int line_int;
+		if (line_begin > -1)
+		{
+			line_begin += 2;
+
+			line.erase(0,  line_begin );
+
+			int line_end = line.find(":");
+			line.erase(  line_end ,line.size() - 1);
+
+			excep.erase(0, excep.find("warning:") + 8 );
+
+			sscanf(line.c_str(),"%d", &line_int);
+			if (student__teacher_programer == 1)
+				line_int -= 45;
+			else
+				if (student__teacher_programer == 0)
+					line_int -= 40;
+
+			line = to_string(line_int);
+
+			excep = "warning in line " + line + ": " + excep + "\n";
+		}
+		else
+			excep = "";
+	}
+	else
+		excep = "";
+
+	int error_begin = warning.find("error: ");
+	while  (error_begin != -1)
+	{
+		warning.erase(0, error_begin - 11);
+
+		string war_temp = warning;
+		string num_s = war_temp;
+		cout << "\n\n\n\n" << num_s;
+		int num_s_begin = num_s.find("p:") + 2;
+		int num_s_end;// = num_s.find(": er");
+
+		num_s.erase(0, num_s_begin);
+		cout << "\n\n\n\n" << num_s;
+
+		num_s_end = num_s.find(":");
+		/*if (num_s[0] <'0' || num_s[0] > '9')
+					{
+						num_s_begin = num_s.find(".p:") + 2;
+						num_s.erase(0, num_s_begin);
+
+						num_s_end = num_s.find(":");
+
+						cout << "\n\n\n\n" << num_s;
+					}*/
+		num_s.erase(num_s_end, num_s.size() - 1 );
+		cout << "\n\n\n\n" << num_s;
+
+		std::string::size_type sz;
+		int error_line = std::stoi( num_s, &sz );
+
+		if (student__teacher_programer == 0)
+			error_line = -38;
+		else
+			if (student__teacher_programer == 1)
+				error_line -= 45;
+
+		war_temp.erase(0, war_temp.find("error: ") + 7);
+		warning = war_temp;
+
+
+
+
+		int first_n = war_temp.find("\n");
+		int second_n =  war_temp.find("\n",first_n + 1);
+		int third_n =  war_temp.find("\n",second_n +1 );
+		int forth_n =  war_temp.find("\n",third_n + 1);
+		int fifth_n =  war_temp.find("\n",forth_n + 1);
+
+		war_temp.erase(first_n, war_temp.size() - 1);
+		string temp_error = "error in line " + to_string(error_line) + ": " +  war_temp ;//+ "\n";
+		output += temp_error + "\n";
+		warning.erase(0, third_n)	 ;
+
+		error_begin = warning.find("error: ");
+	}
+	warning = excep;
+	warning += output;
+	return true;
+}
+
+bool LangCompiler::beautyErrorOutputCs(string &warning,compilerFlag flags, int student__teacher_programer )
+{
+	string output = "";
+
+	string last = warning;
+	int border = last.find("Compilation ");
+	last.erase(0, border);
+	warning.erase(border, warning.size() - 1);
+
+	if (last.find("succ") != string::npos )
+		warning = "";
+	else
+	{
+
+		while  (warning.find(" error ") != string::npos)
+		{
+			string war_temp = warning;
+			string num_s = war_temp;
+			int num_s_begin = num_s.find(".cs(") + 4;
+			int num_s_end = num_s.find(": er");
+			war_temp.erase(0, war_temp.find(" error ") + 7);
+
+			num_s.erase(0, num_s_begin);
+			num_s.erase(num_s_end - num_s_begin -1, num_s.size() - 1 );
+
+			int num_line;
+			int num_char;
+			sscanf(num_s.c_str(),"%d,%d", &num_line, &num_char);
+			if (student__teacher_programer == 0)
+				num_line -= 8; //it have 8 lines behind student code
+			else
+				if (student__teacher_programer == 1)
+					num_line -= 14;
+
+			num_s = std::to_string(num_line) + ":" + to_string(num_char);
+			/*if (num_s[0] <'0' || num_s[0] > '9')
+								{
+									num_s_begin = num_s.find(".cpp:") + 5;
+									num_s_end = num_s.find(": er");
+									num_s.erase(0, num_s_begin);
+								}*/
+			warning = war_temp;
+
+			string error_cod = war_temp;
+			error_cod.erase(error_cod.find(":"),error_cod.size() - 1);
+
+			int first_n = war_temp.find("\n");
+			/*int second_n =  war_temp.find("\n",first_n + 1);
+								int third_n =  war_temp.find("\n",second_n +1 );
+								int forth_n =  war_temp.find("\n",third_n + 1);
+								int fifth_n =  war_temp.find("\n",forth_n + 1);*/
+
+			war_temp.erase(first_n , war_temp.size() - 1);
+			war_temp.erase(0, war_temp.find(":") + 2);
+			string temp_error = "error in " + num_s + " (" + error_cod + "): " +  war_temp ;//+ "\n";
+			output += temp_error + "\n";
+			warning.erase(0, first_n)	 ;
+		}
+		warning = output;// + last;
+	}
+	return true;
+}
+
+bool LangCompiler::beautyErrorOutputPhp(string &warning,compilerFlag flags, int student__teacher_programer )
+{
+	string error_s = "on line ";
+	int lines_begind = 6;
+
+	if (warning.find("Failed loading /usr/lib/php5/20100525/xcache.so") != string::npos)
+	{
+		warning.erase(0, warning.find("directory\n") + 11);
+	}
+
+	if  (warning.find(error_s) != string::npos)
+	{
+		string war_temp = warning;
+
+		string num_s = war_temp;
+
+		war_temp.erase(war_temp.find(" in /"), war_temp.size() - 1);
+		/*if (war_temp.find(error_s) != string::npos)
+							{
+								war_temp.erase(0, war_temp.find(error_s) + error_s.size());
+							}*/
+
+
+		int num_s_begin = num_s.find("on line ") + error_s.size();
+
+		num_s.erase(0, num_s_begin);
+
+		int num_line;
+		sscanf(num_s.c_str(),"%d\n", &num_line);
+		if (student__teacher_programer == 0)
+			num_line -= lines_begind;
+		else
+			if (student__teacher_programer == 1)
+				num_line -= 12;
+		num_s = to_string(num_line);
+
+
+		//war_temp.erase(war_temp.find(" in "),war_temp.size() - 1);
+
+		warning = war_temp + " in line " + num_s +  "\n";
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
+
+bool LangCompiler::beautyErrorOutputJs(string &warning,compilerFlag flags, int student__teacher_programer )
+{
+	if (warning.find("project/src/Main") != string::npos)
+	{
+		warning.erase(0, warning.find(".js:") + 4);
+
+
+
+		string line = warning;
+		line.erase(line.find("\n"), line.size() - 1);
+		std::string::size_type sz;
+		int error_line = std::stoi( line, &sz );
+		if (student__teacher_programer == 0)
+			error_line -= 5;
+		else
+			if (student__teacher_programer == 1)
+				error_line -= 10;
+
+		warning.erase(0, warning.find("\n"));
+
+		int begin = warning.find("at function");
+		int end = warning.size() - 1;
+		if (begin == -1)
+		{
+			begin = warning.find("at Object");
+		}
+
+		if (begin > -1)
+			warning.erase(begin, end);
+		warning = "error in:" + to_string(error_line) + warning;
+	}
+	return true;
+}
+
+bool LangCompiler::beautyErrorOutputJava(string &warning,compilerFlag flags, int student__teacher_programer )
+{
+	string output = "";
+	while  (warning.find("error: ") != string::npos)
+	{
+		string war_temp = warning;
+		string num_s = war_temp;
+		int num_s_begin = num_s.find(".java:") + 6;
+		int num_s_end = num_s.find(": er");
+		war_temp.erase(0, war_temp.find("error: ") + 7);
+		num_s.erase(0, num_s_begin);
+
+		warning = war_temp;
+
+		num_s.erase(num_s_end - num_s_begin, num_s.size() - 1 );
+
+		int num_line;
+		sscanf(num_s.c_str(),"%d\n", &num_line);
+		if (student__teacher_programer == 0)
+			num_line -= 7;//12
+		else
+			if (student__teacher_programer == 1)
+				num_line -= 15;
+		num_s = to_string(num_line);
+
+		int first_n = war_temp.find("\n");
+		int second_n =  war_temp.find("\n",first_n + 1);
+		int third_n =  war_temp.find("\n",second_n +1 );
+		int forth_n =  war_temp.find("\n",third_n + 1);
+		int fifth_n =  war_temp.find("\n",forth_n + 1);
+
+		int next_er = war_temp.find("^\n  symbol:");
+		if (next_er == -1)
+			next_er = war_temp.find("symbol:");
+		if (next_er == -1)
+			next_er = war_temp.find("\n     ^\nMain");
+		if (next_er == -1)
+			next_er = second_n;
+
+
+		war_temp.erase(next_er, war_temp.size() - 1);
+		string temp_error = "error in line " + num_s + ": " +  war_temp ;//+ "\n";
+		output += temp_error + "\n";
+		warning.erase(0, next_er)	 ;
+	}
+	warning = output;
+	return true;
+}
+
 bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, int student__teacher_programer )
 {
 	//return true;
 	if (flags == Flag_JS)
-	{
-		/*l12("**************************");
-					l12( warning);
-					l12("**************************");*/
-		if (warning.find("project/src/Main") != string::npos)
-		{
-			//warning.erase(0, warning.find("\n") + 1);
-
-			warning.erase(0, warning.find(".js:") + 4);
-
-
-
-			string line = warning;
-			line.erase(line.find("\n"), line.size() - 1);
-			std::string::size_type sz;
-			int error_line = std::stoi( line, &sz );
-			if (student__teacher_programer == 0)
-				error_line -= 5;
-			else
-				if (student__teacher_programer == 1)
-					error_line -= 10;
-
-			warning.erase(0, warning.find("\n"));
-
-			int begin = warning.find("at function");
-			int end = warning.size() - 1;
-			if (begin == -1)
-			{
-				begin = warning.find("at Object");
-			}
-
-			if (begin > -1)
-				warning.erase(begin, end);
-			warning = "error in:" + to_string(error_line) + warning;
-		}
-	}
+		return beautyErrorOutputJs(warning,flags, student__teacher_programer );
 	else
 		if (flags == Flag_CPP)
-		{
-			string output = "";
-			while  (warning.find("error: ") != string::npos)
-			{
-				string war_temp = warning;
-				string num_s = war_temp;
-				int num_s_begin = num_s.find(".cpp:") + 5;
-				int num_s_end = num_s.find(": er");
-				war_temp.erase(0, war_temp.find("error: ") + 7);
-				num_s.erase(0, num_s_begin);
-				if (num_s[0] <'0' || num_s[0] > '9')
-				{
-					num_s_begin = num_s.find(".cpp:") + 5;
-					num_s_end = num_s.find(": er");
-					num_s.erase(0, num_s_begin);
-				}
-				warning = war_temp;
-
-				num_s.erase(num_s_end - num_s_begin, num_s.size() - 1 );
-
-				std::string::size_type sz;
-				int error_line = std::stoi( num_s, &sz );
-
-				if (student__teacher_programer == 0)
-					error_line = -38;
-				else
-					if (student__teacher_programer == 1)
-						error_line -= 44;
-
-
-				int first_n = war_temp.find("\n");
-				int second_n =  war_temp.find("\n",first_n + 1);
-				int third_n =  war_temp.find("\n",second_n +1 );
-				int forth_n =  war_temp.find("\n",third_n + 1);
-				int fifth_n =  war_temp.find("\n",forth_n + 1);
-
-				war_temp.erase(second_n, war_temp.size() - 1);
-				string temp_error = "error " + to_string(error_line) + ": " +  war_temp ;//+ "\n";
-				output += temp_error + "\n";
-				warning.erase(0, third_n)	 ;
-			}
-			warning = output;
-		}
+			return beautyErrorOutputCpp(warning,flags, student__teacher_programer );
 		else
 			if (flags == Flag_CS)
-			{
-				string output = "";
-
-				string last = warning;
-				int border = last.find("Compilation ");
-				last.erase(0, border);
-				warning.erase(border, warning.size() - 1);
-
-				if (last.find("succ") != string::npos )
-					warning = "";
-				else
-				{
-
-					while  (warning.find(" error ") != string::npos)
-					{
-						string war_temp = warning;
-						string num_s = war_temp;
-						int num_s_begin = num_s.find(".cs(") + 4;
-						int num_s_end = num_s.find(": er");
-						war_temp.erase(0, war_temp.find(" error ") + 7);
-
-						num_s.erase(0, num_s_begin);
-						num_s.erase(num_s_end - num_s_begin -1, num_s.size() - 1 );
-
-						int num_line;
-						int num_char;
-						sscanf(num_s.c_str(),"%d,%d", &num_line, &num_char);
-						if (student__teacher_programer == 0)
-							num_line -= 8; //it have 8 lines behind student code
-						else
-							if (student__teacher_programer == 1)
-								num_line -= 14;
-
-						num_s = std::to_string(num_line) + ":" + to_string(num_char);
-						/*if (num_s[0] <'0' || num_s[0] > '9')
-							{
-								num_s_begin = num_s.find(".cpp:") + 5;
-								num_s_end = num_s.find(": er");
-								num_s.erase(0, num_s_begin);
-							}*/
-						warning = war_temp;
-
-						string error_cod = war_temp;
-						error_cod.erase(error_cod.find(":"),error_cod.size() - 1);
-
-						int first_n = war_temp.find("\n");
-						/*int second_n =  war_temp.find("\n",first_n + 1);
-							int third_n =  war_temp.find("\n",second_n +1 );
-							int forth_n =  war_temp.find("\n",third_n + 1);
-							int fifth_n =  war_temp.find("\n",forth_n + 1);*/
-
-						war_temp.erase(first_n , war_temp.size() - 1);
-						war_temp.erase(0, war_temp.find(":") + 2);
-						string temp_error = "error in " + num_s + " (" + error_cod + "): " +  war_temp ;//+ "\n";
-						output += temp_error + "\n";
-						warning.erase(0, first_n)	 ;
-					}
-					warning = output;// + last;
-				}
-			}
+				return beautyErrorOutputCs(warning,flags, student__teacher_programer );
 			else
 				if (flags == Flag_PHP)
-				{
-					string error_s = "on line ";
-					int lines_begind = 6;
-
-					if (warning.find("Failed loading /usr/lib/php5/20100525/xcache.so") != string::npos)
-					{
-						warning.erase(0, warning.find("directory\n") + 11);
-					}
-
-					if  (warning.find(error_s) != string::npos)
-					{
-						string war_temp = warning;
-
-						string num_s = war_temp;
-
-						war_temp.erase(war_temp.find(" in /"), war_temp.size() - 1);
-						/*if (war_temp.find(error_s) != string::npos)
-						{
-							war_temp.erase(0, war_temp.find(error_s) + error_s.size());
-						}*/
-
-
-						int num_s_begin = num_s.find("on line ") + error_s.size();
-
-						num_s.erase(0, num_s_begin);
-
-						int num_line;
-						sscanf(num_s.c_str(),"%d\n", &num_line);
-						if (student__teacher_programer == 0)
-							num_line -= lines_begind;
-						else
-							if (student__teacher_programer == 1)
-								num_line -= 12;
-						num_s = to_string(num_line);
-
-
-						//war_temp.erase(war_temp.find(" in "),war_temp.size() - 1);
-
-						warning = war_temp + " in line " + num_s +  "\n";
-					}
-
-					else
-					{
-						return false;
-					}
-				}
+					return beautyErrorOutputPhp(warning,flags, student__teacher_programer );
 				else
 					if (flags == Flag_Java)
-					{
-						string output = "";
-						while  (warning.find("error: ") != string::npos)
-						{
-							string war_temp = warning;
-							string num_s = war_temp;
-							int num_s_begin = num_s.find(".java:") + 6;
-							int num_s_end = num_s.find(": er");
-							war_temp.erase(0, war_temp.find("error: ") + 7);
-							num_s.erase(0, num_s_begin);
-
-							warning = war_temp;
-
-							num_s.erase(num_s_end - num_s_begin, num_s.size() - 1 );
-
-							int num_line;
-							sscanf(num_s.c_str(),"%d\n", &num_line);
-							if (student__teacher_programer == 0)
-								num_line -= 7;//12
-							else
-								if (student__teacher_programer == 1)
-									num_line -= 15;
-							num_s = to_string(num_line);
-
-							int first_n = war_temp.find("\n");
-							int second_n =  war_temp.find("\n",first_n + 1);
-							int third_n =  war_temp.find("\n",second_n +1 );
-							int forth_n =  war_temp.find("\n",third_n + 1);
-							int fifth_n =  war_temp.find("\n",forth_n + 1);
-
-							int next_er = war_temp.find("^\n  symbol:");
-							if (next_er == -1)
-								next_er = war_temp.find("symbol:");
-							if (next_er == -1)
-								next_er = war_temp.find("\n     ^\nMain");
-							if (next_er == -1)
-								next_er = second_n;
-
-
-							war_temp.erase(next_er, war_temp.size() - 1);
-							string temp_error = "error in line " + num_s + ": " +  war_temp ;//+ "\n";
-							output += temp_error + "\n";
-							warning.erase(0, next_er)	 ;
-						}
-						warning = output;
-					}
+						return beautyErrorOutputJava(warning,flags, student__teacher_programer );
 					else
-					{
 						return false;
-					}
 	return true;
 }
 
@@ -353,6 +424,19 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 
 	INFO("build time: " + to_string(comp_time) + warning_err);
 	cout.flush();
+	if (warning.size())
+	{
+		switch(flags)
+		{
+		case Flag_CPP:
+			run_str = "rm prog" + to_string(thID) + ".out";
+			getStdoutFromCommand(run_str, 0, &comp_time);
+			break;
+		}
+	}
+
+
+
 	if(fileExist(prog_name))
 	{
 		string std_out_string = getStdoutFromCommand(run_str, 0, &comp_time);
@@ -395,6 +479,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 	{
 		ERROR("cLang colpilation: file not exist");
 	}
+
 
 	cout.flush();
 	/*

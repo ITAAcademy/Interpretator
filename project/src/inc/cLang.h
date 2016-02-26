@@ -36,6 +36,11 @@ public:
 
 
 	static bool beautyErrorOutput(string &warning,compilerFlag flags, int student__teacher_programer ); // student = true
+	static bool beautyErrorOutputCpp(string &warning,compilerFlag flags, int student__teacher_programer ); // student = true
+	static bool beautyErrorOutputCs(string &warning,compilerFlag flags, int student__teacher_programer ); // student = true
+	static bool beautyErrorOutputJava(string &warning,compilerFlag flags, int student__teacher_programer ); // student = true
+	static bool beautyErrorOutputPhp(string &warning,compilerFlag flags, int student__teacher_programer ); // student = true
+	static bool beautyErrorOutputJs(string &warning,compilerFlag flags, int student__teacher_programer ); // student = true
 	/*
 	 * Compile __ if all ok return app result else return CLang compiler error
 	 *
