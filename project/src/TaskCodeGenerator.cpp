@@ -371,6 +371,10 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	/*headerStr += generateFunctionProtorype(functionData, "function_etalon"); //create prototype for etalon function
 	headerStr += "{\n" + functionData.etalon + "return "+defaultReturnValue+";\n}\n"; // add etalon function*/
 	headerStr += generateFunctionProtorype(functionData, functionData.functionName) + "{\n";
+	if (functionData.lang == LangCompiler::Flag_Java)
+	{
+		headerStr += "try {\n";
+	}
 	/*l12("Yura: 2202:");
 	//l12(headerStr);*/
 	return headerStr;
@@ -450,16 +454,30 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 	string defaultReturnValue = generateDefaultReturnValue(functionData.lang, functionData.returnValueType, functionData.isArray);
 
 	string footerBody = "";
+	if (functionData.lang == LangCompiler::Flag_Java)
+	{
+		footerBody += "\n} catch (ArithmeticException e) {  System.err.print(\"*** \" + e.getMessage() + \" ***\" ); }\n";
+	}
+
 	footerBody += "return "+defaultReturnValue+";\n}\n";//Close function body
 
 	footerBody += generateFunctionProtorype(functionData, "function_etalon"); //create prototype for etalon function
-	footerBody += "{\n" + functionData.etalon;
+	footerBody += "{\n" ;//+ functionData.etalon;
 	//+ "return "+defaultReturnValue+";\n}\n"; // add etalon function
 
-	if ((functionData.etalon.find_first_not_of("\t\n\r ") == string::npos))
+	/*if ((functionData.etalon.find_first_not_of("\t\n\r ") == string::npos))
 		footerBody += "return "+defaultReturnValue+";\n}\n";
 	else
-		footerBody += "\n}\n";
+		footerBody += "\n}\n";*/
+
+	if (functionData.lang == LangCompiler::Flag_Java)
+	{
+		footerBody += "try {\n" + functionData.etalon + "\n} catch (ArithmeticException e) {  System.err.print(\"*** \" + e.getMessage() + \" ***\" ); }\n";
+	}
+	else
+		footerBody += functionData.etalon;
+
+	footerBody += "return "+defaultReturnValue+";\n}\n";
 
 	string space=" ";
 	char divider=',';

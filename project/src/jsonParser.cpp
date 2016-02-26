@@ -1551,7 +1551,7 @@ bool jsonParser::isValidFields()
 				return false;
 		}
 
-		if( !mustExistBeArray(field_args, "args", -1))
+		if( !mustExistBeArray(field_args, "args", -1, true))
 			return false;
 
 		if( !mustExistBeInt(field_type, "type"))

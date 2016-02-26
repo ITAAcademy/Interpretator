@@ -229,6 +229,9 @@ void *receiveTask(void *a)
 			 */
 
 			string errora = "";
+
+			bool need_stream = true;
+
 			if (parsingSuccessful)
 			{
 				string ip_usera = FCGX_GetParam("REMOTE_ADDR", request->envp);
@@ -244,7 +247,7 @@ void *receiveTask(void *a)
 				{
 					/*if(!addNewtask(stream, jSON, id, errora))
 						succsesful = false;*/
-					addNewtask(stream, jSON, id, errora);
+					addNewtask(stream, jSON, id, errora, need_stream);
 				}
 				else
 					if (operation == "getJson")
@@ -255,7 +258,7 @@ void *receiveTask(void *a)
 					else
 						if (operation == "start" || operation == "s")
 						{
-							if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp), errora))
+							if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp), errora, need_stream))
 								succsesful = false;
 						}
 						else
@@ -307,30 +310,36 @@ void *receiveTask(void *a)
 
 				if(!succsesful)
 				{
-					JsonValue res;
-					stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-					string error = jSON.getLastError() + "\n" + errora;
-					/*	errorResponder.showError(400, error);
+					if (need_stream)
+					{
+						JsonValue res;
+						stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+						string error = jSON.getLastError() + "\n" + errora;
+						/*	errorResponder.showError(400, error);
 					stream.close();*/
 
-					res["status"] = error;
-					stream << res.toStyledString();
-					stream.close();
+						res["status"] = error;
+						stream << res.toStyledString();
+						stream.close();
+					}
 					continue;
 				}
 
 			}
 			else
 			{
-				JsonValue res;
-				stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-				//logfile::addLog(id,	"Json format is not correct!!! \n::::::::::::::::::::::::\n" + stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
-				/*errorResponder.showError(400, jSON.getLastError());
+				if (need_stream)
+				{
+					JsonValue res;
+					stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+					//logfile::addLog(id,	"Json format is not correct!!! \n::::::::::::::::::::::::\n" + stream.getRequestBuffer() + "\n::::::::::::::::::::::::");
+					/*errorResponder.showError(400, jSON.getLastError());
 				stream.close();*/
 
-				res["status"] = jSON.getLastError();
-				stream << res.toStyledString();
-				stream.close();
+					res["status"] = jSON.getLastError();
+					stream << res.toStyledString();
+					stream.close();
+				}
 
 				continue;
 			}
@@ -396,7 +405,7 @@ bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
 
 
 
-bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error)//***
+bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error, bool &need_stream)//***
 {
 	JsonValue res;
 	stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
@@ -456,11 +465,14 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 		LangCompiler compiler(thread_id);
 
 		string code = sql.generateProgramCode(generator.getHeader(), string(""), generator.getFooter(), lang);
-		compiler.compile(code, true, LangCompiler::convertFromName(lang));
+		compiler.compile(code, true, LangCompiler::convertFromName(lang), 1);
 		string errors = compiler.getWarningErr();
+
+		int lang_int = jSON.getAsIntS("lang");
+
 		if (errors.size() == 0)
 		{
-			int lang_int = jSON.getAsIntS("lang");
+
 			if (lang_int == (int) LangCompiler::Flag_JS)
 			{
 				errors = compiler.getResult();
@@ -478,6 +490,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 			res["status"] = error;
 			stream << res.toStyledString();
 			stream.close();
+
+			need_stream = false;
 			return false;
 			/*
 			res["status"] = "failed 0000";
@@ -489,7 +503,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 		}
 
 		string footer = generator.getFooter();
-		footer.erase(0,  footer.find("\n"));
+		if (lang_int != LangCompiler::Flag_Java)
+			footer.erase(0,  footer.find("\n"));
 
 
 		int valuesCount = 0;
@@ -525,6 +540,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 
 		stream << res.toStyledString();
 		stream.close();
+
+		need_stream = false;
 		return true;
 	}
 	else
@@ -533,6 +550,8 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
 
 		stream << res.toStyledString();
 		stream.close();
+
+		need_stream = false;
 		return false;
 	}
 }
@@ -542,7 +561,7 @@ bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &e
  * 					START
  *
  */
-bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error )
+bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error, bool &need_stream )
 {
 	error = "";
 	string session = jSON.getAsStringS("session");
@@ -571,6 +590,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error 
 			res["status"] = error;
 			stream << res.toStyledString();
 			stream.close();
+			need_stream = false;
 			return false;
 		}
 	}
@@ -635,6 +655,8 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error 
 				res["status"] = "already exist";
 				stream << res.toStyledString();
 				stream.close();
+
+				need_stream = false;
 				return false;
 			}
 			else
@@ -644,6 +666,8 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error 
 				res["status"] = "Added to compile";
 				stream << res.toStyledString();
 				stream.close();
+
+				need_stream = false;
 				return true;
 			}
 		}

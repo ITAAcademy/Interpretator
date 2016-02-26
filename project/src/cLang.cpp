@@ -227,10 +227,10 @@ bool LangCompiler::beautyErrorOutput(string &warning,compilerFlag flags, int stu
 							int num_line;
 							sscanf(num_s.c_str(),"%d\n", &num_line);
 							if (student__teacher_programer == 0)
-								num_line -= 6;//12
+								num_line -= 7;//12
 							else
 								if (student__teacher_programer == 1)
-									num_line -= 12;
+									num_line -= 15;
 							num_s = to_string(num_line);
 
 							int first_n = war_temp.find("\n");
@@ -369,6 +369,21 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 				result.append(std_out_string);
 				INFO("compute time: " + to_string(comp_time));
 			}
+		}
+		if (flags == compilerFlag::Flag_Java)
+		{
+			int exp_begin = std_out_string.find("*** ");
+			if (exp_begin == -1)
+				result.append(std_out_string);
+			else
+			{
+				exp_begin += 4;
+				std_out_string.erase(0, exp_begin);
+
+				std_out_string.erase(std_out_string.find("***"), std_out_string.size() - 1);
+				warning_err.append("exeption " + std_out_string);
+			}
+
 		}
 		else
 		{

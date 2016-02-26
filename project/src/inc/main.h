@@ -77,12 +77,12 @@ void show404();
 
 void replaceAll( string &s, const string &search, const string &replace );
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation);
-bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error);
+bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error, bool &need_stream);
 bool addTestValues(FCGI_Stream &stream, jsonParser &jSON);
 bool addTests(FCGI_Stream &stream, jsonParser &jSON);
 bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON);
 bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON);
-bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error);
+bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error, bool &need_stream);
 bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id);
 bool editTask( FCGI_Stream &stream, jsonParser &jSON);
 #endif
