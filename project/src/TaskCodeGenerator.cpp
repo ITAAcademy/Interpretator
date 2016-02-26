@@ -259,7 +259,8 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 {
 	//if (functionData.lang==LangCompiler::Flag_JS) return string("");//prototypes don't needed in js
 	string functionStr ="";
-	switch(functionData.lang){
+	switch(functionData.lang)
+	{
 	case LangCompiler::Flag_Java:
 	case LangCompiler::Flag_CS:
 		functionStr += "static ";
@@ -409,7 +410,7 @@ string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueTy
 
 		case FunctionData::RET_VAL_STRING:
 			if (isArray == 0)
-				defaultReturnValue +=" qhejih34213	ed	qe0134139\n\t```))((*&&^%";
+				defaultReturnValue +=" \"qhejih34213	ed	qe013413\"";
 			else
 				if (isArray == 1)
 					defaultReturnValue +=" new string[]{\"asdfasdaq4rrea\"}";
@@ -825,17 +826,17 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 
 
 
-				bool isFirstArray ;
-				if (firstCheckableVariableIndex == 0)
+				bool isFirstArray = firstGlobalVariable->isArray;
+				/*ableIndex == 0)
 					isFirstArray = functionData.isArray;
 				else
-					isFirstArray = functionData.args[firstCheckableVariableIndex].isArray;
+					isFirstArray = functionData.args[firstCheckableVariableIndex].isArray;*/
 
-				bool isSecondArray ;
-				if (secondCheckableVariableIndex == 0)
+				bool isSecondArray  = secondGlobalVariable->isArray;
+				/*if (secondCheckableVariableIndex == 0)
 					isSecondArray = functionData.isArray;
 				else
-					isSecondArray = functionData.args[secondCheckableVariableIndex].isArray;
+					isSecondArray = functionData.args[secondCheckableVariableIndex].isArray;*/
 
 
 				if (isFirstArray  && isSecondArray)
@@ -930,14 +931,14 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 
 		if (functionData.isArray == FunctionData::ARRAY)
 		{
-			argsString += "if ("  + getArrayCompareString(
+			string temp = "if ("  + getArrayCompareString(
 					FunctionArgument::getName("result",
 							functionData.lang) ,functionData.result_array_size, (ValueTypes) arrType,
 							FunctionArgument::getName(true_result_name, functionData.lang),
 							functionData.result_array_size, (ValueTypes) arrType,
-
 							cmp,
 							functionData.lang);
+			argsString += temp;
 
 		}
 		else
@@ -1056,7 +1057,8 @@ string TaskCodeGenerator::convertAnyToString(string name1,  ValueTypes type1, in
 	else
 		if (lang == LangCompiler::Flag_CPP)
 		{
-			name1 = "to_string(" + name1 + ")";
+			if (type1 != ValueTypes::VAL_STRING)
+				name1 = "to_string(" + name1 + ")";
 		}
 		else
 			if (lang == LangCompiler::Flag_CS)
@@ -1131,7 +1133,7 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 				result +=  name1 + " < " + name2 + " )";
 				break;
 			case CompareMark::Equial: default:
-				result +=  name1 + " == " + name2 + " )";
+				result +=  name1 + " == " + name2 + " )";//////////////////////
 				break;
 			case CompareMark::NotEquial:
 				result +=  name1 + " != " + name2 + " )";
@@ -1153,22 +1155,28 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 				switch (mark)
 				{
 				case CompareMark::LessEquial:
-					result += name1 + ".Compare(" + name2 +") <= 0";
+					result = "String.Compare(" + name1 + ", " + name2 + ", StringComparison.CurrentCulture) <= 0";
+					//result = name1 + ".Compare(" + name2 +") <= 0";
 					break;
 				case CompareMark::Less:
-					result += name1 + ".Compare(" + name2 +") < 0";
+					//result += name1 + ".Compare(" + name2 +") < 0";
+					result = "String.Compare(" + name1 + ", " + name2 + ", StringComparison.CurrentCulture) < 0";
 					break;
 				case CompareMark::Equial: default:
 					result += "String.Equals (" + name1 + ", " + name2 +"))";
+					//result = "String.Compare(" + name1 + ", " + name2 + ", StringComparison.CurrentCulture) == 0";
 					break;
 				case CompareMark::NotEquial:
-					result += "!String.Equals (" + name1 + ", " + name2 +",  StringComparison.Ordinal)";
+					result = "!String.Equals (" + name1 + ", " + name2 +", StringComparison.Ordinal)"; //,
+					//result = "String.Compare(" + name1 + ", " + name2 + ", StringComparison.CurrentCulture) != 0";
 					break;
 				case CompareMark::More:
-					result += name1 + ".Compare(" + name2 +") > 0";
+					//result += name1 + ".Compare(" + name2 +") > 0";
+					result = "String.Compare(" + name1 + ", " + name2 + ", StringComparison.CurrentCulture) > 0";
 					break;
 				case CompareMark::MoreEquial:
-					result += name1 + ".Compare(" + name2 +") >= 0";
+					//result += name1 + ".Compare(" + name2 +") >= 0";
+					result = "String.Compare(" + name1 + ", " + name2 + ", StringComparison.CurrentCulture) >= 0";
 					break;
 				}
 			}
@@ -1200,10 +1208,10 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 					switch (mark)
 					{
 					case CompareMark::LessEquial:
-						result += "(new String(" + name1 + ").compareTo(" + name2 +")) <= 0";
+						result += "(new String(" + name1 + ").compareTo(" + name2 +")) <= 0)";
 						break;
 					case CompareMark::Less:
-						result += "(new String(" + name1 + ").compareTo(" + name2 +")) < 0";
+						result += "(new String(" + name1 + ").compareTo(" + name2 +")) < 0)";
 						break;
 					case CompareMark::Equial: default:
 						result += "new String(" + name1 + ").equals(" + name2 +"))";
@@ -1212,10 +1220,10 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 						result += "!(new String(" + name1 + ").equals(" + name2 +"))";
 						break;
 					case CompareMark::More:
-						result += "(new String(" + name1 + ").compareTo(" + name2 +")) > 0";
+						result += "(new String(" + name1 + ").compareTo(" + name2 +")) > 0)";
 						break;
 					case CompareMark::MoreEquial:
-						result += "(new String(" + name1 + ").compareTo(" + name2 +")) >= 0";
+						result += "(new String(" + name1 + ").compareTo(" + name2 +")) >= 0)";
 						break;
 					}
 				}
@@ -1532,7 +1540,7 @@ string FunctionArgument::generateType(int type, int arrayType, int lang,  bool r
 	case FunctionData::RET_VAL_STRING:
 		if (lang == (int) LangCompiler::Flag_Java)
 		{
-			result +=  "string";
+			result +=  "String";
 			/*	if (return_or_param)
 				result +=  "string";
 			else
