@@ -333,6 +333,7 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 string TaskCodeGenerator::generateHeader(FunctionData functionData){
 
 	string headerStr = getStandartInclude(functionData.lang) + "\n";
+	headerStr += "#define printf(fmt, ...) (0)\n";
 
 	string defaultReturnValue = "0";
 
