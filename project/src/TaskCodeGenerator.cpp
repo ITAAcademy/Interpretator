@@ -334,6 +334,7 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 
 	string headerStr = getStandartInclude(functionData.lang) + "\n";
 	headerStr += "#define printf(fmt, ...) (0)\n";
+	headerStr += "#define fprintf(fmt, ...) (0)\n";
 
 	string defaultReturnValue = "0";
 
@@ -926,19 +927,23 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 		else
 		{
 			string gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
+			gg += "std::cerr.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
 			gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
 			+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
 			gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
+			gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 
 			argsString += gg;
 		}
 
 
 		string gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
+		gg += "std::cerr.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
 		 gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
 		/*if (functionData.lang == LangCompiler::Flag_CPP)
 			gg += "system(\"reset\");\n";*/
 		 gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
+		 gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 
 		 argsString += gg;
 
