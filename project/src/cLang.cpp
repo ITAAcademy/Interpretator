@@ -42,10 +42,10 @@ bool LangCompiler::beautyErrorOutputCpp(string &warning,compilerFlag flags, int 
 
 			sscanf(line.c_str(),"%d", &line_int);
 			if (student__teacher_programer == 1)
-				line_int -= 47;
+				line_int -= 49;
 			else
 				if (student__teacher_programer == 0)
-					line_int -= 42;
+					line_int -= 44;
 
 			line = to_string(line_int);
 
@@ -88,10 +88,10 @@ bool LangCompiler::beautyErrorOutputCpp(string &warning,compilerFlag flags, int 
 		int error_line = std::stoi( num_s, &sz );
 
 		if (student__teacher_programer == 0)
-			error_line = -40;
+			error_line = -42;
 		else
 			if (student__teacher_programer == 1)
-				error_line -= 47;
+				error_line -= 49;
 
 		war_temp.erase(0, war_temp.find("error: ") + 7);
 		warning = war_temp;

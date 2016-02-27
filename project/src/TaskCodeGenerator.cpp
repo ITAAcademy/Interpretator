@@ -335,6 +335,8 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	string headerStr = getStandartInclude(functionData.lang) + "\n";
 	headerStr += "#define printf(fmt, ...) (0)\n";
 	headerStr += "#define fprintf(fmt, ...) (0)\n";
+	headerStr += "#define scanf(fmt, ...) (0)";
+	headerStr += "#define fcanf(fmt, ...) (0)";
 
 	string defaultReturnValue = "0";
 
@@ -942,13 +944,13 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 
 		string gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
 		gg += "std::cerr.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
-		 gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+		gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
 		/*if (functionData.lang == LangCompiler::Flag_CPP)
 			gg += "system(\"reset\");\n";*/
-		 gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
-		 gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
+		gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
+		gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 
-		 argsString += gg;
+		argsString += gg;
 
 		argsString += variablesCorrect + ";\n";
 		//argsString += FunctionArgument::getName("isTrue", functionData.lang) + " = true;\n";
