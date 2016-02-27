@@ -559,6 +559,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 	footerBody += "std::streambuf* cout_sbuf = std::cout.rdbuf(); // save original sbuf\n\
 	    std::ofstream   fout(\"/dev/null\");\n";
 
+	footerBody += "std::ofstream   fin(\"/dev/null\");\n\
+	std::cin.rdbuf(fin.rdbuf()); // redirect 'cout' to a 'fout';";
+
 	string correctArgumentsConditionName = FunctionArgument::getName("variablesCorrect", functionData.lang);
 	string argumentsEqualToEtalonConditionName = FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
 
