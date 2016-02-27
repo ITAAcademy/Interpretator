@@ -109,6 +109,8 @@ void processTask(int id,Job job) {
 			labl.push_back("etalon");
 			labl.push_back("footer");
 
+
+
 			string table;
 			table = ConnectorSQL::getAssignmentTable(job.lang);
 			if (sql.connectToTable(table, labl))
@@ -127,7 +129,9 @@ void processTask(int id,Job job) {
 
 			string date = logfile::getDateStamp();
 			res["date"] = date;
-			res["result"] = compiler.getResult();
+
+			string rezulta = compiler.getResult();
+			res["result"] = rezulta;
 			res["warnings"] = compiler.getWarningErr();
 			DEBUG( res.toStyledString());
 
@@ -594,7 +598,8 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error,
 			return false;
 		}
 	}
-	else return false;
+	else
+		return false;
 
 	Job requestedTask;
 	requestedTask.code = code;

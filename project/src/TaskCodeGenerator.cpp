@@ -554,6 +554,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 
 	footerBody += variable_s;
 
+	footerBody += "std::streambuf* cout_sbuf = std::cout.rdbuf(); // save original sbuf\n\
+	    std::ofstream   fout(\"/dev/null\");\n";
+
 	string correctArgumentsConditionName = FunctionArgument::getName("variablesCorrect", functionData.lang);
 	string argumentsEqualToEtalonConditionName = FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
 
@@ -578,6 +581,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 
 	for(int i = 0; i < functionData.unit_tests_nums; i++)
 	{
+
 		//if(functionData.result.size() > 0)
 		/*if (!is_etalon_func_empty)
 		{
@@ -920,14 +924,22 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 		}
 		else
 		{
-			string gg = FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang) +  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+			string gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
+			gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+			+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+			gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
+
 			argsString += gg;
 		}
 
 
+		string gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
+		 gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+		/*if (functionData.lang == LangCompiler::Flag_CPP)
+			gg += "system(\"reset\");\n";*/
+		 gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 
-		string gg = FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
-		argsString += gg;
+		 argsString += gg;
 
 		argsString += variablesCorrect + ";\n";
 		//argsString += FunctionArgument::getName("isTrue", functionData.lang) + " = true;\n";
@@ -936,6 +948,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 		string ss = functionData.tests_code[i] + "\n";
 		//cout << ss;
 		argsString += "\n";
+
+		//if (functionData.lang == LangCompiler::Flag_CPP && init_disable_cout)
+		//argsString += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n"; //-2
 
 		ValueTypes arrType = (ValueTypes) functionData.returnValueType;
 		CompareMark cmp = functionData.compare_marks[i];
