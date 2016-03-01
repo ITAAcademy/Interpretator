@@ -352,6 +352,8 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	headerStr += "#define popen 33\n";
 	headerStr += "#define fopen 33\n";
 	headerStr += "#define pipe 33\n";
+	//headerStr += "#define fstream 33\n";
+	//headerStr += "#define ifstream 33\n";
 	headerStr += "#endif\n";
 
 	string defaultReturnValue = "0";
