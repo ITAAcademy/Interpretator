@@ -333,10 +333,26 @@ string TaskCodeGenerator::generateFunctionProtorype(FunctionData functionData, s
 string TaskCodeGenerator::generateHeader(FunctionData functionData){
 
 	string headerStr = getStandartInclude(functionData.lang) + "\n";
+
+	headerStr += "#define STUDENTCODE_23_23_90_0 66\n";
+	headerStr += "#ifdef STUDENTCODE_23_23_90_0\n";
+
 	headerStr += "#define printf(fmt, ...) (0)\n";
 	headerStr += "#define fprintf(fmt, ...) (0)\n";
-	headerStr += "#define scanf(fmt, ...) (0)";
-	headerStr += "#define fcanf(fmt, ...) (0)";
+	headerStr += "#define scanf(fmt, ...) (0)\n";
+	headerStr += "#define fcanf(fmt, ...) (0)\n";
+
+	headerStr += "#define puts(fmt, ...) (0)\n";
+	headerStr += "#define perror(fmt, ...) (0)\n";
+	headerStr += "#define fgetc(fmt, ...) (0)\n";
+	headerStr += "#define putchar(fmt, ...) (0)\n";
+	headerStr += "#define fputs(fmt, ...) (0)\n";
+	headerStr += "#define cin(fmt, ...) (0)\n";
+	headerStr += "#define system 33\n";
+	headerStr += "#define popen 33\n";
+	headerStr += "#define fopen 33\n";
+	headerStr += "#define pipe 33\n";
+	headerStr += "#endif\n";
 
 	string defaultReturnValue = "0";
 
@@ -539,7 +555,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 	{
 	//in JS main function is absense, so we don't append it when our lang is js
 	case LangCompiler::Flag_CPP:
-		footerBody+="int main()\n\
+		footerBody+="#undef STUDENTCODE_23_23_90_0\n\
+		#include <iostream>\n\
+		#include <fstream>\n\
+		int main()\n\
 					{\n";
 		break;
 	case LangCompiler::Flag_Java: //@BAD@
@@ -562,7 +581,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 	    std::ofstream   fout(\"/dev/null\");\n";
 
 	footerBody += "std::ofstream   fin(\"/dev/null\");\n\
-	std::cin.rdbuf(fin.rdbuf()); // redirect 'cout' to a 'fout';";
+	std::cin.rdbuf(fin.rdbuf()); // redirect 'cout' to a 'fout';\n\n";
 
 	string correctArgumentsConditionName = FunctionArgument::getName("variablesCorrect", functionData.lang);
 	string argumentsEqualToEtalonConditionName = FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
@@ -931,8 +950,8 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 		}
 		else
 		{
-			string gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
-			gg += "std::cerr.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
+			string gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n\n"; //--1
+			gg += "std::cerr.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'\n\n"; //--1
 			gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
 			+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
 			gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
@@ -1398,8 +1417,7 @@ string TaskCodeGenerator::getStandartInclude(int lang)
 	switch(lang)
 	{
 	case LangCompiler::Flag_CPP:{
-		include = "#include <iostream>\n\
-		#include <cstdlib>\n\
+		include = "#include <cstdlib>\n\
 		#include <algorithm>\n using namespace std;\n\
 		#include <cxxabi.h>\n\
 		#include <cmath>\n\

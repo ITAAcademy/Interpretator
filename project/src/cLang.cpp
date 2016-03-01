@@ -42,10 +42,10 @@ bool LangCompiler::beautyErrorOutputCpp(string &warning,compilerFlag flags, int 
 
 			sscanf(line.c_str(),"%d", &line_int);
 			if (student__teacher_programer == 1)
-				line_int -= 49;
+				line_int -= 59;
 			else
 				if (student__teacher_programer == 0)
-					line_int -= 44;
+					line_int -= 54;
 
 			line = to_string(line_int);
 
@@ -64,12 +64,12 @@ bool LangCompiler::beautyErrorOutputCpp(string &warning,compilerFlag flags, int 
 
 		string war_temp = warning;
 		string num_s = war_temp;
-		cout << "\n\n\n\n" << num_s;
+		//cout << "\n\n\n\n" << num_s;
 		int num_s_begin = num_s.find("p:") + 2;
 		int num_s_end;// = num_s.find(": er");
 
 		num_s.erase(0, num_s_begin);
-		cout << "\n\n\n\n" << num_s;
+		//cout << "\n\n\n\n" << num_s;
 
 		num_s_end = num_s.find(":");
 		/*if (num_s[0] <'0' || num_s[0] > '9')
@@ -82,16 +82,16 @@ bool LangCompiler::beautyErrorOutputCpp(string &warning,compilerFlag flags, int 
 						cout << "\n\n\n\n" << num_s;
 					}*/
 		num_s.erase(num_s_end, num_s.size() - 1 );
-		cout << "\n\n\n\n" << num_s;
+		//cout << "\n\n\n\n" << num_s;
 
 		std::string::size_type sz;
 		int error_line = std::stoi( num_s, &sz );
 
 		if (student__teacher_programer == 0)
-			error_line = -42;
+			error_line = -52;
 		else
 			if (student__teacher_programer == 1)
-				error_line -= 49;
+				error_line -= 61;
 
 		war_temp.erase(0, war_temp.find("error: ") + 7);
 		warning = war_temp;
@@ -358,8 +358,8 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 	case Flag_CPP:  //  &> results.txt
 		code_file_name = "prog" + to_string(thID) + ".out";
 		//build_str = "cd src; clang++ -Wall -stdlib=libc++ code" + to_string(thID) + ".cpp -o ../prog" + to_string(thID) + ".out";
-		build_str = "g++ -std=c++0x -Wno-deprecated -W ./src/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) +
-				".out 2>&1 |  tee -a cout.txt; rm ./src/code" + to_string(thID) + ".cpp";// shashka.txt -i";  // 2>&1 | tee -a cout.txt
+		build_str = "g++ -std=c++0x  -Wno-deprecated -W ./temp/code" + to_string(thID) + ".cpp -o prog" + to_string(thID) + //
+				".out 2>&1 |  tee -a cout.txt;";// rm ./src/code" + to_string(thID) + ".cpp";// shashka.txt -i";  // 2>&1 | tee -a cout.txt
 		//".out 2>&1	";
 		run_str = " ./prog" + to_string(thID) + ".out  2>&1 |  tee -a cout.txt;  rm prog" + to_string(thID) + ".out";
 		prog_name = code_file_name;
@@ -413,7 +413,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 	long double  comp_time;
 	string warning = getStdoutFromCommand(build_str, 0, &comp_time);
 
-	//cout << "\n\nerror:\n" << warning;
+	cout << "\n\nerror:\n" << warning;
 	//l12("2222222222222222222");
 	//l12(warning);
 	//compilerFlag
@@ -421,6 +421,8 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 		beautyErrorOutput(warning, flags , student__teacher_programer);
 
 	warning_err.append(warning);
+
+
 
 	INFO("build time: " + to_string(comp_time) + warning_err);
 	cout.flush();
@@ -537,7 +539,7 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 	switch (flags)
 	{
 	case Flag_CPP:
-		sprintf(str, "src/code%d.cpp\0", thID);
+		sprintf(str, "temp/code%d.cpp\0", thID);
 		INFO(str);
 		file.open(str, fstream::out);
 		if(!file.is_open())
