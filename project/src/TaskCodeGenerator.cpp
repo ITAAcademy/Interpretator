@@ -549,6 +549,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 
 	case LangCompiler::Flag_JS:
 		//arrCompFuncStr =
+		arrCompFuncStr = "alert = function() {};\n";
 		break;
 	}
 	footerBody += arrCompFuncStr;
