@@ -972,29 +972,38 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 				gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 			}
 			else
-				if (functionData.lang == LangCompiler::Flag_CS)
+				if (functionData.lang == LangCompiler::Flag_PHP)
 				{
-					gg += " Console.SetIn(textr_reader);\n\
-							    Console.SetOut(sw);\n\
-							    Console.SetError(sw);\n";
+					gg += " ob_start();\n";
 					gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
-					+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
-					gg += "Console.SetOut(couta);\n";
+									+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+
+					gg += " ob_end_clean();\n";
 				}
 				else
-					if (functionData.lang == LangCompiler::Flag_Java  && false)
-					{
-						gg = "try {\n\
+			if (functionData.lang == LangCompiler::Flag_CS)
+			{
+				gg += " Console.SetIn(textr_reader);\n\
+							    Console.SetOut(sw);\n\
+							    Console.SetError(sw);\n";
+				gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+				+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+				gg += "Console.SetOut(couta);\n";
+			}
+			else
+				if (functionData.lang == LangCompiler::Flag_Java  && false)
+				{
+					gg = "try {\n\
 					PrintStream stream = new PrintStream(new FileOutputStream(new File(\"cout.txt\")));\n\
 				System.setOut(stream);\n\
 				System.setErr(stream);\n\
 				} \n\
 				catch (FileNotFoundException e) {}\n";
-						gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
-						+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
-					}
-					else
-						gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+					gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+					+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+				}
+				else
+					gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
 			+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
 			argsString += gg;
 		}
@@ -1011,6 +1020,14 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 			gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 		}
 		else
+			if (functionData.lang == LangCompiler::Flag_PHP)
+			{
+				gg += " ob_start();\n";
+				gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+
+				gg += " ob_end_clean();\n";
+			}
+			else
 			if (functionData.lang == LangCompiler::Flag_CS )
 			{
 				gg += " Console.SetIn(textr_reader);\n\
@@ -1761,6 +1778,10 @@ string FunctionArgument::generateDefinition(bool is_result, int lang, bool retur
 		break;
 	case LangCompiler::Flag_PHP:
 		result += " " + name;
+		if (isArray)
+			result += " = []";
+		else
+			result += " = 0";
 		//if (isArray)result += "=[]";
 		break;
 
