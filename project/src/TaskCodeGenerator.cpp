@@ -572,7 +572,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 
 	case LangCompiler::Flag_CS:
 		footerBody+="public static void Main(String[] args)\n\
-		{\n";
+		{\n\
+				TextReader textr_reader = new StringReader(\"wdfqwdfqwdfwqdfwqfeqwef\");\n\
+				FileStream fs = new FileStream(\"cout.txt\", FileMode.Create);\n\
+				TextWriter tmp = Console.Out;\n\
+				TextWriter couta = Console.Out ;\n\
+				StreamWriter sw = new StreamWriter(fs);\n";
 		break;
 	}
 
@@ -967,19 +972,29 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 				gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 			}
 			else
-				if (functionData.lang == LangCompiler::Flag_Java  && false)
+				if (functionData.lang == LangCompiler::Flag_CS)
 				{
-					gg = "try {\n\
+					gg += " Console.SetIn(textr_reader);\n\
+							    Console.SetOut(sw);\n\
+							    Console.SetError(sw);\n";
+					gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+					+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+					gg += "Console.SetOut(couta);\n";
+				}
+				else
+					if (functionData.lang == LangCompiler::Flag_Java  && false)
+					{
+						gg = "try {\n\
 					PrintStream stream = new PrintStream(new FileOutputStream(new File(\"cout.txt\")));\n\
 				System.setOut(stream);\n\
 				System.setErr(stream);\n\
 				} \n\
 				catch (FileNotFoundException e) {}\n";
-					gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
-					+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
-				}
-				else
-					gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+						gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+						+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+					}
+					else
+						gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
 			+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
 			argsString += gg;
 		}
@@ -996,18 +1011,27 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 			gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 		}
 		else
-			if (functionData.lang == LangCompiler::Flag_Java && is_etalon_func_empty && false)
+			if (functionData.lang == LangCompiler::Flag_CS )
 			{
-				gg = "try {\n\
+				gg += " Console.SetIn(textr_reader);\n\
+				    Console.SetOut(sw);\n\
+				    Console.SetError(sw);\n";
+				gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+				gg += "Console.SetOut(couta);\n";
+			}
+			else
+				if (functionData.lang == LangCompiler::Flag_Java && is_etalon_func_empty && false)
+				{
+					gg = "try {\n\
 								PrintStream stream = new PrintStream(new FileOutputStream(new File(\"cout.txt\")));\n\
 							System.setOut(stream);\n\
 							System.setErr(stream);\n\
 							} \n\
 							catch (FileNotFoundException e) {}\n";
-				gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
-			}
-			else
-				gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+					gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+				}
+				else
+					gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
 
 		if (functionData.lang == LangCompiler::Flag_Java)
 		{
@@ -1485,7 +1509,9 @@ string TaskCodeGenerator::getStandartInclude(int lang)
 	case LangCompiler::Flag_CS:
 		include = "using System;\n\
 				using System.Collections.Generic;\n\
-				using System.Collections;";
+				using System.Collections;\n\
+				using System.IO;\n\
+				using System.Text;\n";
 		break;
 	}
 	return include + "\n";

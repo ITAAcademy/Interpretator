@@ -146,10 +146,10 @@ bool LangCompiler::beautyErrorOutputCs(string &warning,compilerFlag flags, int s
 			int num_char;
 			sscanf(num_s.c_str(),"%d,%d", &num_line, &num_char);
 			if (student__teacher_programer == 0)
-				num_line -= 8; //it have 8 lines behind student code
+				num_line -= 11; //it have 8 lines behind student code
 			else
 				if (student__teacher_programer == 1)
-					num_line -= 14;
+					num_line -= 16;
 
 			num_s = std::to_string(num_line) + ":" + to_string(num_char);
 			/*if (num_s[0] <'0' || num_s[0] > '9')
