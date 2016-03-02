@@ -399,6 +399,7 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 	{
 		headerStr += "try {\n";
 	}
+
 	/*l12("Yura: 2202:");
 	//l12(headerStr);*/
 	return headerStr;
@@ -977,34 +978,43 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 				{
 					gg += " ob_start();\n";
 					gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
-									+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+					+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
 
 					gg += " ob_end_clean();\n";
 				}
 				else
-			if (functionData.lang == LangCompiler::Flag_CS)
-			{
-				gg += " Console.SetIn(textr_reader);\n\
+					if (functionData.lang == LangCompiler::Flag_JS)
+					{
+						gg += "var KGGKHhgkgkKhgGKkhjKgkgKgKHGkJGJKGkGJKKKGJkGJ98889888898988 = console.log;\n\
+								console.log = function() {}\n";
+						gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+						+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+						gg += "console.log = KGGKHhgkgkKhgGKkhjKgkgKgKHGkJGJKGkGJKKKGJkGJ98889888898988;\n";
+					}
+					else
+						if (functionData.lang == LangCompiler::Flag_CS)
+						{
+							gg += " Console.SetIn(textr_reader);\n\
 							    Console.SetOut(sw);\n\
 							    Console.SetError(sw);\n";
-				gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
-				+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
-				gg += "Console.SetOut(couta);\n";
-			}
-			else
-				if (functionData.lang == LangCompiler::Flag_Java  && false)
-				{
-					gg = "try {\n\
+							gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+							+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+							gg += "Console.SetOut(couta);\n";
+						}
+						else
+							if (functionData.lang == LangCompiler::Flag_Java  && false)
+							{
+								gg = "try {\n\
 					PrintStream stream = new PrintStream(new FileOutputStream(new File(\"cout.txt\")));\n\
 				System.setOut(stream);\n\
 				System.setErr(stream);\n\
 				} \n\
 				catch (FileNotFoundException e) {}\n";
-					gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
-					+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
-				}
-				else
-					gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+								gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+								+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+							}
+							else
+								gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
 			+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
 			argsString += gg;
 		}
@@ -1029,27 +1039,35 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 				gg += " ob_end_clean();\n";
 			}
 			else
-			if (functionData.lang == LangCompiler::Flag_CS )
-			{
-				gg += " Console.SetIn(textr_reader);\n\
+				if (functionData.lang == LangCompiler::Flag_CS )
+				{
+					gg += " Console.SetIn(textr_reader);\n\
 				    Console.SetOut(sw);\n\
 				    Console.SetError(sw);\n";
-				gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
-				gg += "Console.SetOut(couta);\n";
-			}
-			else
-				if (functionData.lang == LangCompiler::Flag_Java && is_etalon_func_empty && false)
-				{
-					gg = "try {\n\
+					gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+					gg += "Console.SetOut(couta);\n";
+				}
+				else
+					if (functionData.lang == LangCompiler::Flag_JS)
+					{
+						gg += "var KGGKHhgkgkKhgGKkhjKgkgKgKHGkJGJKGkGJKKKGJkGJ98889888898988 = console.log;\n\
+								console.log = function() {}\n";
+						gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+						gg += "console.log = KGGKHhgkgkKhgGKkhjKgkgKgKHGkJGJKGkGJKKKGJkGJ98889888898988;\n";
+					}
+					else
+						if (functionData.lang == LangCompiler::Flag_Java && is_etalon_func_empty && false)
+						{
+							gg = "try {\n\
 								PrintStream stream = new PrintStream(new FileOutputStream(new File(\"cout.txt\")));\n\
 							System.setOut(stream);\n\
 							System.setErr(stream);\n\
 							} \n\
 							catch (FileNotFoundException e) {}\n";
-					gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
-				}
-				else
-					gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+							gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+						}
+						else
+							gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
 
 		if (functionData.lang == LangCompiler::Flag_Java)
 		{
