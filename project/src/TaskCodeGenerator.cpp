@@ -334,28 +334,30 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 
 	string headerStr = getStandartInclude(functionData.lang) + "\n";
 
-	headerStr += "#define STUDENTCODE_23_23_90_0 66\n";
-	headerStr += "#ifdef STUDENTCODE_23_23_90_0\n";
+	if (functionData.lang == LangCompiler::Flag_CPP)
+	{
+		headerStr += "#define STUDENTCODE_23_23_90_0 66\n";
+		headerStr += "#ifdef STUDENTCODE_23_23_90_0\n";
 
-	headerStr += "#define printf(fmt, ...) (0)\n";
-	headerStr += "#define fprintf(fmt, ...) (0)\n";
-	headerStr += "#define scanf(fmt, ...) (0)\n";
-	headerStr += "#define fcanf(fmt, ...) (0)\n";
+		headerStr += "#define printf(fmt, ...) (0)\n";
+		headerStr += "#define fprintf(fmt, ...) (0)\n";
+		headerStr += "#define scanf(fmt, ...) (0)\n";
+		headerStr += "#define fcanf(fmt, ...) (0)\n";
 
-	headerStr += "#define puts(fmt, ...) (0)\n";
-	headerStr += "#define perror(fmt, ...) (0)\n";
-	headerStr += "#define fgetc(fmt, ...) (0)\n";
-	headerStr += "#define putchar(fmt, ...) (0)\n";
-	headerStr += "#define fputs(fmt, ...) (0)\n";
-	headerStr += "#define cin(fmt, ...) (0)\n";
-	headerStr += "#define system 33\n";
-	headerStr += "#define popen 33\n";
-	headerStr += "#define fopen 33\n";
-	headerStr += "#define pipe 33\n";
-	//headerStr += "#define fstream 33\n";
-	//headerStr += "#define ifstream 33\n";
-	headerStr += "#endif\n";
-
+		headerStr += "#define puts(fmt, ...) (0)\n";
+		headerStr += "#define perror(fmt, ...) (0)\n";
+		headerStr += "#define fgetc(fmt, ...) (0)\n";
+		headerStr += "#define putchar(fmt, ...) (0)\n";
+		headerStr += "#define fputs(fmt, ...) (0)\n";
+		headerStr += "#define cin(fmt, ...) (0)\n";
+		headerStr += "#define system 33\n";
+		headerStr += "#define popen 33\n";
+		headerStr += "#define fopen 33\n";
+		headerStr += "#define pipe 33\n";
+		//headerStr += "#define fstream 33\n";
+		//headerStr += "#define ifstream 33\n";
+		headerStr += "#endif\n";
+	}
 	string defaultReturnValue = "0";
 
 	switch(functionData.lang)
@@ -578,12 +580,14 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 	generateVariables(variable_s, functionData, variables);
 
 	footerBody += variable_s;
-
-	footerBody += "std::streambuf* cout_sbuf = std::cout.rdbuf(); // save original sbuf\n\
+	if (functionData.lang == LangCompiler::Flag_CPP)
+	{
+		footerBody += "std::streambuf* cout_sbuf = std::cout.rdbuf(); // save original sbuf\n\
 	    std::ofstream   fout(\"/dev/null\");\n";
 
-	footerBody += "std::ofstream   fin(\"/dev/null\");\n\
+		footerBody += "std::ofstream   fin(\"/dev/null\");\n\
 	std::cin.rdbuf(fin.rdbuf()); // redirect 'cout' to a 'fout';\n\n";
+	}
 
 	string correctArgumentsConditionName = FunctionArgument::getName("variablesCorrect", functionData.lang);
 	string argumentsEqualToEtalonConditionName = FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
@@ -952,24 +956,64 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 		}
 		else
 		{
-			string gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n\n"; //--1
-			gg += "std::cerr.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'\n\n"; //--1
-			gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+			string gg = "";
+			if (functionData.lang == LangCompiler::Flag_CPP)
+			{
+				gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n\n"; //--1
+				gg += "std::cerr.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'\n\n"; //--1
+				gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+				+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+				gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
+				gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
+			}
+			else
+				if (functionData.lang == LangCompiler::Flag_Java  && false)
+				{
+					gg = "try {\n\
+					PrintStream stream = new PrintStream(new FileOutputStream(new File(\"cout.txt\")));\n\
+				System.setOut(stream);\n\
+				System.setErr(stream);\n\
+				} \n\
+				catch (FileNotFoundException e) {}\n";
+					gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+					+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+				}
+				else
+					gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
 			+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
-			gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
-			gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
-
 			argsString += gg;
 		}
 
 
-		string gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
-		gg += "std::cerr.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
-		gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
-		/*if (functionData.lang == LangCompiler::Flag_CPP)
-			gg += "system(\"reset\");\n";*/
-		gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
-		gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
+		string gg = "";
+		if (functionData.lang == LangCompiler::Flag_CPP)
+		{
+			string gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
+			gg += "std::cerr.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
+			gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+
+			gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
+			gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
+		}
+		else
+			if (functionData.lang == LangCompiler::Flag_Java && is_etalon_func_empty && false)
+			{
+				gg = "try {\n\
+								PrintStream stream = new PrintStream(new FileOutputStream(new File(\"cout.txt\")));\n\
+							System.setOut(stream);\n\
+							System.setErr(stream);\n\
+							} \n\
+							catch (FileNotFoundException e) {}\n";
+				gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+			}
+			else
+				gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+
+		if (functionData.lang == LangCompiler::Flag_Java)
+		{
+			gg += "System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));\n";
+		}
+
 
 		argsString += gg;
 
@@ -1428,7 +1472,13 @@ string TaskCodeGenerator::getStandartInclude(int lang)
 		break;
 	}
 	case LangCompiler::Flag_Java:{
-		include = "import java.util.Arrays;";
+		include = "import java.util.Arrays;\n\
+		import java.io.File;\n\
+		import java.io.FileDescriptor;\n\
+		import java.io.FileNotFoundException;\n\
+		import java.io.FileOutputStream;\n\
+		import java.io.IOException;\n\
+		import java.io.PrintStream;\n";
 		//...
 		break;
 	}
@@ -1646,7 +1696,9 @@ string FunctionArgument::generateDefinition(bool is_result, int lang, bool retur
 				result += " " + name + " [" + std::to_string(size) + "]";
 		}
 		else
+		{
 			result += " " +  name;
+		}
 		break;
 
 	case LangCompiler::Flag_Java: case LangCompiler::Flag_CS:
@@ -1657,7 +1709,24 @@ string FunctionArgument::generateDefinition(bool is_result, int lang, bool retur
 				result += " = new " + stype + " [" + std::to_string(size) + "]";
 		}
 		else
+		{
 			result += " " +  name;
+			switch(type)
+			{
+			case FunctionData::RET_VAL_BOOL:
+				result += " = false";
+				break;
+			case FunctionData::RET_VAL_STRING:
+				result += " = \"\"";
+				break;
+			case FunctionData::RET_VAL_FLOAT:
+				result += " = 0";
+				break;
+			case FunctionData::RET_VAL_INT:
+				result += " = 0";
+				break;
+			}
+		}
 		break;
 
 	case LangCompiler::Flag_JS:

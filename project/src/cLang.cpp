@@ -230,7 +230,7 @@ bool LangCompiler::beautyErrorOutputPhp(string &warning,compilerFlag flags, int 
 
 bool LangCompiler::beautyErrorOutputJs(string &warning,compilerFlag flags, int student__teacher_programer )
 {
-	if (warning.find("project/src/Main") != string::npos)
+	if (warning.find("project/temp/Main") != string::npos)
 	{
 		warning.erase(0, warning.find(".js:") + 4);
 
@@ -281,7 +281,7 @@ bool LangCompiler::beautyErrorOutputJava(string &warning,compilerFlag flags, int
 		int num_line;
 		sscanf(num_s.c_str(),"%d\n", &num_line);
 		if (student__teacher_programer == 0)
-			num_line -= 7;//12
+			num_line -= 14;//12
 		else
 			if (student__teacher_programer == 1)
 				num_line -= 15;
@@ -376,27 +376,27 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 		break;*/
 	case Flag_Java:
 		code_file_name = "Main" + to_string(thID) + ".class";
-		build_str = "cd src; javac Main" + to_string(thID) + ".java -d ../ 2>&1 |  tee -a cout.txt";
-		run_str = " java Main" + to_string(thID) + " 2>&1 |  tee -a cout.txt ;  rm Main" + to_string(thID)+".class";
+		build_str = "cd temp; javac Main" + to_string(thID) + ".java -d ../ 2>&1 |  tee -a cout.txt";
+		run_str = "sudo -H  -u Student bash -c ` java Main" + to_string(thID) + " 2>&1 |  tee -a cout.txt `;  rm Main" + to_string(thID)+".class";
 		prog_name = "Main"+to_string(thID)+".class";
 		break;
 	case Flag_JS:
 		code_file_name = "Main" + to_string(thID) + ".js";
-		build_str = "cd src; nodejs Main" + to_string(thID) + ".js ../ 2>&1 |  tee -a cout.txt";
+		build_str = "cd temp; nodejs Main" + to_string(thID) + ".js ../ 2>&1 |  tee -a cout.txt";
 		run_str = " node Main" + to_string(thID) + " 2>&1 |  tee -a cout.txt ;  rm Main" + to_string(thID)+".js";
 		prog_name = "Main"+to_string(thID)+".js";
 		break;
 	case Flag_PHP:
-		code_file_name = "./src/Main" + to_string(thID) + ".php";
+		code_file_name = "./temp/Main" + to_string(thID) + ".php";
 		build_str = "";
-		run_str ="php ./src/Main"
+		run_str ="php ./temp/Main"
 				+ to_string(thID) + ".php 2>&1 |  tee -a cout.txt ; ";// rm  /src/Main" + to_string(thID) + ".php; ";
 		prog_name = code_file_name;
 		break;
 	case Flag_CS:
-		code_file_name = "./src/Main" + to_string(thID) + ".exe";
-		build_str = "dmcs ./src/Main" + to_string(thID) + ".cs 2>&1 |  tee -a cout.txt";
-		run_str = " mono ./src/Main" + to_string(thID) + ".exe 2>&1 |  tee -a cout.txt " + "; rm ./src/Main" + to_string(thID) + ".exe";
+		code_file_name = "./temp/Main" + to_string(thID) + ".exe";
+		build_str = "dmcs ./temp/Main" + to_string(thID) + ".cs 2>&1 |  tee -a cout.txt";
+		run_str = " mono ./temp/Main" + to_string(thID) + ".exe 2>&1 |  tee -a cout.txt " + "; rm ./temp/Main" + to_string(thID) + ".exe";
 		prog_name = code_file_name;
 		break;
 	}//java -jar js.jar myscript.js
@@ -442,6 +442,8 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 	if(fileExist(prog_name))
 	{
 		string std_out_string = getStdoutFromCommand(run_str, 0, &comp_time);
+
+		cout << "\\n\n\n\n\n" << std_out_string;
 
 		if (flags == compilerFlag::Flag_PHP)
 		{
@@ -548,25 +550,25 @@ bool LangCompiler::generetionSample(string code, compilerFlag flags)
 		break;
 	case Flag_Java:
 		replaceAll(code,"{{thId}}",to_string(thID));
-		sprintf(str, "src/Main%d.java\0", thID);
+		sprintf(str, "temp/Main%d.java\0", thID);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
 		break;
 	case Flag_PHP:
-		sprintf(str, "src/Main%d.php\0", thID);
+		sprintf(str, "temp/Main%d.php\0", thID);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
 		break;
 	case Flag_CS:
-		sprintf(str, "src/Main%d.cs\0", thID);
+		sprintf(str, "temp/Main%d.cs\0", thID);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
 		break;
 	case Flag_JS:
-		sprintf(str, "src/Main%d.js\0", thID);
+		sprintf(str, "temp/Main%d.js\0", thID);
 		file.open(str, fstream::out);
 		if(!file.is_open())
 			return false;
