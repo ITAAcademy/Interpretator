@@ -222,7 +222,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 					value_s = jsonParser::getAsString(argumentValue[FIELD_ETALON_VALUE][etalon_value_counter++]);
 					//if (value_s.size())
 					{
-						if (functionArgument.type == FunctionData::RET_VAL_STRING)
+						if (functionArgument.type == FunctionData::RET_VAL_STRING && value_s.size() > 0)
 							value_s = addBracketsToStr(value_s);
 						functionArgument.etalonValue.push_back(value_s); //_opo
 					}
