@@ -213,7 +213,7 @@ bool LangCompiler::beautyErrorOutputPhp(string &warning,compilerFlag flags, int 
 			num_line -= lines_begind;
 		else
 			if (student__teacher_programer == 1)
-				num_line -= 12;
+				num_line -= 11;
 		num_s = to_string(num_line);
 
 
@@ -377,7 +377,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 	case Flag_Java:
 		code_file_name = "Main" + to_string(thID) + ".class";
 		build_str = "cd temp; javac Main" + to_string(thID) + ".java -d ../ 2>&1 |  tee -a cout.txt";
-		run_str = "sudo -H  -u Student bash -c ` java Main" + to_string(thID) + " 2>&1 |  tee -a cout.txt `;  rm Main" + to_string(thID)+".class";
+		run_str = "java Main" + to_string(thID) + " 2>&1 |  tee -a cout.txt ; rm Main" + to_string(thID)+".class";
 		prog_name = "Main"+to_string(thID)+".class";
 		break;
 	case Flag_JS:

@@ -573,6 +573,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error,
 	string code = jSON.getAsStringS("code");
 	int task = jSON.getAsIntS("task"); //jSON.getObject("task", false).asInt();
 	string lang = jSON.getAsStringS("lang");
+	int lang_int = jSON.getAsIntS("lang");
 	vector<string> resLabel;
 	resLabel.push_back("ID");
 	resLabel.push_back("header");
@@ -585,10 +586,28 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error,
 
 	stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
 
-	if (sql.connectToTable(tableName, resLabel)){
+	if (sql.connectToTable(tableName, resLabel))
+	{
 		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
 				"`ID`='"+std::to_string(task)+"'");
-		if ((int)records.size()==0)
+		if ((int)records.size() == 1)
+		{
+			string json_str = records.at(0).at(4);
+			cout << json_str;
+			jsonParser task_json(json_str);
+			cout << "\n\n\n" << task_json.getJson();
+			string task_lang = task_json.getAsStringS("lang");
+			if (task_lang != lang)
+			{
+				error = "Task " + to_string(task) + " in lang " + lang + " not exist";
+				res["status"] = error;
+				stream << res.toStyledString();
+				stream.close();
+				need_stream = false;
+				return false;
+			}
+		}
+		else
 		{
 			error = "Task " + to_string(task) + " in lang " + lang + " not exist";
 			res["status"] = error;

@@ -604,11 +604,18 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 	/*	footerBody +=  type_n
 			+  FunctionArgument::getName("isTrue", functionData.lang) + ";\n";//moved out from cicle to fix variable duplicates
 	 */
-	string conditionsVariableDeclaration = type_n +" "+
-			argumentsEqualToEtalonConditionName+";\n" + type_n + " " + correctArgumentsConditionName+";\n";
+	/*string conditionsVariableDeclaration = type_n +" "+
+			argumentsEqualToEtalonConditionName+";\n" + type_n + " " + correctArgumentsConditionName+";\n";*/
+	///+++
+	string conditionsVariableDeclaration = FunctionArgument::generateDefinition( true,functionData.lang,
+			correctArgumentsConditionName, FunctionData::RET_VAL_BOOL);
+
 	footerBody+= conditionsVariableDeclaration;
 
+	string conditionsVariableDeclarationEtalon = FunctionArgument::generateDefinition( true,functionData.lang,
+			argumentsEqualToEtalonConditionName, FunctionData::RET_VAL_BOOL);
 
+	footerBody+= conditionsVariableDeclarationEtalon;
 
 	string argsString;
 	string etalongArgsString;
@@ -968,8 +975,9 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 			{
 				gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n\n"; //--1
 				gg += "std::cerr.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout'\n\n"; //--1
-				gg += FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
+				string text = FunctionArgument::getName("result" + string(ETALON_FOR_FUNCTION_ENDING), functionData.lang)
 				+  " = function"  + ETALON_ENDING + "(" + argForEtalonFunction +  ");\n";
+				gg += text;
 				gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 				gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 			}
@@ -1023,10 +1031,10 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 		string gg = "";
 		if (functionData.lang == LangCompiler::Flag_CPP)
 		{
-			string gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
+			gg = "std::cout.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
 			gg += "std::cerr.rdbuf(fout.rdbuf()); // redirect 'cout' to a 'fout';\n"; //--1
-			gg += FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
-
+			string text = FunctionArgument::getName("result", functionData.lang) +  " = " + functionData.functionName + "(" + argForMainFunction +  ");\n";
+gg += text;
 			gg += "std::cout.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 			gg += "std::cerr.rdbuf(cout_sbuf); // restore the original stream buffer\n";
 		}
@@ -1122,7 +1130,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 		//if (functionData.isArray)//@WHAT@
 		{
 			argsString += " && " + FunctionArgument::getName("variablesCorrect", functionData.lang)
-			+ " && " + FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
+			+ " && " + FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang)
 			/*+ " && " + FunctionArgument::getName("isTrue", functionData.lang)*/ + ")\n";// IF END
 			//TODO
 		}
@@ -1473,32 +1481,32 @@ bool TaskCodeGenerator::generateVariables(string &output, FunctionData functionD
 	resultVar.size = functionData.result_array_size;
 	resultVar.type = functionData.returnValueType;
 
-	string res_def = resultVar.generateDefinition(true, functionData.lang); //if true, it will be "type * result;", else "type result[size];"
+	string res_def = resultVar.generateDefinition(false, functionData.lang); //if false, it will be "type * result;", else "type result[size];"
 	output += res_def;
 	variables.push_back(resultVar);
 
 	resultVar.name += ETALON_ENDING;
-	output += resultVar.generateDefinition(false, functionData.lang);
+	output += resultVar.generateDefinition(true, functionData.lang);
 	variables.push_back(resultVar);
 
 	resultVar.name = FunctionArgument::getName("result", functionData.lang) +  string(ETALON_FOR_FUNCTION_ENDING);
-	output += resultVar.generateDefinition(false, functionData.lang);
+	output += resultVar.generateDefinition(true, functionData.lang);
 	variables.push_back(resultVar);
 
 
 	for(FunctionArgument arg : functionData.args)
 	{
-		output += arg.generateDefinition(false, functionData.lang);
+		output += arg.generateDefinition(true, functionData.lang);
 		variables.push_back(arg);
 
 		FunctionArgument etalonArg = arg;
 		etalonArg.name+=ETALON_ENDING;
-		output += etalonArg.generateDefinition(false, functionData.lang);
+		output += etalonArg.generateDefinition(true, functionData.lang);
 		variables.push_back(etalonArg);
 
 		FunctionArgument etalonForFunctionArg = arg;
 		etalonForFunctionArg.name +=string(ETALON_FOR_FUNCTION_ENDING);
-		output += etalonForFunctionArg.generateDefinition(false, functionData.lang);
+		output += etalonForFunctionArg.generateDefinition(true, functionData.lang);
 		variables.push_back(etalonForFunctionArg);
 	}
 
@@ -1744,7 +1752,16 @@ string FunctionArgument::generateType(int type, int arrayType, int lang,  bool r
 	return result;
 }
 
-string FunctionArgument::generateDefinition(bool is_result, int lang, bool return_or_param)
+string FunctionArgument::generateDefinition(bool return_or_param, int lang ,string name, int type)
+{
+	FunctionArgument arg;
+	arg.name = name;
+	arg.type = type;
+	string definition =  arg.generateDefinition(return_or_param,lang);
+	return definition;
+}
+
+string FunctionArgument::generateDefinition(bool return_or_param, int lang )
 {
 	string stype = generateType(type, false, lang,return_or_param);
 	string result = stype;
@@ -1753,7 +1770,7 @@ string FunctionArgument::generateDefinition(bool is_result, int lang, bool retur
 	case LangCompiler::Flag_CPP:
 		if (isArray)
 		{
-			if (is_result)
+			if (!return_or_param)
 				result += " *" + name + " = new " + stype + "[" +  std::to_string(size) + "]";
 			else
 				result += " " + name + " [" + std::to_string(size) + "]";
@@ -1761,14 +1778,21 @@ string FunctionArgument::generateDefinition(bool is_result, int lang, bool retur
 		else
 		{
 			result += " " +  name;
+			switch(type)
+			{
+			case FunctionData::RET_VAL_BOOL:
+				result += " = true";
+				break;
+			}
 		}
 		break;
+
 
 	case LangCompiler::Flag_Java: case LangCompiler::Flag_CS:
 		if (isArray)
 		{
 			result += " [] " + name;
-			if ( !is_result )
+			if ( !return_or_param )
 				result += " = new " + stype + " [" + std::to_string(size) + "]";
 		}
 		else
@@ -1777,7 +1801,7 @@ string FunctionArgument::generateDefinition(bool is_result, int lang, bool retur
 			switch(type)
 			{
 			case FunctionData::RET_VAL_BOOL:
-				result += " = false";
+				result += " = true";
 				break;
 			case FunctionData::RET_VAL_STRING:
 				result += " = \"\"";
@@ -1795,13 +1819,23 @@ string FunctionArgument::generateDefinition(bool is_result, int lang, bool retur
 	case LangCompiler::Flag_JS:
 		result += " " + name;
 		if (isArray)result += "=[]";
-		break;
+		else
+		{
+			switch(type)
+			{
+			case FunctionData::RET_VAL_BOOL:
+				result += " = true";
+				break;
+
+			}
+			break;
+		}
 	case LangCompiler::Flag_PHP:
 		result += " " + name;
 		if (isArray)
 			result += " = []";
 		else
-			result += " = 0";
+			result += " = 1";
 		//if (isArray)result += "=[]";
 		break;
 
