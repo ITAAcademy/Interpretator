@@ -1122,6 +1122,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 		//if (functionData.isArray)//@WHAT@
 		{
 			argsString += " && " + FunctionArgument::getName("variablesCorrect", functionData.lang)
+			+ " && " + FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
 			/*+ " && " + FunctionArgument::getName("isTrue", functionData.lang)*/ + ")\n";// IF END
 			//TODO
 		}
