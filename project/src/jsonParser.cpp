@@ -1443,8 +1443,7 @@ bool jsonParser::isValidFields()
 	{
 		Json::Value field_etalon = parsedFromString[FIELD_ETALON];
 
-		if( !mustExistBeString( field_etalon , "etalon"))
-			return false;
+
 
 		Json::Value field_tests_code = parsedFromString[FUNCTION][FIELD_TESTS_CODE];
 		Json::Value field_args = parsedFromString[FUNCTION][FIELD_ARGS];
@@ -1489,9 +1488,20 @@ bool jsonParser::isValidFields()
 
 
 		bool is_results_exist;
-		string etalon = field_etalon.asString();
-		if (!(etalon.find_first_not_of("\t\n\r ") == string::npos))
-			is_results_exist = false;
+
+
+		string etalon  = "";// = field_etalon.asString();
+
+		if (mustExist(field_etalon , "etalon"))
+		{
+			if( !mustBeString( field_etalon , "etalon"))
+				return false;
+
+			etalon = field_etalon.asString();
+		}
+
+		if (etalon.size() > 0 && !(etalon.find_first_not_of("\t\n\r ") == string::npos))
+				is_results_exist = false;
 		else
 		{
 			if (!mustExist(field_results, "results"))
@@ -1510,10 +1520,6 @@ bool jsonParser::isValidFields()
 
 		if( !mustExistBeArrayInt(field_compare_mark, "compare_mark",unit_test_num, false,"", "",0, CompareMark::Last - 1))
 			return false;
-
-
-
-
 
 		if( !mustExistBeInt(field_array_type, "array_type"))
 			return false;
