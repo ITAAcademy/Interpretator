@@ -68,13 +68,22 @@ int main(void)
 using namespace std;
 using namespace code;
 
+
+
+struct ThreadArguments {
+	int id;
+};
+
+
 //static void *doit(void *a);
 int Apache(void);
 
 
+void processTask(int id,Job job);
+void *receiveTask(void *a);
 
 void show404();
-
+string removeDoubleBrackets(string value);
 void replaceAll( string &s, const string &search, const string &replace );
 bool result_status(FCGI_Stream &stream, jsonParser &jSON, string operation);
 bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error, bool &need_stream);
@@ -83,6 +92,8 @@ bool addTests(FCGI_Stream &stream, jsonParser &jSON);
 bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON);
 bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON);
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error, bool &need_stream);
+bool addTestsToTask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error, bool &need_stream);
+
 bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id);
 bool editTask( FCGI_Stream &stream, jsonParser &jSON);
 #endif

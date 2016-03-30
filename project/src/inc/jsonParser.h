@@ -115,6 +115,14 @@ public:
 	Value getRoot();
 	 int getAsIntS(string obj);
 	static int getAsInt(Value obj);
+
+	int getFieldInt(string field);
+	int getFieldInt(Value field);
+	Value getField(string field);
+	//string getFieldS(string field);
+	string getFieldS(Value value);
+	Value getJsonValue();
+
 	static string getAsString(Value obj);
 	string getAsStringS(string obj);
 	unsigned int getAsUIntS(string obj);
@@ -130,6 +138,8 @@ public:
 	static bool isStringBool(string value, bool enable_zero_len = false);
 	static bool isStringFloat(string value, bool enable_zero_len = false);
 
+
+	bool parseChekableArgIndexes(Value function );
 	bool rangeValidation(bool &range_size_inited, int &range_size, string range, string field_name);
 	//size need if its array of arrays
 	bool mustExistBeArrayOf(Json::Value object, int type,  bool is_array, string name, int array_size ,
@@ -179,6 +189,8 @@ public:
 	bool mustHaveSizeMoreZeroAndBeNotTwoDimensionalArray(Json::Value object, string name , string ps = "", string ps2 = "");
 
 	bool sizeEqualSizeOfUnitTests(Json::Value object, string name);
+
+	bool parseAddUtest(Value &pres_task);
 
 	string stringInScobcah(string inp);
 	string stringInScobcah(int inp);

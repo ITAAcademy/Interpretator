@@ -11,11 +11,8 @@ void ReplaceAll(std::string &str, const std::string& from, const std::string& to
 		start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
 	}
 }
-struct ThreadArguments {
-	int id;
-};
 
-ctpl::thread_pool tasksPool(4);
+
 
 /*
  *  need insert into SQL
@@ -132,7 +129,8 @@ void processTask(int id,Job job) {
 
 			string rezulta = compiler.getResult();
 			res["result"] = rezulta;
-			res["warnings"] = compiler.getWarningErr();
+			string warning = compiler.getWarningErr();
+			res["warnings"] = warning;
 			DEBUG( res.toStyledString());
 
 
@@ -178,6 +176,9 @@ void processTask(int id,Job job) {
 		}
 	}
 }
+
+
+
 
 
 void *receiveTask(void *a)
@@ -266,51 +267,56 @@ void *receiveTask(void *a)
 								succsesful = false;
 						}
 						else
-							if (operation == "addtestsig")
+							if (operation == "addUtest" || operation == "u")
 							{
-								if(!addTestSignature(stream, jSON))
-									succsesful = false;
+								addTestsToTask(stream, jSON, id, errora, need_stream);
 							}
 							else
-								if (operation == "addtestval")
+								if (operation == "addtestsig")
 								{
-									if (!addTestValues(stream,jSON))
+									if(!addTestSignature(stream, jSON))
 										succsesful = false;
 								}
 								else
-									if (operation == "add_tests")
+									if (operation == "addtestval")
 									{
-										if (!addTests(stream,jSON))
+										if (!addTestValues(stream,jSON))
 											succsesful = false;
 									}
 									else
-										if (operation == "retreive_tests")
+										if (operation == "add_tests")
 										{
-											if (!retreiveTests(stream,jSON))
+											if (!addTests(stream,jSON))
 												succsesful = false;
 										}
 										else
-											if (operation == "result" || operation == "status" || operation == "r" )
+											if (operation == "retreive_tests")
 											{
-												if(!result_status(stream, jSON, operation))
+												if (!retreiveTests(stream,jSON))
 													succsesful = false;
 											}
 											else
-												if (operation == "getToken")
+												if (operation == "result" || operation == "status" || operation == "r" )
 												{
-													if(!TokenSystem::getObject()->generationToken(stream, jSON))
+													if(!result_status(stream, jSON, operation))
 														succsesful = false;
 												}
 												else
-													if (operation == "getFromToken")
+													if (operation == "getToken")
 													{
-														if(!TokenSystem::getObject()->getFromToken(stream, jSON))
+														if(!TokenSystem::getObject()->generationToken(stream, jSON))
 															succsesful = false;
 													}
 													else
-													{
-														errorResponder.showError(505, "operation is invalid");
-													}
+														if (operation == "getFromToken")
+														{
+															if(!TokenSystem::getObject()->getFromToken(stream, jSON))
+																succsesful = false;
+														}
+														else
+														{
+															errorResponder.showError(505, "operation is invalid");
+														}
 
 				if(!succsesful)
 				{
@@ -363,351 +369,50 @@ void *receiveTask(void *a)
  */
 
 
-bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id)
+
+string removeDoubleBrackets(string value)
 {
-	if ( !jSON.isValidFields() )
-		return false;
-	int task = jSON.getAsIntS("task");
+	char prev_char = ' ';
+	int val_size = value.size();
+	char * res = new char[val_size];
+	int y = 0;
 
-	//string lang = jSON.getAsStringS("lang");
-	string table;
-	table = ConnectorSQL::getAssignmentTable(" hahaha dont need");
-
-	vector<string> labl;
-	labl.push_back("ID");
-	labl.push_back("header");
-	labl.push_back("etalon");
-	labl.push_back("footer");
-	labl.push_back("json");
-	SqlConnectionPool sql;
-
-	stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-	JsonValue res;
-
-	if (sql.connectToTable(table, labl))
+	for (int i = 0; i < val_size; i++)
 	{
+		char cur_char = value[i];
 
-		string jsona = sql.getJsonFromTable(task);
-		int size = jsona.size();
-		if (size > 0)
+
+		if (cur_char == '\"' )
 		{
-			res["status"] = "success";
-			res["json"] = jsona;
+			if (prev_char != '\\')
+			{
+				res[y++] = prev_char;
+			}
+			res[y++] = cur_char;
 		}
 		else
-		{
-			res["json"] = "";
-			res["status"] = "failed";
-		}
-		stream << res.toStyledString();
-		stream.close();
-		return true;
-	}
-	else
-		return false;
-}
-
-
-
-bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error, bool &need_stream)//***
-{
-	JsonValue res;
-	stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-	if ( !jSON.isValidFields() )
-	{
-		string error = jSON.getLastError();
-		res["status"] = error;
-		stream << res.toStyledString();
-		stream.close();
-		return false;
-	}
-	string lang = jSON.getAsStringS("lang");
-	string table;
-	table=ConnectorSQL::getAssignmentTable(lang);
-
-	vector<string> labl;
-	labl.push_back("ID");
-	labl.push_back("header");
-	labl.push_back("etalon");
-	labl.push_back("footer");
-	labl.push_back("json");
-	SqlConnectionPool sql;
-
-
-	DEBUG("before connectToTable");
-	if (sql.connectToTable(table, labl))
-	{
-		DEBUG("connectedToTable");
-		map<int, string> temp;
-
-		//new code for testcases part
-		int id = jSON.getAsIntS("task");//t("task",false));
-		DEBUG("task");
-		DEBUG(std::to_string(id));
-
-
-
-
-		TaskCodeGenerator generator(jSON, thread_id);
-
-		/*{
-			string etalona = generator.getEtalon();
-			int pre_last_return_pos = 0;
-			int last_return_pos = 0;
-			while(true)
+			if (cur_char == '\\' )
 			{
-				int pos = etalona.find("return", last_return_pos + 2);
-				if (pos == -1)
-					break;
-				pre_last_return_pos = last_return_pos;
-				last_return_pos = pos;
-			}
-			etalona.erase(pre_last_return_pos, last_return_pos );
-
-		}*/
-
-		LangCompiler compiler(thread_id);
-
-		string code = sql.generateProgramCode(generator.getHeader(), string(""), generator.getFooter(), lang);
-		compiler.compile(code, true, LangCompiler::convertFromName(lang), 1);
-		string errors = compiler.getWarningErr();
-
-		int lang_int = jSON.getAsIntS("lang");
-
-		if (errors.size() == 0)
-		{
-
-			if (lang_int == (int) LangCompiler::Flag_JS)
-			{
-				errors = compiler.getResult();
-				if (errors.find("error") == -1)
-					errors = "";
-			}
-		}
-
-
-
-		if (errors.size() )
-		{
-			error = "failed code compilation: " + errors ;
-			//res["status"] = "failed";
-			res["status"] = error;
-			stream << res.toStyledString();
-			stream.close();
-
-			need_stream = false;
-			return false;
-			/*
-			res["status"] = "failed 0000";
-			res["table"] = table;
-						res["id"] = to_string(id);
-			stream << res.toStyledString();
-			stream.close();
-			return true;*/
-		}
-
-		string footer = generator.getFooter();
-		if (lang_int != LangCompiler::Flag_Java)
-			footer.erase(0,  footer.find("\n"));
-
-
-		int valuesCount = 0;
-		temp.insert( { valuesCount++, std::to_string(id) });
-		temp.insert( { valuesCount++, (generator.getHeader())});
-		temp.insert( { valuesCount++, (generator.getEtalon())});
-		DEBUG("qwe33");
-		temp.insert( { valuesCount++, (footer)});
-		temp.insert({valuesCount++, (jSON.getJson())});
-		DEBUG("temp.insert");
-
-
-
-
-		map<int,string> where;
-		where.insert({0,temp[0]});
-		int status = generator.getStatus();
-
-		if (status == 0 && sql.addRecordsInToTable(temp))
-		{
-			res["status"] = "success";
-			res["table"] = table;
-			res["id"] = to_string(id);
-		}
-		else
-			if (generator.getStatus() == 0 && sql.updateRecordsInToTable(temp, where))
-			{
-				res["status"] = "updated";
-				res["table"] = table;
-				res["id"] = to_string(id);
-			}
-			else res["status"] = "failed";
-
-		stream << res.toStyledString();
-		stream.close();
-
-		need_stream = false;
-		return true;
-	}
-	else
-	{
-		res["status"] = "failed";
-
-		stream << res.toStyledString();
-		stream.close();
-
-		need_stream = false;
-		return false;
-	}
-}
-
-/*
- *
- * 					START
- *
- */
-bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error, bool &need_stream )
-{
-	error = "";
-	string session = jSON.getAsStringS("session");
-	string jobid = jSON.getAsStringS("jobid");//		jSON.getObject("jobid", false).asUInt();
-	string code = jSON.getAsStringS("code");
-	int task = jSON.getAsIntS("task"); //jSON.getObject("task", false).asInt();
-	string lang = jSON.getAsStringS("lang");
-	int lang_int = jSON.getAsIntS("lang");
-	vector<string> resLabel;
-	resLabel.push_back("ID");
-	resLabel.push_back("header");
-	resLabel.push_back("etalon");
-	resLabel.push_back("footer");
-	resLabel.push_back("json");
-	string tableName = ConnectorSQL::getAssignmentTable(lang);
-	SqlConnectionPool sql;
-	JsonValue res;
-
-	stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-
-	if (sql.connectToTable(tableName, resLabel))
-	{
-		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
-				"`ID`='"+std::to_string(task)+"'");
-		if ((int)records.size() == 1)
-		{
-			string json_str = records.at(0).at(4);
-			cout << json_str;
-			jsonParser task_json(json_str);
-			cout << "\n\n\n" << task_json.getJson();
-			string task_lang = task_json.getAsStringS("lang");
-			if (task_lang != lang)
-			{
-				error = "Task " + to_string(task) + " in lang " + lang + " not exist";
-				res["status"] = error;
-				stream << res.toStyledString();
-				stream.close();
-				need_stream = false;
-				return false;
-			}
-		}
-		else
-		{
-			error = "Task " + to_string(task) + " in lang " + lang + " not exist";
-			res["status"] = error;
-			stream << res.toStyledString();
-			stream.close();
-			need_stream = false;
-			return false;
-		}
-	}
-	else
-		return false;
-
-	Job requestedTask;
-	requestedTask.code = code;
-	requestedTask.jobid = jobid;
-	requestedTask.lang = lang;
-	requestedTask.session = session;
-	requestedTask.task = task;
-	DEBUG("no threa22");
-	/*
-	 * BAD NEED FIX @BUDLO@ INCLUDE INTO sql
-	 */
-
-	vector<string> labl;
-	labl.push_back("id");
-	labl.push_back("session");
-	labl.push_back("jobid");
-	labl.push_back("status");
-	labl.push_back("date");
-	labl.push_back("result");
-	labl.push_back("warning");
-
-	bool taskComp = false;
-	if (sql.connectToTable(string("results"), labl))
-	{
-		DEBUG("no threa2");
-		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
-				"`session`='"+session+"' AND `jobid`='"+(jobid)+"'");
-		if ((int)records.size()==0)
-			tasksPool.push(processTask,requestedTask);
-		//processTask(0, requestedTask);
-		else
-			taskComp = true;
-		//stream << "this job is already excist";
-
-		//addUserToHistory(ip_usera, code);
-		labl.clear();
-		labl.push_back("ID");
-		labl.push_back("ip");
-		labl.push_back("code");
-		labl.push_back("date_time");
-		if (sql.connectToTable("history", labl))
-		{
-			string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
-			vector <map<int, string> > rec;
-			map<int, string> temp;
-			temp.insert( { 1, ip_user});
-			temp.insert( { 2, str_with_spec_character(code) });
-			temp.insert( { 3, s_datime });
-			rec.push_back(temp);
-
-			//MyConnectionPool::getInstance().getAllRecordsFromTable();
-			sql.addRecordsInToTable(temp);
-			//MyConnectionPool::getInstance().tt();
-			if(taskComp)
-			{
-				//stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-
-				res["status"] = "already exist";
-				stream << res.toStyledString();
-				stream.close();
-
-				need_stream = false;
-				return false;
+				prev_char = cur_char;
 			}
 			else
-			{
-				//stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
-				JsonValue res;
-				res["status"] = "Added to compile";
-				stream << res.toStyledString();
-				stream.close();
-
-				need_stream = false;
-				return true;
-			}
-		}
-		else
-		{
-			return false;
-		}
+				res[y++] = cur_char;
+		/*
+		if (!(prev_char == '\\' + cur_char == '\"' ) )
+			res[y++] = cur_char;
+		prev_char = cur_char;*/
 	}
-	else
-	{
-		return false;
-	}
-	return true;
-	// string ip_usera = FCGX_GetParam( "REMOTE_ADDR", request->envp );
+	for (int i = y; i < val_size; i++)
+		res[i] = '\0';
 
+	string s_result(res);
+	return s_result;
 }
+
+
+
+
+
 
 bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON)
 {

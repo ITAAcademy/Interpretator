@@ -244,3 +244,60 @@ ii.intita.com
 		]
   }
 }
+
+
+
+
+
+
+
+
+{
+  "operation": "addtask",
+  "etalon": "return 3;",
+  "lang": "php",
+  "task": "110",
+  "function": {
+    "function_name": "php_110",
+    "type": 0,
+    "array_type": 0,
+    "size": null,
+    "unit_test_num": 1,
+    "checkable_args_indexes": [
+      [
+        {
+          "first": 0,
+          "second": 0
+        }
+      ]
+    ],
+    "results": [
+      "3"
+    ],
+    "compare_mark": [
+      2
+    ],
+    "tests_code": [
+      ""
+    ],
+    "args": [
+      {
+        "type": 0,
+        "size": null,
+        "arg_name": "x",
+        "pattern": {},
+        "value": [
+          "3"
+        ],
+        "is_array": 0,
+        "etalon_value": [
+          ""
+        ],
+        "compare_mark": [
+          2
+        ]
+      }
+    ]
+  },
+  "name": "php"
+}
