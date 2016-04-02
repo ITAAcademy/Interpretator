@@ -10,6 +10,7 @@ RM := rm -rf
 -include sources.mk
 -include src/processJson/subdir.mk
 -include src/jsonParserCpp/subdir.mk
+-include src/functions/subdir.mk
 -include src/subdir.mk
 -include subdir.mk
 -include objects.mk

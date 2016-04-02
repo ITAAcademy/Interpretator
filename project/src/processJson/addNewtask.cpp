@@ -11,8 +11,21 @@
 
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error, bool &need_stream)//***
 {
+	cout.flush();
+	cout << jSON.getParsedFromString().toStyledString();
+	//return false;
+
 	JsonValue res;
 	stream << "Status: 200\r\n Content-type: text/html\r\n" << "\r\n";
+	if ( !jSON.isJson() )
+		{
+			string error = "ERROR: json format is not correct. it isn`t json";
+			res["status"] = error;
+			stream << res.toStyledString();
+			stream.close();
+			return false;
+		}
+
 	if ( !jSON.isValidFields() )
 	{
 		string error = jSON.getLastError();

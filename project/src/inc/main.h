@@ -93,6 +93,8 @@ bool retreiveTests(FCGI_Stream &stream, jsonParser &jSON);
 bool addTestSignature(FCGI_Stream &stream, jsonParser &jSON);
 bool addNewtask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error, bool &need_stream);
 bool addTestsToTask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error, bool &need_stream);
+string mergeUtestsAndTask(Json::Value& tests, Json::Value& task);
+string replaceSlashTabsParagBreakets (string input);
 
 bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id);
 bool editTask( FCGI_Stream &stream, jsonParser &jSON);

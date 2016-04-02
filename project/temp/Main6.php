@@ -28,7 +28,7 @@ $result = function_main( $x);
  ob_end_clean();
 $variablesCorrect = true;
 ;
-$variablesCorrectByEtalon = ( $result_for_etalon == $result ) && gettype($result_for_etalon) == gettype($result);
+$variablesCorrectByEtalon = ( $result == $result ) && gettype($result) == gettype($result);
 if (( $result  == $result_for_etalon ) && gettype($result ) == gettype($result_for_etalon) && $variablesCorrect && $variablesCorrectByEtalon)
 echo " @0@";
 else

@@ -1136,7 +1136,7 @@ jsonParser::~jsonParser() {
 
 bool jsonParser::setJson(string in_json)
 {
-	if(!reader.parse(in_json, parsedFromString) || in_json.find('{') == string::npos)
+	if(!reader.parse(in_json.c_str(), parsedFromString) || in_json.find('{') == string::npos)
 	{
 		json.clear();
 		bJsonValid = false;

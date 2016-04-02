@@ -7,8 +7,9 @@ bool jsonParser::isValidFields()
 	is_results_range = false;
 	is_results_array = false;
 
-	if (parsedFromString[FIELD_OPERATION]=="addUtest" || parsedFromString[FIELD_OPERATION]=="u")
-		return true;
+	cout.flush();
+	//cout << parsedFromString.toStyledString();
+
 
 	DEBUG("before parsedFromString==nullValue");
 	if ((parsedFromString == nullValue) || (parsedFromString.size() == 0) || !isJson())
@@ -19,8 +20,14 @@ bool jsonParser::isValidFields()
 	if( !mustExistBeInt(parsedFromString[FIELD_TASK_ID], "task"))
 		return false;
 
-	if( !mustExistBeString(parsedFromString[FIELD_OPERATION], "operation"))
+
+	Value field_operation = parsedFromString[FIELD_OPERATION];
+
+	if (!mustExistBeString(field_operation, string("operation")))
 		return false;
+
+	if ( field_operation =="addUtest" || field_operation =="u")
+		return true;
 
 	if (parsedFromString[FIELD_OPERATION]=="addtask" || parsedFromString[FIELD_OPERATION]=="edittask")
 	{

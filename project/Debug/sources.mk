@@ -26,4 +26,5 @@ SUBDIRS := \
 src/processJson \
 src \
 src/jsonParserCpp \
+src/functions \
 

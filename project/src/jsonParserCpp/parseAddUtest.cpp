@@ -9,6 +9,7 @@ bool jsonParser::parseAddUtest(Value &pres_task)
 
 		Value lang = parsedFromString[FIELD_CODE_LANGUAGE];
 		Value field_function = parsedFromString[FUNCTION];
+		Value fiedl_chakable_arg_indexes = field_function["checkable_args_indexes"];
 		Value field_unit_test_num = field_function[FIELD_UNIT_TESTS_NUM];
 		Value field_args = field_function[FIELD_ARGS];
 		Value field_results = field_function[FIELD_RESULTS];
@@ -19,6 +20,7 @@ bool jsonParser::parseAddUtest(Value &pres_task)
 		Value pres_task_result_type = pres_task[FUNCTION][FIELD_TYPE];
 		Value pres_task_result_is_array = pres_task[FUNCTION][FIELD_ARRAY_TYPE];
 		Value pres_task_result_array_size = pres_task[FUNCTION][FIELD_SIZE];
+
 
 
 		if (!mustExistBeString(lang,"lang"))
@@ -72,6 +74,8 @@ bool jsonParser::parseAddUtest(Value &pres_task)
 		if (!mustExistBeArrayOf(field_results, p_res_type, p_res_is_array, string("result" ),
 				unit_test_num, p_res_array_size))
 			return false;
+
+
 
 
 		/*if (p_res_is_array)
@@ -168,6 +172,7 @@ bool jsonParser::parseAddUtest(Value &pres_task)
 			Value args_i_is_array = parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_IS_ARRAY];
 			Value args_i_arg_name = parsedFromString[FUNCTION][FIELD_ARGS][ i ][FIELD_ARG_NAME];
 			Json::Value args_i_value = args_i[FIELD_VALUE];
+			Json::Value arg_i_field_compare_mark = args_i[FIELD_COMPARE_MARK];
 			Json::Value args_i_etalon_value = args_i[FIELD_ETALON_VALUE];
 
 			Value args_i_field_type = pres_task[FUNCTION][FIELD_ARGS][ i ][FIELD_TYPE];
@@ -176,6 +181,8 @@ bool jsonParser::parseAddUtest(Value &pres_task)
 			Value pres_task_args_i_arg_name = pres_task[FUNCTION][FIELD_ARGS][ i ][FIELD_ARG_NAME];
 
 
+			if( !mustExistBeArrayInt(arg_i_field_compare_mark, "compare_mark",unit_test_num, false,"", "",0, CompareMark::Last - 1))
+						return false;
 
 
 			int args_i_type = getAsInt(args_i_field_type);

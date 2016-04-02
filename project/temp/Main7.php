@@ -33,4 +33,32 @@ if (( $result  == $result_for_etalon ) && gettype($result ) == gettype($result_f
 echo " @0@";
 else
 echo " @0!@";
+$x_for_etalon = $x = 3;
+$x_etalon = 3;
+ ob_start();
+$result_for_etalon = function_etalon( $x_for_etalon);
+ ob_end_clean();
+ ob_start();
+$result = function_main( $x);
+ ob_end_clean();
+$variablesCorrect = ( $x == $x_etalon ) && gettype($x) == gettype($x_etalon);
+$variablesCorrectByEtalon = ( $result_etalon == $result ) && gettype($result_etalon) == gettype($result);
+if (( $result  == $result_for_etalon ) && gettype($result ) == gettype($result_for_etalon) && $variablesCorrect && $variablesCorrectByEtalon)
+echo " @1@";
+else
+echo " @1!@";
+$x_for_etalon = $x = 2;
+ ob_start();
+$result_for_etalon = function_etalon( $x_for_etalon);
+ ob_end_clean();
+ ob_start();
+$result = function_main( $x);
+ ob_end_clean();
+$variablesCorrect = true;
+;
+$variablesCorrectByEtalon = true;
+if (( $result  > $result_for_etalon ) && gettype($result ) == gettype($result_for_etalon) && $variablesCorrect && $variablesCorrectByEtalon)
+echo " @2@";
+else
+echo " @2!@";
 ?>

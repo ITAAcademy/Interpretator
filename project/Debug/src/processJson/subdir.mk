@@ -7,21 +7,21 @@ CPP_SRCS += \
 ../src/processJson/addNewtask.cpp \
 ../src/processJson/addTestsToTask.cpp \
 ../src/processJson/getJson.cpp \
-../src/processJson/receiveTask.cpp \
+../src/processJson/mergeUtestsAndTask.cpp \
 ../src/processJson/start.cpp 
 
 OBJS += \
 ./src/processJson/addNewtask.o \
 ./src/processJson/addTestsToTask.o \
 ./src/processJson/getJson.o \
-./src/processJson/receiveTask.o \
+./src/processJson/mergeUtestsAndTask.o \
 ./src/processJson/start.o 
 
 CPP_DEPS += \
 ./src/processJson/addNewtask.d \
 ./src/processJson/addTestsToTask.d \
 ./src/processJson/getJson.d \
-./src/processJson/receiveTask.d \
+./src/processJson/mergeUtestsAndTask.d \
 ./src/processJson/start.d 
 
 
