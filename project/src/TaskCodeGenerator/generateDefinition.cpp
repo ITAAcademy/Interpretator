@@ -37,7 +37,7 @@ string FunctionArgument::generateDefinition(bool return_or_param, int lang )
 			result += " " +  name;
 			switch(type)
 			{
-			case FunctionData::RET_VAL_BOOL:
+			case ValueTypes::VAL_BOOL:
 				result += " = true";
 				break;
 			}
@@ -57,16 +57,19 @@ string FunctionArgument::generateDefinition(bool return_or_param, int lang )
 			result += " " +  name;
 			switch(type)
 			{
-			case FunctionData::RET_VAL_BOOL:
+			case ValueTypes::VAL_BOOL:
 				result += " = true";
 				break;
-			case FunctionData::RET_VAL_STRING:
+			case ValueTypes::VAL_STRING:
 				result += " = \"\"";
 				break;
-			case FunctionData::RET_VAL_FLOAT:
+			case ValueTypes::VAL_CHAR:
+				result += " = ''";
+				break;
+			case ValueTypes::VAL_FLOAT:
 				result += " = 0";
 				break;
-			case FunctionData::RET_VAL_INT:
+			case ValueTypes::VAL_INT:
 				result += " = 0";
 				break;
 			}
@@ -80,7 +83,7 @@ string FunctionArgument::generateDefinition(bool return_or_param, int lang )
 		{
 			switch(type)
 			{
-			case FunctionData::RET_VAL_BOOL:
+			case ValueTypes::VAL_BOOL:
 				result += " = true";
 				break;
 

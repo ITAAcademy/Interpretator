@@ -187,6 +187,16 @@ bool jsonParser::mustBeArrayString(Json::Value object, string name, int size, bo
 	return true;
 }
 
+bool jsonParser::mustBeArrayChar(Json::Value object, string name, int size, bool enable_zero_len  , string ps, string ps2 )
+{
+	if (!mustBeArray(object,name,size,enable_zero_len ,ps))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeChar(object[i], name + stringInScobcah(i), ps2))
+			return false;
+	return true;
+}
+
 bool jsonParser::mustBeArrayBool(Json::Value object, string name , int size, bool enable_zero_len , string ps, string ps2 )
 {
 	if (!mustBeArray(object,name,size,enable_zero_len ,ps))
@@ -453,6 +463,18 @@ bool jsonParser::mustExistBeArrayString(Json::Value object, string name,  int ar
 			return false;
 	return true;
 }
+
+bool jsonParser::mustExistBeArrayChar(Json::Value object, string name,  int array_size, bool able_have_zero_size  , string ps, string ps2 )
+{
+	if (!mustExistBeArray(object, name, array_size,able_have_zero_size, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeChar(object[i], name + stringInScobcah(i)))
+			return false;
+	return true;
+}
+
+
 bool jsonParser::mustExistBeArrayInt(Json::Value object, string name ,  int array_size, bool enable_zero_len , string ps, string ps2 )
 {
 	if (!mustExistBeArray(object, name, array_size,enable_zero_len, ps,ps2))
@@ -491,6 +513,16 @@ bool jsonParser::mustExistBeArrayOfStringArrays(Json::Value object, string name,
 		return false;
 	for (int i = 0; i < object.size(); i++)
 		if (!mustBeArrayString(object[i], name + stringInScobcah(i),size_i_array,enable_zero_len))
+			return false;
+	return true;
+}
+
+bool jsonParser::mustExistBeArrayOfCharArrays(Json::Value object, string name,  int array_size , int size_i_array , bool enable_zero_len, string ps, string ps2 )
+{
+	if (!mustExistBeArray(object, name, array_size,enable_zero_len, ps,ps2))
+		return false;
+	for (int i = 0; i < object.size(); i++)
+		if (!mustBeArrayChar(object[i], name + stringInScobcah(i),size_i_array,enable_zero_len))
 			return false;
 	return true;
 }
@@ -582,6 +614,21 @@ bool jsonParser::mustBeString(Json::Value object, string name , string ps, bool 
 	if ( !object.isString())
 	{
 		last_error = "ERROR: json format is not correct. " + name +" isn`t string " + ps;
+		return false;
+	}
+	return true;
+}
+
+bool jsonParser::mustBeChar(Json::Value object, string name , string ps, bool enable_zero_len )
+{
+	if ( !object.isString())
+	{
+		last_error = "ERROR: json format is not correct. " + name +" isn`t char " + ps;
+		return false;
+	}
+	if ( !object.size() > 1)
+	{
+		last_error = "ERROR: json format is not correct. " + name +" isn`t char " + ps;
 		return false;
 	}
 	return true;
@@ -1367,23 +1414,27 @@ bool jsonParser::mustExistBeArrayOf(Json::Value object, int type,  bool is_array
 	{
 		switch(type)
 		{
-		case FunctionData::RET_VAL_RANGE:
+		case ValueTypes::VAL_RANGE:
 			last_error = "ERROR: json format is not correct. " + name +" can`t be array of ranges arrays ";
 			return false;
 			break;
-		case FunctionData::RET_VAL_BOOL:
+		case ValueTypes::VAL_BOOL:
 			if(!mustExistBeArrayOfBoolArrays(object, name,array_size , size_i_array , enable_zero_len))
 				return false;
 			break;
-		case FunctionData::RET_VAL_FLOAT:
+		case ValueTypes::VAL_FLOAT:
 			if(!mustExistBeArrayOfFloatArrays(object, name,array_size , size_i_array, enable_zero_len))
 				return false;
 			break;
-		case FunctionData::RET_VAL_STRING:
+		case ValueTypes::VAL_STRING:
 			if(!mustExistBeArrayOfStringArrays(object, name,array_size , size_i_array, enable_zero_len))
 				return false;
 			break;
-		case FunctionData::RET_VAL_INT:
+		case ValueTypes::VAL_CHAR:
+			if(!mustExistBeArrayOfCharArrays(object, name,array_size , size_i_array, enable_zero_len))
+				return false;
+			break;
+		case ValueTypes::VAL_INT:
 			if(!mustExistBeArrayOfIntArrays(object, name,array_size , size_i_array, enable_zero_len))
 				return false;
 			break;
@@ -1396,23 +1447,27 @@ bool jsonParser::mustExistBeArrayOf(Json::Value object, int type,  bool is_array
 	{
 		switch(type)
 		{
-		case FunctionData::RET_VAL_RANGE:
+		case ValueTypes::VAL_RANGE:
 			if(!mustExistBeArrayRanges(object, name, array_size))
 				return false;
 			break;
-		case FunctionData::RET_VAL_BOOL:
+		case ValueTypes::VAL_BOOL:
 			if(!mustExistBeArrayBool(object, name, array_size,enable_zero_len))
 				return false;
 			break;
-		case FunctionData::RET_VAL_FLOAT:
+		case ValueTypes::VAL_FLOAT:
 			if(!mustExistBeArrayFloat(object, name, array_size, enable_zero_len))
 				return false;
 			break;
-		case FunctionData::RET_VAL_STRING:
+		case ValueTypes::VAL_STRING:
 			if(!mustExistBeArrayString(object, name, array_size))
 				return false;
 			break;
-		case FunctionData::RET_VAL_INT:
+		case ValueTypes::VAL_CHAR:
+			if(!mustExistBeArrayChar(object, name, array_size))
+				return false;
+			break;
+		case ValueTypes::VAL_INT:
 			if(!mustExistBeArrayInt(object, name, array_size, enable_zero_len))
 				return false;
 			break;

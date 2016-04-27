@@ -52,9 +52,9 @@ struct FunctionArgument{
 	string getName(int lang);
 };
 struct FunctionData{
-	enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3,RET_VAL_RANGE = 4, Last = 5};
+	//enum ReturnValueTypes {RET_VAL_INT = 0,RET_VAL_FLOAT  = 1,RET_VAL_BOOL = 2,RET_VAL_STRING = 3,RET_VAL_RANGE = 4, Last = 5};
 	enum ArrType {NOT_ARRAY = 0, ARRAY = 1};
-	int returnValueType = RET_VAL_INT;
+	int returnValueType = ValueTypes::VAL_INT;
 	int isArray = false;
 	bool isRange = false;
 	vector<vector<pair<int,int>>> checkableArgsIndexes;
@@ -76,19 +76,22 @@ struct FunctionData{
 	string getReturnType()
 	{
 		switch(returnValueType){
-		case RET_VAL_INT:
+		case VAL_INT:
 			return "int";
 			break;
-		case RET_VAL_FLOAT:
+		case VAL_FLOAT:
 			return "float";
 			break;
-		case RET_VAL_BOOL:
+		case VAL_BOOL:
 			return "bool";
 			break;
-		case RET_VAL_STRING:
+		case VAL_STRING:
 			return "string";
 			break;
-		case RET_VAL_RANGE:
+		case VAL_CHAR:
+			return "char";
+			break;
+		case VAL_RANGE:
 			return "range";
 			break;
 		}

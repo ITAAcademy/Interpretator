@@ -44,7 +44,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 
 	string space=" ";
 	char divider=',';
-	string results_arguments_comparing_after_main_func = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) + " results_arguments_comparing_after_main_func = true";
+	string results_arguments_comparing_after_main_func = FunctionArgument::generateType(ValueTypes::VAL_BOOL, false, functionData.lang) + " results_arguments_comparing_after_main_func = true";
 	string modifiedArgComparsion;
 	//C++//need out this code
 	string arrCompFuncStr;
@@ -137,7 +137,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 	string correctArgumentsConditionName = FunctionArgument::getName("variablesCorrect", functionData.lang);
 	string argumentsEqualToEtalonConditionName = FunctionArgument::getName("variablesCorrectByEtalon", functionData.lang);
 
-	string type_n = FunctionArgument::generateType(FunctionData::RET_VAL_BOOL, false, functionData.lang) + " ";
+	string type_n = FunctionArgument::generateType(ValueTypes::VAL_BOOL, false, functionData.lang) + " ";
 
 	/*	footerBody +=  type_n
 			+  FunctionArgument::getName("isTrue", functionData.lang) + ";\n";//moved out from cicle to fix variable duplicates
@@ -146,12 +146,12 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 			argumentsEqualToEtalonConditionName+";\n" + type_n + " " + correctArgumentsConditionName+";\n";*/
 	///+++
 	string conditionsVariableDeclaration = FunctionArgument::generateDefinition( true,functionData.lang,
-			correctArgumentsConditionName, FunctionData::RET_VAL_BOOL);
+			correctArgumentsConditionName, ValueTypes::VAL_BOOL);
 
 	footerBody+= conditionsVariableDeclaration;
 
 	string conditionsVariableDeclarationEtalon = FunctionArgument::generateDefinition( true,functionData.lang,
-			argumentsEqualToEtalonConditionName, FunctionData::RET_VAL_BOOL);
+			argumentsEqualToEtalonConditionName, ValueTypes::VAL_BOOL);
 
 	footerBody+= conditionsVariableDeclarationEtalon;
 
@@ -181,7 +181,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 			if ( functionData.isArray != FunctionData::ARRAY)
 			{
 				argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + " = " + */	FunctionArgument::getName("result_etalon", functionData.lang) + " = ";
-				if ((functionData.lang == LangCompiler::Flag_CS) && (functionData.returnValueType == FunctionData::RET_VAL_FLOAT))
+				if ((functionData.lang == LangCompiler::Flag_CS) && (functionData.returnValueType == ValueTypes::VAL_FLOAT))
 					argsString += "(float) ";
 				argsString += functionData.result[i] + ";\n";
 			}
@@ -200,7 +200,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 					{
 						argsString += /*"result" + string(ETALON_FOR_FUNCTION_ENDING) + "[" + to_string(rez_size) + "] = " +*/ FunctionArgument::getName("result_etalon", functionData.lang) + "[" + to_string(h) + "] = ";
 						if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
-							argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT, false, functionData.lang) + ") ";
+							argsString += " (" + FunctionArgument::generateType(ValueTypes::VAL_FLOAT, false, functionData.lang) + ") ";
 						argsString += r_array[h] + ";\n";
 					}
 				}
@@ -274,7 +274,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 				}
 				string ar_value = arg.value[i];
 
-				if (arg.type == FunctionData::RET_VAL_STRING)
+				if (arg.type == ValueTypes::VAL_STRING)
 					ar_value = addBracketsToStr(ar_value);
 
 				currentArgDef +=  ar_value +";\n";
@@ -338,7 +338,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 					argumentDefinition += arg.name + string(ETALON_FOR_FUNCTION_ENDING) +
 							"[" + to_string(k) + "] = " + arg.name +"[" + to_string(k) + "] = ";
 					if ((functionData.lang == LangCompiler::Flag_CS || functionData.lang == LangCompiler::Flag_Java)
-							&& arg.type == FunctionData::RET_VAL_FLOAT)
+							&& arg.type == ValueTypes::VAL_FLOAT)
 						argumentDefinition += " (float) ";
 
 					argumentDefinition	+= value_i + ";\n";
@@ -493,7 +493,7 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 					argsString += result_for_etalon + num + " = ";
 
 					if (functionData.lang!=LangCompiler::Flag_JS && functionData.lang!=LangCompiler::Flag_PHP && is_float)
-						argsString += " (" + FunctionArgument::generateType(FunctionData::RET_VAL_FLOAT,
+						argsString += " (" + FunctionArgument::generateType(ValueTypes::VAL_FLOAT,
 								false, functionData.lang) + ") ";
 
 					argsString += res[u] + ";\n";

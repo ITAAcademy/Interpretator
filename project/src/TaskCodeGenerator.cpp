@@ -124,7 +124,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 						for (int b = 0; b < functionData.result_array_size; b++)
 						{
 							string as_str = jsonParser::getAsString(functionValue[FIELD_RESULTS][k][b]);
-							if (functionData.returnValueType == FunctionData::RET_VAL_STRING)
+							if (functionData.returnValueType == ValueTypes::VAL_STRING)
 								as_str = addBracketsToStr(as_str);
 							res.push_back( as_str);
 							//functionValue[FIELD_RESULTS][k][b].asString() );
@@ -135,7 +135,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 					else
 					{
 						string as_str = jsonParser::getAsString(functionValue[FIELD_RESULTS][k]);
-						if (functionData.returnValueType == FunctionData::RET_VAL_STRING)
+						if (functionData.returnValueType == ValueTypes::VAL_STRING)
 							as_str = addBracketsToStr(as_str);
 						functionData.result.push_back( as_str);
 					}
@@ -187,7 +187,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 					//string value_s = jsonParser::getAsString(value);
 					string value_s = jSON.getAsString(value[y]);
 					//jSON.getAsString(value);
-					if (functionArgument.type == FunctionData::RET_VAL_STRING)
+					if (functionArgument.type == ValueTypes::VAL_STRING)
 						value_s = addBracketsToStr(value_s);
 					value_arr.push_back(value_s); //_opo
 				}
@@ -204,7 +204,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 						//jSON.getAsString(value);
 						if (value_s.size())
 						{
-							if (functionArgument.type == FunctionData::RET_VAL_STRING)
+							if (functionArgument.type ==  ValueTypes::VAL_STRING)
 								value_s = addBracketsToStr(value_s);
 							etalon_value_arr.push_back(value_s); //_opo
 						}
@@ -222,7 +222,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 					value_s = jsonParser::getAsString(argumentValue[FIELD_ETALON_VALUE][etalon_value_counter++]);
 					//if (value_s.size())
 					{
-						if (functionArgument.type == FunctionData::RET_VAL_STRING && value_s.size() > 0)
+						if (functionArgument.type == ValueTypes::VAL_STRING && value_s.size() > 0)
 							value_s = addBracketsToStr(value_s);
 						functionArgument.etalonValue.push_back(value_s); //_opo
 					}
@@ -266,7 +266,7 @@ string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueTy
 		defaultReturnValue = "";
 		switch (returnValueType)
 		{
-		case FunctionData::RET_VAL_BOOL:
+		case ValueTypes::VAL_BOOL:
 			if (isArray == 0)
 				defaultReturnValue +=" false";
 			else
@@ -274,7 +274,7 @@ string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueTy
 					defaultReturnValue +=" new boolean[]{false}";
 			break;
 
-		case FunctionData::RET_VAL_FLOAT:
+		case ValueTypes::VAL_FLOAT:
 			if (isArray == 0)
 				defaultReturnValue +=" 98989.9898889898";
 			else
@@ -282,7 +282,7 @@ string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueTy
 					defaultReturnValue +=" new float[]{0}";
 			break;
 
-		case FunctionData::RET_VAL_INT:
+		case ValueTypes::VAL_INT:
 			if (isArray == 0)
 				defaultReturnValue +=" 65533";
 			else
@@ -290,12 +290,19 @@ string TaskCodeGenerator::generateDefaultReturnValue(int lang, int returnValueTy
 					defaultReturnValue +=" new int[]{0}";
 			break;
 
-		case FunctionData::RET_VAL_STRING:
+		case ValueTypes::VAL_STRING:
 			if (isArray == 0)
 				defaultReturnValue +=" \"qhejih34213	ed	qe013413\"";
 			else
 				if (isArray == 1)
 					defaultReturnValue +=" new string[]{\"asdfasdaq4rrea\"}";
+			break;
+		case ValueTypes::VAL_CHAR:
+			if (isArray == 0)
+				defaultReturnValue +=" '?'";
+			else
+				if (isArray == 1)
+					defaultReturnValue +=" new char[]{'?'}";
 			break;
 		default:
 			defaultReturnValue = "null";
@@ -432,7 +439,7 @@ string TaskCodeGenerator::getCompareString(string name1,  ValueTypes type1,strin
 		}
 		break;
 
-		case VAL_INT:
+		case VAL_INT: case VAL_CHAR:
 		{
 			switch (mark)
 			{
@@ -699,18 +706,21 @@ string TaskCodeGenerator::convertStringToType(string argStringValue, int type, i
 {
 	string result;
 	switch(type){
-	case FunctionData::RET_VAL_BOOL:
-		result += to_bool(argStringValue);
-		break;
-	case FunctionData::RET_VAL_FLOAT:
-		result += argStringValue.c_str();
-		break;
-	case FunctionData::RET_VAL_INT:
-		result += argStringValue.c_str();
-		break;
-	case FunctionData::RET_VAL_STRING:
-		result += argStringValue;
-		break;
+	case ValueTypes::VAL_BOOL:
+			result += to_bool(argStringValue);
+			break;
+		case ValueTypes::VAL_FLOAT:
+			result += argStringValue.c_str();
+			break;
+		case ValueTypes::VAL_INT:
+			result += argStringValue.c_str();
+			break;
+		case ValueTypes::VAL_STRING:
+			result += argStringValue;
+			break;
+		case ValueTypes::VAL_CHAR:
+					result += argStringValue;
+					break;
 	}
 	return result;
 }
@@ -818,55 +828,54 @@ string FunctionArgument::generateType(int type, int arrayType, int lang,  bool r
 
 	switch(type)
 	{
-	case FunctionData::RET_VAL_BOOL:
-		if (lang == (int) LangCompiler::Flag_Java)
-		{
-			result +=  "boolean";
-			/*if (return_or_param)
+	case ValueTypes::VAL_BOOL:
+			if (lang == (int) LangCompiler::Flag_Java)
+			{
 				result +=  "boolean";
+				/*if (return_or_param)
+					result +=  "boolean";
+				else
+					result +=  "Boolean";*/
+			}
 			else
-				result +=  "Boolean";*/
-		}
-		else
-			result += "bool";
-		break;
-	case FunctionData::RET_VAL_FLOAT:
-		if (lang == (int) LangCompiler::Flag_Java)
-		{
-			result +=  "float";
-			/*if (return_or_param)
+				result += "bool";
+			break;
+		case ValueTypes::VAL_FLOAT:
+			if (lang == (int) LangCompiler::Flag_Java)
+			{
 				result +=  "float";
+				/*if (return_or_param)
+					result +=  "float";
+				else
+					result +=  "Float";*/
+			}
 			else
-				result +=  "Float";*/
-		}
-		else
-			result += "float";
-		break;
-	case FunctionData::RET_VAL_INT:
-		if (lang == (int) LangCompiler::Flag_Java)
-		{
-			result +=  "int";
-			/*if (return_or_param)
+				result += "float";
+			break;
+		case ValueTypes::VAL_INT:
+			if (lang == (int) LangCompiler::Flag_Java)
+			{
 				result +=  "int";
+				/*if (return_or_param)
+					result +=  "int";
+				else
+					result +=  "Integer";*/
+			}
 			else
-				result +=  "Integer";*/
-		}
-		else
-			result += "int";
-		break;
-	case FunctionData::RET_VAL_STRING:
-		if (lang == (int) LangCompiler::Flag_Java)
-		{
-			result +=  "String";
-			/*	if (return_or_param)
-				result +=  "string";
+				result += "int";
+			break;
+		case ValueTypes::VAL_STRING:
+			if (lang == (int) LangCompiler::Flag_Java)
+			{
+				result +=  "String";
+			}
 			else
-				result +=  "String";*/
+				result += "string";
+			break;
+		case ValueTypes::VAL_CHAR:
+						result += "char";
+			break;
 		}
-		else
-			result += "string";
-		break;
-	}
 
 	result += " ";
 

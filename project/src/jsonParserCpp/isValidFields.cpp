@@ -352,7 +352,7 @@ bool jsonParser::isValidFields()
 
 			int value_type = getAsInt(args_i_type);
 
-			if ( value_type >= code::FunctionData::Last)
+			if ( value_type >= ValueTypes::VAL_Last)
 			{
 				last_error = "ERROR: json format is not correct. Field \"type\" of args[" +
 						to_string(i) + "] out of types"; //

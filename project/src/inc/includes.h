@@ -63,7 +63,7 @@ void l12(int ll);
 
 // <= < == > >=
 enum CompareMark {LessEquial = 0, Less = 1,  Equial = 2, More = 3, MoreEquial = 4, NotEquial = 5, Last = 6};
-enum ValueTypes {VAL_INT = 0,VAL_FLOAT  = 1,VAL_BOOL = 2,VAL_STRING = 3,VAL_RANGE = 4, VAL_Last = 5};
+enum ValueTypes {VAL_INT = 0,VAL_FLOAT  = 1,VAL_BOOL = 2,VAL_STRING = 3, VAL_CHAR = 4, VAL_RANGE = 5, VAL_Last = 6};
 
 /*
 string getArrayCompareString(string name1, int arr1_size, ValueTypes type1,string name2, int arr2_size, ValueTypes type2, CompareMark mark, int lang);
