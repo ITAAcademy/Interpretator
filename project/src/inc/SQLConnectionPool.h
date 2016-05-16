@@ -30,10 +30,12 @@ public:
   SqlConnectionPool();
   ~SqlConnectionPool();
   string  getJsonFromTable( int task );
-  vector<map<int,string> >   getAllRecordsFromTable( string where ="1") ;
+  vector<map<int,string> >   getAllRecordsFromTable( string where ="1", bool use_mutex = true) ;
   bool addRecordsInToTable(vector<map<int,string> > records);
   bool addRecordsInToTable(map<int,string>  records);
-  bool updateRecordsInToTable(map<int,string> records,map<int,string>  where) ;
+  bool copyRecordFromIdToNewId(int id, int new_id);
+  bool updateRecordFromIdToNewId(int id, int new_id);
+  bool updateRecordsInToTable(map<int,string> records,map<int,string>  where, bool use_mutex = true) ;
   bool connectToTable(string table, vector<string> labels);
   string getCustomCodeOfProgram(string ID, string text_of_program,int thrdId, string lang) ;
   bool isConnected();

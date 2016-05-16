@@ -26,6 +26,7 @@ using namespace Json;
 #define JsonValue Value
 #define FIELD_HEADER "header"
 #define FIELD_ETALON "etalon"
+#define FIELD_NEW_TASK "new_task"
 #define FIELD_FOOTER "footer"
 #define FIELD_NAME "name"
 #define FIELD_FUNCTION_NAME "function_name"

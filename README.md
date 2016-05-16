@@ -301,3 +301,10 @@ ii.intita.com
   },
   "name": "php"
 }
+
+
+{
+"operation": "copyTask",
+    	"task" : "2", 
+        "new_task" : "14" 
+        }

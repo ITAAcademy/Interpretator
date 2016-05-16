@@ -118,8 +118,9 @@ string SqlConnectionPool::getLabelVecByInd(int ind)
 }
 
 //work11
-vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string where )  {
-	pthread_mutex_lock(&accept_mutex);
+vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string where, bool use_mutex  )  {
+	if (use_mutex)
+		pthread_mutex_lock(&accept_mutex);
 
 	vector<map<int,string> >  records;
 	string quer = "SELECT * FROM `" + tableName + "` WHERE "+where;
@@ -134,6 +135,7 @@ vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string wher
 		}
 		catch(mysqlpp::Exception &ex){
 			ERROR("getAllRecordsFromTable INCORRECT " + string(ex.what()));
+			return records;
 		}
 		mysqlpp::Connection::thread_end();
 		if (res.capacity())
@@ -159,7 +161,8 @@ vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string wher
 			ERROR("Getting all records from table " + tableName + " failed or table is empty");
 		}
 	}
-	pthread_mutex_unlock(&accept_mutex);
+	if (use_mutex)
+		pthread_mutex_unlock(&accept_mutex);
 	return records;
 }
 
@@ -420,6 +423,128 @@ bool SqlConnectionPool::addRecordsInToTable(vector<map<int,string> > records) {
 
 }
 
+
+
+
+
+bool SqlConnectionPool::updateRecordFromIdToNewId(int id, int new_id) {
+	pthread_mutex_lock(&accept_mutex);
+	if (conn->connected())
+	{
+		string ss = "`ID`='"+std::to_string(id)+"'";
+		vector<map<int, string> > records = getAllRecordsFromTable(ss, false);
+
+		if (records.size() == 0)
+		{
+			pthread_mutex_unlock(&accept_mutex);
+			return false;
+		}
+		if (records.at(0).size() < 5)
+		{
+			pthread_mutex_unlock(&accept_mutex);
+			return false;
+		}
+
+		string quer = "UPDATE `" + tableName + "` SET `ID`='" + std::to_string(new_id)+
+				"', `header`= '" + str_with_spec_character(records.at(0).at(1))  + "', \
+						`etalon` = '" +  str_with_spec_character(records.at(0).at(2))  + "', \
+						`footer`= '" + str_with_spec_character(records.at(0).at(3)) + "', \
+						`json`= '" +   str_with_spec_character(records.at(0).at(4)) + "' \
+						where `ID`='" +  std::to_string(new_id) + "'";
+
+		mysqlpp::Connection::thread_start();
+		mysqlpp::Query *query;
+		mysqlpp::SimpleResult result;
+
+		try{
+			cout << quer;
+			query = new mysqlpp::Query( conn->query( quer) );
+			result=query->execute();
+			delete query;
+
+			cout << "\n\nupdated\n'n";
+			/*query = new mysqlpp::Query( conn->query( quer2) );
+			result=query->execute();*/
+		}
+		catch(mysqlpp::Exception &ex){
+			ERROR("updateRecordFromIdToNewId INCORRECT " + string(ex.what()));
+			pthread_mutex_unlock(&accept_mutex);
+			return false;
+		}
+		mysqlpp::Connection::thread_end();
+		if (result.rows()) {
+			INFO ("updateRecordFromIdToNewId in to table " + tableName + " successfull");
+
+			pthread_mutex_unlock(&accept_mutex);
+			return true;
+		}
+		ERROR ("updateRecordFromIdToNewId in to table " + tableName + " failed");
+	}
+	else
+	{
+		ERROR("updateRecordFromIdToNewId failed, not connected to database");
+	}
+	pthread_mutex_unlock(&accept_mutex);
+	return false;
+}
+
+
+
+bool SqlConnectionPool::copyRecordFromIdToNewId(int id, int new_id) {
+	pthread_mutex_lock(&accept_mutex);
+	if (conn->connected())
+	{
+		string ss = "`ID`='"+std::to_string(id)+"'";
+		vector<map<int, string> > records = getAllRecordsFromTable(ss, false);
+		if (records.size() == 0)
+		{
+			pthread_mutex_unlock(&accept_mutex);
+			return false;
+		}
+		if (records.at(0).size() < 5)
+		{
+			pthread_mutex_unlock(&accept_mutex);
+			return false;
+		}
+
+		string quer = "INSERT INTO `assignment` (`id`,`header`, `etalon`, \
+				`footer`, `json`) VALUES ('" + std::to_string(new_id) + "', '" +
+				str_with_spec_character(records.at(0).at(1)) + "', \n\n'" +
+				str_with_spec_character(records.at(0).at(2)) + "', \n\n'" +
+				str_with_spec_character(records.at(0).at(3)) + "', \n\n'" +
+				str_with_spec_character(records.at(0).at(4)) + "');" ;
+
+		mysqlpp::Connection::thread_start();
+		mysqlpp::Query *query;
+		mysqlpp::SimpleResult result;
+
+		try{
+			query = new mysqlpp::Query( conn->query( quer) );
+			result=query->execute();
+			/*query = new mysqlpp::Query( conn->query( quer2) );
+			result=query->execute();*/
+		}
+		catch(mysqlpp::Exception &ex){
+			ERROR("copyTask INCORRECT " + string(ex.what()));
+			pthread_mutex_unlock(&accept_mutex);
+			return false;
+		}
+		mysqlpp::Connection::thread_end();
+		if (result.rows()) {
+			delete query;
+			pthread_mutex_unlock(&accept_mutex);
+			return true;
+		}
+		ERROR ("copyTask in to table " + tableName + " failed");
+	}
+	else
+	{
+		ERROR("copyTask failed, not connected to database");
+	}
+	pthread_mutex_unlock(&accept_mutex);
+	return false;
+}
+
 //work12
 bool SqlConnectionPool::addRecordsInToTable(map<int,string> records) {
 	pthread_mutex_lock(&accept_mutex);
@@ -475,8 +600,9 @@ bool SqlConnectionPool::addRecordsInToTable(map<int,string> records) {
 }
 
 
-bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,string>  where) {
-	pthread_mutex_lock(&accept_mutex);
+bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,string>  where, bool use_mutex) {
+	if (use_mutex)
+		pthread_mutex_lock(&accept_mutex);
 	if (conn->connected())
 	{
 
@@ -516,7 +642,8 @@ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,s
 		if (result.rows()) {
 			INFO ("Updating records in table " + tableName +" successfull");
 			delete query;
-			pthread_mutex_unlock(&accept_mutex);
+			if (use_mutex)
+				pthread_mutex_unlock(&accept_mutex);
 			return true;
 		}
 		ERROR ("Updating records in table " + tableName +" failed");
@@ -525,7 +652,8 @@ bool SqlConnectionPool::updateRecordsInToTable(map<int,string> records,map<int,s
 	{
 		ERROR("updateRecordsInToTable failed, not connected to database");
 	}
-	pthread_mutex_unlock(&accept_mutex);
+	if (use_mutex)
+		pthread_mutex_unlock(&accept_mutex);
 	return false;
 
 }

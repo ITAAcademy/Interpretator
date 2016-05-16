@@ -96,6 +96,7 @@ bool addTestsToTask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, strin
 string mergeUtestsAndTask(Json::Value& tests, Json::Value& task);
 string replaceSlashTabsParagBreakets (string input);
 
+bool copyTask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, string &error, bool &need_stream);
 bool getJson( FCGI_Stream &stream, jsonParser &jSON, int thread_id);
 bool editTask( FCGI_Stream &stream, jsonParser &jSON);
 #endif

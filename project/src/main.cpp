@@ -261,62 +261,68 @@ void *receiveTask(void *a)
 							succsesful = false;
 					}
 					else
-						if (operation == "start" || operation == "s")
+						if (operation == "copyTask")
 						{
-							if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp), errora, need_stream))
+							if(!copyTask(stream, jSON, id, errora, need_stream))
 								succsesful = false;
 						}
 						else
-							if (operation == "addUtest" || operation == "u")
+							if (operation == "start" || operation == "s")
 							{
-								addTestsToTask(stream, jSON, id, errora, need_stream);
+								if(!start(stream, jSON, FCGX_GetParam("REMOTE_ADDR", request->envp), errora, need_stream))
+									succsesful = false;
 							}
 							else
-								if (operation == "addtestsig")
+								if (operation == "addUtest" || operation == "u")
 								{
-									if(!addTestSignature(stream, jSON))
-										succsesful = false;
+									addTestsToTask(stream, jSON, id, errora, need_stream);
 								}
 								else
-									if (operation == "addtestval")
+									if (operation == "addtestsig")
 									{
-										if (!addTestValues(stream,jSON))
+										if(!addTestSignature(stream, jSON))
 											succsesful = false;
 									}
 									else
-										if (operation == "add_tests")
+										if (operation == "addtestval")
 										{
-											if (!addTests(stream,jSON))
+											if (!addTestValues(stream,jSON))
 												succsesful = false;
 										}
 										else
-											if (operation == "retreive_tests")
+											if (operation == "add_tests")
 											{
-												if (!retreiveTests(stream,jSON))
+												if (!addTests(stream,jSON))
 													succsesful = false;
 											}
 											else
-												if (operation == "result" || operation == "status" || operation == "r" )
+												if (operation == "retreive_tests")
 												{
-													if(!result_status(stream, jSON, operation))
+													if (!retreiveTests(stream,jSON))
 														succsesful = false;
 												}
 												else
-													if (operation == "getToken")
+													if (operation == "result" || operation == "status" || operation == "r" )
 													{
-														if(!TokenSystem::getObject()->generationToken(stream, jSON))
+														if(!result_status(stream, jSON, operation))
 															succsesful = false;
 													}
 													else
-														if (operation == "getFromToken")
+														if (operation == "getToken")
 														{
-															if(!TokenSystem::getObject()->getFromToken(stream, jSON))
+															if(!TokenSystem::getObject()->generationToken(stream, jSON))
 																succsesful = false;
 														}
 														else
-														{
-															errorResponder.showError(505, "operation is invalid");
-														}
+															if (operation == "getFromToken")
+															{
+																if(!TokenSystem::getObject()->getFromToken(stream, jSON))
+																	succsesful = false;
+															}
+															else
+															{
+																errorResponder.showError(505, "operation is invalid");
+															}
 
 				if(!succsesful)
 				{

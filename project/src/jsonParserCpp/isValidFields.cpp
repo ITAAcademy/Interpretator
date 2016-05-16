@@ -29,6 +29,15 @@ bool jsonParser::isValidFields()
 	if ( field_operation =="addUtest" || field_operation =="u")
 		return true;
 
+	if (parsedFromString[FIELD_OPERATION]=="copyTask" || parsedFromString[FIELD_OPERATION]=="c")
+	{
+		Json::Value fiald_new_task = parsedFromString[FIELD_NEW_TASK];
+		if (!mustExistBeInt(fiald_new_task, "new_task"))
+			return false;
+		return true;
+	}
+
+
 	if (parsedFromString[FIELD_OPERATION]=="addtask" || parsedFromString[FIELD_OPERATION]=="edittask")
 	{
 		Json::Value field_etalon = parsedFromString[FIELD_ETALON];
