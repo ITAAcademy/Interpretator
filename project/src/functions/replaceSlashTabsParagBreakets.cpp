@@ -8,6 +8,32 @@
 #include "../inc/main.h"
 
 
+void changeIdInJsonFromOldToNew(string &json, int newId) {
+	string begin = json;
+	string end = json;
+	int task_begin = begin.find("\"task\":");
+	begin.erase(task_begin + 9, begin.size() - 1);
+
+	string breakets = json;
+
+	breakets.erase(0, breakets.find("\"task\":") + 9);
+
+	breakets.erase(breakets.find(","), breakets.size() - 1);
+
+	int breaket_pos = breakets.find("\"");
+	bool is_breakets = false;
+	if (breaket_pos > -1)
+		is_breakets = true;
+
+	int task_end = end.find(",", task_begin + 8);
+	end.erase(0, task_end);
+
+	if (is_breakets == false)
+		json = begin + to_string(newId) + end;
+	else
+		json = begin + "\"" + to_string(newId) + "\"" + end;
+}
+
 
 string replaceSlashTabsParagBreakets (string input)
 {
@@ -25,9 +51,9 @@ string replaceSlashTabsParagBreakets (string input)
 			if ( !first_slash )
 				first_slash = true;
 			else
-				{
-					output += curent;
-				}
+			{
+				output += curent;
+			}
 		}
 		else
 			if ( curent == '\"')
@@ -157,4 +183,4 @@ string replaceSlashTabsParagBreakets (string input)
 	return output;
 
 }
-*/
+ */

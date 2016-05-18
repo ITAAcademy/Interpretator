@@ -7,6 +7,7 @@
 
 #include "inc/SQLConnectionPool.h"
 #include "mysql.h"
+#include "inc/main.h"
 
 SqlConnectionPool&  SqlConnectionPool::getInstance()
 {
@@ -445,11 +446,15 @@ bool SqlConnectionPool::updateRecordFromIdToNewId(int id, int new_id) {
 			return false;
 		}
 
+		string json_str = records.at(0).at(4);
+		changeIdInJsonFromOldToNew(json_str, new_id);
+
+
 		string quer = "UPDATE `" + tableName + "` SET `ID`='" + std::to_string(new_id)+
 				"', `header`= '" + str_with_spec_character(records.at(0).at(1))  + "', \
 						`etalon` = '" +  str_with_spec_character(records.at(0).at(2))  + "', \
 						`footer`= '" + str_with_spec_character(records.at(0).at(3)) + "', \
-						`json`= '" +   str_with_spec_character(records.at(0).at(4)) + "' \
+						`json`= '" +   str_with_spec_character(json_str) + "' \
 						where `ID`='" +  std::to_string(new_id) + "'";
 
 		mysqlpp::Connection::thread_start();
@@ -507,12 +512,15 @@ bool SqlConnectionPool::copyRecordFromIdToNewId(int id, int new_id) {
 			return false;
 		}
 
+		string json_str = records.at(0).at(4);
+				changeIdInJsonFromOldToNew(json_str, new_id);
+
 		string quer = "INSERT INTO `assignment` (`id`,`header`, `etalon`, \
 				`footer`, `json`) VALUES ('" + std::to_string(new_id) + "', '" +
 				str_with_spec_character(records.at(0).at(1)) + "', \n\n'" +
 				str_with_spec_character(records.at(0).at(2)) + "', \n\n'" +
 				str_with_spec_character(records.at(0).at(3)) + "', \n\n'" +
-				str_with_spec_character(records.at(0).at(4)) + "');" ;
+				str_with_spec_character(json_str) + "');" ;
 
 		mysqlpp::Connection::thread_start();
 		mysqlpp::Query *query;

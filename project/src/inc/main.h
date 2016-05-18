@@ -82,6 +82,8 @@ int Apache(void);
 void processTask(int id,Job job);
 void *receiveTask(void *a);
 
+void changeIdInJsonFromOldToNew(string&json, int newId);
+
 void show404();
 string removeDoubleBrackets(string value);
 void replaceAll( string &s, const string &search, const string &replace );
