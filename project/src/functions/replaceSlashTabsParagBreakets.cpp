@@ -28,10 +28,19 @@ void changeIdInJsonFromOldToNew(string &json, int newId) {
 	int task_end = end.find(",", task_begin + 8);
 	end.erase(0, task_end);
 
-	if (is_breakets == false)
+/*if (is_breakets == false)
 		json = begin + to_string(newId) + end;
-	else
+	else*/
 		json = begin + "\"" + to_string(newId) + "\"" + end;
+
+
+	l12("copyTask:\n\n" + json);
+	//fix for itatests
+	task_begin = json.find("\"task\":\"\"");
+	if (task_begin > -1)
+	{
+		json.erase(task_begin + 8, 1);
+	}
 }
 
 
