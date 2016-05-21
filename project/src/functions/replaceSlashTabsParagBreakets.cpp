@@ -12,7 +12,7 @@ void changeIdInJsonFromOldToNew(string &json, int newId) {
 	string begin = json;
 	string end = json;
 	int task_begin = begin.find("\"task\":");
-	begin.erase(task_begin + 9, begin.size() - 1);
+	begin.erase(task_begin + 8, begin.size() - 1);
 
 	string breakets = json;
 
