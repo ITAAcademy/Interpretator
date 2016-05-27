@@ -203,7 +203,13 @@ void *receiveTask(void *a)
 			if (strcmp(stream.getRequestMethod(), "GET") == 0)
 			{
 				//logfile::addLog(id, "Request Method don't POST !!!");
-				errorResponder.showError(404);
+				string current =  stream.getSenderAdress();
+				if (current == "/version")
+				{
+					errorResponder.showString(999, VERSION_INTERPRETATOR);
+				}
+				else
+					errorResponder.showError(404);
 				//INFO("session closed");
 				stream.close();
 				continue;
@@ -826,6 +832,7 @@ int main(void)
 	FCGX_Init();
 	logfile::clear();
 	DEBUG("\n\n\n\nStart server ==== Lib is inited");
+
 	// system("mkdir -m 777 src");
 	// open socket unix or TCP
 	string socket = "127.0.0.1:" + Config::getInstance().getPort();

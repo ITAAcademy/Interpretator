@@ -33,6 +33,7 @@ public:
 	FCGI_Stream( int socketId = 0);
 	FCGI_Stream(FCGX_Request *req);
 	~FCGI_Stream();
+	string getSenderAdress();
 	/*
 	 *  init STDIO for Apatche **not actual
 	 */

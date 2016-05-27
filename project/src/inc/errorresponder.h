@@ -17,6 +17,7 @@ public:
     void selectStream(FCGI_Stream *stream);
     void showError(int nErrorCode, str sMoreText = " ");
     void showClientError(str sHeader, str sErrorText, str sMoreText = " ");
+    void showString(int number, string text);
 };
 
 

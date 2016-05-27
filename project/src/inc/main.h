@@ -75,6 +75,11 @@ struct ThreadArguments {
 };
 
 
+#ifndef VERSION_INTERPRETATOR
+#define VERSION_INTERPRETATOR "1.09"
+#endif
+
+
 //static void *doit(void *a);
 int Apache(void);
 

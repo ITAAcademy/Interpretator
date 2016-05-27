@@ -271,6 +271,11 @@ int FCGI_Stream::getRequestSize()
 	return content_length;
 }
 
+string FCGI_Stream::getSenderAdress()
+{
+	return FCGX_GetParam("REQUEST_URI",  request->envp);
+}
+
 string FCGI_Stream::getRequestBuffer()
 {
 	return string(buffer);
