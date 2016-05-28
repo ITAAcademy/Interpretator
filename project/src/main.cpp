@@ -200,20 +200,27 @@ void *receiveTask(void *a)
 		if (stream.multiIsRequest()) { /////////////!!!!!!!!!!!!!!!!!!!
 			//	break;
 			DEBUG(request);
-			if (strcmp(stream.getRequestMethod(), "GET") == 0)
+			if (strcmp(stream.getRequestMethod(), "OPTIONS") == 0)
 			{
-				//logfile::addLog(id, "Request Method don't POST !!!");
-				string current =  stream.getSenderAdress();
-				if (current == "/version")
-				{
-					errorResponder.showString(999, VERSION_INTERPRETATOR);
-				}
-				else
-					errorResponder.showError(404);
-				//INFO("session closed");
+				errorResponder.showError(200,"");
 				stream.close();
 				continue;
 			}
+			else
+				if (strcmp(stream.getRequestMethod(), "GET") == 0)
+				{
+					//logfile::addLog(id, "Request Method don't POST !!!");
+					string current =  stream.getSenderAdress();
+					if (current == "/version")
+					{
+						errorResponder.showString(999, VERSION_INTERPRETATOR);
+					}
+					else
+						errorResponder.showError(404);
+					//INFO("session closed");
+					stream.close();
+					continue;
+				}
 
 			if(!SqlConnectionPool::getInstance().isConnected()  )
 			{

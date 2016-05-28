@@ -37,8 +37,15 @@ void ErrorResponder::showError(int nErrorCode, str sMoreText)
 	//string my_error = stream->toString();
 
 	//sMoreText += my_error;
+
+
 	switch(nErrorCode)
 	{
+	case 200:
+		//stream->operator <<( "Status: 200\r\n");
+		stream->operator <<  ("Status: 200\r\n Content-type: text/html\r\n") << "\r\n";
+		break;
+
 	case 400:
 		stream->operator <<("Status: 400\r\n")
 		<< "Content-type: text/html\r\n"
