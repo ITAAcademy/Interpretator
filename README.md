@@ -5,6 +5,7 @@ Just interpret it
 1.	запускаєм термінал
 2.	наступною командою ставимо необхідні для роботи сервера бібліотеки
 3.	sudo apt-get fcgi pthread jsoncpp lmysqlcppconn lmysql-server clang openjdk-7-jdk libmysql++-dev node.js 
+3a Mono
 4.	заходимо в директорію з ісходніками і мейкфайлом:  cd /dir..
 5.	запускаєм компіляцію:	 make -f Makefile
 6.	як зібралося, має з*явитися файл test.fcgi
