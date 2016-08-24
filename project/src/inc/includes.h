@@ -30,7 +30,11 @@
 #define ERROR(data)
 
 using namespace std;
+
+#ifndef DEBUG_BUILD
 //#define DEBUG_BUILD
+#endif
+
 #ifndef ERROR_BUILD
 #define ERROR_BUILD
 #endif

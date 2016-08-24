@@ -195,6 +195,15 @@ void FCGI_Stream::close()
 	FCGX_Finish_r(request);
 }
 
+void FCGI_Stream::showHeaders()
+{
+	char **envp = request->envp;
+	for (int i = 0; envp[i] != NULL; i++)
+	{
+		printf("%s\n", envp[i]);
+	}
+}
+
 
 FCGI_Stream& FCGI_Stream::operator << ( const char * const str)
 {

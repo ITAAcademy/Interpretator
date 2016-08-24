@@ -75,6 +75,7 @@ public:
 	 */
 	void close();
 	FCGX_Request *getRequest() ;
+	void showHeaders();
 	/*
 	 * IO functions
 	 */

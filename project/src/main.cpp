@@ -199,10 +199,18 @@ void *receiveTask(void *a)
 	{
 		if (stream.multiIsRequest()) { /////////////!!!!!!!!!!!!!!!!!!!
 			//	break;
-			DEBUG(request);
 			if (strcmp(stream.getRequestMethod(), "OPTIONS") == 0)
 			{
-				errorResponder.showError(200,"");
+				string headers;
+				char* accessControlRequestHeaders = FCGX_GetParam("HTTP_ACCESS_CONTROL_REQUEST_HEADERS",  request->envp);
+				if(accessControlRequestHeaders != NULL)
+					headers += "Access-Control-Request-Headers: " + string(accessControlRequestHeaders) + "\r\n";
+				char* accessControlRequestMethod = FCGX_GetParam("HTTP_ACCESS_CONTROL_REQUEST_METHOD",  request->envp);
+				if(accessControlRequestMethod != NULL)
+					headers += "Access-Control-Request-Method: " + string(accessControlRequestMethod) + "\r\n";
+
+				stream << headers <<  ("Access-Control-Max-Age: 86400\r\nStatus: 200\r\nContent-type: text/plain\r\n") << "\r\n";
+				//stream.showHeaders();
 				stream.close();
 				continue;
 			}
