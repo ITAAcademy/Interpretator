@@ -846,7 +846,8 @@ int main(void)
 	pthread_t *id = new pthread_t[Config::getInstance().getThreadCount()];
 	FCGX_Init();
 	logfile::clear();
-	DEBUG("\n\n\n\nStart server ==== Lib is inited");
+	INFO("Start server ==== Lib is inited");
+	INFO("Version====" + string(VERSION_INTERPRETATOR) + "\n");
 
 	// system("mkdir -m 777 src");
 	// open socket unix or TCP
