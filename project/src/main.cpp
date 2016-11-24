@@ -230,14 +230,15 @@ void *receiveTask(void *a)
 					continue;
 				}
 
-			if(!SqlConnectionPool::getInstance().isConnected()  )
+			if(!SqlConnectionPool::getInstance().isConnected())
 			{
-
-				errorResponder.showError(505, "DataBaseERR");
 				INFO("Try reconect to DB");
-				stream.close();
-				SqlConnectionPool::getInstance().reconect(); //124
-				continue;  //////////////////////////////
+				if(!SqlConnectionPool::getInstance().reconect())
+				{
+					errorResponder.showError(505, "DataBaseERR");
+					stream.close();
+					continue;  //////////////////////////////
+				}
 			}
 			DEBUG("Before jsonParser jSON(stream.getRequestBuffer());");
 			jsonParser jSON(stream.getRequestBuffer());

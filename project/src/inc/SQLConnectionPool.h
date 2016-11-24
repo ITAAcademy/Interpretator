@@ -39,7 +39,7 @@ public:
   bool connectToTable(string table, vector<string> labels);
   string getCustomCodeOfProgram(string ID, string text_of_program,int thrdId, string lang) ;
   bool isConnected();
-  void reconect();
+  bool reconect();
 int lastInsertId();
 protected:
   unsigned int max_idle_time();

@@ -52,6 +52,11 @@ void logfile::addLog(FCGX_Request *request, string addStr)
 	out += addStr;
 	cout.setf(ios::left);
 	write  << setw(30) << left << getDateStamp() << out <<  "\n";
+
+#ifdef SHOW_IN_CONSOLE
+	cout << setw(30) << left << getDateStamp() << out <<  "\n";
+#endif
+
 	cout.setf(ios::right);
 	write.close();
 
@@ -75,6 +80,10 @@ void logfile::addLog(string str)
 	cout.flush();
 	write.open("log.txt", std::ios_base::app);
 	write  << setw(30) << left << getDateStamp() << str <<  "\n";
+#ifdef SHOW_IN_CONSOLE
+	cout  << setw(30) << left << getDateStamp() << str <<  "\n";
+#endif
+
 	write.close();
 	cout.flush();
 	pthread_mutex_unlock(&accept_mutex);

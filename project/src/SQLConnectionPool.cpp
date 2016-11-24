@@ -702,7 +702,7 @@ bool SqlConnectionPool::isConnected()
 	return iscon ;//&& (((end_time-start_time)/CLOCKS_PER_SEC*1000- max_idle_time())>0);
 }
 
-void SqlConnectionPool::reconect()
+bool SqlConnectionPool::reconect()
 {
 	pthread_mutex_lock(&accept_mutex);
 	try{
@@ -717,11 +717,13 @@ void SqlConnectionPool::reconect()
 	if (conn)
 	{
 		INFO ("Connection to host and database successful");
+		pthread_mutex_unlock(&accept_mutex);
+		return true;
 	}
 	else
 		ERROR ("Connection to host and database failed");
 	pthread_mutex_unlock(&accept_mutex);
-
+	return false;
 }
 
 

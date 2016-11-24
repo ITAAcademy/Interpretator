@@ -22,6 +22,8 @@
 #include "fcgi_config.h"
 #include "fcgiapp.h"
 
+//#define SHOW_IN_CONSOLE
+
 #ifndef DEBUG(data)
 #define DEBUG(data)
 #endif
