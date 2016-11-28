@@ -139,7 +139,7 @@ vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string wher
 			return records;
 		}
 		mysqlpp::Connection::thread_end();
-		if (res.capacity())
+		if (res.size())
 		{
 
 			mysqlpp::StoreQueryResult::const_iterator it;

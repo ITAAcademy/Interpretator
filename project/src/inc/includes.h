@@ -34,7 +34,7 @@
 using namespace std;
 
 #ifndef DEBUG_BUILD
-//#define DEBUG_BUILD
+#define DEBUG_BUILD
 #endif
 
 #ifndef ERROR_BUILD

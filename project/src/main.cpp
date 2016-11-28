@@ -193,6 +193,7 @@ void *receiveTask(void *a)
 	FCGI_Stream stream(socketId);
 	ErrorResponder errorResponder(&stream);
 	request = stream.getRequest();
+	INFO("Thread: " + argumento.id);
 	//string lang;
 
 	for (;;)
