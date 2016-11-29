@@ -4,7 +4,7 @@
 
 LangCompiler::LangCompiler(int ID){
 	thID = ID;
-	timeOut = 2000/1000;
+	timeOut = 200;
 }
 
 LangCompiler::~LangCompiler(){
@@ -441,7 +441,7 @@ string LangCompiler::compile(string code, bool show, compilerFlag flags, int stu
 
 	if(fileExist(prog_name))
 	{
-		string std_out_string = getStdoutFromCommand(run_str, 0, &comp_time);
+		string std_out_string = getStdoutFromCommand(run_str, -1, &comp_time);
 
 		cout << "\\n\n\n\n\n" << std_out_string;
 
@@ -643,8 +643,88 @@ char* LangCompiler::getSystemOutput(char* cmd){
 	return ret;
 }
 
+#define READ   0
+#define WRITE  1
+FILE * popen2(string command, string type, int & pid)
+{
+    pid_t child_pid;
+    int fd[2];
+    pipe(fd);
+
+    if((child_pid = fork()) == -1)
+    {
+        perror("fork");
+        exit(1);
+    }
+
+    /* child process */
+    if (child_pid == 0)
+    {
+        if (type == "r")
+        {
+            close(fd[READ]);    //Close the READ end of the pipe since the child's fd is write-only
+            dup2(fd[WRITE], 1); //Redirect stdout to pipe
+        }
+        else
+        {
+            close(fd[WRITE]);    //Close the WRITE end of the pipe since the child's fd is read-only
+            dup2(fd[READ], 0);   //Redirect stdin to pipe
+        }
+
+        setpgid(child_pid, child_pid); //Needed so negative PIDs can kill children of /bin/sh
+        execl("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
+        exit(0);
+    }
+    else
+    {
+        if (type == "r")
+        {
+            close(fd[WRITE]); //Close the WRITE end of the pipe since parent's fd is read-only
+        }
+        else
+        {
+            close(fd[READ]); //Close the READ end of the pipe since parent's fd is write-only
+        }
+    }
+
+    pid = child_pid;
+
+    if (type == "r")
+    {
+        return fdopen(fd[READ], "r");
+    }
+
+    return fdopen(fd[WRITE], "w");
+}
+
+int pclose2(FILE * fp, pid_t pid)
+{
+    int stat;
+
+    fclose(fp);
+	/*std::clock_t    start;
+	start = std::clock();
+
+    while (waitpid(pid, &stat, 0) == -1)
+    {
+
+        if (errno != EINTR)
+        {
+            stat = -1;
+            break;
+        }
+    }
+
+    return stat;*/
+    kill (pid, SIGKILL);
+    return 0;
+}
+
 string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double *executionTime)
 {
+	if(mTimeOut == -1)
+		mTimeOut = timeOut;
+
 	string data="";
 	FILE * stream;
 	std::clock_t    start;
@@ -659,24 +739,51 @@ string LangCompiler::getStdoutFromCommand(string cmd, int mTimeOut, long double 
 	//printf("%lf", sysTime);
 	//  const long double sysTimeMS = sysTime*1000;
 	//stream =
-
-	stream = popen(cmd.c_str(), "r");
+	int pId = 0;
+	stream = popen2(cmd.c_str(), "r", pId);
 
 	if (stream) {
 		while (!feof(stream))
-		{
+		{/*
 			if (fgets(buffer, max_buffer, stream) != NULL)
 				data.append(buffer);
+			double j = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
+			INFO(std::to_string(j));
 			if (mTimeOut != 0 && (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) > mTimeOut)
 			{
+				INFO("TIMEOUT");
+				data = "timeout";
+				break;
+			}
+		 */
+			fd_set read_fds, write_fds, except_fds;
+			FD_ZERO(&read_fds);
+			FD_ZERO(&write_fds);
+			FD_ZERO(&except_fds);
+			FD_SET(fileno(stream), &read_fds);
+
+			// Set timeout to 1.0 seconds
+			struct timeval timeoutObj;
+			timeoutObj.tv_sec = timeOut;
+			timeoutObj.tv_usec = 0;
+
+			// Wait for input to become ready or until the time out; the first parameter is
+			// 1 more than the largest file descriptor in any of the sets
+			if (select(fileno(stream) + 1, &read_fds, &write_fds, &except_fds, &timeoutObj) == 1)
+			{
+				if (fgets(buffer, max_buffer, stream) != NULL)
+					data.append(buffer);
+			}
+			else
+			{
+				INFO("TIMEOUT");
 				data = "timeout";
 				break;
 			}
 		}
 		if(executionTime != 0)
 			executionTime[0] = (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000);
-		INFO(to_string(time(0)));
-		pclose(stream);
+		int k = pclose2(stream, pId);
 	}
 
 	if (data == "")

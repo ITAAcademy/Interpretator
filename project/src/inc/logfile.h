@@ -3,6 +3,7 @@
 #define normLog 0
 #define errLog 1
 
+#include "includes.h"
 #include <fstream>
 #include <iostream>
 #include <stdio.h>      /* printf */
