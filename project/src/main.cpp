@@ -77,6 +77,44 @@ void processTask(int id,Job job) {
 
 		vector<string> labl;
 		//ADD NEW STARTED COMPILING INFO TO DATABASE
+		DEBUG("Before connect to results");
+		SqlConnectionPool sql;
+
+		labl.push_back("ID");
+		labl.push_back("header");
+		labl.push_back("etalon");
+		labl.push_back("footer");
+
+
+
+		string table;
+		table = ConnectorSQL::getAssignmentTable(job.lang);
+		if (sql.connectToTable(table, labl))
+		{
+			job.code =
+					sql.getCustomCodeOfProgram(
+							to_string(job.task), job.code, id,job.lang);
+			DEBUG(job.code);
+		}
+
+		INFO(to_string(id)+ " Start compiler");
+		JsonValue res;
+
+		compiler.compile(job.code, true, LangCompiler::convertFromName(job.lang),0);
+
+
+		string date = logfile::getDateStamp();
+		res["date"] = date;
+
+		string rezulta = compiler.getResult();
+		res["result"] = rezulta;
+		string warning = compiler.getWarningErr();
+		res["warnings"] = warning;
+		DEBUG( res.toStyledString());
+
+
+		labl.clear();
+		//UPDATE COMPILING INFO IN DB
 		labl.push_back("id");
 		labl.push_back("session");
 		labl.push_back("jobid");
@@ -84,96 +122,32 @@ void processTask(int id,Job job) {
 		labl.push_back("date");
 		labl.push_back("result");
 		labl.push_back("warning");
-		DEBUG("Before connect to results");
-		SqlConnectionPool sql;
-		//logfile::addLog("Connection to results successful");
 		if (sql.connectToTable("results", labl))
 		{
 			string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
 			map<int, string> temp;
 			temp.insert( { 1, job.session });
 			temp.insert( { 2, (job.jobid) });
-			temp.insert( { 3, "in proccess"});
+			if(compiler.getResult().size() == 0)
+				temp.insert( { 3, "failed"});
+			else
+				temp.insert( { 3, "done"});
 			temp.insert( { 4, s_datime });
-			temp.insert( { 5, "" });
-			temp.insert( { 6, "" });
-			sql.addRecordsInToTable(temp);
+			temp.insert( { 5, compiler.getResult()});
+			temp.insert( { 6, compiler.getWarningErr() });
+			//4j
+			//string where = "`results`.`jobid`='"+to_string(job.jobid)+"' AND `results`.`session`='"+job.session+"'";
+			map<int,string> where;
+			where.insert({1,job.session});
+			where.insert({2,(job.jobid)});
+			//ConnectorSQL::getInstance().updateRecordsInToTable(temp,wher);
+			sql.updateRecordsInToTable(temp,where);
 
-			////////////////
-			labl.clear();
-			labl.push_back("ID");
-			labl.push_back("header");
-			labl.push_back("etalon");
-			labl.push_back("footer");
-
-
-
-			string table;
-			table = ConnectorSQL::getAssignmentTable(job.lang);
-			if (sql.connectToTable(table, labl))
-			{
-				job.code =
-						sql.getCustomCodeOfProgram(
-								to_string(job.task), job.code, id,job.lang);
-				DEBUG(job.code);
-			}
-
-			INFO(to_string(id)+ " Start compiler");
-			JsonValue res;
-
-			compiler.compile(job.code, true, LangCompiler::convertFromName(job.lang),0);
-
-
-			string date = logfile::getDateStamp();
-			res["date"] = date;
-
-			string rezulta = compiler.getResult();
-			res["result"] = rezulta;
-			string warning = compiler.getWarningErr();
-			res["warnings"] = warning;
-			DEBUG( res.toStyledString());
-
-
-			labl.clear();
-			//UPDATE COMPILING INFO IN DB
-			labl.push_back("id");
-			labl.push_back("session");
-			labl.push_back("jobid");
-			labl.push_back("status");
-			labl.push_back("date");
-			labl.push_back("result");
-			labl.push_back("warning");
-			if (sql.connectToTable("results", labl))
-			{
-				string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
-				map<int, string> temp;
-				temp.insert( { 1, job.session });
-				temp.insert( { 2, (job.jobid) });
-				if(compiler.getResult().size() == 0)
-					temp.insert( { 3, "failed"});
-				else
-					temp.insert( { 3, "done"});
-				temp.insert( { 4, s_datime });
-				temp.insert( { 5, compiler.getResult()});
-				temp.insert( { 6, compiler.getWarningErr() });
-				//4j
-				//string where = "`results`.`jobid`='"+to_string(job.jobid)+"' AND `results`.`session`='"+job.session+"'";
-				map<int,string> where;
-				where.insert({1,job.session});
-				where.insert({2,(job.jobid)});
-				//ConnectorSQL::getInstance().updateRecordsInToTable(temp,wher);
-				sql.updateRecordsInToTable(temp,where);
-
-			}
-
-
-			INFO(to_string(id) + " Stop compiler");
 		}
-		else {
 
-			string error = to_string(id)+"Error: Can`t connect to results table \n";
-			ERROR(error);
-		}
+
+		INFO(to_string(id) + " Stop compiler");
+
 	}
 }
 

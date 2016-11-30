@@ -92,6 +92,7 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error,
 	labl.push_back("result");
 	labl.push_back("warning");
 
+
 	bool taskComp = false;
 	if (sql.connectToTable(string("results"), labl))
 	{
@@ -99,7 +100,18 @@ bool start(FCGI_Stream &stream, jsonParser &jSON, string ip_user, string &error,
 		vector<map<int, string> > records =	sql.getAllRecordsFromTable(
 				"`session`='"+session+"' AND `jobid`='"+(jobid)+"'");
 		if ((int)records.size()==0)
+		{
+			string s_datime = getDateTime(); //'YYYY-MM-DD HH:MM:SS'
+			map<int, string> temp;
+			temp.insert( { 1, requestedTask.session });
+			temp.insert( { 2, (requestedTask.jobid) });
+			temp.insert( { 3, "in proccess"});
+			temp.insert( { 4, s_datime });
+			temp.insert( { 5, "" });
+			temp.insert( { 6, "" });
+			sql.addRecordsInToTable(temp);
 			tasksPool.push(processTask,requestedTask);
+		}
 		//processTask(0, requestedTask);
 		else
 			taskComp = true;

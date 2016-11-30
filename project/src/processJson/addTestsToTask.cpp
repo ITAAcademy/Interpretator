@@ -72,13 +72,13 @@ bool addTestsToTask( FCGI_Stream &stream, jsonParser &jSON, int thread_id, strin
 
 		Value res_value = mergeUtestsAndTask(json_tests, json_db);
 
-string res_value_str = res_value.toStyledString();
-res_value_str = replaceSlashTabsParagBreakets( res_value_str );
+		string res_value_str = res_value.toStyledString();
+		res_value_str = replaceSlashTabsParagBreakets( res_value_str );
 
 
-Value val; //(res_value_str);
-Json::Reader reader;
-  reader.parse( res_value_str.c_str(), val );
+		Value val; //(res_value_str);
+		Json::Reader reader;
+		reader.parse( res_value_str.c_str(), val );
 
 		jsonParser merged_json;
 		//merged_json.setParsedFromString(val);
@@ -91,14 +91,14 @@ Json::Reader reader;
 		//cout << val.toStyledString();
 		//cout << res_value_str;
 
-	//	cout << merged_json.getParsedFromString().toStyledString();
+		//	cout << merged_json.getParsedFromString().toStyledString();
 		//merged_json.setParsedFromString(Json(res_value.toStyledString());
 
 
 
 		//cout << merged_json.getParsedFromString();
 
-	/*
+		/*
 		map<int, string> temp;
 
 		int valuesCount = 0;
@@ -108,7 +108,7 @@ Json::Reader reader;
 			DEBUG("qwe33");
 			temp.insert( { valuesCount++, (footer)});
 			temp.insert({valuesCount++, (jSON.getJson())});
-*/
+		 */
 
 		//return false;
 		return addNewtask(stream, merged_json, thread_id, error, need_stream);
