@@ -4,7 +4,7 @@
 
 LangCompiler::LangCompiler(int ID){
 	thID = ID;
-	timeOut = 200;
+	timeOut = 120;
 }
 
 LangCompiler::~LangCompiler(){
@@ -716,7 +716,9 @@ int pclose2(FILE * fp, pid_t pid)
     }
 
     return stat;*/
-    kill (pid, SIGKILL);
+
+    	cout << "pid:" << pid << " resPID:" << kill (pid + 1, SIGKILL);
+
     return 0;
 }
 

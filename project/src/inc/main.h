@@ -76,7 +76,7 @@ struct ThreadArguments {
 
 
 #ifndef VERSION_INTERPRETATOR
-#define VERSION_INTERPRETATOR "1.103"
+#define VERSION_INTERPRETATOR "1.104"
 #endif
 
 
