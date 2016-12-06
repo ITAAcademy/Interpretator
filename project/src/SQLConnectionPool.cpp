@@ -717,6 +717,9 @@ bool SqlConnectionPool::reconect()
 	if (conn)
 	{
 		INFO ("Connection to host and database successful");
+		string QueryString("SET CHARSET UTF8");
+		mysqlpp::Query query = conn->query(QueryString);
+		query.execute();
 		pthread_mutex_unlock(&accept_mutex);
 		return true;
 	}
