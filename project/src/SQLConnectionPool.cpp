@@ -713,8 +713,9 @@ bool SqlConnectionPool::reconect()
 	}
 	catch(mysqlpp::Exception &ex){
 		ERROR("reconect INCORRECT " + string(ex.what()));
+		conn = NULL;
 	}
-	if (conn)
+	if (conn != NULL)
 	{
 		INFO ("Connection to host and database successful");
 		string QueryString("SET CHARSET UTF8");
