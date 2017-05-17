@@ -23,7 +23,12 @@ void Config::runCommandLine()
     bool running = true;
     long long hashInput;
     makeValueStructure();
-    scanConfigFile();
+    try{
+    	scanConfigFile();
+    }
+    catch (int e) {
+
+	}
 
     while(running)
     {

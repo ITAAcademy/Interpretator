@@ -206,6 +206,9 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 						{
 							if (functionArgument.type ==  ValueTypes::VAL_STRING)
 								value_s = addBracketsToStr(value_s);
+							if(functionData.lang == LangCompiler::Flag_CPP && value_s == "null\n")//change null => NULL for C++
+								value_s = "NULL";
+
 							etalon_value_arr.push_back(value_s); //_opo
 						}
 					}

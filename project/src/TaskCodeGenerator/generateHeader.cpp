@@ -65,7 +65,7 @@ string TaskCodeGenerator::generateHeader(FunctionData functionData){
 		break;
 
 	case LangCompiler::Flag_CPP:
-		defaultReturnValue=" null";
+		defaultReturnValue=" NULL";
 		break;
 	}
 
