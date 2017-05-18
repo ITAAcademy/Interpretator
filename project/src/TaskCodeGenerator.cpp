@@ -167,7 +167,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 
 		bool is_etalon_value = !(argumentValue[FIELD_ETALON_VALUE].isNull());
-		if (is_etalon_value)
+		if (is_etalon_value && functionArgument.isArray)
 			is_etalon_value = argumentValue[FIELD_ETALON_VALUE].size() > 0;
 		/*for (Value arg_compare_mark: argumentValue["compare_mark"])
 		{
@@ -177,7 +177,7 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 
 		int etalon_value_counter = 0;
 
-		for(JsonValue value:argumentValue["value"])
+		for(JsonValue value : argumentValue["value"])
 		{
 			if (functionArgument.isArray)
 			{
@@ -204,10 +204,16 @@ FunctionData TaskCodeGenerator::parseTask(jsonParser &jSON)
 						//jSON.getAsString(value);
 						if (value_s.size())
 						{
+							value_s.erase(std::remove(value_s.begin(), value_s.end(), '\n'), value_s.end());
+							/*
+							if(functionData.lang == LangCompiler::Flag_CPP && value_s == "null")//change null => NULL for C++
+								value_s = "NULL";*/
+							if(value_s == "null")
+								continue;
 							if (functionArgument.type ==  ValueTypes::VAL_STRING)
 								value_s = addBracketsToStr(value_s);
-							if(functionData.lang == LangCompiler::Flag_CPP && value_s == "null\n")//change null => NULL for C++
-								value_s = "NULL";
+
+
 
 							etalon_value_arr.push_back(value_s); //_opo
 						}
@@ -675,11 +681,15 @@ string TaskCodeGenerator::getStandartInclude(int lang)
 	{
 	case LangCompiler::Flag_CPP:{
 		include = "#include <cstdlib>\n\
-		#include <algorithm>\n using namespace std;\n\
+		#include <algorithm>\n\
 		#include <cxxabi.h>\n\
 		#include <cmath>\n\
 		#include <stdio.h>\n\
-		#include <string.h>\n";
+		#include <string.h>\n\
+		#include <iostream>\n\
+		#include <fstream>\n\
+		using namespace std;";
+
 		break;
 	}
 	case LangCompiler::Flag_Java:{
@@ -710,20 +720,20 @@ string TaskCodeGenerator::convertStringToType(string argStringValue, int type, i
 	string result;
 	switch(type){
 	case ValueTypes::VAL_BOOL:
-			result += to_bool(argStringValue);
-			break;
-		case ValueTypes::VAL_FLOAT:
-			result += argStringValue.c_str();
-			break;
-		case ValueTypes::VAL_INT:
-			result += argStringValue.c_str();
-			break;
-		case ValueTypes::VAL_STRING:
-			result += argStringValue;
-			break;
-		case ValueTypes::VAL_CHAR:
-					result += argStringValue;
-					break;
+		result += to_bool(argStringValue);
+		break;
+	case ValueTypes::VAL_FLOAT:
+		result += argStringValue.c_str();
+		break;
+	case ValueTypes::VAL_INT:
+		result += argStringValue.c_str();
+		break;
+	case ValueTypes::VAL_STRING:
+		result += argStringValue;
+		break;
+	case ValueTypes::VAL_CHAR:
+		result += argStringValue;
+		break;
 	}
 	return result;
 }
@@ -832,53 +842,53 @@ string FunctionArgument::generateType(int type, int arrayType, int lang,  bool r
 	switch(type)
 	{
 	case ValueTypes::VAL_BOOL:
-			if (lang == (int) LangCompiler::Flag_Java)
-			{
-				result +=  "boolean";
-				/*if (return_or_param)
+		if (lang == (int) LangCompiler::Flag_Java)
+		{
+			result +=  "boolean";
+			/*if (return_or_param)
 					result +=  "boolean";
 				else
 					result +=  "Boolean";*/
-			}
-			else
-				result += "bool";
-			break;
-		case ValueTypes::VAL_FLOAT:
-			if (lang == (int) LangCompiler::Flag_Java)
-			{
-				result +=  "float";
-				/*if (return_or_param)
+		}
+		else
+			result += "bool";
+		break;
+	case ValueTypes::VAL_FLOAT:
+		if (lang == (int) LangCompiler::Flag_Java)
+		{
+			result +=  "float";
+			/*if (return_or_param)
 					result +=  "float";
 				else
 					result +=  "Float";*/
-			}
-			else
-				result += "float";
-			break;
-		case ValueTypes::VAL_INT:
-			if (lang == (int) LangCompiler::Flag_Java)
-			{
-				result +=  "int";
-				/*if (return_or_param)
+		}
+		else
+			result += "float";
+		break;
+	case ValueTypes::VAL_INT:
+		if (lang == (int) LangCompiler::Flag_Java)
+		{
+			result +=  "int";
+			/*if (return_or_param)
 					result +=  "int";
 				else
 					result +=  "Integer";*/
-			}
-			else
-				result += "int";
-			break;
-		case ValueTypes::VAL_STRING:
-			if (lang == (int) LangCompiler::Flag_Java)
-			{
-				result +=  "String";
-			}
-			else
-				result += "string";
-			break;
-		case ValueTypes::VAL_CHAR:
-						result += "char";
-			break;
 		}
+		else
+			result += "int";
+		break;
+	case ValueTypes::VAL_STRING:
+		if (lang == (int) LangCompiler::Flag_Java)
+		{
+			result +=  "String";
+		}
+		else
+			result += "string";
+		break;
+	case ValueTypes::VAL_CHAR:
+		result += "char";
+		break;
+	}
 
 	result += " ";
 

@@ -100,8 +100,6 @@ string TaskCodeGenerator::generateFooter(FunctionData functionData)
 	//in JS main function is absense, so we don't append it when our lang is js
 	case LangCompiler::Flag_CPP:
 		footerBody+="#undef STUDENTCODE_23_23_90_0\n\
-		#include <iostream>\n\
-		#include <fstream>\n\
 		int main()\n\
 					{\n";
 		break;
