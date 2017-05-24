@@ -4,7 +4,7 @@
 
 LangCompiler::LangCompiler(int ID){
 	thID = ID;
-	timeOut = 120;
+	timeOut = 50;
 }
 
 LangCompiler::~LangCompiler(){
@@ -716,8 +716,12 @@ int pclose2(FILE * fp, pid_t pid)
     }
 
     return stat;*/
-
-    	cout << "pid:" << pid << " resPID:" << kill (pid + 1, SIGKILL);
+    	int killResult =  kill (pid + 1, SIGKILL);
+    	INFO("close: pid:" +  to_string(pid)  + " killResult:" +  to_string(killResult));
+    	if(killResult != 0)
+    	{
+    		ERROR("Couldn't kill process");
+    	}
 
     return 0;
 }

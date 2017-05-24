@@ -67,7 +67,7 @@ SqlConnectionPool::~SqlConnectionPool()
 	delete conn;
 	clear();
 	mysqlpp::Connection::thread_end();
-	INFO("Pool connection deleted.");
+	DEBUG("Pool connection deleted.");
 	pthread_mutex_unlock(&accept_mutex);
 }
 
@@ -95,7 +95,7 @@ bool SqlConnectionPool::connectToTable(string table, vector<string> labels) {
 			for (int i=1; i<labels_vec.size(); i++)
 				this->labels+=",`" + labels_vec[i] +"`" ;
 
-			INFO("Connection  to table " + table + " successfull");
+			DEBUG("Connection  to table " + table + " successfull");
 			pthread_mutex_unlock(&accept_mutex);
 			return true;
 		}
@@ -155,7 +155,7 @@ vector<map<int,string> >  SqlConnectionPool::getAllRecordsFromTable( string wher
 				}
 				records.push_back(temp);
 			}
-			INFO("Getting all records from table " + tableName + " successfull");
+			DEBUG("Getting all records from table " + tableName + " successfull");
 		}
 		else
 		{
@@ -197,7 +197,7 @@ string  SqlConnectionPool::getJsonFromTable( int task )  {
 				mysqlpp::Row row = *it;
 				json = string(row[0]);
 			}
-			INFO("getJsonFromTable " + tableName + " successfull");
+			DEBUG("getJsonFromTable " + tableName + " successfull");
 		}
 		else
 		{
@@ -342,7 +342,7 @@ string SqlConnectionPool::getCustomCodeOfProgram(string ID, string text_of_progr
 			ERROR("getCustomCodeOfProgram INCORRECT " + string(ex.what()));
 		}
 		mysqlpp::Connection::thread_end();
-		INFO(quer);
+		DEBUG(quer);
 
 		if (res.capacity())
 		{
@@ -408,7 +408,7 @@ bool SqlConnectionPool::addRecordsInToTable(vector<map<int,string> > records) {
 		}
 		mysqlpp::Connection::thread_end();
 		if (result.rows()) {
-			INFO ("Adding records in to table " + tableName + " successfull");
+			DEBUG ("Adding records in to table " + tableName + " successfull");
 			delete query;
 			pthread_mutex_unlock(&accept_mutex);
 			return true;
@@ -689,7 +689,7 @@ bool SqlConnectionPool::isConnected()
 			mysqlpp::Query query( conn->query( quer) );
 			res = query.store();
 			iscon = true;
-			INFO("Server connected to DB");
+			DEBUG("Server connected to DB");
 		}
 		catch(mysqlpp::Exception &ex){
 			iscon = false;
@@ -717,7 +717,7 @@ bool SqlConnectionPool::reconect()
 	}
 	if (conn != NULL)
 	{
-		INFO ("Connection to host and database successful");
+		DEBUG ("Connection to host and database successful");
 		string QueryString("SET CHARSET UTF8");
 		mysqlpp::Query query = conn->query(QueryString);
 		query.execute();
