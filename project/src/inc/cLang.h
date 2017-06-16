@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <errno.h>
 #include <sys/wait.h>
 #include "logfile.h"
 #include <string>
